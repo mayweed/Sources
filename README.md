@@ -1,4 +1,0 @@
-Perl
-====
-
-Random Perl snippets
