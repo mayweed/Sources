@@ -1,8 +1,0 @@
-;;;convert: nbre -> nbre
-;;;(convert t) prend une température en °C et renvoie l'équivalent Fahrenheit
-
-(define (convert t)
-  (if (number? t)
-      (+ ( / (* 9 t) 5)
-         32)
-      "entrez un nbre svp"))
