@@ -1,0 +1,12 @@
+
+# Check for an interactive session
+[ -z "$PS1" ] && return
+
+alias ls='ls -ail --color=auto'
+PS1='[\u@\h \W]\$ '
+
+# Java
+export PATH=$PATH:/opt/java/jre/bin
+export JAVA_HOME=${JAVA_HOME:-/opt/java/jre}
+export JAVAWS_HOME=/usr/bin/javaws
+export LANG=en_GB.UTF8
