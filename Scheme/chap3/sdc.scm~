@@ -1,0 +1,9 @@
+;;; sdc : nat -> nat
+;;; (sdc x) renvoie sdc x
+
+(define (sdc x)
+  (if (= x 0)
+      0
+      (+ (remainder x 10)
+         (sdc (quotient x 10)))))
+         
