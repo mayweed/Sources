@@ -1,6 +1,20 @@
 set nu
-filetype on
-set smartindent
+set encoding=utf-8
+set termencoding=utf-8
+set showmode
+
+" That fuckin' backup.
+set nobackup
+set nowritebackup
+set noswapfile    
+
+" Tabs vs spaces
 set tabstop=4
-set shiftwidth=4
 set expandtab
+"set cindent I prefer smart
+set textwidth=72
+set smartindent
+set shiftwidth=4
+
+filetype plugin on
+syntax on
