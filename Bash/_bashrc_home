@@ -1,12 +1,48 @@
+#
+# ~/.bashrc
+#
+
+# If not running interactively, don't do anything
+[[ $- != *i* ]] && return
 
 # Check for an interactive session
-[ -z "$PS1" ] && return
+#[ -z "$PS1" ] && return
 
+# Bash commands
 alias ls='ls -ail --color=auto'
-PS1='[\u@\h \W]\$ '
+alias ls='ls --color=auto'
+alias ll='ls --color=auto -lFathC'
+alias du='du -m'
+alias ds='source ~/scripts/dir_size.sh'
+alias xs='xscreensaver-command --lock'
+alias cgoban='/usr/bin/javaws ~/Downloads/cgoban.jnlp'
+alias grubmk='grub-mkconfig -o /boot/grub/grub.cfg' #easier...
+alias pac='pacman -Syu'
 
-# Java
-export PATH=$PATH:/opt/java/jre/bin
-export JAVA_HOME=${JAVA_HOME:-/opt/java/jre}
-export JAVAWS_HOME=/usr/bin/javaws
-export LANG=en_GB.UTF8
+# Bash settings
+PS1='[\u@\h \W]\$ '
+export MYSQL_PS1="(\u@\h) [\d]> "
+export EDITOR='/usr/bin/vim'
+export NNTPSERVER='news.alphanet.ch'
+export LANG="en_GB.UTF-8"
+export BROWSER="/usr/bin/chromium"
+export COLUMNS=550
+
+#Git
+alias push='git push origin master'
+
+# CS50/GCC: lm used to link with the math lib
+# Does not work with -std=c99 
+# -Werror is a bit strong...
+alias gcc50='gcc -Wall -ggdb -I/usr/local/include -L/usr/local/lib -lcs50 -lcrypt -lm'
+
+# Phone
+alias mntphone='go-mtpfs /mnt/Android'
+alias umntphone='fusermount -u /mnt/Android'
+
+# SMB Shares
+alias mntinter='mount.cifs //*/_Interservices$/MEDIATHEQUE /mnt/_Interservices\$/MEDIATHEQUE'
+alias mntagglo='mount.cifs //*/_Interservices$/AGGLO /mnt/_Interservices\$/AGGLO'
+alias mntpublic='mount.cifs //*/PublicAGGLO$ /mnt/PublicAGGLO\$/'
+alias mntjeunesse='mount.cifs //*/MEDIA_Jeunesse$ /mnt/MEDIA_Jeunesse\$/'
+alias mntechange='mount.cifs //*/_Interservices$/_Echange_a_VIDAGE_HEBDO /mnt/_Interservices$/_Echange_a_VIDAGE_HEBDO'
