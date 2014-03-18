@@ -7,18 +7,7 @@
 
 # Check for an interactive session
 #[ -z "$PS1" ] && return
-
-# Bash commands
-alias ls='ls -ail --color=auto'
-alias ls='ls --color=auto'
-alias ll='ls --color=auto -lFathC'
-alias du='du -m'
-alias ds='source ~/scripts/dir_size.sh'
-alias xs='xscreensaver-command --lock'
-alias cgoban='/usr/bin/javaws ~/Downloads/cgoban.jnlp'
-alias grubmk='grub-mkconfig -o /boot/grub/grub.cfg' #easier...
-alias pac='pacman -Syu'
-
+#
 # Bash settings
 PS1='[\u@\h \W]\$ '
 export MYSQL_PS1="(\u@\h) [\d]> "
@@ -27,6 +16,17 @@ export NNTPSERVER='news.alphanet.ch'
 export LANG="en_GB.UTF-8"
 export BROWSER="/usr/bin/chromium"
 export COLUMNS=550
+
+# Bash commands
+alias ls='ls -ail --color=auto'
+alias ls='ls --color=auto'
+alias ll='ls --color=auto -lFathC'
+alias du='du -m'
+alias ds='source ~/scripts/dir_size.sh'
+alias xs='xscreensaver-command --lock'
+alias cgoban='/usr/bin/javaws ~/cgoban.jnlp'
+alias grubmk='grub-mkconfig -o /boot/grub/grub.cfg' #easier...
+alias pac='pacman -Syu'
 
 #Git
 alias push='git push origin master'

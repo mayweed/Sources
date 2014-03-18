@@ -1,6 +1,7 @@
 #!/bin/bash
+# prefere l'alias...
 
-/opt/java/bin/javaws /home/guillaume/cgoban-nfa.jnlp
+/usr/bin/javaws /home/guillaume/cgoban-nfa.jnlp
 
 
 #export JAVAWS_HOME=/usr/bin/javaws
