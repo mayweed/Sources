@@ -7,7 +7,7 @@
 
 # Check for an interactive session
 #[ -z "$PS1" ] && return
-#
+
 # Bash settings
 PS1='[\u@\h \W]\$ '
 export MYSQL_PS1="(\u@\h) [\d]> "
