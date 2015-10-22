@@ -1,5 +1,5 @@
 "colorscheme https://code.google.com/p/vimcolorschemetest/
-set color=desert
+colorscheme molokai
 set bg=dark
 
 set nu
@@ -13,12 +13,12 @@ set nowritebackup
 set noswapfile    
 
 " Tabs vs spaces
-set tabstop=4
-set expandtab
-"set cindent I prefer smart
+set expandtab                  " spaces instead of tabs
+set tabstop=4                  " a tab = four spaces
+set shiftwidth=4               " number of spaces for auto-indent
+set softtabstop=4              " a soft-tab of four spaces
 set textwidth=72
 set smartindent
-set shiftwidth=4
 
 filetype plugin on
 syntax on
