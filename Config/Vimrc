@@ -1,6 +1,10 @@
-"colorscheme https://code.google.com/p/vimcolorschemetest/
+" Colorscheme 
+" cf https://code.google.com/p/vimcolorschemetest/
+syntax enable                  " enable the syntax highlight
+set background=dark            " set a dark background
+set t_Co=256                   " 256 colors for the terminal
 colorscheme molokai
-set bg=dark
+
 
 set nu
 set encoding=utf-8
