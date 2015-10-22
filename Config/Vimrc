@@ -1,4 +1,7 @@
 "colorscheme https://code.google.com/p/vimcolorschemetest/
+set color=desert
+set bg=dark
+
 set nu
 set encoding=utf-8
 set termencoding=utf-8
