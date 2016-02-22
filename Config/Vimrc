@@ -3,7 +3,7 @@
 syntax enable                  " enable the syntax highlight
 set background=dark            " set a dark background
 set t_Co=256                   " 256 colors for the terminal
-colorscheme molokai            " my fav other one is 'evening'
+"colorscheme evening            " my fav other one is 'evening'
 
 " Do NOT mess with undo, seriously...
 set undofile                " So is persistent undo ...
@@ -32,3 +32,12 @@ set smartindent
 
 filetype plugin on
 syntax on
+
+"Python (cf https://realpython.com/blog/python/vim-and-python-a-match-made-in-heaven/)
+au BufNewFile,BufRead *.py
+    \ set tabstop=4
+    \ set softtabstop=4
+    \ set shiftwidth=4
+    \ set textwidth=79
+    \ set expandtab
+    \ set fileformat=unix
