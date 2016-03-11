@@ -31,7 +31,18 @@ class DrawingApplication(tkinter.Frame):
         bar=tkinter.Menu(self.master)
         # tearoff: cant be separated from window
         fileMenu=tkinter.Menu(bar,tearoff=0)
+
+        #to avoid the "UnboundLocalVariable" error
+        canvas=tkinter.Canvas(self,width=600,height=600)
+        canvas.pack(side=tkinter.LEFT)
+
+        theTurtle=turtle.RawTurtle(canvas)
+        theTurtle.shape("circle")
+        screen=theTurtle.getscreen()
         
+        # Do not update the screen unless update() is called
+        screen.tracer(0)
+
         def NewWindow():
             theTurtle.clear()
             theTurtle.penup()
@@ -87,7 +98,7 @@ class DrawingApplication(tkinter.Frame):
 
             screen.update()
 
-        fileMenu.add_command(label="Load...",command=LoadFile)
+        fileMenu.add_command(label="Load...",command=loadFile)
 
         def addToFile():
             filename=tkinter.filedialog.askopenfilename(title="Select a Graphics File")
@@ -128,15 +139,15 @@ class DrawingApplication(tkinter.Frame):
         bar.add_cascade(label="File",menu=fileMenu)
         self.master.config(menu=bar)
 
-        canvas=tkinter.Canvas(self,width=600,height=600)
-        canvas.pack(side=tkinter.LEFT)
+        #canvas=tkinter.Canvas(self,width=600,height=600)
+        #canvas.pack(side=tkinter.LEFT)
 
-        theTurtle=turtle.RawTurtle(canvas)
-        theTurtle.shape("circle")
-        screen=theTurtle.getscreen()
+        #theTurtle=turtle.RawTurtle(canvas)
+        #theTurtle.shape("circle")
+        #screen=theTurtle.getscreen()
         
         # Do not update the screen unless update() is called
-        screen.tracer(0)
+        #screen.tracer(0)
         
         sideBar=tkinter.Frame(self,padx=5,pady=5)
         sideBar.pack(side=tkinter.RIGHT,fill=tkinter.BOTH)
