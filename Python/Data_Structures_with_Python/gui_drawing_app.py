@@ -1,8 +1,22 @@
 #!/usr/bin/python
 
-import tkinter as tk
+import tkinter
 import xml
 import sys
+import turtle
+
+#class needed for graphicsCommands
+class PyList:
+    def __init__(self):
+        self.items=[]
+    def append(self,item):
+        self.items=self.items + [item]
+
+    #THIS piece of code very interesting!!
+    def __iter__(self):
+        for c in self.items:
+            yield c
+
 
 class DrawingApplication(tkinter.Frame):
 
@@ -27,7 +41,7 @@ class DrawingApplication(tkinter.Frame):
             screen.listen()
             self.graphicsCommands=PyList()
         # link a function to a Menu command!!
-        fileMenu.add_command(label="New",command=NewWindo()
+        fileMenu.add_command(label="New",command=NewWindow())
 
         def parse(filename):
             xmldoc=xml.dom.minidom.parse(filename)
