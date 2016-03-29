@@ -7,9 +7,10 @@ import binascii
 # explication du signe = à la fin...
 enigme="MjV4MjUg/ka/wW6QbpwLt1r126Kq7BU9B/qq/gAWAPvv1RYhCKi2V3uOex\
 d9Gr/PZKpbn3camSmmKvoAUMc/vivwRnGbqx/91Hte6ppLBdv5/upfgA=="
-print(binascii.a2b_base64(enigme))
+#print(binascii.a2b_base64(enigme))
 #print("cGFycm90" in enigme)
-#hex_test=base64.b64decode(enigme)
-#hex_text_bis=binascii.hexlify(hex_test)
+hex_test=base64.b64decode(enigme)
+hex_text_bis=binascii.hexlify(hex_test)
+print(binascii.hexlify(hex_test))
 #hex_text_bis.strip()
 #print(binascii.a2b_hex(hex_text_bis))
