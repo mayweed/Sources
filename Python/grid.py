@@ -20,7 +20,7 @@ class Cell(object):
         '''
         is cell linked with self?
         '''
-        if links[(cell.row,cell.column)]=True: return True
+        if links[(cell.row,cell.column)]==True: return True
         else:return False
     
     def linked_cells(self):
@@ -31,3 +31,23 @@ class Cell(object):
         for cell in list(links.key()):
             if links[cell]==True: linked.append(cell)
         return linked
+
+class Grid:
+    def __init__(self,row,column):
+        self.row=row
+        self.column=column
+        
+    # http://stackoverflow.com/questions/9884132/what-exactly-are-pythons-iterator-iterable-and-iteration-protocols    
+    # cf first example (with the four methods!!):http://stackoverflow.com/questions/19151/how-to-make-class-iterable
+    def prepare_grid(self):
+        #init the grid with Cell objects
+        r=0
+        while r < self.row:
+            for col in range(self.column):
+                c=Cell(r,col)
+                yield c
+            r+=1
+    
+    def get_num_cells(self):
+        return self.row*self.column
+
