@@ -32,14 +32,23 @@ class Cell(object):
             if links[cell]==True: linked.append(cell)
         return linked
 
+# simpler but not method like thing..
+#grid=grid[row][col]
+#while r < self.row:
+#    for col in range(self.column):
+#        grid[r][c]=Cell(r,col)
+
 class Grid:
+    #wouldn't it be more clear to write that as a 2D with contains cell objects?
     def __init__(self,row,column):
         self.row=row
         self.column=column
-        
+        #each row of cell objects in a list
+        self.grid=[[Cell(r,col) for r in range(self.row)] for col in range(self.column)] 
+
     # http://stackoverflow.com/questions/9884132/what-exactly-are-pythons-iterator-iterable-and-iteration-protocols    
     # cf first example (with the four methods!!):http://stackoverflow.com/questions/19151/how-to-make-class-iterable
-    def prepare_grid(self):
+    def __iter__(self):
         #init the grid with Cell objects
         r=0
         while r < self.row:
@@ -51,3 +60,5 @@ class Grid:
     def get_num_cells(self):
         return self.row*self.column
 
+    def access_cell(self,row,col):
+        return self.grid[row][col]
