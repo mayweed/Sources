@@ -16,6 +16,7 @@ M={"A":{"B","D"},
    "G":{"B","H"},
    "H":{"B","E","F","G"}} 
 
+print(M["A"])
 # Curly braces or the set() function can be used to create sets.
 #(PyTut 5.4)
 afaire={"G"}
