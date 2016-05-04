@@ -44,3 +44,7 @@ class Graph:
     def isConnected(self,node1,node2):
         if node2 in self.edges[node1]:
             return True
+        else:
+            return False
+    def lst_neighbours(self,node):
+        return self.edges[node]
