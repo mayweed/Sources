@@ -41,3 +41,6 @@ class Graph:
         #oki not clean...?
         self.edges[edge.getSrc()].append(edge.getDest())
         self.edges[edge.getDest()].append(edge.getSrc())
+    def isConnected(self,node1,node2):
+        if node2 in self.edges[node1]:
+            return True
