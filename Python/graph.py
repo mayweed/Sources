@@ -1,13 +1,7 @@
 #!/usr/bin/python
 
 """
-This is codingame lib: you reuse the same basis structure regularly 
-I'll put mine here to copy/paste when needed!!
-I'll probably polish them to make it more generic...
-"""
-
-"""
-GRAPH
+GRAPH test etc...
 """
 class Node:
     def __init__(self,name):
@@ -27,11 +21,14 @@ class Edge:
         return self.dest
     def __str__(self):
         return self.src + '->' + self.dest
+
 class Graph:
     def __init__(self):
         self.nodes=[]
         #a dict of edges: K:anodes
         self.edges={}
+    def node(self):
+        print(self.nodes)
     def addNode(self,node):
         if node not in self.nodes:
             self.nodes.append(node)
@@ -48,3 +45,24 @@ class Graph:
             return False
     def neighbours(self,node):
         return self.edges[node]
+
+#Empty graph
+g=Graph()
+
+#Add nodes
+for node in range(6):
+    g.addNode(node)
+
+#Add edges
+g.addEdge(Edge(0,1))
+g.addEdge(Edge(0,2))
+g.addEdge(Edge(1,2))
+g.addEdge(Edge(2,3))
+g.addEdge(Edge(2,4))
+g.addEdge(Edge(3,4))
+g.addEdge(Edge(3,5))
+
+#Look for final result
+for node in range(6):
+    #pretty print please method here?
+    print("{0}:{1}".format(node,g.neighbours(node)))
