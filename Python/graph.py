@@ -43,6 +43,10 @@ class Graph:
         else: return False
     def neighbours(self,node):
         return self.edges[node]
+    def __str__(self):
+        for node in range(len(self.nodes)):
+            print("{0}:{1}".format(node,g.neighbours(node)))
+
 
 #Empty graph
 g=Graph()
@@ -61,7 +65,4 @@ g.addEdge(Edge(2,4))
 g.addEdge(Edge(3,4))
 g.addEdge(Edge(3,5))
 
-#Look for final result
-for node in range(6):
-    #pretty print please method here?
-    print("{0}:{1}".format(node,g.neighbours(node)))
+print(g)
