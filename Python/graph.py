@@ -39,10 +39,8 @@ class Graph:
         self.edges[edge.getSrc()].append(edge.getDest())
         self.edges[edge.getDest()].append(edge.getSrc())
     def isConnected(self,node1,node2):
-        if node2 in self.edges[node1]:
-            return True
-        else:
-            return False
+        if node2 in self.edges[node1]: return True
+        else: return False
     def neighbours(self,node):
         return self.edges[node]
 
