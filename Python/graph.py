@@ -28,7 +28,7 @@ class Graph:
         #a dict of edges: K:anodes
         self.edges={}
     def node(self):
-        print(self.nodes)
+        return self.nodes
     def addNode(self,node):
         if node not in self.nodes:
             self.nodes.append(node)
@@ -57,6 +57,7 @@ for node in range(6):
 g.addEdge(Edge(0,1))
 g.addEdge(Edge(0,2))
 g.addEdge(Edge(1,2))
+g.addEdge(Edge(1,3))
 g.addEdge(Edge(2,3))
 g.addEdge(Edge(2,4))
 g.addEdge(Edge(3,4))
