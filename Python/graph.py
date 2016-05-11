@@ -65,4 +65,24 @@ g.addEdge(Edge(2,4))
 g.addEdge(Edge(3,4))
 g.addEdge(Edge(3,5))
 
-print(g)
+#print(g)
+
+def bfs(graph,start,end):
+    """
+    write a bfs algo
+    graph is a Graph object
+    start, end are node's name
+    """
+    visited=[]
+    to_visit=[]
+    for node in graph.neighbours(start):
+        #put the children in the visit list
+        visited.append(start)
+        to_visit.append()
+        if node != end:
+            #And then use bfs recursively on those nodes
+            bfs(graph,node,end)
+
+    print(to_visit)
+
+bfs(g,0,5)
