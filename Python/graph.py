@@ -73,16 +73,27 @@ def bfs(graph,start,end):
     graph is a Graph object
     start, end are node's name
     """
-    visited=[]
-    to_visit=[]
-    for node in graph.neighbours(start):
-        #put the children in the visit list
-        visited.append(start)
-        to_visit.append()
-        if node != end:
-            #And then use bfs recursively on those nodes
-            bfs(graph,node,end)
+    #structure used to put nodes to visit
+    queue=[]
+    #my path
+    path=[]
+    #init the structure
+    path.append(start)
+    queue.append(path)
 
-    print(to_visit)
+    #you loop on the queue where you put your nodes
+    while len(queue) != 0:
+        tmpPath=queue.pop(0)
+        lastNode=tmpPath[len(tmpPath)-1]
+        print(tmpPath)
+        #we're done
+        if lastNode == end: return tmpPath
+        #else we must run through children
+        for node in graph.neighbours(lastNode):
+            if node not in tmpPath:
+                newPath=tmpPath+[node]
+                queue.append(newPath)
+                print(queue)
+        return None
 
 bfs(g,0,5)
