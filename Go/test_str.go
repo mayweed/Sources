@@ -1,13 +1,14 @@
 package main
 
 import ("fmt" 
-        "strings"
+//        "strings"
         )
-var s string="hello,you"
+var s string="12:00:00"
 
 func main(){
-    t:=strings.Split(s,",")
-    fmt.Printf("%s\n",strings.Split(s,","))
-    fmt.Printf("%s\n",t[0])
+    //t:=strings.Split(s,",")
+    //fmt.Printf("%s\n",strings.Split(s,","))
+    //fmt.Printf("%s\n",t[0])
+    fmt.Printf("%s\n",s[3:5])
 }
 
