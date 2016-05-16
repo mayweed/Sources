@@ -48,3 +48,23 @@ class Graph:
             return False
     def neighbours(self,node):
         return self.edges[node]
+
+"""
+STRINGS
+"""
+def position(t):
+"""
+got the position between 0 and 26 of a letter in a string
+uppers==string.ascii_uppercase+?
+"""
+    pos=0
+    places=[]
+    for letters in t:
+        if letters not in uppers: places.append(26)
+        else:
+            for l in uppers:
+                pos+=1
+                if l==letters: 
+                    places.append(pos)
+        pos=0
+    return places
