@@ -67,6 +67,21 @@ g.addEdge(Edge(3,5))
 
 #print(g)
 
+def printPath(path):
+    """
+    print path, path is a list of nodes
+    """
+    result=''
+    for node in path:
+        result+=str(node)
+        if node != path[-1]:
+            #append only if not the last...
+            result+='->'
+    return result
+
+# TEST
+#print(printPath([1,2,3]))
+
 def bfs(graph,start,end):
     """
     write a bfs algo
@@ -85,7 +100,6 @@ def bfs(graph,start,end):
     while len(queue) != 0:
         tmpPath=queue.pop(0)
         lastNode=tmpPath[len(tmpPath)-1]
-        print(tmpPath)
         #we're done
         if lastNode == end: return tmpPath
         #else we must run through children
@@ -93,7 +107,5 @@ def bfs(graph,start,end):
             if node not in tmpPath:
                 newPath=tmpPath+[node]
                 queue.append(newPath)
-                print(queue)
-        return None
 
-bfs(g,0,5)
+print(printPath(bfs(g,0,5)))
