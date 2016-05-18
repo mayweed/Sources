@@ -109,4 +109,33 @@ def bfs(graph,start,end):
                 newPath=tmpPath+[node]
                 queue.append(newPath)
 
+def dfs(graph,start,end):
+    """
+    write a dfs algo
+    graph is a Graph object
+    start, end are node's name
+    """
+    #structure used to put nodes to visit
+    stack=[]
+    #my path
+    path=[]
+    #init the structure
+    path.append(start)
+    stack.append(path)
+
+    #you loop on the queue where you put your nodes
+    while len(stack) != 0:
+        tmpPath=stack.pop()
+        lastNode=tmpPath[len(tmpPath)-1]
+        print(printPath(tmpPath))
+        #we're done
+        if lastNode == end: return tmpPath
+        #else we must run through children
+        for node in graph.neighbours(lastNode):
+            if node not in tmpPath:
+                newPath=tmpPath+[node]
+                stack.append(newPath)
+
 bfs(g,0,5)
+print("=====")
+dfs(g,0,5)
