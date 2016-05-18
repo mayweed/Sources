@@ -100,6 +100,7 @@ def bfs(graph,start,end):
     while len(queue) != 0:
         tmpPath=queue.pop(0)
         lastNode=tmpPath[len(tmpPath)-1]
+        print(printPath(tmpPath))
         #we're done
         if lastNode == end: return tmpPath
         #else we must run through children
@@ -108,4 +109,4 @@ def bfs(graph,start,end):
                 newPath=tmpPath+[node]
                 queue.append(newPath)
 
-print(printPath(bfs(g,0,5)))
+bfs(g,0,5)
