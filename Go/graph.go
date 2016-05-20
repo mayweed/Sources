@@ -2,13 +2,13 @@
 // for input examples
 
 package main
-//import "fmt"
+import "fmt"
 //import "bufio" >> scanner to read file
 //import "bytes"
 //import "strings"
 //import "os" >> needs Open() for file
-//import "io/ioutil"
-
+import "io/ioutil"
+/*
 type Edge struct{
     last_node int
     next_node int
@@ -30,13 +30,13 @@ func (g *Graph) addEdge(e Edge){
     //if it's no directed graph:
     g.edges[e.next_node]=e.last_node
 }
-
+*/
 func main(){
     //should write a func here to initialize graph
     //t,_:=ioutil.ReadAll(os.Stdin)
-    //t,_:=ioutil.ReadFile(my_file)
+    t,_:=ioutil.ReadFile("myfile.txt")
     //string cast needed, ReadAll yields []byte!!
-    //fmt.Println(string(t))
-    var g Graph
-    g=new(&Graph)
+    fmt.Println(string(t))
+    //var g Graph
+    //g=new(&Graph)
 }
