@@ -32,11 +32,11 @@ func (g *Graph) addEdge(e Edge){
 }
 */
 func main(){
-    //should write a func here to initialize graph
-    //t,_:=ioutil.ReadAll(os.Stdin)
-    t,_:=ioutil.ReadFile("myfile.txt")
-    //string cast needed, ReadAll yields []byte!!
-    fmt.Println(string(t))
+    //Scanner better to split stdin
+    //s:=bufio.NewScanner(os.Stdin)
+    //for s.Scan() {
+    //    fmt.Println(scanner.Text)
+    //Should do the same for a file
     //var g Graph
     //g=new(&Graph)
 }
