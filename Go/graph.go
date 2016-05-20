@@ -1,5 +1,5 @@
 package main
-import "fmt"
+//import "fmt"
 
 type Edge struct{
     last_node int
@@ -14,7 +14,7 @@ type Graph struct{
 
 func (g *Graph) addNode(node int){
     //add the node
-    g.nodes=append(nodes,node)
+    g.nodes=append(g.nodes,node)
 }
 
 func (g *Graph) addEdge(e Edge){
@@ -25,5 +25,5 @@ func (g *Graph) addEdge(e Edge){
 
 func main(){
     var g Graph
-    g=new(Graph)
+    g=new(&Graph)
 }
