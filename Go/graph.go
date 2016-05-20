@@ -7,6 +7,7 @@ package main
 //import "bytes"
 //import "strings"
 //import "os" >> needs Open() for file
+//import "io/ioutil"
 
 type Edge struct{
     last_node int
@@ -32,6 +33,9 @@ func (g *Graph) addEdge(e Edge){
 
 func main(){
     //should write a func here to initialize graph
+    //t,_:=itoutil.ReadAll(os.Stdin)
+    //string cast needed, ReadAll yields []byte!!
+    //fmt.Println(string(t))
     var g Graph
     g=new(&Graph)
 }
