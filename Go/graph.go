@@ -1,5 +1,12 @@
+// cf https://www.hackerrank.com/challenges/bfsshortreach
+// for input examples
+
 package main
 //import "fmt"
+//import "bufio" >> scanner to read file
+//import "bytes"
+//import "strings"
+//import "os" >> needs Open() for file
 
 type Edge struct{
     last_node int
@@ -24,6 +31,7 @@ func (g *Graph) addEdge(e Edge){
 }
 
 func main(){
+    //should write a func here to initialize graph
     var g Graph
     g=new(&Graph)
 }
