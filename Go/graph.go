@@ -33,7 +33,8 @@ func (g *Graph) addEdge(e Edge){
 
 func main(){
     //should write a func here to initialize graph
-    //t,_:=itoutil.ReadAll(os.Stdin)
+    //t,_:=ioutil.ReadAll(os.Stdin)
+    //t,_:=ioutil.ReadFile(my_file)
     //string cast needed, ReadAll yields []byte!!
     //fmt.Println(string(t))
     var g Graph
