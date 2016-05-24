@@ -17,9 +17,13 @@ def conway(L):
                 prev=i
             elif i==prev:
                 count+=1
+
+    # At the end of the string... or if string==1
+    result+=str(count)+" "+prev+" "
+
     return(result)
 
 #for i in range(5):
-#    print(conway([2]))
+#    print(conway("2"))
 
-print(conway("3 2 1 1 1"))
+print(conway("3"))
