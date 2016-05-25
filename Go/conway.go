@@ -2,9 +2,10 @@ package main
 
 import "fmt"
 import "strings"
+import "strconv"
 
-func conway(L string) string{
-    var count int =1
+func conway(L string) int{
+    var count int=1
     var result string=""
     var Lsplit []string
     Lsplit=strings.Split(L," ")
@@ -14,7 +15,7 @@ func conway(L string) string{
             continue
         }else{
             if Lsplit[i]!=prev{
-                result+=string(count)+" "+prev+" "
+                result+=strconv.Itoa(count)+" "+prev+" "
                 count=1
                 prev=Lsplit[i]
             }else if Lsplit[i]==prev{
@@ -22,7 +23,7 @@ func conway(L string) string{
             }
         }
     }
-    result+=string(count)+" "+prev
+    result+=strconv.Itoa(count)+" "+prev
 
     return result
 }
@@ -30,10 +31,12 @@ func conway(L string) string{
 
 func main() {
     var R string
-    fmt.Scan(&R)
+    //fmt.Scan(&R)
+    R="1"
 
     var L int
-    fmt.Scan(&L)
+    //fmt.Scan(&L)
+    L=2
 
     var res string
     for x:=0;x<L-1;x++{
