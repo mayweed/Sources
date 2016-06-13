@@ -20,9 +20,22 @@ func calcArbitrage(parity []float32) float32{
 }
 
 func main() {
-    //in:=bufio.NewReader(os.Stdin)
+    //scanner:=bufio.NewScanner(os.Stdin)
 
+    var numTestCases int
+    scanner.Scan()
+    fmt.Sscan(scanner.Text(),&numTestCases)
+
+    //Should I write a custom splitFunc for my floats??
     //var num float32
+    //var parity []float32
+    for i:=0;i<numTestCases;i++{
+        for i:=0;i<3;i++{
+             _,err:=fmt.Fscan(in,&num)
+            if err != nil{break}
+            parity=append(parity,num)
+        }
+
     //parity:= []float32{1.1837,1.3829,0.6102}
     parity:= []float32{1.1234,1.2134,1.2311}
 
@@ -34,3 +47,4 @@ func main() {
     //    }
         calcArbitrage(parity)
     }
+}
