@@ -25,26 +25,21 @@ func main() {
     var numTestCases int
     scanner.Scan()
     fmt.Sscan(scanner.Text(),&numTestCases)
+    //parity:= []float32{1.1837,1.3829,0.6102}
+    //parity:= []float32{1.1234,1.2134,1.2311}
+
 
     //Should I write a custom splitFunc for my floats??
     //var num float32
     //var parity []float32
+    //should try to scan multiple values at once
     for i:=0;i<numTestCases;i++{
         for i:=0;i<3;i++{
-             _,err:=fmt.Fscan(in,&num)
+             _,err:=fmt.Scanf("%f",&num)
             if err != nil{break}
             parity=append(parity,num)
         }
 
-    //parity:= []float32{1.1837,1.3829,0.6102}
-    parity:= []float32{1.1234,1.2134,1.2311}
-
-    //for{
-    //    for i:=0;i<3;i++{
-    //        _,err:=fmt.Fscan(in,&num)
-    //        if err != nil{break}
-    //        parity=append(parity,num)
-    //    }
         calcArbitrage(parity)
     }
 }
