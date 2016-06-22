@@ -2,17 +2,12 @@
 // for input examples
 
 package main
-//import "fmt"
+import "fmt"
 //import "bufio" >> scanner to read file
 //import "bytes"
 //import "strings"
 //import "os" >> needs Open() for file
 //import "io/ioutil"
-
-//type Edge struct{
-//    last_node int
-//    next_node int
-//}
 
 type Graph struct{
     //num nodes
@@ -22,11 +17,6 @@ type Graph struct{
     //a node: a list of connected nodes
     edges map[int][]int
 }
-
-//func (g *Graph) addNode(node int){
-    //add the node
-//    g.nodes=append(g.nodes,node)
-//}
 
 func (g *Graph) addEdge(node,node2 int){
     g.edges[node]=append(g.edges[node],node2)
@@ -51,4 +41,5 @@ func main(){
     //var g Graph
     g:=NewGraph(4,5)
     g.addEdge(0,1)
+    fmt.Println(g.edges)
 }
