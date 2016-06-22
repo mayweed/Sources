@@ -2,35 +2,46 @@
 // for input examples
 
 package main
-import "fmt"
+//import "fmt"
 //import "bufio" >> scanner to read file
 //import "bytes"
 //import "strings"
 //import "os" >> needs Open() for file
-import "io/ioutil"
-/*
-type Edge struct{
-    last_node int
-    next_node int
-}
+//import "io/ioutil"
+
+//type Edge struct{
+//    last_node int
+//    next_node int
+//}
 
 type Graph struct{
-    nodes []int
+    //num nodes
+    nodes int
+    //num vertices
+    vertices int
     //a node: a list of connected nodes
     edges map[int][]int
 }
 
-func (g *Graph) addNode(node int){
+//func (g *Graph) addNode(node int){
     //add the node
-    g.nodes=append(g.nodes,node)
+//    g.nodes=append(g.nodes,node)
+//}
+
+func (g *Graph) addEdge(node,node2 int){
+    g.edges[node]=append(g.edges[node],node2)
+    //if it's no directed graph:
+    g.edges[node2]=append(g.edges[node2],node)
 }
 
-func (g *Graph) addEdge(e Edge){
-    g.edges[e.last_node]=e.next_node
-    //if it's no directed graph:
-    g.edges[e.next_node]=e.last_node
+func NewGraph(n,v int) *Graph{
+    return &Graph{
+        nodes:n,
+        vertices : v,
+        edges : make(map[int][]int,n),
+    }
 }
-*/
+
 func main(){
     //Scanner better to split stdin
     //s:=bufio.NewScanner(os.Stdin)
@@ -38,5 +49,6 @@ func main(){
     //    fmt.Println(scanner.Text)
     //Should do the same for a file
     //var g Graph
-    //g=new(&Graph)
+    g:=NewGraph(4,5)
+    g.addEdge(0,1)
 }
