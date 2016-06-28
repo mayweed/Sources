@@ -9,9 +9,6 @@ func main(){
     var jump_X int=0
     var jump_Y int=0
 
-//if x2>x1 && v2>v1{
-//    fmt.Println("NO")
-//}
 for x1<100 && x2<100{
     landing_position:=x1+v1
     x1=landing_position
