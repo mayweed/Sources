@@ -4,6 +4,7 @@ import "fmt"
 //import "os"
 import "math"
 
+//cf http://files.magusgeek.com/csb/csb.html
 type Point struct {
     x,y float64
 }
