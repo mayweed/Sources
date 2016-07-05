@@ -58,6 +58,10 @@ call vundle#end()
 filetype plugin on
 syntax on
 
+"Press F8 to disable autoindent etc...useful for copy/paste
+"To paste one could also use "set paste" then "set nopaste"
+:nnoremap <F8> :setl noai nocin nosi inde=<CR>
+
 "Python (cf https://realpython.com/blog/python/vim-and-python-a-match-made-in-heaven/)
 au BufNewFile,BufRead *.py:
     \ set tabstop=4
