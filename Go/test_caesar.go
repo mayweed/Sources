@@ -4,6 +4,7 @@ import "fmt"
 //import "os"
 import "strings"
 
+/*
 const str="abcdefghijklmnopqrstuvwxyz"
 const STR="ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
@@ -15,12 +16,12 @@ func index (s string,r rune) int{
     }
     return 0
 }
-
+*/
 //TODO:write a encode func and a decode func
 //use containsRune to make the diff between small and capital
 //treat special char like spaces hyphen etc...
 func main(){
-/*
+    /*
     numbers:=map[string]int{
         "one":1,
         "two":2,
@@ -32,32 +33,56 @@ func main(){
         "eight":8,
         "nine":9,
     }
-*/
-    offset:=7
+    */
     //str_to_crypt:="ave caesar"
-    str_to_crypt:="zpe mvby zpe mvby aoyll"
-
-    //split here first!!
-    var translated []string
-    tokens:=strings.Split(str_to_crypt," ")
-    fmt.Println(tokens)
+    var offset rune=7
+    str_to_crypt:="zpe-mvby-zpe-mvby-aoyll"
+	//cf http://golangcookbook.com/chapters/strings/processing/ excellent!!
+    //removePunctuation := func(r rune) rune {
+	//	if strings.ContainsRune(".,:;-", r) {
+	//		return -1
+	//	} else {
+	//		return r
+	//	}
+	//}
+	//str_to_crypt = strings.Map(removePunctuation, s)
+	//words := strings.Fields(str_to_crypt)
+    //var tokens_trans []string
     //QUESTION:how to preserve my tokens once translation done??
     //HERE should loop over tokens
-    for i:=0;i<len(tokens);i++{
-        //and then loop over each string in tokens
-        for _,c :=range tokens[i]{
-            if c !=' '{
-                //enc:=(index(str,c)+offset)%26
-                //translated=append(translated,string(str[enc]))
-                dec:=(index(str,c)-offset)%26
-                //dirty trick
-                //see:https://groups.google.com/forum/#!topic/golang-nuts/xj7CV857vAg
-                if dec < 0{
-                    dec+=26
-                }
-                translated=append(translated,string(str[dec]))
-            }
+
+	decode_caesar := func(r rune) rune {
+        var dec rune
+        //just add !!! and then sub r, no need for strings index!!
+		switch {
+		case r >= 'A' && r <= 'Z':
+			dec= 'A' +(((r-'A')-offset)%26)
+		case r >= 'a' && r <= 'z':
+			dec='a'+(((r-'a')-offset)%26)
+            if dec < 0 {dec+=26}
         }
+        fmt.Println(dec)
+		//if dec < 0{
+        //    dec+=26
+        //    return dec
+        //}//else{
+		 //   return dec
+		//}
+        return dec
+	}
+	fmt.Println(strings.Map(decode_caesar,str_to_crypt))
+/*
+    for _,word := range words{
+        //and then loop over each string in tokens
+        for _,c :=range word{
+            //enc:=(index(str,c)+offset)%26
+            //translated=append(translated,string(str[enc]))
+            dec:=(index(str,c)-offset)%26
+            //dirty trick
+            //see:https://groups.google.com/forum/#!topic/golang-nuts/xj7CV857vAg
+                        translated=append(translated,string(str[dec]))
+        }
+        tokens_trans=append(tokens_trans,strings.Join(translated,""))
     }
     /*
     var combi []int
@@ -70,9 +95,9 @@ func main(){
             }
         }
     }
-    */
     //f:=strings.ContainsRune(str,'A')
-    //fmt.Println(translated)
-    fmt.Println(strings.Join(translated,""))
+    //fmt.Println(tokens_trans)
+    //fmt.Println(strings.Join(translated,""))
     //fmt.Fprintln(os.Stderr,"DEBUG:...")
+*/
 }
