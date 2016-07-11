@@ -1,7 +1,7 @@
 package main
 
 import "fmt"
-//import "strings"
+import "strings"
 import "unicode"
 
 //TODO:write a encode func and a decode func
@@ -27,7 +27,7 @@ func main(){
     */
     //str_to_crypt:="ave caesar"
     var offset rune=7
-    str_to_crypt:="zpe mvby zpe mvby aoyll"
+    str_to_crypt:="zpe-mvby-zpe-mvby-aoyll"
 	//removePunctuation := func(r rune) rune {
 	//	if strings.ContainsRune(".,:;-", r) {
 	//		return -1
@@ -44,17 +44,21 @@ func main(){
         if unicode.IsLetter(r){
 		    switch {
 		    case r >= 'A' && r <= 'Z':
-			    dec= 'A' +(((r-'A')-offset)%26)
+                delta:=(r-'A')-offset
+                if delta < 0 {delta +=26}
+			    dec= 'A' +(delta%26)
 		    case r >= 'a' && r <= 'z':
-			    dec='a'+(((r-'a')-offset)%26)
+                //in golang -3%26=-3 and NOT 23...
+                delta:=(r-'a')-offset
+                if delta <0 {delta += 26}
+			    dec='a'+(delta%26)
             }
+        } else{
+            dec=r
         }
         return dec
 	}
-	//fmt.Println(strings.Map(decode_caesar,str_to_crypt))
-    for k,letter :=range(str_to_crypt) {
-        fmt.Println(k,letter,decode_caesar(letter))
-    }
+	fmt.Println(strings.Map(decode_caesar,str_to_crypt))
 /*
     var combi []int
     for _,v:=range translated{
