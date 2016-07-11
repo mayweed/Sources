@@ -48,14 +48,12 @@ func main(){
 			dec='a'+(((r-'a')-offset)%26)
             //if dec < 0 {dec+=26}
         }
-        fmt.Println(dec)
-		//if dec < 0{
-        //    dec+=26
-        //    return dec
-        //}//else{
-		 //   return dec
-		//}
-        return dec
+        //that trick does not work here!!
+        if dec > 0{
+            return dec
+        }else{
+            return dec+26
+        }
 	}
 	fmt.Println(strings.Map(decode_caesar,str_to_crypt))
 /*
