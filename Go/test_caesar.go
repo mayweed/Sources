@@ -1,8 +1,8 @@
 package main
 
 import "fmt"
-//import "os"
-import "strings"
+//import "strings"
+import "unicode"
 
 //TODO:write a encode func and a decode func
 //use containsRune to make the diff between small and capital
@@ -27,7 +27,7 @@ func main(){
     */
     //str_to_crypt:="ave caesar"
     var offset rune=7
-    str_to_crypt:="zpe-mvby-zpe-mvby-aoyll"
+    str_to_crypt:="zpe mvby zpe mvby aoyll"
 	//removePunctuation := func(r rune) rune {
 	//	if strings.ContainsRune(".,:;-", r) {
 	//		return -1
@@ -41,21 +41,20 @@ func main(){
 	decode_caesar := func(r rune) rune {
         var dec rune
         //just add !!! and then sub r, no need for strings index!!
-		switch {
-		case r >= 'A' && r <= 'Z':
-			dec= 'A' +(((r-'A')-offset)%26)
-		case r >= 'a' && r <= 'z':
-			dec='a'+(((r-'a')-offset)%26)
-            //if dec < 0 {dec+=26}
+        if unicode.IsLetter(r){
+		    switch {
+		    case r >= 'A' && r <= 'Z':
+			    dec= 'A' +(((r-'A')-offset)%26)
+		    case r >= 'a' && r <= 'z':
+			    dec='a'+(((r-'a')-offset)%26)
+            }
         }
-        //that trick does not work here!!
-        if dec > 0{
-            return dec
-        }else{
-            return dec+26
-        }
+        return dec
 	}
-	fmt.Println(strings.Map(decode_caesar,str_to_crypt))
+	//fmt.Println(strings.Map(decode_caesar,str_to_crypt))
+    for k,letter :=range(str_to_crypt) {
+        fmt.Println(k,letter,decode_caesar(letter))
+    }
 /*
     var combi []int
     for _,v:=range translated{
