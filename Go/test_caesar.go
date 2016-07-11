@@ -1,18 +1,17 @@
-package main
-
-import "fmt"
-import "strings"
-import "unicode"
-
-//TODO:write a encode func and a decode func
-//use containsRune to make the diff between small and capital
-//treat special char like spaces hyphen etc...
 //dirty trick with modulo:
 //see:https://groups.google.com/forum/#!topic/golang-nuts/xj7CV857vAg
 //Strings processing:
 //cf http://golangcookbook.com/chapters/strings/processing/ excellent!!
+
+package main
+
+import (
+    "fmt"
+    "strings"
+    "unicode"
+    )
+
 func main(){
-    /*
     numbers:=map[string]int{
         "one":1,
         "two":2,
@@ -24,20 +23,12 @@ func main(){
         "eight":8,
         "nine":9,
     }
-    */
+
     //str_to_crypt:="ave caesar"
-    var offset rune=7
+    var offset rune=1
     str_to_crypt:="zpe-mvby-zpe-mvby-aoyll"
-	//removePunctuation := func(r rune) rune {
-	//	if strings.ContainsRune(".,:;-", r) {
-	//		return -1
-	//	} else {
-	//		return r
-	//	}
-	//}
-	//str_to_crypt = strings.Map(removePunctuation, s)
-	//words := strings.Fields(str_to_crypt)
-    //QUESTION:how to preserve my tokens once translation done??
+
+    //str_to_crypt:="Aol zhml jvtipuhapvu pz"
 	decode_caesar := func(r rune) rune {
         var dec rune
         //just add !!! and then sub r, no need for strings index!!
@@ -53,23 +44,25 @@ func main(){
                 if delta <0 {delta += 26}
 			    dec='a'+(delta%26)
             }
-        } else{
+        } else {
             dec=r
         }
         return dec
 	}
-	fmt.Println(strings.Map(decode_caesar,str_to_crypt))
-/*
-    var combi []int
-    for _,v:=range translated{
-        for key,_ := range numbers{
-            fmt.Println(key,v)
-            if v==key{
-                combi=append(combi,numbers[key])
-                break
+	translated:=strings.Map(decode_caesar,str_to_crypt)
+    fmt.Println(translated)
+
+    //Searching for the right offset should be separated...
+    for _,word :=range strings.Split(translated,"-") {
+            //here should use
+            number,ok:=numbers[word]
+            if !ok {
+                offset+=1
+            } else {
+                fmt.Printf("%d",number)
             }
-        }
     }
+    //just cleaner no?
+    fmt.Printf("\n")
     //fmt.Fprintln(os.Stderr,"DEBUG:...")
-*/
 }
