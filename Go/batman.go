@@ -17,20 +17,32 @@ func NewPosition(x,y int) position{
     }
 }
 //p is batman pos
+//UL/DL etc do not work...
 func (p position) bombDir(pos position) string{
     var dir string
     switch{
         case p.y < pos.y:
             dir="UP"
+        case p.y < pos.y && p.x < pos.x:
+            dir="UL"
+        case p.y < pos.y && p.x > pos.x:
+            dir="UR"
         case p.y > pos.y:
             dir="DOWN"
+        case p.y > pos.y && p.x < pos.x:
+            dir="DL"
+        case p.y > pos.y && p.x < pos.x:
+            dir="DR"
+        case p.x < pos.x:
+            dir="LEFT"
+        case p.x > pos.x:
+            dir="RIGHT"
     }
     return dir
 }
 
 //Should use command args here:os.Args
 var W,H =10,10
-
 
 func main() {
 	// The default number generator is deterministic, so it'll
@@ -41,7 +53,9 @@ func main() {
     // cf https://play.golang.org/p/ZdFpbahgC1
 	s1 := rand.NewSource(time.Now().UnixNano())
 	r1 := rand.New(s1)
-	var bomb_pos=NewPosition(r1.Intn(W),r1.Intn(H))
+
+    //ATTENTION!! bomb_pos is fixed once and for all!!
+    var bomb_pos=NewPosition(r1.Intn(W),r1.Intn(H))
 	var batman_pos=NewPosition(r1.Intn(W),r1.Intn(H))
 
     fmt.Println("BOMBE:",bomb_pos,"BATMAN:",batman_pos)
