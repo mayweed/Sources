@@ -44,9 +44,9 @@ func countLines(f *os.File, counts map[string]int,fileCount map[string]map[strin
         filename:=f.Name()
         text:=input.Text()
         counts[text]++
-        if fileCount[text]==nil{
-            fileCount[text]=make(map[string]int)
-        }
+        //if fileCount[text]==nil{
+        //    fileCount[text]=make(map[string]int)
+        //}
         fileCount[text][filename]++
     }
     //no err handling from input.Err()
