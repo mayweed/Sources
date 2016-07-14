@@ -52,6 +52,16 @@ func main(){
 	translated:=strings.Map(decode_caesar,str_to_crypt)
     fmt.Println(translated)
 
+    search_offset := func (s string) int{
+        var offset
+        for number,ok:=numbers[s]{
+            if !ok {
+                offset += 1
+            } else{
+                return offset
+            }
+        }
+    }
     //Searching for the right offset should be separated...
     for _,word :=range strings.Split(translated,"-") {
             //here should use
