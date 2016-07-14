@@ -1,0 +1,4 @@
+an example file one of duplicated lines
+aaaa
+bbbb
+cccc
