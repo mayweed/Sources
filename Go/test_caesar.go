@@ -12,6 +12,7 @@ import (
     )
 
 func main(){
+    /*
     numbers:=map[string]int{
         "one":1,
         "two":2,
@@ -23,9 +24,9 @@ func main(){
         "eight":8,
         "nine":9,
     }
-
+    */
     //str_to_crypt:="ave caesar"
-    var offset rune=1
+    var offset rune
     str_to_crypt:="zpe-mvby-zpe-mvby-aoyll"
 
     //str_to_crypt:="Aol zhml jvtipuhapvu pz"
@@ -49,11 +50,14 @@ func main(){
         }
         return dec
 	}
-	translated:=strings.Map(decode_caesar,str_to_crypt)
-    fmt.Println(translated)
-
+    //why cant i increment offset here directly in the header??
+    for offset<26{
+	    translated:=strings.Map(decode_caesar,str_to_crypt)
+        fmt.Println(translated)
+        offset+=1
+    }
+    /*
     search_offset := func (s string) int{
-        var offset
         for number,ok:=numbers[s]{
             if !ok {
                 offset += 1
@@ -72,6 +76,7 @@ func main(){
                 fmt.Printf("%d",number)
             }
     }
+    */
     //just cleaner no?
     fmt.Printf("\n")
     //fmt.Fprintln(os.Stderr,"DEBUG:...")
