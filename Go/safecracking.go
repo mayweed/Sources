@@ -12,8 +12,8 @@ import (
     )
 
 func main(){
-    /*
     numbers:=map[string]int{
+        "zero":0,
         "one":1,
         "two":2,
         "three":3,
@@ -24,12 +24,12 @@ func main(){
         "eight":8,
         "nine":9,
     }
-    */
-    //str_to_crypt:="ave caesar"
     var offset rune
-    str_to_crypt:="zpe-mvby-zpe-mvby-aoyll"
+    var translated string
+    //TrimSpace is important, w/o it wont work!!
+    var str_to_decrypt="xxx: wkuhh-ilyh-rqh-vla-wzr"
+    var str_to_crypt=strings.TrimSpace(strings.Split(str_to_decrypt,":")[1])
 
-    //str_to_crypt:="Aol zhml jvtipuhapvu pz"
 	decode_caesar := func(r rune) rune {
         var dec rune
         //just add !!! and then sub r, no need for strings index!!
@@ -50,33 +50,19 @@ func main(){
         }
         return dec
 	}
-    //why cant i increment offset here directly in the header??
+
     for offset<26{
-	    translated:=strings.Map(decode_caesar,str_to_crypt)
-        fmt.Println(translated)
-        offset+=1
-    }
-    /*
-    search_offset := func (s string) int{
-        for number,ok:=numbers[s]{
-            if !ok {
-                offset += 1
-            } else{
-                return offset
+	    translated=strings.Map(decode_caesar,str_to_crypt)
+        for _,word :=range strings.Split(translated,"-") {
+            for key,_:= range numbers{
+                if key==word{
+                    fmt.Printf("%d",numbers[word])
+                }
             }
         }
+        offset+=1
     }
-    //Searching for the right offset should be separated...
-    for _,word :=range strings.Split(translated,"-") {
-            //here should use
-            number,ok:=numbers[word]
-            if !ok {
-                offset+=1
-            } else {
-                fmt.Printf("%d",number)
-            }
-    }
-    */
+
     //just cleaner no?
     fmt.Printf("\n")
     //fmt.Fprintln(os.Stderr,"DEBUG:...")
