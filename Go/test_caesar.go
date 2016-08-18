@@ -25,7 +25,6 @@ func main(){
         "nine":9,
     }
     */
-    //str_to_crypt:="ave caesar"
     var offset rune=7
     str_to_crypt:="zpe-mvby-zpe-mvby-aoyll"
 	//removePunctuation := func(r rune) rune {
