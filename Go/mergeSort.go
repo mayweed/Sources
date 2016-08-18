@@ -7,7 +7,19 @@ import (
     "time"
     )
 
-//func merge(){}
+func merge(leftArray,rightArray []int)[]int{
+    var output []int
+    var i,j int
+    for k:=0;k<(len(leftArray)+len(rightArray));k++{
+        if leftArray[i] < rightArray[k]{
+            output[k]=leftArray[i]
+            i+=1
+        }else if rightArray[j] < leftArray[i]{
+            output[k]=rightArray[j]
+            j+=1
+        }
+    }
+}
 
 func main() {
     //cf go doc example...
@@ -19,4 +31,5 @@ func main() {
         array=append(array,r.Int())
     }
     fmt.Println(array)
+    fmt.Println(merge(array[:5]
 }
