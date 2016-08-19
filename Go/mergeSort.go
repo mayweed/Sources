@@ -10,8 +10,9 @@ import (
 func merge(leftArray,rightArray []int)[]int{
     var output []int
     var i,j int
+    //this loop counter not right!!
     for k:=0;k<(len(leftArray)+len(rightArray));k++{
-        if leftArray[i] < rightArray[k]{
+        if leftArray[i] < rightArray[j]{
             output[k]=leftArray[i]
             i+=1
         }else if rightArray[j] < leftArray[i]{
@@ -19,7 +20,12 @@ func merge(leftArray,rightArray []int)[]int{
             j+=1
         }
     }
+    return output
 }
+
+//func mergeSort
+//middle:=len(array)/2
+//fmt.Println(merge(array[:middle],array[middle:]))
 
 func main() {
     //cf go doc example...
@@ -31,5 +37,5 @@ func main() {
         array=append(array,r.Int())
     }
     fmt.Println(array)
-    fmt.Println(merge(array[:5]
+    fmt.Println(merge(array[:5],array[5:]))
 }
