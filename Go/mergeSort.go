@@ -23,9 +23,15 @@ func merge(leftArray,rightArray []int)[]int{
     return output
 }
 
-//func mergeSort
-//middle:=len(array)/2
-//fmt.Println(merge(array[:middle],array[middle:]))
+func mergeSort(array []int)[]int{
+    if len(array) < 2{
+        return array
+    }
+    middle:=len(array)/2
+    left:=mergeSort(array[:middle])
+    right:=mergeSort(array[middle:])
+    return merge(left,right)
+}
 
 func main() {
     //cf go doc example...
@@ -37,5 +43,5 @@ func main() {
         array=append(array,r.Int())
     }
     fmt.Println(array)
-    fmt.Println(merge(array[:5],array[5:]))
+    fmt.Println(mergeSort(array))
 }
