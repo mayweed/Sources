@@ -7,11 +7,11 @@ import (
     "time"
     )
 
-func merge(leftArray,rightArray []int)[]int{
+func merge(leftArray,rightArray []int, length int)[]int{
     var output []int
     var i,j int
     //this loop counter not right!!
-    for k:=0;k<(len(leftArray)+len(rightArray));k++{
+    for k:=0;k<length;k++{
         if leftArray[i] < rightArray[j]{
             output[k]=leftArray[i]
             i+=1
@@ -23,9 +23,15 @@ func merge(leftArray,rightArray []int)[]int{
     return output
 }
 
-//func mergeSort
-//middle:=len(array)/2
-//fmt.Println(merge(array[:middle],array[middle:]))
+func mergeSort(array []int,length int)[]int{
+    if len(array) < 2{
+        return array
+    }
+    middle:=len(array)/2
+    left:=mergeSort(array[:middle])
+    right:=mergeSort(array[middle:])
+    return merge(left,right,length)
+}
 
 func main() {
     //cf go doc example...
@@ -38,4 +44,5 @@ func main() {
     }
     fmt.Println(array)
     fmt.Println(merge(array[:5],array[5:]))
+	fmt.Println(mergeSort(array,length))
 }
