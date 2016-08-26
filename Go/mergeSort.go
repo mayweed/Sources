@@ -5,13 +5,15 @@ import (
     "fmt"
     "math/rand"
     "time"
+    "log"
     )
 
-func merge(leftArray,rightArray []int, length int)[]int{
+// Merge 2 sorted sequences left and right
+func merge(leftArray,rightArray []int)[]int{
     var output []int
     var i,j int
     //this loop counter not right!!
-    for k:=0;k<length;k++{
+    for k:=0;k<(len(leftArray)+len(rightArray));k++{
         if leftArray[i] < rightArray[j]{
             output[k]=leftArray[i]
             i+=1
@@ -23,14 +25,15 @@ func merge(leftArray,rightArray []int, length int)[]int{
     return output
 }
 
-func mergeSort(array []int,length int)[]int{
+// Sort by merge two sequences
+func mergeSort(array []int)[]int{
     if len(array) < 2{
         return array
     }
     middle:=len(array)/2
     left:=mergeSort(array[:middle])
     right:=mergeSort(array[middle:])
-    return merge(left,right,length)
+    return merge(left,right)
 }
 
 func main() {
@@ -42,7 +45,6 @@ func main() {
     for i:=0;i<10;i++{
         array=append(array,r.Int())
     }
-    fmt.Println(array)
-    fmt.Println(merge(array[:5],array[5:]))
-	fmt.Println(mergeSort(array,length))
+    log.Println(array)
+	fmt.Println(mergeSort(array))
 }
