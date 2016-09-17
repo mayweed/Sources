@@ -1,4 +1,4 @@
-// Write an insertion sort
+// Write a rev insertion sort, that is which sorts in decreasing order
 package main
 
 import (
