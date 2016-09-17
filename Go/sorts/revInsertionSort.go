@@ -21,7 +21,7 @@ func main() {
 	for j := 1; j < len(array); j++ {
 		var key = array[j]
 		var i = j - 1
-		for i >= 0 && array[i] > key {
+		for i >= 0 && array[i] < key {
 			array[i+1] = array[i]
 			i = i - 1
 		}
