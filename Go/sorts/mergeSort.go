@@ -12,15 +12,25 @@ import (
 func merge(leftArray, rightArray []int) []int {
 	var output []int
 	var i, j int
-	//this loop counter not right!!
-	for k := 0; k < (len(leftArray) + len(rightArray)); k++ {
+
+	for i < len(leftArray) && j < len(rightArray) {
 		if leftArray[i] < rightArray[j] {
-			output[k] = leftArray[i]
+			output = append(output, leftArray[i])
 			i += 1
 		} else if rightArray[j] < leftArray[i] {
-			output[k] = rightArray[j]
+			output = append(output, rightArray[j])
 			j += 1
 		}
+	}
+
+	//remainding items...
+	for i < len(leftArray) {
+		output = append(output, leftArray[i])
+		i += 1
+	}
+	for j < len(rightArray) {
+		output = append(output, rightArray[j])
+		j += 1
 	}
 	return output
 }
