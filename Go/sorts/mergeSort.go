@@ -56,5 +56,8 @@ func main() {
 		array = append(array, r.Int())
 	}
 	log.Println(array)
+	start := time.Now()
 	fmt.Println(mergeSort(array))
+	end := time.Now()
+	fmt.Println("delta:", end.Sub(start))
 }
