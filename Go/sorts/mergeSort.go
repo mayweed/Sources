@@ -1,4 +1,4 @@
-// Write a merge sort of...
+// Write a merge sort top-down here
 package main
 
 import (
