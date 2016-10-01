@@ -2,9 +2,11 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"log"
-	"math/rand"
+	"os"
+	"strconv"
 	"time"
 )
 
@@ -12,14 +14,17 @@ import (
 func merge(leftArray, rightArray []int) []int {
 	var output []int
 	var i, j int
+	var count int
 
 	for i < len(leftArray) && j < len(rightArray) {
 		if leftArray[i] < rightArray[j] {
 			output = append(output, leftArray[i])
 			i += 1
+			count += 1
 		} else if rightArray[j] < leftArray[i] {
 			output = append(output, rightArray[j])
 			j += 1
+			count += 1
 		}
 	}
 
@@ -47,14 +52,25 @@ func mergeSort(array []int) []int {
 }
 
 func main() {
-	//cf go doc example...
-	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-
-	//generate an array with 10 random positive values
-	var array []int
-	for i := 0; i < 10; i++ {
-		array = append(array, r.Int())
+	//input file
+	file, err := os.Open("IntegerArray.txt")
+	if err != nil {
+		log.Fatal(err)
 	}
+	defer file.Close()
+
+	//file is Reader interface!!(it implements Read!!)
+	scanner := bufio.NewScanner(file)
+
+	var array []int
+	for scanner.Scan() {
+		num, err := strconv.Atoi(scanner.Text())
+		if err != nil {
+			log.Fatal(err)
+		}
+		array = append(array, num)
+	}
+
 	log.Println(array)
 	start := time.Now()
 	fmt.Println(mergeSort(array))
