@@ -1,0 +1,27 @@
+WindowTitle	{TimeScript}
+WindowSize	110 30
+Colorset	50
+
+Init
+  Begin
+    Set $time = (GetOutput {date +%H:%M""} 1 -1)
+    ChangeTitle  1 $time
+  End
+
+PeriodicTasks
+Begin
+  If (RemainderOfDiv (GetTime) 60)==0 Then
+    Begin
+      Set $time = (GetOutput {date +%H:%M""} 1 -1)
+      ChangeTitle  1 $time     
+    End
+  End
+
+Widget 1
+Property
+  Type ItemDraw
+  Size 110 30
+  Position 0 0
+  Font "xft:Bitstream Vera Sans:size=24:style=Bold:rgba=rgb:antialias=True"
+  Flags	NoFocus NoReliefString
+End

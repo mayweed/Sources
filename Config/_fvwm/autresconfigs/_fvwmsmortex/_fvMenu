@@ -1,0 +1,151 @@
+#									-*-sh-*-
+# Definition des menus
+#
+
+#MenuStyle \#B9C7D6 \#4B5D74 \#FF00FF -adobe-times-medium-r-*-*-18-*-*-*-*-*-iso8859-1 fvwm
+
+#MenuStyle	*	Font	"xft:Pricedown:size=18"
+#MenuStyle	*	Font	"xft:Another:size=18"
+MenuStyle	*	Font "Shadow=1 C:xft:Another:pixelsize=18"
+
+
+AddToFunc warp-or-run		"I" Next [$0 CirculateHit] Iconify -1
++				"I" Next [$0 CirculateHit] Focus
++				"I" None [$0] $1
+
+AddToFunc Move-or-Raise		"I" Raise
++				"M" Move
++				"D" Lower
+
+AddToFunc Move-or-Raise2        "M" Raise
++				"M" Move
++				"D" Lower
+
+AddToFunc Maximize-Func         "C" Maximize     0 100
++                               "D" Maximize     100 100
+
+AddToFunc Move-or-Iconify       "I" Raise
++                               "M" Move
++                               "D" Thumbnail
+
+AddToFunc Resize-or-Raise       "I" Raise
++                               "M" Resize
++                               "D" Lower
+
+AddToFunc Resize-or-Raise2      "M" Raise
++                               "M" Resize
++                               "D" Lower
+
+AddToFunc Iconify-and-Raise     "I" Thumbnail
++                               "I" Raise
+
+
+AddToMenu MenuFenetre Fenetre Title
++			"Déplacer"	Move-or-Raise2
++			"Redimensionner"	Resize-or-Raise2
++			"Avant-plan"	Raise
++			"Arrière-plan"	Lower
++			""				Nop
++           "Iconifier"		Thumbnail
++			""				Nop
++			%$[fvwm_icons]dead.png%"Fermer"	Close
++			%$[fvwm_icons]sick.png%"Détruire"	Destroy
++			""				Nop
++			%$[fvwm_icons]confused.png%"Actualiser"	Refresh
+
+AddToMenu MenuActions Actions Title
++			%$[fvwm_icons]Term.png%"Terminal"		Exec aterm
++			%$[fvwm_icons]Firefox.png%"Firefox"		Exec firefox -UILocale fr-FR -contentLocale F
++			""				Nop
++			%$[fvwm_icons]Network.png%"Net"			Popup MenuNet
++			%$[fvwm_icons]Edit.png%"Editors"		Popup MenuEditors
++			%$[fvwm_icons]Multimedia.png%"Multimedia"		Popup MenuMultiMed
++			"Office"		Popup MenuOffice
++			"Games"			Popup MenuGames
++			""				Nop
++			%$[fvwm_icons]Lock.png%"Lock screen"		Exec xtrlock
+
+AddToMenu MenuNet Internet Title
++			"Browsers"		Popup MenuBrowsers
++			"IM"			Popup MenuIM
++			"News"			Popup MenuNews
++			"FTP"			Popup MenuFtp
+
+AddToMenu MenuBrowsers Navigateurs Title
++			%$[fvwm_icons]Mozilla.png%"Mozilla"		Exec mozilla -splash
++			"Dillo"			Exec dillo
+#+			"FireFox"		Exec firefox -splash
++			"Lynx"			Exec aterm -e lynx
++			"Links"			Exec aterm -e links
++			"eLinks"		Exec aterm -e elinks
++			"Links (G)"		Exec links -g
++			"Liferea"		Exec liferea
+
+AddToMenu MenuIM "Instant Messengers" Title
++			%$[fvwm_icons]im.png%"Gaim"			Exec gaim
+
+AddToMenu MenuNews "News readers" Title
++			"LifeRea"		Exec liferea
+
+AddToMenu MenuFtp Ftp Title
++			"GFtp"			Exec gftp
++			"ftp"			Exec aterm -e ftp
+
+AddToMenu MenuEditors Editeurs Title
++			"GViM"			Exec gvim
++			"ViM"			Exec aterm -e vim
++			"Vi"			Exec aterm -e vi
+
+AddToMenu MenuMultiMed Multimedia Title
++			"Graphics"		Popup MenuGraphics
++			"Audio"			Popup MenuAudio
++			"Video"			Popup MenuVideo
++			"X-Utils"		Popup MenuXUtils
+
+AddToMenu MenuGraphics Graphismes Title
++			"InkScape"		Exec inkscape
++			%$[fvwm_icons]Gimp.png%"The Gimp"		Exec gimp
++			"GQView"		Exec gqview
+
+AddToMenu MenuAudio Audio Title
++			"Aumix"			Exec aumix
++			"GMpc"			Exec gmpc
+
+AddToMenu MenuVideo Video Title
++			"GMPlayer"		Exec gmplayer
+
+AddToMenu MenuXUtils XUtils Title
++			"XClock"		Exec xclock
++			"XFontSel"		Exec xfontsel
++			"XMan"			Exec xman
++			"XLoad"			Exec xload
++			"EditRes"		Exec editres
++			"ViewRes"		Exec viewres
++			"XMag"			Exec xmag
+
+AddToMenu MenuOffice Office Title
++			%$[fvwm_icons]pdf.png%"GPdf"			Exec gpdf
++			"Grisbi"		Exec grisbi
++			%$[fvwm_icons]pdf.png%"XPdf"			Exec xpdf
+
+AddToMenu MenuGames Jeux Title
++			"Atomix"		Exec atomix
++			%$[fvwm_icons]eyes.png%"XEyes"			Exec xeyes
++			"XLogo"			Exec xlogo
+
+AddToMenu MenuSysteme Systeme Title
++			%$[fvwm_icons]Refresh.png%"&R. Redemarrer FVWM"		Restart
++			""	Nop
++			%$[fvwm_icons]Exit.png%"&Q. Quitter FVWM"	Quit
+
+
+AddToMenu WindowOptions Fenetre Title
++			"Déplacer"	Move
++			"Redimensionner"	Resize
++			"Avant-plan"	Raise
++			"Arrière-plan"	Lower
++			""				Nop
++			%$[fvwm_icons]dead.png%"Fermer"	Close
++			%$[fvwm_icons]sick.png%"Détruire"	Destroy
++			""				Nop
++			%$[fvwm_icons]confused.png%"Actualiser"	Refresh

@@ -1,0 +1,19 @@
+AddToFunc MoveOrIconify		"I"	Raise
++							"M" Move
++							"D" Iconify
+
+#AddToFunc ShowMenuOrClose	"I" Menu WindowOptions
+#+													"D" Close
+
+Mouse	1	R	A	Menu MenuActions Nop
+Mouse	2	R	A	Menu MenuFenetre Nop
+Mouse	3	R	A	WindowList
+Mouse	4	R	A	Menu MenuSysteme Nop
+Mouse	5	R	A	Menu MenuSysteme Nop
+
+Mouse	1	W	M	FuncFvwmRaiseLowerX Resize
+Mouse	3	W	M	FuncFvwmRaiseLowerX Move
+
+#Mouse 1 1 A ShowMenuOrClose
+
+Mouse	1	I	A	MoveOrIconify

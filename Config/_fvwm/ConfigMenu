@@ -1,0 +1,110 @@
+### Menu Definitions
+## Gloablement, faudrait le rendre plus "dynamique niveau icone etc...
+DestroyMenu FvwmRootMenu
+AddToMenu FvwmRootMenu
+#125x25 soit a peu pres 23x10 en cm.
++   "&Terminal"%terminal.png%   Exec exec $[xtermperso]
++   "Thunar"%file-manager.png%          		Exec exec thunar
++   "Mozilla &Firefox"%firefox.png%   Exec exec firefox
++   ""					   Nop
++   "Internet"%network.png%          Popup MenuInternet
++   "Office"				Popup MenuOffice
++   "Multimedia"%multimedia.png%      Popup MenuMultimedia
++   "Preferences"          Popup Settings
++   ""                                      Nop
++   "Quitter"%exit.png%               Popup MenuQuit-Verify
+
+DestroyMenu MenuUtilities
+AddToMenu MenuUtilities
++   "&Terminal"%terminal.png%   			Exec exec $[xtermperso]
++   "Mutt"%mutt.png%					Exec exec xterm -geometry 125x25 -e mutt
++   "Mozilla &Firefox"%firefox.png%   			Exec exec firefox
++   "OOo &Writer"%ooo-writer.png%       		Exec exec  /usr/bin/oowriter
++   "Thunar"%file-manager.png%          		Exec exec thunar
++   "Vim"%vim16x16.xpm%                 		Exec exec $[xtermperso] -e vim
++   "Pidgin"%pidgin.png%      				Exec exec pidgin
++   "Gftp"%gftp.png%					Exec exec gftp
++   "Transmission"%transmission.png%         		Exec exec transmission
++   "GPodder" 						Exec exec gpodder
++   "VLC"						Exec exec vlc
++   "Clavier"%key_bindings.png%				Popup  MenuClavier
++   "Ktouch"%ktouch.png%				Exec exec ktouch
++   "Capture d'ecran"%gnome-window-manager.png% 	Exec exec $[fvwm_script]/screenshot.sh
+# TODO:  Ajouter un submenu p2p avec en sus les liens vers les sites web tracker et client.
+# TODO: rajouter un menu deroulant pour les wallpapers + les Bookmarks etc (cf config
+# lucky).
+
+DestroyMenu MenuOffice
+AddToMenu MenuOffice
++   "OOo &Writer"%ooo-writer.png%       Exec exec  /usr/bin/oowriter
++   "OOo &Calc"%ooo-calc.png%           Exec exec /usr/bin/oocalc
++   "The &Gimp"%gimp.png%             Exec exec gimp-2.0
++    "Clavier"%key_bindings.png%                               Popup MenuClavier 
++    "Ktouch"%ktouch.png%				Exec exec ktouch
+
+DestroyMenu MenuInternet
+AddToMenu MenuInternet
++   "Mozilla &Firefox"%firefox.png%   Exec exec firefox
++   "Mutt"%mutt.png%		Exec exec xterm -e mutt
++   "Pidgin"%pidgin.png%                  Exec exec pidgin
++   "Transmission"%transmission.png%         Exec exec transmission
++   "GPodder" 						Exec exec gpodder
+
+DestroyMenu MenuMultimedia
+AddToMenu MenuMultimedia
++  "VLC"		Exec exec /usr/local/bin/vlc
++   "G&rip"                 Exec exec grip
++   "GPodder" 						Exec exec gpodder
+#+   "K3b"                    Exec exec k3b
+#+   "Xine"%xine.png%            Exec exec xine
+
+DestroyMenu MenuQuit-Verify
+AddToMenu MenuQuit-Verify
++   "Redemarrer"           Restart
++   "Quitter"%exit.png%              Quit
+
+DestroyMenu Settings
+AddToMenu Settings
++ DynamicPopupAction SettingsFunc
+
+DestroyFunc SettingsFunc
+AddToFunc SettingsFunc
++ I DestroyMenu recreate Settings
++ I AddToMenu Settings
++ I + MissingSubmenuFunction WallpaperBrowser
+# Rajouter un submenu avec mes favorites fvwm!
++ I + "Man FVWM"			    Exec exec firefox http://fvwm.org/doc/unstable/index.html
++ I + "%Edit.png%Editer le fichier de config"%vim16x16.xpm%               Exec $[xtermperso] -e vim $[HOME]/.fvwm2rc
++ I + "%Edit.png%Editer le fichier des menus"%vim16x16.xpm%               Exec $[xtermperso] -e vim $[fvwm_home]/ConfigMenu
++ I + "Parcourir les fonds d'ecran"             		Popup $[fvwm_wallpaper]
++ I + "Capture d'ecran"%gnome-window-manager.png%		Exec $[scripts]/screenshot.sh
+
+DestroyMenu MenuClavier
+AddToMenu MenuClavier
++   "Clavier francais"			    Exec exec setxkbmap -layout fr
++   "Clavier russe"			    Exec exec setxkbmap -layout ru
++   "Clavier Americain"			    Exec exec setxkbmap -layout us
+
+DestroyMenu MenuFvwmWindowOps
+AddToMenu MenuFvwmWindowOps
++   "Redimensionner"                        Pick Resize
++   "Shade"                                 Pick WindowShade Toggle
++   "S&tick"                                Pick Stick
++   "Ra&fraichir"                           Pick RefreshWindow
++   ""                                      Nop
++   "Identification"                        Pick Module FvwmIdent
++   ""                                      Nop
++   "Envoyer vers"                          Popup MenuFvwmSendTo
++   ""                                      Nop
++   "Fermer"                                Close
++   "Tuer"                                  Destroy
+
+DestroyMenu MenuFvwmSendTo
+AddToMenu MenuFvwmSendTo
++   "Page &1" MoveToPage 0 0
++   "Page &2" MoveToPage 1 0
++   "Page &3" MoveToPage 2 0
++   "Page &4" MoveToPage 0 1
++   "Page &5" MoveToPage 1 1
++   "Page &6" MoveToPage 2 1
+

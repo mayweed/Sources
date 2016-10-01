@@ -1,0 +1,193 @@
+####
+# Ce fichier contient le definition des menus.
+####################
+
+####
+# Menu principal
+####################
+
+DestroyMenu Root
+AddToMenu Root
+
++ "%home.png%Home"					Exec exec $[myhome]
++ "%package_internet.png%Internet"		Popup Internet
++ "%multimedia.png%Multimedia"			Popup Multimedia
++ "%xpaint.png%Graphisme"				Popup Graphics
++ "%xgame.png%Jeux"					Popup Games
++ "%openofficeorg.png%Bureautique"		Popup Office
++ "%network2.png%Network"				Popup Network
++ "%package_programs.png%Utilitaires"		Popup Tools
++ "%looknfeel.png%Parametres"			Popup Settings
++ "%system-config-root.png%Systeme"		Popup System
++ ""					Nop
++ "%runprog.png%Executer ..."			Exec exec $[myexec]
+
+DestroyMenu Internet
+AddToMenu Internet
++ "%firefox.png%Firefox"				Exec exec firefox
++ "%thunderbird.png%Thunderbird"	Exec exec thunderbird
++ "%kopete.png%Kopete"			Exec exec kopete
++ "%konversation.png%konversation"	Exec exec konversation
++ "%gftp.png%gFTP"				Exec exec gftp
++ "%amule.png%aMule"				Exec exec amule
++ "%ktorrent.png%ktorrent"			Exec exec ktorrent
+
+DestroyMenu Multimedia
+AddToMenu Multimedia
++ "%amarok.png%amaroK"			Exec exec amarokapp
++ "%vlc.png%Vlc"					Exec exec vlc
++ "%k3b.png%K3b"				Exec exec k3b
++ "%kmix.png%Kmix"				Exec exec kmix
++ "%audacity.png%Audacity"			Exec exec audacity
++ "%tv.png%TvTime"				Exec exec tvtime
++ "%movies.png%AviDemux"			Exec exec avidemux
++ "%mplayer.png%MPlayer"			Exec exec gmplayer
+
+DestroyMenu Graphics
+AddToMenu Graphics
++ "%kolourpaint.png%Kpaint"			Exec exec kolourpaint
++ "%gimp.png%The Gimp"				Exec exec gimp-2.2
++ "%kooka.png%Kooka"				Exec exec kooka
++ "%digikam.png%Digikam"			Exec exec digikam
++ "%kpdf.png%Kpdf"					Exec exec kpdf
++ "%ksnapshot.png%ksnapshot"		Exec exec ksnapshot
+
+DestroyMenu Games
+AddToMenu Games
++ "%frozen_bubble.png%Frozen-bubble"				Exec exec frozen-bubble
++ "%crack-attack.png%Crack Attack"				Exec exec crack-attack
++ "%games_arcade.png%Warzone 2100"			Exec exec warzone2100
++ "%wormux.png%Wormux"						Exec exec wormux
++ "%openarena.png%Open Arena"					Exec exec openarena
++ "%nexuiz.png%Nexuiz"							Exec exec nexuiz
++ "%warsow.png%Warsow"						Exec exec warsow
+
+DestroyMenu Office
+AddToMenu Office
++ "%ooo-base.png%OpenOffice Base"		Exec exec oobase
++ "%ooo-calc.png%OpenOffice Calc"		Exec exec oocalc
++ "%ooo-draw.png%OpenOffice Draw"		Exec exec oodraw
++ "%ooo-impress.png%OpenOffice Impress" 	Exec exec ooimpress
++ "%ooo-math.png%OpenOffice Math"		Exec exec oomath
++ "%ooo-writer.png%OpenOffice Writer" 		Exec exec oowriter
+
+DestroyMenu Network
+AddToMenu Network
++ "%knetworkconf.png%knetwork"		Exec exec knetworkmanager
++ "%wifi.png%knetstats"						Exec exec knetstats
++ "%krdc.png%Krdc"						Exec exec krdc
++ "%smb4k.png%Smb4k"						Exec exec smb4k
+
+DestroyMenu Tools
+AddToMenu Tools
++ "%scite.png%Scite"				Exec exec scite
++ "%kate.png%Kate"				Exec exec kate
++ "%quanta.png%Quanta+"			Exec exec quanta
++ "%speedcrunch.png%SpeedCrunch"	Exec exec speedcrunch
++ ""					Nop
++ "%ark.png%Ark"					Exec exec ark
++ "%kfilereplace.png%kfilereplace"		Exec exec kfilereplace
++ "%kjobviewer.png%kjobviewer"		Exec exec kjobviewer
++ "%karm.png%karm"				Exec exec karm
++ ""					Nop
++ "%virtualbox.png%Virtualbox"		Exec exec virtualbox
+
+
+DestroyMenu System
+AddToMenu System
++ "%kcontrol.png%Kcontrol"			Exec exec kcontrol
++ "%synaptic.png%Synaptic"			Exec exec kdesu synaptic
++ "%ksysguard.png%ksysguard"		Exec exec ksysguard
++ "%kcron.png%kcron"				Exec exec kcron
++ "%ksystemlog.png%ksystemlog"		Exec exec ksystemlog
++ "%kdebluetooth.png%kbluetooth"	Exec exec kbluetooth
++ "%kcmpartitions.png%QtParted"		Exec exec kdesu qtparted
++ ""					Nop
++ "%openterm.png%Console Fvwm"	Module FvwmConsole -terminal $[myterm]
++ "%Eterm.png%Terminal"			Exec exec $[myterm]
++ "%terminal.png%konsole"			Exec exec konsole
+
+DestroyMenu FvwmMenu
+AddToMenu FvwmMenu
++ "%lock.png%Verrouiller l'ecran"		Exec exec xscreensaver-command -lock
++ "%reload.png%Redemarrer Fvwm"	Restart
++ "%exit.png%Quitter Fvwm"			Quit
+
+# MissingSubmenuFunction ( creer les menus manquants )
+DestroyMenu Settings
+AddToMenu Settings
++ "%randr.png%krandrtray"				Exec exec krandrtray
++ MissingSubmenuFunction WallpaperBrowser
++ "%xpaint.png%Wallpapers"				Popup $[wallpapers_dir]
+#+ "%appearance.png%Themes"			Popup ChangeThemeMenu
++ "%linuxconf.png%Animate"				Popup MenuFvwmAnimate
+#+ "%configure.png%Editer le menu"		Exec $[myeditor] .fvwm/menus.fvwm2rc
++ "%kscreensaver.png%Ecran de veille"		Exec exec xscreensaver-demo
+
+
+# Selecteur de wallpaper
+DestroyFunc WallpaperBrowser
+AddToFunc WallpaperBrowser
++ I PipeRead '$[fvwm_scripts]/wallpaperbrowser.sh \'$0\''
+
+
+DestroyMenu ChangeThemeMenu
+AddToMenu ChangeThemeMenu
++ DynamicPopupAction ChangeThemeFunc
+
+DestroyFunc ChangeThemeFunc
+AddToFunc ChangeThemeFunc
++ I DestroyMenu recreate ChangeThemeMenu
++ I AddToMenu ChangeThemeMenu
++ I PipeRead '$[fvwm_scripts]/changetheme.sh $[fvwm_themes]'
+
+
+####
+# Menu contextuel de la fenêtre
+####################
+DestroyMenu WindowMenu
+AddToMenu WindowMenu
++ "%reload_page.png%Enrouler"		Pick WindowShade Toggle
++ "%attach.png%Coller"				Pick Stick
++ "%thumb.png%Iconifier"			Pick Thumbnail
++ "%max.png%Maximiser"			Pick Maximize
++ "%noborder.png%NoTitle"			WindowStyle NoTitle, !Borders	
++ "%next.png%Deplacer"				Popup MoveMenu
++ "%windowlist.png%Layer"			Popup LayerMenu
++ "%info.png%Informations"			Pick Module FvwmIdent
++ "" 					Nop
++ "%fileclose.png%Fermer"				Pick Close
++ "%stop.png%Detruire"			Pick Destroy
+
+DestroyMenu LayerMenu
+AddToMenu LayerMenu
++ DynamicPopupAction Function BuildLayer
+
+DestroyFunc BuildLayer
+AddToFunc BuildLayer
++ I DestroyMenu recreate LayerMenu
++ I AddToMenu LayerMenu
++ I PipeRead '$[fvwm_scripts]/buildlayer.sh 1 8 $[w.layer]'
+
+DestroyMenu MoveMenu
+AddToMenu MoveMenu
++ "Deplacer vers le haut"		Pick AnimatedMove keep 0p
++ "Deplacer vers le bas"			Pick PipeRead "echo AnimatedMove keep $$(($[vp.height] - $[w.height]))p"
++ "Deplacer vers la gauche"		Pick AnimatedMove 0p keep
++ "Deplacer vers la droite"		Pick PipeRead "echo AnimatedMove $$(($[vp.width] - $[w.width]))p keep"
++ "Centrer la fenêtre"			Pick CenterWindow
++ "Deplacement interactif"		Pick Move
++ ""					Nop
++ "Deplacer vers le bureau ..."		Popup SendToDesk
+
+DestroyMenu SendToDesk
+AddToMenu SendToDesk
++ DynamicPopupAction Function BuildSendToDesk
+
+DestroyFunc BuildSendToDesk
+AddToFunc BuildSendToDesk
++ I DestroyMenu recreate SendToDesk
++ I AddToMenu SendToDesk
+#+ I PipeRead 'echo "+ \"Precedent\" MoveToDesk -1 0 $$(($[fvwm_numdesk]-1))"
+#+ I PipeRead 'echo "+ \"Suivant\" MoveToDesk +1 0 $$(($[fvwm_numdesk]-1))"
++ I PipeRead '$[fvwm_scripts]/sendtodesk.sh $[fvwm_numdesk] $[desk.n]'

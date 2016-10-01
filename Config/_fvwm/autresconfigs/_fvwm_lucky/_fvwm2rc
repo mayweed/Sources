@@ -1,0 +1,1189 @@
+##############################################
+##############################################
+### Fichier de configuration pour Fvwm 2.5.14
+### 
+### Dernière modification le 10 octobre 2005.
+### Lucky <jeremy.lefloch@gmail.com> <bosozoku@jabber.org>
+### www.stationlinux.org
+###
+### Remerciements à Taviso (http://dev.gentoo.org/~taviso) car de nombreuses
+### fonctions dans cette configuration sont directement tirées de son ~/.fvwm2rc.
+##################################################################################
+##################################################################################
+
+
+
+
+####
+# Variables d'environement
+##########################
+# Les variables d'environnement sont très utiles car elles vous permettent 
+# d'y stoquer des valeurs et de les réutiliser tout au long de votre config. 
+# C'est exactement le même principe que dans la plupart des langages de 
+# programmation tels que le PHP, Bash etc.
+# La syntaxe est très simple : SetEnv variable valeur
+# Ceci nous donne la variable $[variable]. Pensez à utiliser la commande 
+# UnSetEnv, qui s'utilise de la même façon que la précedente, pour 
+# désactiver une variable dont vous n'avez plus besoin.
+#
+# Il existe une variable d'environnement spéciale : ImagePath.
+# Son contenu indique à Fvwm ou il doit aller chercher les images dont il 
+# a besoin, pour votre menu par exemple. Voici la syntaxe :
+# ImagePath $[img]:$[img_autres]
+# Je range toutes mes icônes dans le répertoire $[img] mais aussi dans le 
+# répertoire [img_autres].
+#
+# Pensez à remplacer certaines valeurs par les votres comme :
+# SetEnv wallpapers_dir $[HOME]/Images/wallpapers
+# Ceci est vrai sur mon ordinateur mais peut être pas chez vous.
+##########################
+SetEnv img $[FVWM_USERDIR]/images
+ImagePath $[img]:$[img]/deco:$[img]/menu:$[img]/panel
+SetEnv scripts $[FVWM_USERDIR]/scripts
+SetEnv temp $[FVWM_USERDIR]/temp
+SetEnv BorderWidth 4
+
+SetEnv wallpapers_dir $[HOME]/Images/wallpapers
+SetEnv screenshots_dir $[HOME]/Images/screenshots/fvwm
+PipeRead "export screenshots_dir=${HOME}/Images/screenshots/fvwm"
+SetEnv video /mnt/Multimedia/Video
+SetEnv video_exec xine
+SetEnv video_exec_bis mplayer
+SetEnv audio /mnt/Multimedia/Audio
+SetEnv audio_exec xmms
+SetEnv web_browser firefox
+SetEnv browser rox
+SetEnv TermName rxvt
+SetEnv TermQuake "aterm -geometry 150x26+0+0 -name GameConsole"
+
+
+####
+# La commande Read est comparable à la commande include en PHP. 
+# Cela permet de diviser votre fichier de configuration en plusieurs 
+# parties. J'ai choisi de mettre mes menus dans un fichier extérieur 
+# (~/.fvwm/menus) dans un soucis de propreté du fichier .fvwm2rc.
+##########################
+Read menus
+
+
+####
+# Les Styles et Colorset
+##########################
+# Les styles vous permettent de gérer l'apparence et le comportement 
+# de vos fenêtres ainsi que de vos menus. La syntaxe est simple :
+# Style * vos_styles, un_autre
+#
+# Les colorsets sont comme le nom l'indique des ensemble de couleurs. 
+# Chaque colorset est identifié par un numéro. La syntaxe est simple : 
+# Colorset 0 fg couleur, bg couleur, sh couleur, hi couleur
+# Je ne rentre pas dans les détails, sachez que vous pouvez donner un nom 
+# pour les couleurs (standard X11) ou bien une donnée héxadécimale.
+#
+# +-------+-----------------------------------------+
+# | State | Definition                              |
+# +=======+=========================================+
+# | 1     | La barre de titre est présente          |
+# +-------+-----------------------------------------+
+# | 2     | La bordure est présente                 |
+# +-------+-----------------------------------------+
+# | 3     | Barre de titre en haut                  |
+# +-------+-----------------------------------------+
+# | 4     | Barre de titre à gauche                 |
+# +-------+-----------------------------------------+
+# | 5     | Barre de titre en bas                   |
+# +-------+-----------------------------------------+
+# | 6     | Barre de titre à droite                 |
+# +-------+-----------------------------------------+
+#
+# +----------+--------------------------------------+
+# | Colorset | Definition                           |
+# +==========+======================================+
+# | 0        | Fenêtres non sélectionnées           |
+# +----------+--------------------------------------+
+# | 1        | FvwmProxy			    |
+# +----------+--------------------------------------+
+# | 2        | Fenêtres actives                     |
+# +-------+-----------------------------------------+
+# | 3     | Barre de titre en haut                  |
+# +-------+-----------------------------------------+
+# | 4     | Barre de titre à gauche                 |
+# +-------+-----------------------------------------+
+# | 5     | Barre de titre en bas                   |
+# +-------+-----------------------------------------+
+# | 6     | Barre de titre à droite                 |
+# +-------+-----------------------------------------+
+##########################
+
+
+# J'aime beaucoup le SloppyFocus : la fenêtre obtient le focus lorsque la souris 
+# entre dans la fenêtre et le garde tant que la souris ne survole pas une autre 
+# fenêtre. Pour faire passer la fenêtre au premier plan (Raise), il suffit alors 
+# de cliquer dessus. Je trouve que c'est le meilleur comportement !
+##########################
+Style * SloppyFocus, MouseFocusClickRaises, ResizeOpaque
+Style * WindowShadeSteps 160, GrabFocus
+Style * Colorset 0, HilightColorset 2
+DefaultFont "Shadow=0 se:xft:Lucida Grande:size=7:bold"
+Style * HandleWidth $[BorderWidth]
+Style * State 1
+Style * State 2
+Style * State 3
+Style * !State 4
+Style * !State 5
+Style * !State 6
+
+# Proxy
+Colorset 1 fg white, bg #444444
+
+
+####
+# L'utilisation du joker * était interessante lorsque l'on voulait 
+# appliquer un style pour toutes les fenêtres mais j'applique ici des styles 
+# différents pour des fenêtres bien distinctes. Le nom de la fenêtre est 
+# obtenu grace au module FvwmIdent ; vous pouvez utiliser indifférement la 
+# classe ou la ressource de la fenêtre concernée.
+# 
+# J'indique ici le nom de la mini icône de la fenêtre qui sera affichée
+# dans la barre de titre par exemple. Je peux également dire à Fvwm de ne 
+# pas donner de barre de titre pour Xmms par exemple.
+##########################
+Style xmms EWMHMiniIconOverride, MiniIcon xmms.png, NoTitle
+Style XTerm EWMHMiniIconOverride, MiniIcon terminal.png
+Style Gvim EWMHMiniIconOverride, MiniIcon editeurs.png
+Style Firefox-bin EWMHMiniIconOverride, MiniIcon firefox.png
+Style ROX-Filer EWMHMiniIconOverride, MiniIcon home.png
+Style Gimp-2.2 EWMHMiniIconOverride, MiniIcon gimp.png
+Style Thunderbird-bin EWMHMiniIconOverride, MiniIcon thunderbird.png
+Style Pidgin EWMHMiniIconOverride, MiniIcon gaim.png
+Style gFTP EWMHMiniIconOverride, MiniIcon gftp.png
+Style SWT EWMHMiniIconOverride, MiniIcon sancho.png
+Style GQview EWMHMiniIconOverride, MiniIcon gqview.png
+Style xine EWMHMiniIconOverride, MiniIcon xine.png
+Style FvwmIdent TitleAtLeft, EWMHMiniIconOverride, MiniIcon identify.png
+Style xpad NoTitle, !Borders, NoHandles, WindowListSkip
+Style xchat-2 EWMHMiniIconOverride, MiniIcon xchat.png
+Style GameConsole NoHandles, !Borders, NoTitle, \
+FixedPosition, WindowListSkip, Sticky, WindowShadeSteps 260
+Style xmessage CenterPlacement, NoTitle
+Style Gmrun CenterPlacement
+Style XOsview     WindowListSkip, CirculateSkip, NoTitle
+Style irssi NoTitle, !Borders
+####
+# La commande MenuStyle fonctionne exactement comme Style à une différence
+# près : elle ne s'applique qu'aux menus. Le caractère * est un joker, le style
+# sera effectif pour tous les menus. Référez vous à la page man pour connaître
+# de manière précise la signification des styles ci-dessous.
+##########################
+MenuStyle * MenuColorset 7
+MenuStyle * BorderWidth 1
+MenuStyle * HilightBack
+MenuStyle * ActiveForeOff
+MenuStyle * PopupOffset 0 100
+MenuStyle * TitleUnderlines2
+MenuStyle * SeparatorsLong
+MenuStyle * ActiveColorset 8
+MenuStyle * Animation
+MenuStyle * TrianglesSolid
+MenuStyle * PopupDelayed
+MenuStyle * PopupDelay 100
+MenuStyle * PopdownImmediately
+MenuStyle * Hilight3DOff
+
+
+####
+# Mise en place des différents curseurs de souris en fonction de 
+# différents contextes.
+##########################
+CursorStyle root left_ptr
+CursorStyle default left_ptr
+CursorStyle position left_ptr
+CursorStyle sys left_ptr
+CursorStyle menu left_ptr
+CursorStyle title left_ptr
+CursorStyle resize fleur
+CursorStyle stroke cross
+CursorStyle select draped_box
+
+
+####
+# Définition des différents décors. En général, un par thème. 
+# Référez vous à la page de manuel Fvwm pour comprendre l'ensemble 
+# des commandes ci-dessous. En bref :
+# Je créer deux décors nommés Default et Green. Ces décors sont composés
+# d'une barre de titre (TitleStyle) et de différents boutons (ButtonStyle). 
+# Notez que pour voir les boutons sur la barre de titre, il doivent forcément
+# être associer à une action (voir les raccourcis clavier).
+# Voici la disposition des boutons sur la barre de titre :
+# +--------------------------------------------------------+
+# | .                                              _  #  X |
+# +--------------------------------------------------------+
+# | 1                                              6  4  2 |
+# |                                                        |
+#                                                          
+##########################
+DestroyDecor Default
+AddToDecor Default
++ TitleStyle Centered Height 19
++ TitleStyle AllActive  (TiledPixmap cinza/wtitle.png -- flat) \
+AllInactive (TiledPixmap cinza/wtitle.png -- flat)
++ ButtonStyle 1 AllActive (MiniIcon) AllInactive (MiniIcon)
++ ButtonStyle 2 ActiveUp (Pixmap cinza/close.xpm) \
+ActiveDown (Pixmap cinza/close.xpm) \
+Inactive (Pixmap cinza/closeu.xpm)
++ ButtonStyle 4 ActiveUp (Pixmap cinza/max.xpm) \
+ActiveDown (Pixmap cinza/max.xpm) \
+Inactive (Pixmap cinza/maxu.xpm)
++ ButtonStyle 6 ActiveUp (Pixmap cinza/icon.xpm) \
+ActiveDown (Pixmap cinza/icon.xpm) \
+Inactive (Pixmap cinza/iconu.xpm)
++ ButtonStyle All -- UseTitleStyle
++ ButtonStyle All -- flat
++ BorderStyle -- HiddenHandles NoInset
+
+DestroyDecor Green
+AddToDecor Green
++ TitleStyle Centered Height 17
++ TitleStyle AllActive (Colorset 2 -- flat) AllInactive (Colorset 2 -- flat)
++ ButtonStyle 1 AllActive (MiniIcon) AllInactive (MiniIcon)
++ ButtonStyle 2 ActiveUp (Pixmap vert/close.xpm) \
+ActiveDown (Pixmap vert/close-pressed.xpm) \
+Inactive (Pixmap vert/close.xpm)
++ ButtonStyle 4 ActiveUp (Pixmap vert/max.xpm) \
+ActiveDown (Pixmap vert/max-pressed.xpm) \
+Inactive (Pixmap vert/max.xpm)
++ ButtonStyle 6 ActiveUp (Pixmap vert/icon.xpm) \
+ActiveDown (Pixmap vert/icon-pressed.xpm) \
+Inactive (Pixmap vert/icon.xpm)
++ ButtonStyle All -- UseTitleStyle
++ ButtonStyle All -- flat
++ BorderStyle -- HiddenHandles NoInset
+
+
+####
+# On émule le comportement MWM pour avoir la fenêtre de 
+# déplacement / redimenssionement au centre. Cela affecte également
+# la placement des fenêtres. J'indique également que la fenêtre de 
+# déplacement / redimenssionement doit toujours apparaître si je déplace 
+# une fenêtre ou si je la redimenssionne.
+##########################
+Emulate MWM
+HideGeometryWindow Never
+
+
+####
+# http://www.fvwm.org/documentation/faq/#5.5
+##########################
+IgnoreModifiers L25
+
+
+####
+# OpaqueMoveSize permet de déplacer les fenêtres en opaque.
+#
+# SnapAttraction est une option qui permet de coller deux ou plusieurs 
+# fenêtres entre elles. 6px me semble un bon compromis.
+#
+# ClickTime est le temps en millisecondes entre le moment ou vous appuyez 
+# sur le bouton de la souris et celui ou vous le relachez (un simple clic). 
+# La valeur par defaut est 150ms et c'est un peu trop court à mon gout.
+##########################
+OpaqueMoveSize unlimited
+SnapAttraction 6 All
+ClickTime 300
+
+
+####
+# J'utilise 4 bureaux (desks) mais une seule page par bureau, 
+# ce qui implique un DesktopSize 1x1 (une page x une page).
+##########################
+DesktopSize 1x1
+
+
+####
+# EdgeScroll indique en pourcentage (en horyzontal et vertical) la taille 
+# d'une page qui doit être affichée lorsque la souris touche le bord de l'écran.
+# Exemple : EdgeScroll 100 100 vous fera passer sur la page voisine si vous touchez 
+# le bord de l'écran. 
+#
+# EdgeResistance accepte deux paramètres :
+# le premier règle en millisecondes le temps que la souris devra rester sur le 
+# bord de l'écran pour passer à la page voisine. Ceci n'est important que pour ceux 
+# qui utilisent EdgeScroll 100 100.
+# Le second paramètre règle en pixels la distance que doit parcourir la souris pour
+# qu'une fenêtre dépasse de l'écran.
+# Dans notre cas, j'utilise la valeur maximale pour le premier paramètre (10000), 
+# ce qui implique qu'il est impossible de passer sur une page voisine avec la souris ;
+# et je règle 50px pour le second paramètre. C'est à dire que lorsqu'une fenêtre sera 
+# collée au bord de l'écran, il faudra que je la déplace encore de 50px pour qu'elle
+# sorte de l'écran. 
+#
+# EdgeThickness n'accepte que trois paramètre : 0,1 ou 2.
+# Ceci est la taille en pixel d'une fenêtre invisible que Fvwm créé sur les bords 
+# de l'écran qui sont utilisés pour les fonctionnalités de EdgeScroll. La valeur 
+# par defaut est 2.
+##########################
+EdgeScroll 0 0
+EdgeResistance 10000 50
+EdgeThickness 0
+
+
+####
+# Configuration des raccourcis clavier et des actions à effectuer lors de 
+# différents clics de la souris.
+#
+# La syntaxe est la même pour les deux commandes (Mouse pour la souris et Key
+# pour le clavier) :
+# Mouse num_bouton contexte clavier action
+# Key   num_touche contexte clavier action
+#
+# Le num_bouton ou num_touche est tout simplement le bouton de la souris ou la 
+# touche du clavier que vous souhaitez associer à une action. Pour une souris 
+# avec deux boutons et une molette cliquable (comme la mienne), on obtient 5 boutons :
+# 1 = bouton gauche ; 2 = clic molette ; 3 = bouton droit ; 4 = molette avant ; 
+# 5 = molette arrière.
+#
+# Pour le contexte, je vous laisse observer cette image : 
+# http://www.zensites.net/fvwm/guide/window_layout.png
+# En bref : R signifie la zone de l'écran libre, W pour la fenêtre, I pour une icône
+# et A qui est un joker (n'importe ou sur l'écran).
+#
+# Ce que j'appelle clavier se nomme Modifier en Anglais. C'est une touche que 
+# vous appuierez en plus du bouton ou touche initiale. On peut penser par exemple à
+# Alt+x pour lancer xmms, ce qui nous donnera : 
+# Key x A M Exec xmms
+# Touche x, n'importe où sur l'écran et le Modifier Alt (M), et enfin l'action.
+##########################
+Mouse 3 R A Menu Root
+Key F1 A A Menu Root
+Mouse 1 R A -
+
+Mouse 1 2 A CloseFunc
+Mouse 1 4 A MaximizeFunc
+Mouse 3 4 A HoryMaximizeFunc
+Mouse 1 T A MaximizeTitleBarFunc
+Mouse 3 T A Menu WindowControls
+Mouse 1 1 A Menu WindowControls
+Mouse 4 T N WindowShade True
+Mouse 5 T N WindowShade False
+Mouse 1 W M MoveFunc
+Mouse 3 W M ResizeFunc
+Mouse 1 I A DeiconifyAndRearrange
+Mouse 3 I A Menu WindowControls Icon 0 -100m
+Key F4 A M Close
+
+Mouse 2 R A WindowList NoCurrentDeskTitle
+Key Tab A M WindowList Root c c NoDeskSort, NoCurrentDeskTitle, SelectOnRelease Meta_L
+
+
+####
+# Voici mes raccourcis clavier que j'utilise pour lancer mes applications 
+# favorites. Remarquez l'intérêt des variables d'environnement.
+##########################
+Key F2 A A Exec gmrun
+Key F3 A A Module FvwmConsole -terminal $[TermName]
+Key Escape A M SendToModule FvwmProxy ShowToggle
+Key f A M Exec $[web_browser]
+Key t A M Exec thunderbird
+Key a A M Exec $[TermName]
+Key i A M Exec $[TermName] -g 95x50 -name irssi -e irssi
+Key c A M Exec gvim -geom 88x40 $[FVWM_USERDIR]/.fvwm2rc
+Key g A M Exec gaim
+Key r A M Exec $[browser]
+Key x A M Exec xmms
+Key n A M Exec xpad
+
+Key twosuperior A C ToggleTerminal
+Key c A CM CenterWindow
+Key r A CM Restart
+Key q A CM Quit
+Key d A CM Next (CirculateHit,Side) SideHideFunc 3
+Key Return A M ToggleTitle
+
+
+####
+# J'aime bien changer de bureau avec le clavier. Voici ma configuration :
+# Ctrl + Alt + gauche ou droite, change de bureau vers la gauche ou la droite.
+# Alt + 1, Alt + 2, Alt + 3 et Alt + 4 amènent respectivement directement au 
+# bureau 1, 2, 3 ou 4. Remarquez les deux derniers arguments "0 3" de la commande 
+# GoToDesk. J'utilise ceci pour dire à Fvwm de faire une boucle lorsque je change
+# de bureau avec les flèches : arrivé au bureau 3 il retourne au bureau 0, il ne
+# continue pas vers le numéro 4. Ça paraît évident mais ça ne l'est pas pour Fvwm.
+##########################
+Key ampersand   A       M       GoToDesk 0 0
+Key eacute      A       M       GoToDesk 0 1
+Key quotedbl    A       M       GoToDesk 0 2
+Key apostrophe  A       M       GoToDesk 0 3
+Key Left        A       CM      GoToDesk -1 0 3
+Key Right       A       CM      GoToDesk +1 0 3
+
+
+####
+# Ceci est la configuration des modules Fvwm. Je ne rentre pas dans les détails :
+# FvwmAnimate est le module qui s'occupe de la gestion de l'animation lorsque vous 
+# iconifiez une fenêtre, FvwmBanner se charge de montrer une belle image au 
+# démarrage du gestionnaire de fenêtres, FvwmEvent lance une fonction à partir de 
+# différents évenements, FvwmProxy est très utile : pressez donc alt + entrée
+# lorsque votre bureau est envahi de fenêtres, et enfin FvwmIdent est le module 
+# qui vous donne plein d'informations sur une fenêtre (utile pour obtenir la classe, 
+# pour définir le style d'une fenêtre précise par exemple).
+##########################
+DestroyModuleConfig FvwmAnimate: *
+*FvwmAnimate: Color white
+*FvwmAnimate: Delay 1
+*FvwmAnimate: Iterations 100
+*FvwmAnimate: Width 1
+*FvwmAnimate: Effect Frame
+
+DestroyModuleConfig FvwmBanner: *
+*FvwmBanner: NoDecor
+*FvwmBanner: Pixmap gentoo.png
+*FvwmBanner: Timeout 3
+
+DestroyModuleConfig FvwmEvent: *
+*FvwmEvent: new_desk NewDeskFunc
+*FvwmEvent: add_window AddWindowFunc
+
+DestroyModuleConfig FvwmProxy: *
+*FvwmProxy: ProxyMove false
+*FvwmProxy: Colorset 1
+*FvwmProxy: Font "Shadow=0 se:xft:Lucida Grande:size=7:bold"
+
+DestroyModuleConfig FvwmIdent: *
+*FvwmIdent: Font "Shadow=0 se:xft:Lucida Grande:size=8:bold"
+*FvwmIdent: Colorset 1
+
+####
+# Il existe 3 fonctions spéciales : StartFunction, InitFunction et RestartFunction.
+# Vous verrez qu'une seule est utile grace à la commande conditionnelle Test.
+# La commande StartFunction est appellée par Fvwm lorsqu'il démarre, lorsqu'il 
+# redémmarre mais aussi lorsqu'il ferme. Ce qui peut nous faire mettre de coter
+# les deux autres fonctions.
+# 
+# On utilise la StartFunction pour lancer les modules au démarrage et effectuer
+# différentes fonctions dont on a besoin au démarrage, redémarrage ou fermeture 
+# de Fvwm. C'est ici par exemple que je met en place le fond d'écran initial.
+##########################
+DestroyFunc StartFunction
+AddToFunc StartFunction
++ I Test (Init) Module FvwmBanner
++ I Test (Init, x xscreensaver) Exec xscreensaver -nosplash
++ I Exec fbsetbg -l
++ I Module FvwmAnimate
++ I Module FvwmProxy
++ I Module FvwmEvent
++ I Test (f $[FVWM_USERDIR]/vert) ChangeThemeVert
++ I Test (f $[FVWM_USERDIR]/defaut) ChangeThemeDefaut
++ I Test (Init) SendToModule Panel ChangeButton desk Title "unan"
++ I Test (Restart) All (Iconic) Test (f $[FVWM_USERDIR]/icon.tmp.$[w.id].png) WindowStyle IconOverride, Icon $[FVWM_USERDIR]/icon.tmp.$[w.id].png
++ I Test (Restart) All (GameConsole) Close
++ I Test (Quit) Exec rm $[FVWM_USERDIR]/icon.tmp.*
+
+
+####
+# Configuration du module FvwmPager. J'utilise deux configuration différentes
+# suivant le thème. Voila pourquoi vous verrez autant de FvwmPager que de thème. 
+##########################
+DestroyModuleConfig FvwmPager: *
+*FvwmPager: Colorset * 3
+*FvwmPager: HilightColorset * 5
+*FvwmPager: WindowColorsets 12 13
+*FvwmPager: BalloonColorset * 13
+*FvwmPager: Font none
+*FvwmPager: SmallFont none
+*FvwmPager: Balloons All
+*FvwmPager: BalloonFont "Shadow=0 se:xft:Lucida Grande:size=7:bold"
+*FvwmPager: BalloonYOffset +2
+*FvwmPager: BalloonBorderWidth 1
+*FvwmPager: UseSkipList
+*FvwmPager: MoveThreshold 0
+*FvwmPager: SolidSeparators
+*FvwmPager: WindowBorderWidth 1
+
+DestroyModuleConfig FvwmPagerTest: *
+*FvwmPagerTest: rows 2
+*FvwmPagerTest: Columns 2
+*FvwmPagerTest: Colorset * 22
+*FvwmPagerTest: HilightColorset * 22
+*FvwmPagerTest: WindowColorsets 21 21
+*FvwmPagerTest: BalloonColorset * 21
+*FvwmPagerTest: Font none
+*FvwmPagerTest: SmallFont none
+*FvwmPagerTest: Balloons All
+*FvwmPagerTest: BalloonFont "Shadow=0 se:xft:Lucida Grande:size=7:bold"
+*FvwmPagerTest: BalloonYOffset +2
+*FvwmPagerTest: BalloonBorderWidth 1
+*FvwmPagerTest: UseSkipList
+*FvwmPagerTest: MoveThreshold 0
+*FvwmPagerTest: SolidSeparators
+*FvwmPagerTest: WindowBorderWidth 1
+
+# Définition du style du pager.
+Style FvwmPager Sticky, NoTitle, WindowListSkip, StaysOnBottom, \
+FixedSize, NeverFocus, !Handles, !Borders, FixedPosition
+
+
+####
+# Configuration du tableau de bord. C'est largement copié sur Fluxbox mais je le 
+# trouve vraiment très simple et à la fois fonctionnel.
+#
+# Je commence par définir en pixels sa longueur, ce qui me permet par la suite 
+# avec un calcul simple en bash (la commande PipeRead permet de récupérer la sortie
+# d'un script) d'obtenir en pixels un décalage par rapport au bord de l'écran.
+# C'est une manière de centrer ce tableau de bord quelque soit la résolution 
+# d'écran (tant qu'elle ne passe pas en dessous de la longueur même du tableau
+# de bord).
+#
+# La configuration est tout simplement celle de FvwmButtons : lisez la page man.
+# Enfin, on définit le style de ce tableau de bord.
+##########################
+SetEnv panel.width 800
+PipeRead "echo SetEnv offset.panel $$(( ($[vp.width]-$[panel.width]) / 2))"
+
+DestroyModuleConfig Panel:*
+*Panel: Frame 0
+*Panel: Padding 0 0
+*Panel: Geometry $[panel.width]x23+$[offset.panel]-5
+*Panel: Rows 23
+*Panel: Columns 800
+*Panel: Colorset 5
+*panel: Font "Shadow=0 se:xft:Lucida Grande:size=7:bold"
+*Panel: (1x23, Colorset 6)
+*Panel: (35x23, id desk, Title "unan", Colorset 4, \
+Action(Mouse 5) 'GoToDesk -1 0 3', \
+Action(Mouse 4) 'GoToDesk +1 0 3')
+*Panel: (16x23, Icon arrow-previous.xpm, Action(Mouse 1) 'GoToDesk -1 0 3', \
+Action(Mouse 5) 'GoToDesk -1 0 3', \
+Action(Mouse 4) 'GoToDesk +1 0 3')
+*Panel: (16x23, Icon arrow-next.xpm, Action(Mouse 1) 'GoToDesk +1 0 3', \
+Action(Mouse 5) 'GoToDesk -1 0 3', \
+Action(Mouse 4) 'GoToDesk +1 0 3')
+*Panel: (691x23, Swallow FvwmIconMan "Module FvwmIconMan")
+*Panel: (40x23, Swallow "TimeScript" 'FvwmScript $[scripts]/TimeScript')
+*Panel: (1x23, Colorset 6)
+
+# Définition du style du tableau de bord.
+Style Panel Sticky, NoTitle, WindowListSkip, StaysOnBottom, \
+FixedSize, NeverFocus, !Handles, !Borders
+
+
+####
+# Configuration du panel pour le thème Vert. Celui-ci doit inclure
+# le Pager ainsi que la date et l'heure. Le panel doit être rétractable,
+# ceci est réalisé à l'aide de la fonction PanelVertHideFunc.
+##########################
+SetEnv panelvert.width 562
+SetEnv panelvert.height 67
+PipeRead "echo SetEnv IconBoxVertWidth $$(($[vp.width]-$[panelvert.width]))"
+
+DestroyModuleConfig PanelVert: *
+*PanelVert: Frame 0
+*PanelVert: Padding 0 0
+*PanelVert: Geometry $[panelvert.width]x$[panelvert.height]-0-0
+*PanelVert: Colorset 11
+*PanelVert: Rows 67
+*PanelVert: Columns 562
+*PanelVert: (562x5, Colorset 2, Frame 1, Action(Mouse 1) `PanelVertHideFunc $height`)
+*PanelVert: (160x62, Swallow FvwmScript "FvwmScript $[scripts]/TimeScriptVert")
+*PanelVert: (402x62, Swallow FvwmPager "Module FvwmPager 0 3")
+
+# Définition du style du panel vert.
+Style PanelVert Sticky, NoTitle, WindowListSkip, StaysOnBottom, \
+FixedSize, !Handles, !Borders, NeverFocus
+
+
+####
+# Exactement le même principe que pour le tableau de bord sauf que je n'utilise
+# (plus) pas ce panneau latéral pour le moment. Il est prêt pour plus tard.
+# Il sera censé regrouper le pager, quelques raccourcis de lancement rapide et des 
+# monitors de charge comme Xosview.
+##########################
+SetEnv side.width 183
+
+DestroyModuleConfig Side: *
+*Side: Frame 0
+*Side: Padding 0 0
+*Side: Geometry $[side.width]x$[vp.height]-0+0
+*Side: Colorset 20
+*Side: Rows 1000
+*Side: Columns 183
+*Side: (3x1000, Frame 1, Action(Mouse 1) `SideHideFunc $width`)
+*Side: (5x62)
+*Side: (170x62, Swallow "TimeScriptSide" 'Module FvwmScript $[scripts]/TimeScriptSide')
+*Side: (5x62)
+*Side: (180x10)
+*Side: (25x20, Icon side/cpu.png)
+*Side: (150x20, Swallow(UseOld) "cpumon" `Exec exec xosview -title cpumon +cpu`)
+*Side: (5x100)
+*Side: (25x20, Icon side/reseau.png)
+*Side: (150x20, Swallow(UseOld) "netmon" `Exec exec xosview -title netmon +net`)
+*Side: (25x20, Icon side/disquedur.png)
+*Side: (150x20, Swallow(UseOld) "diskmon" `Exec exec xosview -title diskmon +disk`)
+*Side: (25x40, Icon side/memoire.png)
+*Side: (150x40, Swallow(UseOld) "memmon" `Exec exec xosview -title memmon +swap +mem`)
+*Side: (180x20)
+*Side: (10x100)
+*Side: (160x100, Swallow "FvwmPager" 'Module FvwmPager FvwmPagerTest 0 3')
+*Side: (10x100)
+*Side: (180x828)
+*Side: BoxSize Fixed
+*Side: Font "Shadow=0 se:xft:Lucida Grande:size=9:bold"
+
+# Définition du style du panneau latéral.
+Style Side Sticky, NoTitle, WindowListSkip, StaysOnBottom, \
+FixedSize, !Handles, !Borders
+
+
+####
+# FvwmIconMan est le module qui gère la barre des tâches. Remarquez qu'il est 
+# inclue dans le tableau de bord grace à la commande Swallow.
+# La configuration est relativement standard, c'est à peu près le comportement 
+# que l'on retrouve sur la plupart des gestionnaires de fenêtres et ça me 
+# convient très bien. N'oubliez pas de jeter un oeil sur la page man de ce module 
+# pour bien comprendre les différentes options que j'utilise.
+##########################
+DestroyModuleConfig FvwmIconMan: *
+*FvwmIconMan: ButtonGeometry    200x23
+*FvwmIconMan: FollowFocus True
+*FvwmIconMan: Colorset  10
+*FvwmIconMan: PlainColorset 10
+*FvwmIconMan: DrawIcons false
+*FvwmIconMan: FocusAndSelectColorset 9
+*FvwmIconMan: FocusColorset     9
+*FvwmIconMan: Font "Shadow=0 se:xft:Lucida Grande:size=6:bold"
+*FvwmIconMan: Format "%t"
+*FvwmIconMan: ManagerGeometry 8x1
+*FvwmIconMan: ReliefThickness   0
+*FvwmIconMan: Resolution        page
+*FvwmIconMan: SelectColorset    10
+*FvwmIconMan: Sort              name
+*FvwmIconMan: Title             ""
+*FvwmIconMan: UseWinList        true
+*FvwmIconMan: NoIconAction         "SendToModule FvwmAnimate animate"
+*FvwmIconMan: Action    Mouse   1 N sendcommand FocusOrIconify
+*FvwmIconMan: Action    Mouse   3 N sendcommand `Menu WindowControls Rectangle +$left+$top 0 -100m`
+
+# Définition du style de la barre des tâches.
+Style FvwmIconMan Sticky, NoTitle, WindowListSkip, StaysOnBottom, \
+FixedSize, NeverFocus, !Handles, !Borders
+
+
+####
+# La configuration de Fvwm est maintenant terminée. Il reste pourtant pas mal de 
+# choses en dessous : ce sont des fonctions. 
+#
+# Regardons d'abord comment est constuite une fonction :
+#
+#   DestroyFunc FuncName
+#   AddToFunc FuncName
+#   + I (Action immédiate)
+#   + C (Action sur un clic de la souris)
+#   + D (Action sur un double clic)
+#   + H (Action sur un to happen on a mouse 'hold')
+#   + M (Action to happen on a mouse 'motion')
+#
+# La première chose à faire est de détruire la fonction avec DestroyFunc, 
+# ceci permet de remettre à zéro afin d'éviter quelques soucis si la fonction 
+# existait déja avant dans le fichier. Puis, la commande AddToFunc permet 
+# d'ajouter une liste d'action qui sera exécutée quand cette fonction sera 
+# appellée. Comme vous pouvez le voir ci-dessus, ces actions peuvent agir
+# différemment avec les actions de la souris. Toutefois, on utilise principalement
+# le I. Maintenant quand vous appellez une fonction dans FVWM, vous pouvez 
+# lui envoyer plusieurs paramètres. Par exemple, vous pouvez appeller la 
+# fonction par son nom suivi de variables : 'FuncName "$0" "$1" "$2" "$3"
+# "$4"' où $0-$4 sont les options passées à la fonction.
+#
+# J'essaie de donner un nom explicite pour chacune des fonctions et d'optimiser
+# au maximum chaque fonction : ne pas créer deux fonctions qui pourraient 
+# n'en faire qu'une seule par exemple.
+##########################
+
+
+####
+# Deux fonctions pour la barre des tâches.
+# La première s'occupe de lancer la fonction FuncSelectWindow si la fenêtre
+# concernée n'a pas le focus, elle l'iconifie si la fenêtre a le focus.
+# La seconde fonction FuncSelectWindow donne le focus, fait passer au premier
+# plan et restaure la fenêtre concernée si elle était iconifiée.
+##########################
+DestroyFunc FocusOrIconify
+AddToFunc FocusOrIconify
++ I ThisWindow (!Focused) FuncSelectWindow
++ I TestRc (NoMatch) Iconify
+
+DestroyFunc FuncSelectWindow
+AddToFunc FuncSelectWindow
++ I Focus
++ I Iconify false
++ I Raise
+
+
+####
+# Cette fonction est directement liée au panneau latéral.
+# C'est elle qui permet de le montrer ou le cacher.
+#
+# On effectue dans un premier temps un test en bash avec la commande PipeRead
+# qui compare la longueur du panneau additionnée à la longueur qu'il prend sur
+# l'écran avec la longueur de l'écran. Si le résultat est plus petit que la longueur
+# de l'écran, cela veut dire que le panneau est montré ; on donne alors un argument 
+# positif à la commande AnimatedMove (dont le fonctionnement est exactement le 
+# même que la commande Move) pour l'axe des abscisses. Si le résultat est plus grand
+# que la longueur de l'écran, le panneau est donc caché et il faut le montrer ; on 
+# donne alors un argument négatif pour AnimatedMove. 
+#
+# AnimatedMove accepte deux arguments : un horyzontal et un vertical. Les deux
+# arguments horyzontaux sont choisis à l'aide de l'opérateur logique || (ou) et 
+# l'argument vertical est donné : keep (on garde la même valeur).
+#
+# C'est exactement le même principe pour la seconde action sauf que l'on modifie
+# la variable $[strut.right] en fonction du résultat de la comparaison.
+# Le contenu de la variable $[strut.right] est alors utilisée pour mettre à jour 
+# la commande EwmhBaseStruts.
+#
+# Enfin comme la zone de l'écran autorisé pour les fenêtres maximisées est bien 
+# définie en fonction de la position du panneau, on indique aux fenêtres maximisées
+# de se remaximiser.
+#
+#
+# La fontion PanelVertHideFunc a le même rôle sauf qu'elle ne s'applique que pour 
+# le panel du thème vert.
+##########################
+
+DestroyFunc SideHideFunc
+AddToFunc SideHideFunc
++ I Next (CirculateHit,Side) PipeRead 'echo AnimatedMove $$(test $$(($[w.x]+$[w.width])) -le $[vp.width] \
+    && echo w$$(($[w.width]-$0))p \
+    || echo w-$$(($[w.width]-$0))p) keep'
++ I Next (CirculateHit,Side) PipeRead 'test $$(($[w.x]+$[w.width])) -le $[vp.width] \
+    && echo SetEnv strut.right $[side.width] \
+    || echo SetEnv strut.right $0'
++ I EwmhBaseStruts 0 $[strut.right] 0 33
++ I All (Maximized, !Side, !Panel) Maximize True
+
+DestroyFunc PanelVertHideFunc
+AddToFunc PanelVertHideFunc
++ I Next (PanelVert) PipeRead 'echo AnimatedMove keep $$(test $$(($[w.y]+$[w.height])) -le $[vp.height] \
+    && echo w$$(($[w.height]-$0))p \
+    || echo w-$$(($[w.height]-$0))p)'
++ I Next (PanelVert) PipeRead 'test $$(($[w.y]+$[w.height])) -le $[vp.height] \
+    && echo SetEnv strut.bottom $[w.height] \
+    || echo SetEnv strut.bottom $0'
++ I EwmhBaseStruts 0 0 0 $[strut.bottom]
++ I All (Maximized, !PanelVert) Maximize True
+
+
+####
+# Vous pouvez explorer des répertoires et des fichiers grace au script
+# fvwm-menu-directory inclut dans Fvwm. C'est très configurable et très 
+# fonctionnel. Ces 3 fonctions sont directements tirées du fichier de 
+# configuration de Taviso.
+# 
+# Il faudra les utiliser dans des menus dynamiques. Elles permettent
+# d'explorer vos répertoires de videos et de musiques et de changer de fond d'écran.
+##########################
+DestroyFunc FuncFvwmMenuDirectory
+AddToFunc FuncFvwmMenuDirectory
++ I PipeRead 'case "$0" in \
+        "$[video]"*) myexec="$[video_exec]" mypng=menu/video.png;; \
+        "$[audio]"*) myexec="$[audio_exec]" mypng=menu/audio.png;; \
+    esac; \
+    fvwm-menu-directory --icon-title menu/dossier.png --icon-file ${mypng:-menu/dossier.png} \
+    --icon-dir menu/dossier.png --dir "$0" --exec-t="^${myexec:-gvim} *" \
+    --exec-file "^${myexec:-gvim}"'
+
+DestroyFunc WallpaperBrowser
+AddToFunc WallpaperBrowser
++ I PipeRead 'test ! -d "$0/.thumbs" && mkdir "$0/.thumbs"; \
+    for i in "$0/"*; do \
+        test -f "$0/.thumbs/${i##*/}" \
+            -a "${i}" -ot "$0/.thumbs/${i##*/}" || { \
+                convert -quality 0 -scale 64 "${i}" "png:$0/.thumbs/${i##*/}" 2>/dev/null \
+                    || continue;}; \
+    done; \
+    fvwm-menu-directory --icon-title dossier.png --icon-file __PIXMAP__ \
+    --icon-dir dossier.png --dir $0 --exec-file "^fbsetbg -f" \
+    --exec-t="^eog *" | sed -e "s#FuncFvwmMenuDirectory#WallpaperBrowser#g" \
+    -e "s#__PIXMAP__\\(.*\\)\\"\\(.*/\\)\\(.*\\)\\"#\\2.thumbs/\\3\\1\\2\\3#g"'
+
+DestroyFunc ScreenshotsBrowser
+AddToFunc ScreenshotsBrowser
++ I PipeRead 'test ! -d "$0/.thumbs" && mkdir "$0/.thumbs"; \
+    for i in "$0/"*; do \
+        test -f "$0/.thumbs/${i##*/}" \
+            -a "${i}" -ot "$0/.thumbs/${i##*/}" || { \
+                convert -quality 0 -scale 64 "${i}" "png:$0/.thumbs/${i##*/}" 2>/dev/null \
+                    || continue;}; \
+    done; \
+    fvwm-menu-directory --icon-title dossier.png --icon-file __PIXMAP__ \
+    --icon-dir dossier.png --dir $0 --exec-file "^eog" \
+    --exec-t="^eog *" | sed -e "s#FuncFvwmMenuDirectory#ScreenshotsBrowser#g" \
+    -e "s#__PIXMAP__\\(.*\\)\\"\\(.*/\\)\\(.*\\)\\"#\\2.thumbs/\\3\\1\\2\\3#g"'
+
+
+####
+# Fvwm possède une fonction native nommée WindowListFunc. Je n'aimais pas trop
+# le comportement par defaut de cette fonction, alors je l'ai détruite et recréé
+# afin de positionner le curseur de la souris sur la fenêtre sélectionnée.
+##########################
+DestroyFunc WindowListFunc
+AddToFunc WindowListFunc
++ I Iconify off
++ I FlipFocus
++ I Raise
++ I WarpToWindow 50 50
+
+
+####
+# Fonction très simple qui permet avec une simple opération mathématique de
+# centrer une fenêtre. J'utilise la même méthode pour centrer le tableau de bord.
+# Cette fonction est appellée avec la combinaison de touche Alt+c.
+##########################
+DestroyFunc CenterWindow
+AddToFunc   CenterWindow
++ I ThisWindow Piperead "echo AnimatedMove \
+      $(( $[vp.width]/2-$[w.width]/2 ))p \
+      $(( $[vp.height]/2-$[w.height]/2 ))p"
+
+
+####
+# Différentes fonctions qui s'occupe des opérations sur les fenêtres :
+# iconifier, maximiser, plein écran, enlever la décoration etc.
+##########################
+DestroyFunc IconifyFunc
+AddToFunc IconifyFunc
++ M Nop
++ C Iconify
+
+DestroyFunc ThumbnailFunc
+AddToFunc ThumbnailFunc
++ M Nop
++ C Thumbnail
+
+
+DestroyFunc MaximizeFunc
+AddToFunc MaximizeFunc
++ C Maximize $0
++ M Nop
+
+DestroyFunc HoryMaximizeFunc
+AddToFunc HoryMaximizeFunc
++ C HoryMaximizeRealFunc
++ M Nop
+
+DestroyFunc HoryMaximizeRealFunc
+AddToFunc HoryMaximizeRealFunc
++ I PipeRead "echo SetEnv OffsetMax $$(( $$(($[vp.width]-$[strut.right]))+$$(($[BorderWidth]*2)) ))"
++ I Maximize $[OffsetMax]p 0
++ I Move w-$[BorderWidth]p keep
+
+DestroyFunc MaximizeTitleBarFunc
+AddToFunc MaximizeTitleBarFunc
++ I Raise
++ D MaximizeRealFunc
++ M Move
+
+DestroyFunc CloseFunc
+AddToFunc CloseFunc
++ C Close
++ M Nop
+
+DestroyFunc MoveFunc
+AddToFunc MoveFunc
++ M Move
++ C Nop
+
+DestroyFunc ResizeFunc
+AddToFunc ResizeFunc
++ M Resize
++ C Menu WindowControls
+AddToFunc DeiconifyAndRearrange
+ + I DeThumbnail
+ + I All (CurrentPage, Iconic) PlaceAgain Icon
+
+ AddToFunc IconFunc
+ + C DeiconifyAndRearrange
+ + M Raise
+ + M Move
+ + D DeiconifyAndRearrange
+
+DestroyFunc Thumbnail
+AddToFunc Thumbnail
++ I Raise
++ I ThisWindow (!Iconic) SetEnv Icon-$[w.id] $[w.iconfile]
++ I ThisWindow (!Shaded, Iconifiable, !Iconic) PipeRead \
+"xwd -silent -id $[w.id] | convert -scale 128 -frame 1x1 \
+-mattecolor black -quality 0 xwd:- png:$[FVWM_USERDIR]/icon.tmp.$[w.id].png \
+&& echo WindowStyle IconOverride, Icon $[FVWM_USERDIR]/icon.tmp.$[w.id].png \
+|| echo Nop"
++ I TestRc (Match) Test (f $[w.miniiconfile], f $[FVWM_USERDIR]/icon.tmp.$[w.id].png) PipeRead \
+"composite -geometry +2+4 $[w.miniiconfile] $[FVWM_USERDIR]/icon.tmp.$[w.id].png \
+$[FVWM_USERDIR]/icon.tmp.$[w.id].png; echo Nop"
++ I Iconify
+
+DestroyFunc DeThumbnail
+AddToFunc DeThumbnail
++ I PipeRead "echo Test \\(i \\$\\[Icon-$[w.id]\\]\\) WindowStyle Icon \\$\\[Icon-$[w.id]\\]"
++ I TestRc (NoMatch) WindowStyle NoIconOverride, Icon
++ I Exec rm -f $[FVWM_USERDIR]/icon.tmp.$[w.id].png
++ I UnsetEnv Icon-$[w.id]
++ I Iconify off
+
+####
+# J'utilise FvwmEvent pour détecter le lancement de nouvelles fenêtres.
+# Différentes actions sont exécutées en fonction de la fenêtre.
+##########################
+DestroyFunc AddWindowFunc
+AddToFunc AddWindowFunc
++ I ThisWindow (irssi) Move 90p 165p
+
+
+####
+# Deux fonctions utilisées dans le menu des opérations sur les fenêtres.
+# Elles permettent respectivement de faire passer une fenêtre en plein écran
+# ou de la remettre dans son état initial. Ce que j'appelle plein écran, c'est 
+# une fenêtre sans bordures, sans décorations de fenêtres et maximisée au maximum.
+# Voila ce que fait la fonction FullScreen et à l'inverse la fonction FullScreenOff.
+##########################
+DestroyFunc FullScreen
+AddToFunc FullScreen
++ I ToggleTitle
++ I ToggleBorder
++ I UpdateStyles
++ I Maximize ewmhiwa true
+
+DestroyFunc FullScreenOff
+AddToFunc FullScreenOff
++ I ToggleTitle
++ I ToggleBorder
++ I UpdateStyles
++ I Maximize ewmhiwa false
+
+
+####
+# On a dit au début que toutes les fenêtres avait le State 1 (la barre de titre 
+# est bien la). La fonction ToggleTitle s'occupe d'appliquer le Style NoTitle
+# à la fenêtre concernée si cette dernière avait bien le State 1. Dans le cas
+# contraire (ce qui veut dire que la barre de titre n'est plus la), ToggleTitle
+# applique le Style Title à la fenêtre.
+#
+# Exactement le même principe pour ToggleBorder sauf que l'on joue sur le Style 
+# Borders et !Borders ainsi que sur le State 2 (la bordure est bien la).
+#
+# Toujours le même principe pour TitleRotate. Cela paraît un peu plus compliqué 
+# car c'est une boucle. Mais regardez bien : le State 3 définit que la barre de 
+# titre est en haut. On indique donc à Fvwm de passer la barre de titre à gauche
+# si elle était en haut. Ensuite on dit que si la barre de titre est à gauche, cela 
+# correspond au State 4. Si l'on rappelle cette fonction, on lui indique de faire 
+# passer la barre de titre en bas si elle était à gauche ; ce qui fait passer la 
+# fenêtre en State 5. Cela se répète jusqu'à revenir au State 3. 
+#
+# Remarque : ces 3 fonctions sont très inspirées de fonctions écrites par Taviso.
+##########################
+DestroyFunc ToggleTitle
+AddToFunc ToggleTitle
++ I ThisWindow (State 1) WindowStyle NoTitle
++ I TestRc (Match) State 1 False
++ I TestRc (NoMatch) WindowStyle Title
++ I TestRc (NoMatch) State 1 True
+
+DestroyFunc ToggleBorder
+AddToFunc ToggleBorder
++ I ThisWindow (State 2) WindowStyle !Borders
++ I TestRc (Match) State 2 False
++ I TestRc (NoMatch) WindowStyle Borders
++ I TestRc (NoMatch) State 2 True
+
+DestroyFunc TitleRotateLeft
+AddToFunc TitleRotateLeft
++ I ThisWindow (State 3) WindowStyle TitleAtLeft
++ I TestRc (Match) State 3 False
++ I TestRc (Match) State 4 True
++ I TestRc (Match) Break
++ I ThisWindow (State 4) WindowStyle TitleAtBottom
++ I TestRc (Match) State 4 False
++ I TestRc (Match) State 5 True
++ I TestRc (Match) Break
++ I ThisWindow (State 5) WindowStyle TitleAtRight
++ I TestRc (Match) State 5 False
++ I TestRc (Match) State 6 True
++ I TestRc (Match) Break
++ I ThisWindow (State 6) WindowStyle TitleAtTop
++ I TestRc (Match) State 6 False
++ I TestRc (Match) State 3 True
++ I TestRc (Match) Break
+
+DestroyFunc TitleRotateRight
+AddToFunc TitleRotateRight
++ I ThisWindow (State 3) WindowStyle TitleAtRight
++ I TestRc (Match) State 3 False
++ I TestRc (Match) State 6 True
++ I TestRc (Match) Break
++ I ThisWindow (State 6) WindowStyle TitleAtBottom
++ I TestRc (Match) State 6 False
++ I TestRc (Match) State 5 True
++ I TestRc (Match) Break
++ I ThisWindow (State 5) WindowStyle TitleAtLeft
++ I TestRc (Match) State 5 False
++ I TestRc (Match) State 4 True
++ I TestRc (Match) Break
++ I ThisWindow (State 4) WindowStyle TitleAtTop
++ I TestRc (Match) State 4 False
++ I TestRc (Match) State 3 True
++ I TestRc (Match) Break
+
+
+
+
+
+
+####
+# Celle ci s'occupe de remplacer le contenu de la variable $[desk.n] qui est 
+# un chiffre représentatif du bureau courant (0, 1, 2 ou 3 dans notre cas) par 
+# un mot, c'est du Breton mais libre à vous de mettre ce que vous voulez bien sur !
+# Remarquez l'utilité de la commande PipeRead.
+##########################
+DestroyFunc NewDeskFunc
+AddToFunc NewDeskFunc
++ I Piperead 'case $[desk.n] in \
+        "0" ) echo SetEnv title.desk unan;; \
+        "1" ) echo SetEnv title.desk daou;; \
+        "2" ) echo SetEnv title.desk tri;; \
+        "3" ) echo SetEnv title.desk pevar;; esac'
++ I SendToModule Panel ChangeButton desk Title $[title.desk]
+
+
+####
+# http://www.stationlinux.org/fiche.140.html
+# C'est ce que j'appelle la console Quake 3. Je crois que c'est parce que c'est 
+# dans ce jeu que j'ai vu pour la première fois une console de ce genre.
+#
+# La fonction ToggleTerminal exécute la fonction StartTerminal si il n'existe pas de 
+# fenêtre nommée GameConsole. Si il existe déja une fenêtre GameConsole, la fonction
+# lui donne le focus, la fait passer en premier plan et la déroule si elle était 
+# enroulée ; ou bien appelle la fonction SetWindowShadeTrue si la GameConsole 
+# était déroulée.
+#
+# La fonction StartTerminal ne fait que démarrer un terminal nommé GameConsole, 
+# le redimmenssione de telle manière qu'il prenne toute la place de l'écran et
+# change le contenu de $[OpenedTerm] à True.
+#
+# La fonction SetWindowShadeTrue est appellée si la GameConsole est déroulée.
+# On test si $[OpenedTerm] contient bien False, alors on enroule le terminal.
+#
+# Si le terminal est collé en haut de l'écran, on obtient le même comportement
+# que sous Quake 3.
+##########################
+DestroyFunc ToggleTerminal
+AddToFunc ToggleTerminal
++ I SetEnv OpenedTerm "False"
++ I None (GameConsole) StartTerminal
++ I All (GameConsole) Focus
++ I All (GameConsole) Raise
++ I All (GameConsole, Shaded) WindowShade False
++ I TestRc (NoMatch) SetWindowShadeTrue
+
+DestroyFunc SetWindowShadeTrue
+AddToFunc SetWindowShadeTrue
++ I Test (EnvMatch OpenedTerm False) All (GameConsole) WindowShade True
+
+DestroyFunc StartTerminal
+AddToFunc StartTerminal
++ I Exec $[TermQuake] 
++ I Wait GameConsole
++ I All (GameConsole) Resize 101 keep
++ I SetEnv OpenedTerm "True"
+
+
+####
+# ChangeThemeDefaut est lancée dans la StartFunction lors du démarrage de Fvwm (et 
+# uniquement lors du démarrage grace au Test (Init)). Elle définie, tout comme 
+# ChangeThemeVert, plusieurs Style, MenuStyle, Colorset et même des variables 
+# d'environnement. ChangeThemeDefaut sélectionne le décor Default alors que 
+# ChangeThemeVert sélectionne le décor Vert.
+# 
+# ChangeThemeVert est lancée dans la StartFunction lors du redémarrage seulement
+# si elle à été lancée auparavant (grace à cette ligne : + I SetEnv theme vert).
+# En effet cela créé la variable $[theme] avec pour valeur "vert", et regardez 
+# bien dans la StartFunction :
+# + I Test (Init) SetEnv theme defaut
+# + I ChangeTheme$[theme]
+# On lance ChangeThemeDefaut lors du premier démarrage de Fvwm et on lance soit 
+# ChangeThemeVert ou ChangeThemeDefaut selon le thème utilisé.
+# C'est un moyen de se souvenir quel était le thème utilisé. Il faudrait écrire 
+# dans un fichier extérieur la valeur de la variable pour que Fvwm puisse restaurer
+# le thème utilisé auparavant lors d'un premier démarrage (après un reboot
+# par exemple).
+# 
+# Il faut créer autant de fonctions similaires qu'il existe de thèmes.
+#
+# http://www.stationlinux.org/fiche.138.html
+# Utilisez EwmhBaseStruts pour empêcher les fenêtres de recouvrir une 
+# zone de l'écran lorsqu'elles sont maximisées. Les valeurs sont en pixels.
+# Notez que vous pouvez utiliser l'argument ewmhiwa pour la commande Maximize,
+# ce qui aura pour conséquence d'ignorer EwmhBaseStruts.
+# EwmhBaseStruts $[strut.left] $[strut.right] $[strut.top] $[strut.bottom]
+##########################
+DestroyFunc ChangeThemeDefaut
+AddToFunc ChangeThemeDefaut
++ I DefaultColorset 9
++ I Style * UseDecor Default, NoIcon
++ I Colorset 0 fg #c0c0c0, bg #fdfdfd
++ I Colorset 2 fg #7b7b7b, bg #fdfdfd
++ I Colorset 3 fg white, RootTransparent, Tint #414b54 85
++ I Colorset 4 fg #393b3a, Pixmap cinza/iconman.png
++ I Colorset 5 fg #7b7b7b, Pixmap cinza/iconman.png
++ I Colorset 6 Pixmap cinza/panel-side.xpm
++ I Colorset 7 fg #2c2c2c, Translucent white 75, hi white, sh white
++ I Colorset 8 fg white, bg #414b54, hi white
++ I Colorset 9 fg white, Pixmap cinza/hilite.png
++ I Colorset 10 fg #393b3a, Pixmap cinza/iconman.png
++ I Colorset 20 fg white, Pixmap cinza/hilite-side.png
++ I Colorset 21 fg white, Pixmap pager/active.png
++ I Colorset 22 fg #393b3a, Pixmap pager/desk.png
++ I Mouse 1 6 A IconifyFunc
++ I MenuStyle * Font "Shadow=0 se:xft:snap"
++ I UpdateStyles
++ I PipeRead "if [ -f ${FVWM_USERDIR}/vert ]; then rm ${FVWM_USERDIR}/vert; fi"
++ I PipeRead "if [ -f ${FVWM_USERDIR}/defaut ]; then rm ${FVWM_USERDIR}/defaut; fi"
++ I All (PanelVert) Close
++ I All (Panel) Close
++ I All (Side) Close
++ I EwmhBaseStruts 0 $[strut.right] 0 33
++ I All (Maximized, !Panel) MaximizeRealFunc True
++ I Module FvwmButtons Panel
++ I SendToModule Panel ChangeButton desk Title $[title.desk]
++ I Module FvwmButtons Side
++ I Wait Side
++ I All (Side) SideHideFunc 3
++ I Exec touch $[FVWM_USERDIR]/defaut
++ I All (GameConsole) Close
+
+DestroyFunc ChangeThemeVert
+AddToFunc ChangeThemeVert
++ I EwmhBaseStruts 0 0 0 67
++ I Colorset 0 fg #393b3a, bg #b4d387, IconAlpha 65
++ I Colorset 2 fg black, bg #b4d387, IconAlpha 100
++ I Colorset 3 fg white, Tint white 70, RootTransparent buffer
++ I Colorset 11 fg black, Tint white 70, RootTransparent buffer
++ I Colorset 5 fg black, Tint white 80, RootTransparent buffer
++ I Mouse 1 6 A ThumbnailFunc
++ I Mouse 1 I A IconFunc
++ I Style * UseDecor Green, Icon, NoIconTitle
++ I Style * IconBox $[IconBoxVertWidth]x$[panelvert.height]+0-0
++ I Style * IconGrid 3 3, IconFill bottom left
++ I DefaultColorset 0
++ I Colorset 7 fg #393b3a, Translucent white 75, white, sh white
++ I Colorset 8 fg #393b3a, bg #b4d387, hi white
++ I Colorset 12 fg #393b3a, bg #bbd09d
++ I Colorset 13 fg #393b3a, bg #b4d387, sh #393b3a, hi #393b3a
++ I MenuStyle * Font "Shadow=0 se:xft:Lucida Grande:size=8"
++ I UpdateStyles
++ I All (Iconic) Test (f $[FVWM_USERDIR]/icon.tmp.$[w.id].png) WindowStyle IconOverride, Icon $[FVWM_USERDIR]/icon.tmp.$[w.id].png
++ I PipeRead "if [ -f ${FVWM_USERDIR}/vert ]; then rm ${FVWM_USERDIR}/vert; fi"
++ I PipeRead "if [ -f ${FVWM_USERDIR}/defaut ]; then rm ${FVWM_USERDIR}/defaut; fi"
++ I All (Panel) Close
++ I All (Side) Close
++ I All (PanelVert) Close
++ I All (Maximized, !PanelVert) MaximizeRealFunc True
++ I Module FvwmButtons PanelVert
++ I Exec touch $[FVWM_USERDIR]/vert
++ I All (GameConsole) Close
+

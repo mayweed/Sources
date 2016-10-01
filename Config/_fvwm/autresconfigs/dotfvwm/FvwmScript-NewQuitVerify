@@ -1,0 +1,57 @@
+WindowTitle {FvwmScript-NewQuitVerify}
+WindowSize 250 125
+Font "xft:CoreysHand:style=Regular:size=18"
+Colorset 10
+WindowPosition 650 513
+
+Widget  1
+Property
+	Size 48 48
+	Position 10 10
+	Type ItemDraw
+	Icon 48x48/gtk/gtk-dialog-warning.png
+End
+
+Widget  2
+Property
+	Size 48 48
+	Position 192 10
+	Type ItemDraw
+	Icon 48x48/gtk/gtk-dialog-warning.png
+End
+
+Widget 3
+Property
+        Size 134 0
+        Position 58 10
+        Type ItemDraw
+        Title {Really Quit?}
+End 
+
+Widget 4
+Property
+        Size 50 30
+        Position 20 70
+        Type PushButton
+        Title {No!}
+Main
+        Case message of
+        SingleClic :
+        Begin
+                Quit
+        End
+End
+
+Widget 5
+Property
+        Size 30 30
+        Position 135 70
+        Type PushButton
+        Title {Yes, quit.}
+Main   
+        Case message of
+        SingleClic :
+        Begin
+                Do {Quit}
+        End     
+End

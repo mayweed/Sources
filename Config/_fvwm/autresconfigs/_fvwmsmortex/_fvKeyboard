@@ -1,0 +1,24 @@
+Key	F9	A	M	Maximize	0	100
+Key	F10	A	M	Maximize	100	0
+Key	F11	A	M	Maximize	100	100
+Key F12	A	M	Thumbnail
+
+Key Left    A   CM  Scroll -100 +0 
+Key Right   A   CM  Scroll +100 +0 
+Key Up      A   CM  Scroll +0   -100
+Key Down    A   CM  Scroll +0   +100
+
+Key Left    A   SCM CursorMove -1  +0
+Key Right   A   SCM CursorMove +1  +0
+Key Up      A   SCM CursorMove +0  -1
+Key Down    A   SCM CursorMove +0  +1
+
+Key F2  R A Exec fbrun
+Key	F5	R	A	Exec aterm
+Key	F6	R	A	Exec gvim
+
+Key	Super_L	A	A	Menu	MenuActions
+#Key Menu    A   A   Menu    WindowList Nop
+
+#Key F34		A	A	Exec    ~/.fvwm/Scripts/volume.sh -1 -5
+#Key F35     A   A   Exec    ~/.fvwm/Scripts/volume.sh +1 +5

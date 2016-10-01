@@ -1,0 +1,1236 @@
+<html>
+<head>
+<title>~/.fvwm/.fvwm2rc.html</title>
+<meta name="Generator" content="Vim/6.3">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+</head>
+<body bgcolor="#333333" text="#ffffff">
+<pre>
+<font color="#ffff00">   1</font>  <font color="#87ceeb">##############################################</font>
+<font color="#ffff00">   2</font>  <font color="#87ceeb">##############################################</font>
+<font color="#ffff00">   3</font>  <font color="#87ceeb">### Fichier de configuration pour Fvwm 2.5.14</font>
+<font color="#ffff00">   4</font>  <font color="#87ceeb">### </font>
+<font color="#ffff00">   5</font>  <font color="#87ceeb">### Dernière modification le 10 novembre 2005.</font>
+<font color="#ffff00">   6</font>  <font color="#87ceeb">### Lucky &lt;jeremy.lefloch@gmail.com&gt; &lt;bosozoku@jabber.org&gt;</font>
+<font color="#ffff00">   7</font>  <font color="#87ceeb">### www.stationlinux.org</font>
+<font color="#ffff00">   8</font>  <font color="#87ceeb">###</font>
+<font color="#ffff00">   9</font>  <font color="#87ceeb">### Remerciements à Taviso (<A HREF="http://dev.gentoo.org/~taviso)">http://dev.gentoo.org/~taviso)</A> car de nombreuses</font>
+<font color="#ffff00">  10</font>  <font color="#87ceeb">### fonctions dans cette configuration sont directement tirées de son ~/.fvwm2rc.</font>
+<font color="#ffff00">  11</font>  <font color="#87ceeb">##################################################################################</font>
+<font color="#ffff00">  12</font>  <font color="#87ceeb">##################################################################################</font>
+<font color="#ffff00">  13</font>
+<font color="#ffff00">  14</font>
+<font color="#ffff00">  15</font>
+<font color="#ffff00">  16</font>
+<font color="#ffff00">  17</font>  <font color="#87ceeb">####</font>
+<font color="#ffff00">  18</font>  <font color="#87ceeb"># Variables d'environement</font>
+<font color="#ffff00">  19</font>  <font color="#87ceeb">##########################</font>
+<font color="#ffff00">  20</font>  <font color="#87ceeb"># Les variables d'environnement sont très utiles car elles vous permettent </font>
+<font color="#ffff00">  21</font>  <font color="#87ceeb"># d'y stoquer des valeurs et de les réutiliser tout au long de votre config. </font>
+<font color="#ffff00">  22</font>  <font color="#87ceeb"># C'est exactement le même principe que dans la plupart des langages de </font>
+<font color="#ffff00">  23</font>  <font color="#87ceeb"># programmation tels que le PHP, Bash etc.</font>
+<font color="#ffff00">  24</font>  <font color="#87ceeb"># La syntaxe est très simple : SetEnv variable valeur</font>
+<font color="#ffff00">  25</font>  <font color="#87ceeb"># Ceci nous donne la variable $[variable]. Pensez à utiliser la commande </font>
+<font color="#ffff00">  26</font>  <font color="#87ceeb"># UnSetEnv, qui s'utilise de la même façon que la précedente, pour </font>
+<font color="#ffff00">  27</font>  <font color="#87ceeb"># désactiver une variable dont vous n'avez plus besoin.</font>
+<font color="#ffff00">  28</font>  <font color="#87ceeb">#</font>
+<font color="#ffff00">  29</font>  <font color="#87ceeb"># Il existe une variable d'environnement spéciale : ImagePath.</font>
+<font color="#ffff00">  30</font>  <font color="#87ceeb"># Son contenu indique à Fvwm ou il doit aller chercher les images dont il </font>
+<font color="#ffff00">  31</font>  <font color="#87ceeb"># a besoin, pour votre menu par exemple. Voici la syntaxe :</font>
+<font color="#ffff00">  32</font>  <font color="#87ceeb"># ImagePath $[img]:$[img_autres]</font>
+<font color="#ffff00">  33</font>  <font color="#87ceeb"># Je range toutes mes icônes dans le répertoire $[img] mais aussi dans le </font>
+<font color="#ffff00">  34</font>  <font color="#87ceeb"># répertoire [img_autres].</font>
+<font color="#ffff00">  35</font>  <font color="#87ceeb">#</font>
+<font color="#ffff00">  36</font>  <font color="#87ceeb"># Pensez à remplacer certaines valeurs par les votres comme :</font>
+<font color="#ffff00">  37</font>  <font color="#87ceeb"># SetEnv wallpapers_dir $[HOME]/Images/wallpapers</font>
+<font color="#ffff00">  38</font>  <font color="#87ceeb"># Ceci est vrai sur mon ordinateur mais peut être pas chez vous.</font>
+<font color="#ffff00">  39</font>  <font color="#87ceeb">##########################</font>
+<font color="#ffff00">  40</font>  <font color="#98fb98">SetEnv</font> img <font color="#cd5c5c">$[FVWM_USERDIR]</font>/images
+<font color="#ffff00">  41</font>  <font color="#98fb98">ImagePath</font> <font color="#cd5c5c">$[img]</font>:<font color="#cd5c5c">$[img]</font>/deco:<font color="#cd5c5c">$[img]</font>/<font color="#98fb98">menu</font>:<font color="#cd5c5c">$[img]</font>/panel
+<font color="#ffff00">  42</font>  <font color="#98fb98">SetEnv</font> scripts <font color="#cd5c5c">$[FVWM_USERDIR]</font>/scripts
+<font color="#ffff00">  43</font>  <font color="#98fb98">SetEnv</font> temp <font color="#cd5c5c">$[FVWM_USERDIR]</font>/temp
+<font color="#ffff00">  44</font>  <font color="#98fb98">SetEnv</font> <font color="#f0e68c"><b>BorderWidth</b></font> 4
+<font color="#ffff00">  45</font>
+<font color="#ffff00">  46</font>  <font color="#98fb98">SetEnv</font> wallpapers_dir <font color="#cd5c5c">$[HOME]</font>/Images/wallpapers
+<font color="#ffff00">  47</font>  <font color="#98fb98">SetEnv</font> screenshots_dir <font color="#cd5c5c">$[HOME]</font>/Images/screenshots/<font color="#f0e68c"><b>fvwm</b></font>
+<font color="#ffff00">  48</font>  <font color="#98fb98">PipeRead</font> <font color="#ffa0a0">&quot;export screenshots_dir=${HOME}/Images/screenshots/fvwm&quot;</font>
+<font color="#ffff00">  49</font>  <font color="#98fb98">SetEnv</font> video /mnt/Multimedia/Video
+<font color="#ffff00">  50</font>  <font color="#98fb98">SetEnv</font> video_exec xine
+<font color="#ffff00">  51</font>  <font color="#98fb98">SetEnv</font> video_exec_bis mplayer
+<font color="#ffff00">  52</font>  <font color="#98fb98">SetEnv</font> audio /mnt/Multimedia/Audio
+<font color="#ffff00">  53</font>  <font color="#98fb98">SetEnv</font> audio_exec xmms
+<font color="#ffff00">  54</font>  <font color="#98fb98">SetEnv</font> web_browser firefox
+<font color="#ffff00">  55</font>  <font color="#98fb98">SetEnv</font> browser rox
+<font color="#ffff00">  56</font>  <font color="#98fb98">SetEnv</font> TermName rxvt
+<font color="#ffff00">  57</font>  <font color="#98fb98">SetEnv</font> TermQuake <font color="#ffa0a0">&quot;aterm -geometry 150x30+0+0 -name GameConsole&quot;</font>
+<font color="#ffff00">  58</font>
+<font color="#ffff00">  59</font>
+<font color="#ffff00">  60</font>  <font color="#87ceeb">####</font>
+<font color="#ffff00">  61</font>  <font color="#87ceeb"># La commande Read est comparable à la commande include en PHP. </font>
+<font color="#ffff00">  62</font>  <font color="#87ceeb"># Cela permet de diviser votre fichier de configuration en plusieurs </font>
+<font color="#ffff00">  63</font>  <font color="#87ceeb"># parties. J'ai choisi de mettre mes menus dans un fichier extérieur </font>
+<font color="#ffff00">  64</font>  <font color="#87ceeb"># (~/.fvwm/menus) dans un soucis de propreté du fichier .fvwm2rc.</font>
+<font color="#ffff00">  65</font>  <font color="#87ceeb">##########################</font>
+<font color="#ffff00">  66</font>  <font color="#f0e68c"><b>Read</b></font> menus
+<font color="#ffff00">  67</font>  <font color="#f0e68c"><b>Read</b></font> fvwmtabrc
+<font color="#ffff00">  68</font>
+<font color="#ffff00">  69</font>
+<font color="#ffff00">  70</font>  <font color="#87ceeb">####</font>
+<font color="#ffff00">  71</font>  <font color="#87ceeb"># Les Styles et Colorset</font>
+<font color="#ffff00">  72</font>  <font color="#87ceeb">##########################</font>
+<font color="#ffff00">  73</font>  <font color="#87ceeb"># Les styles vous permettent de gérer l'apparence et le comportement </font>
+<font color="#ffff00">  74</font>  <font color="#87ceeb"># de vos fenêtres ainsi que de vos menus. La syntaxe est simple :</font>
+<font color="#ffff00">  75</font>  <font color="#87ceeb"># Style * vos_styles, un_autre</font>
+<font color="#ffff00">  76</font>  <font color="#87ceeb">#</font>
+<font color="#ffff00">  77</font>  <font color="#87ceeb"># Les colorsets sont comme le nom l'indique des ensemble de couleurs. </font>
+<font color="#ffff00">  78</font>  <font color="#87ceeb"># Chaque colorset est identifié par un numéro. La syntaxe est simple : </font>
+<font color="#ffff00">  79</font>  <font color="#87ceeb"># Colorset 0 fg couleur, bg couleur, sh couleur, hi couleur</font>
+<font color="#ffff00">  80</font>  <font color="#87ceeb"># Je ne rentre pas dans les détails, sachez que vous pouvez donner un nom </font>
+<font color="#ffff00">  81</font>  <font color="#87ceeb"># pour les couleurs (standard X11) ou bien une donnée héxadécimale.</font>
+<font color="#ffff00">  82</font>  <font color="#87ceeb">#</font>
+<font color="#ffff00">  83</font>  <font color="#87ceeb"># +-------+-----------------------------------------+</font>
+<font color="#ffff00">  84</font>  <font color="#87ceeb"># | State | Definition                              |</font>
+<font color="#ffff00">  85</font>  <font color="#87ceeb"># +=======+=========================================+</font>
+<font color="#ffff00">  86</font>  <font color="#87ceeb"># | 1     | La barre de titre est présente          |</font>
+<font color="#ffff00">  87</font>  <font color="#87ceeb"># +-------+-----------------------------------------+</font>
+<font color="#ffff00">  88</font>  <font color="#87ceeb"># | 2     | La bordure est présente                 |</font>
+<font color="#ffff00">  89</font>  <font color="#87ceeb"># +-------+-----------------------------------------+</font>
+<font color="#ffff00">  90</font>  <font color="#87ceeb"># | 3     | Barre de titre en haut                  |</font>
+<font color="#ffff00">  91</font>  <font color="#87ceeb"># +-------+-----------------------------------------+</font>
+<font color="#ffff00">  92</font>  <font color="#87ceeb"># | 4     | Barre de titre à gauche                 |</font>
+<font color="#ffff00">  93</font>  <font color="#87ceeb"># +-------+-----------------------------------------+</font>
+<font color="#ffff00">  94</font>  <font color="#87ceeb"># | 5     | Barre de titre en bas                   |</font>
+<font color="#ffff00">  95</font>  <font color="#87ceeb"># +-------+-----------------------------------------+</font>
+<font color="#ffff00">  96</font>  <font color="#87ceeb"># | 6     | Barre de titre à droite                 |</font>
+<font color="#ffff00">  97</font>  <font color="#87ceeb"># +-------+-----------------------------------------+</font>
+<font color="#ffff00">  98</font>  <font color="#87ceeb">#</font>
+<font color="#ffff00">  99</font>  <font color="#87ceeb"># +----------+--------------------------------------+</font>
+<font color="#ffff00"> 100</font>  <font color="#87ceeb"># | Colorset | Definition                           |</font>
+<font color="#ffff00"> 101</font>  <font color="#87ceeb"># +==========+======================================+</font>
+<font color="#ffff00"> 102</font>  <font color="#87ceeb"># | 0        | Fenêtres non sélectionnées           |</font>
+<font color="#ffff00"> 103</font>  <font color="#87ceeb"># +----------+--------------------------------------+</font>
+<font color="#ffff00"> 104</font>  <font color="#87ceeb"># | 1        | FvwmProxy                |</font>
+<font color="#ffff00"> 105</font>  <font color="#87ceeb"># +----------+--------------------------------------+</font>
+<font color="#ffff00"> 106</font>  <font color="#87ceeb"># | 2        | Fenêtres actives                     |</font>
+<font color="#ffff00"> 107</font>  <font color="#87ceeb"># +-------+-----------------------------------------+</font>
+<font color="#ffff00"> 108</font>  <font color="#87ceeb"># | 3     | Barre de titre en haut                  |</font>
+<font color="#ffff00"> 109</font>  <font color="#87ceeb"># +-------+-----------------------------------------+</font>
+<font color="#ffff00"> 110</font>  <font color="#87ceeb"># | 4     | Barre de titre à gauche                 |</font>
+<font color="#ffff00"> 111</font>  <font color="#87ceeb"># +-------+-----------------------------------------+</font>
+<font color="#ffff00"> 112</font>  <font color="#87ceeb"># | 5     | Barre de titre en bas                   |</font>
+<font color="#ffff00"> 113</font>  <font color="#87ceeb"># +-------+-----------------------------------------+</font>
+<font color="#ffff00"> 114</font>  <font color="#87ceeb"># | 6     | Barre de titre à droite                 |</font>
+<font color="#ffff00"> 115</font>  <font color="#87ceeb"># +-------+-----------------------------------------+</font>
+<font color="#ffff00"> 116</font>  <font color="#87ceeb">##########################</font>
+<font color="#ffff00"> 117</font>
+<font color="#ffff00"> 118</font>
+<font color="#ffff00"> 119</font>  <font color="#87ceeb"># J'aime beaucoup le SloppyFocus : la fenêtre obtient le focus lorsque la souris </font>
+<font color="#ffff00"> 120</font>  <font color="#87ceeb"># entre dans la fenêtre et le garde tant que la souris ne survole pas une autre </font>
+<font color="#ffff00"> 121</font>  <font color="#87ceeb"># fenêtre. Pour faire passer la fenêtre au premier plan (Raise), il suffit alors </font>
+<font color="#ffff00"> 122</font>  <font color="#87ceeb"># de cliquer dessus. Je trouve que c'est le meilleur comportement !</font>
+<font color="#ffff00"> 123</font>  <font color="#87ceeb">##########################</font>
+<font color="#ffff00"> 124</font>  <font color="#98fb98">Style</font> * <font color="#f0e68c"><b>SloppyFocus</b></font>, <font color="#f0e68c"><b>MouseFocusClickRaises</b></font>, <font color="#f0e68c"><b>ResizeOpaque</b></font>
+<font color="#ffff00"> 125</font>  <font color="#98fb98">Style</font> * <font color="#f0e68c"><b>WindowShadeSteps</b></font> 160, <font color="#f0e68c"><b>GrabFocus</b></font>
+<font color="#ffff00"> 126</font>  <font color="#98fb98">Style</font> * <font color="#f0e68c"><b>Colorset</b></font> 0, <font color="#f0e68c"><b>HilightColorset</b></font> 2
+<font color="#ffff00"> 127</font>  <font color="#98fb98">DefaultFont</font> <font color="#ffa0a0">&quot;Shadow=0 se:xft:Lucida Grande:size=7:bold&quot;</font>
+<font color="#ffff00"> 128</font>  <font color="#98fb98">Style</font> * <font color="#f0e68c"><b>HandleWidth</b></font> <font color="#cd5c5c">$[BorderWidth]</font>
+<font color="#ffff00"> 129</font>  <font color="#98fb98">Style</font> * State 1
+<font color="#ffff00"> 130</font>  <font color="#98fb98">Style</font> * State 2
+<font color="#ffff00"> 131</font>  <font color="#98fb98">Style</font> * State 3
+<font color="#ffff00"> 132</font>  <font color="#98fb98">Style</font> * !State 4
+<font color="#ffff00"> 133</font>  <font color="#98fb98">Style</font> * !State 5
+<font color="#ffff00"> 134</font>  <font color="#98fb98">Style</font> * !State 6
+<font color="#ffff00"> 135</font>
+<font color="#ffff00"> 136</font>  <font color="#87ceeb"># Proxy</font>
+<font color="#ffff00"> 137</font>  <font color="#f0e68c"><b>Colorset</b></font> 1 fg white, bg <font color="#bdb76b"><b>#444444</b></font>
+<font color="#ffff00"> 138</font>
+<font color="#ffff00"> 139</font>
+<font color="#ffff00"> 140</font>  <font color="#87ceeb">####</font>
+<font color="#ffff00"> 141</font>  <font color="#87ceeb"># L'utilisation du joker * était interessante lorsque l'on voulait </font>
+<font color="#ffff00"> 142</font>  <font color="#87ceeb"># appliquer un style pour toutes les fenêtres mais j'applique ici des styles </font>
+<font color="#ffff00"> 143</font>  <font color="#87ceeb"># différents pour des fenêtres bien distinctes. Le nom de la fenêtre est </font>
+<font color="#ffff00"> 144</font>  <font color="#87ceeb"># obtenu grace au module FvwmIdent ; vous pouvez utiliser indifférement la </font>
+<font color="#ffff00"> 145</font>  <font color="#87ceeb"># classe ou la ressource de la fenêtre concernée.</font>
+<font color="#ffff00"> 146</font>  <font color="#87ceeb"># </font>
+<font color="#ffff00"> 147</font>  <font color="#87ceeb"># J'indique ici le nom de la mini icône de la fenêtre qui sera affichée</font>
+<font color="#ffff00"> 148</font>  <font color="#87ceeb"># dans la barre de titre par exemple. Je peux également dire à Fvwm de ne </font>
+<font color="#ffff00"> 149</font>  <font color="#87ceeb"># pas donner de barre de titre pour Xmms par exemple.</font>
+<font color="#ffff00"> 150</font>  <font color="#87ceeb">##########################</font>
+<font color="#ffff00"> 151</font>  <font color="#98fb98">Style</font> xmms EWMHMiniIconOverride, <font color="#f0e68c"><b>MiniIcon</b></font> xmms.png, <font color="#f0e68c"><b>NoTitle</b></font>
+<font color="#ffff00"> 152</font>  <font color="#98fb98">Style</font> XTerm EWMHMiniIconOverride, <font color="#f0e68c"><b>MiniIcon</b></font> terminal.png
+<font color="#ffff00"> 153</font>  <font color="#98fb98">Style</font> Gvim EWMHMiniIconOverride, <font color="#f0e68c"><b>MiniIcon</b></font> editeurs.png
+<font color="#ffff00"> 154</font>  <font color="#98fb98">Style</font> Firefox-bin EWMHMiniIconOverride, <font color="#f0e68c"><b>MiniIcon</b></font> firefox.png
+<font color="#ffff00"> 155</font>  <font color="#98fb98">Style</font> ROX-Filer EWMHMiniIconOverride, <font color="#f0e68c"><b>MiniIcon</b></font> home.png
+<font color="#ffff00"> 156</font>  <font color="#98fb98">Style</font> Gimp-2.2 EWMHMiniIconOverride, <font color="#f0e68c"><b>MiniIcon</b></font> gimp.png
+<font color="#ffff00"> 157</font>  <font color="#98fb98">Style</font> Thunderbird-bin EWMHMiniIconOverride, <font color="#f0e68c"><b>MiniIcon</b></font> thunderbird.png
+<font color="#ffff00"> 158</font>  <font color="#98fb98">Style</font> Gaim EWMHMiniIconOverride, <font color="#f0e68c"><b>MiniIcon</b></font> gaim.png
+<font color="#ffff00"> 159</font>  <font color="#98fb98">Style</font> gFTP EWMHMiniIconOverride, <font color="#f0e68c"><b>MiniIcon</b></font> gftp.png
+<font color="#ffff00"> 160</font>  <font color="#98fb98">Style</font> SWT EWMHMiniIconOverride, <font color="#f0e68c"><b>MiniIcon</b></font> sancho.png
+<font color="#ffff00"> 161</font>  <font color="#98fb98">Style</font> GQview EWMHMiniIconOverride, <font color="#f0e68c"><b>MiniIcon</b></font> gqview.png
+<font color="#ffff00"> 162</font>  <font color="#98fb98">Style</font> xine EWMHMiniIconOverride, <font color="#f0e68c"><b>MiniIcon</b></font> xine.png
+<font color="#ffff00"> 163</font>  <font color="#98fb98">Style</font> FvwmIdent TitleAtLeft, EWMHMiniIconOverride, <font color="#f0e68c"><b>MiniIcon</b></font> identify.png
+<font color="#ffff00"> 164</font>  <font color="#98fb98">Style</font> xpad <font color="#f0e68c"><b>NoTitle</b></font>, !Borders, <font color="#f0e68c"><b>NoHandles</b></font>, <font color="#f0e68c"><b>WindowListSkip</b></font>
+<font color="#ffff00"> 165</font>  <font color="#98fb98">Style</font> xchat-2 EWMHMiniIconOverride, <font color="#f0e68c"><b>MiniIcon</b></font> xchat.png
+<font color="#ffff00"> 166</font>  <font color="#98fb98">Style</font> GameConsole <font color="#f0e68c"><b>NoHandles</b></font>, !Borders, <font color="#f0e68c"><b>NoTitle</b></font>, \
+<font color="#ffff00"> 167</font>  <font color="#f0e68c"><b>FixedPosition</b></font>, <font color="#f0e68c"><b>WindowListSkip</b></font>, <font color="#98fb98">Sticky</font>, <font color="#f0e68c"><b>WindowShadeSteps</b></font> 260
+<font color="#ffff00"> 168</font>  <font color="#98fb98">Style</font> xmessage CenterPlacement, <font color="#f0e68c"><b>NoTitle</b></font>
+<font color="#ffff00"> 169</font>  <font color="#98fb98">Style</font> Gmrun CenterPlacement
+<font color="#ffff00"> 170</font>  <font color="#98fb98">Style</font> XOsview     <font color="#f0e68c"><b>WindowListSkip</b></font>, <font color="#f0e68c"><b>CirculateSkip</b></font>, <font color="#f0e68c"><b>NoTitle</b></font>
+<font color="#ffff00"> 171</font>  <font color="#98fb98">Style</font> irssi <font color="#f0e68c"><b>NoTitle</b></font>, !Borders
+<font color="#ffff00"> 172</font>  <font color="#87ceeb">####</font>
+<font color="#ffff00"> 173</font>  <font color="#87ceeb"># La commande MenuStyle fonctionne exactement comme Style à une différence</font>
+<font color="#ffff00"> 174</font>  <font color="#87ceeb"># près : elle ne s'applique qu'aux menus. Le caractère * est un joker, le style</font>
+<font color="#ffff00"> 175</font>  <font color="#87ceeb"># sera effectif pour tous les menus. Référez vous à la page man pour connaître</font>
+<font color="#ffff00"> 176</font>  <font color="#87ceeb"># de manière précise la signification des styles ci-dessous.</font>
+<font color="#ffff00"> 177</font>  <font color="#87ceeb">##########################</font>
+<font color="#ffff00"> 178</font>  <font color="#98fb98">MenuStyle</font> * <font color="#f0e68c"><b>MenuColorset</b></font> 7
+<font color="#ffff00"> 179</font>  <font color="#98fb98">MenuStyle</font> * <font color="#f0e68c"><b>BorderWidth</b></font> 1
+<font color="#ffff00"> 180</font>  <font color="#98fb98">MenuStyle</font> * <font color="#f0e68c"><b>HilightBack</b></font>
+<font color="#ffff00"> 181</font>  <font color="#98fb98">MenuStyle</font> * <font color="#f0e68c"><b>ActiveForeOff</b></font>
+<font color="#ffff00"> 182</font>  <font color="#98fb98">MenuStyle</font> * <font color="#f0e68c"><b>PopupOffset</b></font> 0 100
+<font color="#ffff00"> 183</font>  <font color="#98fb98">MenuStyle</font> * <font color="#f0e68c"><b>TitleUnderlines2</b></font>
+<font color="#ffff00"> 184</font>  <font color="#98fb98">MenuStyle</font> * <font color="#f0e68c"><b>SeparatorsLong</b></font>
+<font color="#ffff00"> 185</font>  <font color="#98fb98">MenuStyle</font> * <font color="#f0e68c"><b>ActiveColorset</b></font> 8
+<font color="#ffff00"> 186</font>  <font color="#98fb98">MenuStyle</font> * <font color="#f0e68c"><b>Animation</b></font>
+<font color="#ffff00"> 187</font>  <font color="#98fb98">MenuStyle</font> * <font color="#f0e68c"><b>TrianglesSolid</b></font>
+<font color="#ffff00"> 188</font>  <font color="#98fb98">MenuStyle</font> * <font color="#f0e68c"><b>PopupDelayed</b></font>
+<font color="#ffff00"> 189</font>  <font color="#98fb98">MenuStyle</font> * <font color="#f0e68c"><b>PopupDelay</b></font> 100
+<font color="#ffff00"> 190</font>  <font color="#98fb98">MenuStyle</font> * <font color="#f0e68c"><b>PopdownImmediately</b></font>
+<font color="#ffff00"> 191</font>  <font color="#98fb98">MenuStyle</font> * <font color="#f0e68c"><b>Hilight3DOff</b></font>
+<font color="#ffff00"> 192</font>
+<font color="#ffff00"> 193</font>
+<font color="#ffff00"> 194</font>  <font color="#87ceeb">####</font>
+<font color="#ffff00"> 195</font>  <font color="#87ceeb"># Mise en place des différents curseurs de souris en fonction de </font>
+<font color="#ffff00"> 196</font>  <font color="#87ceeb"># différents contextes.</font>
+<font color="#ffff00"> 197</font>  <font color="#87ceeb">##########################</font>
+<font color="#ffff00"> 198</font>  <font color="#98fb98">CursorStyle</font> <font color="#98fb98">root</font> left_ptr
+<font color="#ffff00"> 199</font>  <font color="#98fb98">CursorStyle</font> <font color="#98fb98">default</font> left_ptr
+<font color="#ffff00"> 200</font>  <font color="#98fb98">CursorStyle</font> <font color="#98fb98">position</font> left_ptr
+<font color="#ffff00"> 201</font>  <font color="#98fb98">CursorStyle</font> <font color="#98fb98">sys</font> left_ptr
+<font color="#ffff00"> 202</font>  <font color="#98fb98">CursorStyle</font> <font color="#98fb98">menu</font> left_ptr
+<font color="#ffff00"> 203</font>  <font color="#98fb98">CursorStyle</font> <font color="#98fb98">title</font> left_ptr
+<font color="#ffff00"> 204</font>  <font color="#98fb98">CursorStyle</font> <font color="#98fb98">resize</font> fleur
+<font color="#ffff00"> 205</font>  <font color="#98fb98">CursorStyle</font> <font color="#98fb98">stroke</font> cross
+<font color="#ffff00"> 206</font>  <font color="#98fb98">CursorStyle</font> <font color="#98fb98">select</font> draped_box
+<font color="#ffff00"> 207</font>
+<font color="#ffff00"> 208</font>
+<font color="#ffff00"> 209</font>  <font color="#87ceeb">####</font>
+<font color="#ffff00"> 210</font>  <font color="#87ceeb"># Définition des différents décors. En général, un par thème. </font>
+<font color="#ffff00"> 211</font>  <font color="#87ceeb"># Référez vous à la page de manuel Fvwm pour comprendre l'ensemble </font>
+<font color="#ffff00"> 212</font>  <font color="#87ceeb"># des commandes ci-dessous. En bref :</font>
+<font color="#ffff00"> 213</font>  <font color="#87ceeb"># Je créer deux décors nommés Default et Green. Ces décors sont composés</font>
+<font color="#ffff00"> 214</font>  <font color="#87ceeb"># d'une barre de titre (TitleStyle) et de différents boutons (ButtonStyle). </font>
+<font color="#ffff00"> 215</font>  <font color="#87ceeb"># Notez que pour voir les boutons sur la barre de titre, il doivent forcément</font>
+<font color="#ffff00"> 216</font>  <font color="#87ceeb"># être associer à une action (voir les raccourcis clavier).</font>
+<font color="#ffff00"> 217</font>  <font color="#87ceeb"># Voici la disposition des boutons sur la barre de titre :</font>
+<font color="#ffff00"> 218</font>  <font color="#87ceeb"># +--------------------------------------------------------+</font>
+<font color="#ffff00"> 219</font>  <font color="#87ceeb"># | .                                              _  #  X |</font>
+<font color="#ffff00"> 220</font>  <font color="#87ceeb"># +--------------------------------------------------------+</font>
+<font color="#ffff00"> 221</font>  <font color="#87ceeb"># | 1                                              6  4  2 |</font>
+<font color="#ffff00"> 222</font>  <font color="#87ceeb"># |                                                        |</font>
+<font color="#ffff00"> 223</font>  <font color="#87ceeb">#                                                          </font>
+<font color="#ffff00"> 224</font>  <font color="#87ceeb">##########################</font>
+<font color="#ffff00"> 225</font>  <font color="#98fb98">DestroyDecor</font> <font color="#98fb98">Default</font>
+<font color="#ffff00"> 226</font>  <font color="#98fb98">AddToDecor</font> <font color="#98fb98">Default</font>
+<font color="#ffff00"> 227</font>  + <font color="#98fb98">TitleStyle</font> <font color="#f0e68c"><b>Centered</b></font> <font color="#f0e68c"><b>Height</b></font> 19
+<font color="#ffff00"> 228</font>  + <font color="#98fb98">TitleStyle</font> AllActive  (<font color="#f0e68c"><b>TiledPixmap</b></font> cinza/wtitle.png -- <font color="#f0e68c"><b>flat</b></font>) \
+<font color="#ffff00"> 229</font>  AllInactive (<font color="#f0e68c"><b>TiledPixmap</b></font> cinza/wtitle.png -- <font color="#f0e68c"><b>flat</b></font>)
+<font color="#ffff00"> 230</font>  + <font color="#98fb98">ButtonStyle</font> 1 AllActive (<font color="#f0e68c"><b>MiniIcon</b></font>) AllInactive (<font color="#f0e68c"><b>MiniIcon</b></font>)
+<font color="#ffff00"> 231</font>  + <font color="#98fb98">ButtonStyle</font> 2 <font color="#f0e68c"><b>ActiveUp</b></font> (<font color="#f0e68c"><b>Pixmap</b></font> cinza/close.xpm) \
+<font color="#ffff00"> 232</font>  <font color="#f0e68c"><b>ActiveDown</b></font> (<font color="#f0e68c"><b>Pixmap</b></font> cinza/close.xpm) \
+<font color="#ffff00"> 233</font>  <font color="#f0e68c"><b>Inactive</b></font> (<font color="#f0e68c"><b>Pixmap</b></font> cinza/closeu.xpm)
+<font color="#ffff00"> 234</font>  + <font color="#98fb98">ButtonStyle</font> 4 <font color="#f0e68c"><b>ActiveUp</b></font> (<font color="#f0e68c"><b>Pixmap</b></font> cinza/max.xpm) \
+<font color="#ffff00"> 235</font>  <font color="#f0e68c"><b>ActiveDown</b></font> (<font color="#f0e68c"><b>Pixmap</b></font> cinza/max.xpm) \
+<font color="#ffff00"> 236</font>  <font color="#f0e68c"><b>Inactive</b></font> (<font color="#f0e68c"><b>Pixmap</b></font> cinza/maxu.xpm)
+<font color="#ffff00"> 237</font>  + <font color="#98fb98">ButtonStyle</font> 6 <font color="#f0e68c"><b>ActiveUp</b></font> (<font color="#f0e68c"><b>Pixmap</b></font> cinza/icon.xpm) \
+<font color="#ffff00"> 238</font>  <font color="#f0e68c"><b>ActiveDown</b></font> (<font color="#f0e68c"><b>Pixmap</b></font> cinza/icon.xpm) \
+<font color="#ffff00"> 239</font>  <font color="#f0e68c"><b>Inactive</b></font> (<font color="#f0e68c"><b>Pixmap</b></font> cinza/iconu.xpm)
+<font color="#ffff00"> 240</font>  + <font color="#98fb98">ButtonStyle</font> <font color="#f0e68c"><b>All</b></font> -- <font color="#f0e68c"><b>UseTitleStyle</b></font>
+<font color="#ffff00"> 241</font>  + <font color="#98fb98">ButtonStyle</font> <font color="#f0e68c"><b>All</b></font> -- <font color="#f0e68c"><b>flat</b></font>
+<font color="#ffff00"> 242</font>  + <font color="#98fb98">BorderStyle</font> -- <font color="#f0e68c"><b>HiddenHandles</b></font> <font color="#f0e68c"><b>NoInset</b></font>
+<font color="#ffff00"> 243</font>
+<font color="#ffff00"> 244</font>  <font color="#98fb98">DestroyDecor</font> Green
+<font color="#ffff00"> 245</font>  <font color="#98fb98">AddToDecor</font> Green
+<font color="#ffff00"> 246</font>  + <font color="#98fb98">TitleStyle</font> <font color="#f0e68c"><b>Centered</b></font> <font color="#f0e68c"><b>Height</b></font> 17
+<font color="#ffff00"> 247</font>  + <font color="#98fb98">TitleStyle</font> AllActive (<font color="#f0e68c"><b>Colorset</b></font> 2 -- <font color="#f0e68c"><b>flat</b></font>) AllInactive (<font color="#f0e68c"><b>Colorset</b></font> 2 -- <font color="#f0e68c"><b>flat</b></font>)
+<font color="#ffff00"> 248</font>  + <font color="#98fb98">ButtonStyle</font> 1 AllActive (<font color="#f0e68c"><b>MiniIcon</b></font>) AllInactive (<font color="#f0e68c"><b>MiniIcon</b></font>)
+<font color="#ffff00"> 249</font>  + <font color="#98fb98">ButtonStyle</font> 2 <font color="#f0e68c"><b>ActiveUp</b></font> (<font color="#f0e68c"><b>Pixmap</b></font> vert/close.xpm) \
+<font color="#ffff00"> 250</font>  <font color="#f0e68c"><b>ActiveDown</b></font> (<font color="#f0e68c"><b>Pixmap</b></font> vert/close-pressed.xpm) \
+<font color="#ffff00"> 251</font>  <font color="#f0e68c"><b>Inactive</b></font> (<font color="#f0e68c"><b>Pixmap</b></font> vert/close.xpm)
+<font color="#ffff00"> 252</font>  + <font color="#98fb98">ButtonStyle</font> 4 <font color="#f0e68c"><b>ActiveUp</b></font> (<font color="#f0e68c"><b>Pixmap</b></font> vert/max.xpm) \
+<font color="#ffff00"> 253</font>  <font color="#f0e68c"><b>ActiveDown</b></font> (<font color="#f0e68c"><b>Pixmap</b></font> vert/max-pressed.xpm) \
+<font color="#ffff00"> 254</font>  <font color="#f0e68c"><b>Inactive</b></font> (<font color="#f0e68c"><b>Pixmap</b></font> vert/max.xpm)
+<font color="#ffff00"> 255</font>  + <font color="#98fb98">ButtonStyle</font> 6 <font color="#f0e68c"><b>ActiveUp</b></font> (<font color="#f0e68c"><b>Pixmap</b></font> vert/icon.xpm) \
+<font color="#ffff00"> 256</font>  <font color="#f0e68c"><b>ActiveDown</b></font> (<font color="#f0e68c"><b>Pixmap</b></font> vert/icon-pressed.xpm) \
+<font color="#ffff00"> 257</font>  <font color="#f0e68c"><b>Inactive</b></font> (<font color="#f0e68c"><b>Pixmap</b></font> vert/icon.xpm)
+<font color="#ffff00"> 258</font>  + <font color="#98fb98">ButtonStyle</font> <font color="#f0e68c"><b>All</b></font> -- <font color="#f0e68c"><b>UseTitleStyle</b></font>
+<font color="#ffff00"> 259</font>  + <font color="#98fb98">ButtonStyle</font> <font color="#f0e68c"><b>All</b></font> -- <font color="#f0e68c"><b>flat</b></font>
+<font color="#ffff00"> 260</font>  + <font color="#98fb98">BorderStyle</font> -- <font color="#f0e68c"><b>HiddenHandles</b></font> <font color="#f0e68c"><b>NoInset</b></font>
+<font color="#ffff00"> 261</font>
+<font color="#ffff00"> 262</font>
+<font color="#ffff00"> 263</font>  <font color="#87ceeb">####</font>
+<font color="#ffff00"> 264</font>  <font color="#87ceeb"># On émule le comportement MWM pour avoir la fenêtre de </font>
+<font color="#ffff00"> 265</font>  <font color="#87ceeb"># déplacement / redimenssionement au centre. Cela affecte également</font>
+<font color="#ffff00"> 266</font>  <font color="#87ceeb"># la placement des fenêtres. J'indique également que la fenêtre de </font>
+<font color="#ffff00"> 267</font>  <font color="#87ceeb"># déplacement / redimenssionement doit toujours apparaître si je déplace </font>
+<font color="#ffff00"> 268</font>  <font color="#87ceeb"># une fenêtre ou si je la redimenssionne.</font>
+<font color="#ffff00"> 269</font>  <font color="#87ceeb">##########################</font>
+<font color="#ffff00"> 270</font>  <font color="#98fb98">Emulate</font> <font color="#f0e68c"><b>MWM</b></font>
+<font color="#ffff00"> 271</font>  <font color="#98fb98">HideGeometryWindow</font> <font color="#f0e68c"><b>Never</b></font>
+<font color="#ffff00"> 272</font>
+<font color="#ffff00"> 273</font>
+<font color="#ffff00"> 274</font>  <font color="#87ceeb">####</font>
+<font color="#ffff00"> 275</font>  <font color="#87ceeb"># <A HREF="http://www.fvwm.org/documentation/faq/#5.5">http://www.fvwm.org/documentation/faq/#5.5</A></font>
+<font color="#ffff00"> 276</font>  <font color="#87ceeb">##########################</font>
+<font color="#ffff00"> 277</font>  <font color="#98fb98">IgnoreModifiers</font> L25
+<font color="#ffff00"> 278</font>
+<font color="#ffff00"> 279</font>
+<font color="#ffff00"> 280</font>  <font color="#87ceeb">####</font>
+<font color="#ffff00"> 281</font>  <font color="#87ceeb"># OpaqueMoveSize permet de déplacer les fenêtres en opaque.</font>
+<font color="#ffff00"> 282</font>  <font color="#87ceeb">#</font>
+<font color="#ffff00"> 283</font>  <font color="#87ceeb"># SnapAttraction est une option qui permet de coller deux ou plusieurs </font>
+<font color="#ffff00"> 284</font>  <font color="#87ceeb"># fenêtres entre elles. 6px me semble un bon compromis.</font>
+<font color="#ffff00"> 285</font>  <font color="#87ceeb">#</font>
+<font color="#ffff00"> 286</font>  <font color="#87ceeb"># ClickTime est le temps en millisecondes entre le moment ou vous appuyez </font>
+<font color="#ffff00"> 287</font>  <font color="#87ceeb"># sur le bouton de la souris et celui ou vous le relachez (un simple clic). </font>
+<font color="#ffff00"> 288</font>  <font color="#87ceeb"># La valeur par defaut est 150ms et c'est un peu trop court à mon gout.</font>
+<font color="#ffff00"> 289</font>  <font color="#87ceeb">##########################</font>
+<font color="#ffff00"> 290</font>  <font color="#98fb98">OpaqueMoveSize</font> unlimited
+<font color="#ffff00"> 291</font>  <font color="#98fb98">SnapAttraction</font> 6 <font color="#f0e68c"><b>All</b></font>
+<font color="#ffff00"> 292</font>  <font color="#98fb98">ClickTime</font> 300
+<font color="#ffff00"> 293</font>
+<font color="#ffff00"> 294</font>
+<font color="#ffff00"> 295</font>  <font color="#87ceeb">####</font>
+<font color="#ffff00"> 296</font>  <font color="#87ceeb"># J'utilise 4 bureaux (desks) mais une seule page par bureau, </font>
+<font color="#ffff00"> 297</font>  <font color="#87ceeb"># ce qui implique un DesktopSize 1x1 (une page x une page).</font>
+<font color="#ffff00"> 298</font>  <font color="#87ceeb">##########################</font>
+<font color="#ffff00"> 299</font>  <font color="#98fb98">DesktopSize</font> 1x1
+<font color="#ffff00"> 300</font>
+<font color="#ffff00"> 301</font>
+<font color="#ffff00"> 302</font>  <font color="#87ceeb">####</font>
+<font color="#ffff00"> 303</font>  <font color="#87ceeb"># EdgeScroll indique en pourcentage (en horyzontal et vertical) la taille </font>
+<font color="#ffff00"> 304</font>  <font color="#87ceeb"># d'une page qui doit être affichée lorsque la souris touche le bord de l'écran.</font>
+<font color="#ffff00"> 305</font>  <font color="#87ceeb"># Exemple : EdgeScroll 100 100 vous fera passer sur la page voisine si vous touchez </font>
+<font color="#ffff00"> 306</font>  <font color="#87ceeb"># le bord de l'écran. </font>
+<font color="#ffff00"> 307</font>  <font color="#87ceeb">#</font>
+<font color="#ffff00"> 308</font>  <font color="#87ceeb"># EdgeResistance accepte deux paramètres :</font>
+<font color="#ffff00"> 309</font>  <font color="#87ceeb"># le premier règle en millisecondes le temps que la souris devra rester sur le </font>
+<font color="#ffff00"> 310</font>  <font color="#87ceeb"># bord de l'écran pour passer à la page voisine. Ceci n'est important que pour ceux </font>
+<font color="#ffff00"> 311</font>  <font color="#87ceeb"># qui utilisent EdgeScroll 100 100.</font>
+<font color="#ffff00"> 312</font>  <font color="#87ceeb"># Le second paramètre règle en pixels la distance que doit parcourir la souris pour</font>
+<font color="#ffff00"> 313</font>  <font color="#87ceeb"># qu'une fenêtre dépasse de l'écran.</font>
+<font color="#ffff00"> 314</font>  <font color="#87ceeb"># Dans notre cas, j'utilise la valeur maximale pour le premier paramètre (10000), </font>
+<font color="#ffff00"> 315</font>  <font color="#87ceeb"># ce qui implique qu'il est impossible de passer sur une page voisine avec la souris ;</font>
+<font color="#ffff00"> 316</font>  <font color="#87ceeb"># et je règle 50px pour le second paramètre. C'est à dire que lorsqu'une fenêtre sera </font>
+<font color="#ffff00"> 317</font>  <font color="#87ceeb"># collée au bord de l'écran, il faudra que je la déplace encore de 50px pour qu'elle</font>
+<font color="#ffff00"> 318</font>  <font color="#87ceeb"># sorte de l'écran. </font>
+<font color="#ffff00"> 319</font>  <font color="#87ceeb">#</font>
+<font color="#ffff00"> 320</font>  <font color="#87ceeb"># EdgeThickness n'accepte que trois paramètre : 0,1 ou 2.</font>
+<font color="#ffff00"> 321</font>  <font color="#87ceeb"># Ceci est la taille en pixel d'une fenêtre invisible que Fvwm créé sur les bords </font>
+<font color="#ffff00"> 322</font>  <font color="#87ceeb"># de l'écran qui sont utilisés pour les fonctionnalités de EdgeScroll. La valeur </font>
+<font color="#ffff00"> 323</font>  <font color="#87ceeb"># par defaut est 2.</font>
+<font color="#ffff00"> 324</font>  <font color="#87ceeb">##########################</font>
+<font color="#ffff00"> 325</font>  <font color="#98fb98">EdgeScroll</font> 0 0
+<font color="#ffff00"> 326</font>  <font color="#98fb98">EdgeResistance</font> 10000 50
+<font color="#ffff00"> 327</font>  <font color="#98fb98">EdgeThickness</font> 0
+<font color="#ffff00"> 328</font>
+<font color="#ffff00"> 329</font>
+<font color="#ffff00"> 330</font>  <font color="#87ceeb">####</font>
+<font color="#ffff00"> 331</font>  <font color="#87ceeb"># Configuration des raccourcis clavier et des actions à effectuer lors de </font>
+<font color="#ffff00"> 332</font>  <font color="#87ceeb"># différents clics de la souris.</font>
+<font color="#ffff00"> 333</font>  <font color="#87ceeb">#</font>
+<font color="#ffff00"> 334</font>  <font color="#87ceeb"># La syntaxe est la même pour les deux commandes (Mouse pour la souris et Key</font>
+<font color="#ffff00"> 335</font>  <font color="#87ceeb"># pour le clavier) :</font>
+<font color="#ffff00"> 336</font>  <font color="#87ceeb"># Mouse num_bouton contexte clavier action</font>
+<font color="#ffff00"> 337</font>  <font color="#87ceeb"># Key   num_touche contexte clavier action</font>
+<font color="#ffff00"> 338</font>  <font color="#87ceeb">#</font>
+<font color="#ffff00"> 339</font>  <font color="#87ceeb"># Le num_bouton ou num_touche est tout simplement le bouton de la souris ou la </font>
+<font color="#ffff00"> 340</font>  <font color="#87ceeb"># touche du clavier que vous souhaitez associer à une action. Pour une souris </font>
+<font color="#ffff00"> 341</font>  <font color="#87ceeb"># avec deux boutons et une molette cliquable (comme la mienne), on obtient 5 boutons :</font>
+<font color="#ffff00"> 342</font>  <font color="#87ceeb"># 1 = bouton gauche ; 2 = clic molette ; 3 = bouton droit ; 4 = molette avant ; </font>
+<font color="#ffff00"> 343</font>  <font color="#87ceeb"># 5 = molette arrière.</font>
+<font color="#ffff00"> 344</font>  <font color="#87ceeb">#</font>
+<font color="#ffff00"> 345</font>  <font color="#87ceeb"># Pour le contexte, je vous laisse observer cette image : </font>
+<font color="#ffff00"> 346</font>  <font color="#87ceeb"># <A HREF="http://www.zensites.net/fvwm/guide/window_layout.png">http://www.zensites.net/fvwm/guide/window_layout.png</A></font>
+<font color="#ffff00"> 347</font>  <font color="#87ceeb"># En bref : R signifie la zone de l'écran libre, W pour la fenêtre, I pour une icône</font>
+<font color="#ffff00"> 348</font>  <font color="#87ceeb"># et A qui est un joker (n'importe ou sur l'écran).</font>
+<font color="#ffff00"> 349</font>  <font color="#87ceeb">#</font>
+<font color="#ffff00"> 350</font>  <font color="#87ceeb"># Ce que j'appelle clavier se nomme Modifier en Anglais. C'est une touche que </font>
+<font color="#ffff00"> 351</font>  <font color="#87ceeb"># vous appuierez en plus du bouton ou touche initiale. On peut penser par exemple à</font>
+<font color="#ffff00"> 352</font>  <font color="#87ceeb"># Alt+x pour lancer xmms, ce qui nous donnera : </font>
+<font color="#ffff00"> 353</font>  <font color="#87ceeb"># Key x A M Exec xmms</font>
+<font color="#ffff00"> 354</font>  <font color="#87ceeb"># Touche x, n'importe où sur l'écran et le Modifier Alt (M), et enfin l'action.</font>
+<font color="#ffff00"> 355</font>  <font color="#87ceeb">##########################</font>
+<font color="#ffff00"> 356</font>  <font color="#f0e68c"><b>Mouse</b></font> 3 R A <font color="#98fb98">Menu</font> <font color="#98fb98">Root</font>
+<font color="#ffff00"> 357</font>  <font color="#98fb98">Key</font> F1 A A <font color="#98fb98">Menu</font> <font color="#98fb98">Root</font>
+<font color="#ffff00"> 358</font>  <font color="#f0e68c"><b>Mouse</b></font> 1 R A -
+<font color="#ffff00"> 359</font>
+<font color="#ffff00"> 360</font>  <font color="#f0e68c"><b>Mouse</b></font> 1 2 A CloseFunc
+<font color="#ffff00"> 361</font>  <font color="#f0e68c"><b>Mouse</b></font> 1 4 A MaximizeFunc
+<font color="#ffff00"> 362</font>  <font color="#f0e68c"><b>Mouse</b></font> 3 4 A HoryMaximizeFunc
+<font color="#ffff00"> 363</font>  <font color="#f0e68c"><b>Mouse</b></font> 1 T A MaximizeTitleBarFunc
+<font color="#ffff00"> 364</font>  <font color="#f0e68c"><b>Mouse</b></font> 3 T A <font color="#98fb98">Menu</font> WindowControls
+<font color="#ffff00"> 365</font>  <font color="#f0e68c"><b>Mouse</b></font> 1 1 A <font color="#98fb98">Menu</font> WindowControls
+<font color="#ffff00"> 366</font>  <font color="#f0e68c"><b>Mouse</b></font> 4 T N <font color="#98fb98">WindowShade</font> <font color="#f0e68c"><b>True</b></font>
+<font color="#ffff00"> 367</font>  <font color="#f0e68c"><b>Mouse</b></font> 5 T N <font color="#98fb98">WindowShade</font> <font color="#f0e68c"><b>False</b></font>
+<font color="#ffff00"> 368</font>  <font color="#f0e68c"><b>Mouse</b></font> 1 W M MoveFunc
+<font color="#ffff00"> 369</font>  <font color="#f0e68c"><b>Mouse</b></font> 3 W M ResizeFunc
+<font color="#ffff00"> 370</font>  <font color="#f0e68c"><b>Mouse</b></font> 1 I A DeiconifyAndRearrange
+<font color="#ffff00"> 371</font>  <font color="#f0e68c"><b>Mouse</b></font> 3 I A <font color="#98fb98">Menu</font> WindowControls <font color="#f0e68c"><b>Icon</b></font> 0 -100m
+<font color="#ffff00"> 372</font>  <font color="#98fb98">Key</font> F4 A M <font color="#98fb98">Close</font>
+<font color="#ffff00"> 373</font>
+<font color="#ffff00"> 374</font>  <font color="#f0e68c"><b>Mouse</b></font> 2 R A <font color="#98fb98">WindowList</font> NoCurrentDeskTitle
+<font color="#ffff00"> 375</font>  <font color="#98fb98">Key</font> Tab A M <font color="#98fb98">WindowList</font> <font color="#98fb98">Root</font> c c <font color="#f0e68c"><b>NoDeskSort</b></font>, NoCurrentDeskTitle, <font color="#f0e68c"><b>SelectOnRelease</b></font> Meta_L
+<font color="#ffff00"> 376</font>
+<font color="#ffff00"> 377</font>
+<font color="#ffff00"> 378</font>  <font color="#87ceeb">####</font>
+<font color="#ffff00"> 379</font>  <font color="#87ceeb"># Voici mes raccourcis clavier que j'utilise pour lancer mes applications </font>
+<font color="#ffff00"> 380</font>  <font color="#87ceeb"># favorites. Remarquez l'intérêt des variables d'environnement.</font>
+<font color="#ffff00"> 381</font>  <font color="#87ceeb">##########################</font>
+<font color="#ffff00"> 382</font>  <font color="#98fb98">Key</font> F2 A A <font color="#98fb98">Exec</font> gmrun
+<font color="#ffff00"> 383</font>  <font color="#98fb98">Key</font> F3 A A <font color="#98fb98">Module</font> FvwmConsole -terminal <font color="#cd5c5c">$[TermName]</font>
+<font color="#ffff00"> 384</font>  <font color="#98fb98">Key</font> Escape A M <font color="#98fb98">SendToModule</font> FvwmProxy ShowToggle
+<font color="#ffff00"> 385</font>  <font color="#98fb98">Key</font> f A M <font color="#98fb98">Exec</font> <font color="#cd5c5c">$[web_browser]</font>
+<font color="#ffff00"> 386</font>  <font color="#98fb98">Key</font> t A M <font color="#98fb98">Exec</font> thunderbird
+<font color="#ffff00"> 387</font>  <font color="#98fb98">Key</font> a A M <font color="#98fb98">Exec</font> <font color="#cd5c5c">$[TermName]</font>
+<font color="#ffff00"> 388</font>  <font color="#98fb98">Key</font> i A M <font color="#98fb98">Exec</font> <font color="#cd5c5c">$[TermName]</font> -g 95x50 -name irssi -e irssi
+<font color="#ffff00"> 389</font>  <font color="#98fb98">Key</font> c A M <font color="#98fb98">Exec</font> gvim -geom 88x40 <font color="#cd5c5c">$[FVWM_USERDIR]</font>/.fvwm2rc
+<font color="#ffff00"> 390</font>  <font color="#98fb98">Key</font> g A M <font color="#98fb98">Exec</font> gaim
+<font color="#ffff00"> 391</font>  <font color="#98fb98">Key</font> r A M <font color="#98fb98">Exec</font> <font color="#cd5c5c">$[browser]</font>
+<font color="#ffff00"> 392</font>  <font color="#98fb98">Key</font> x A M <font color="#98fb98">Exec</font> xmms
+<font color="#ffff00"> 393</font>  <font color="#98fb98">Key</font> n A M <font color="#98fb98">Exec</font> xpad
+<font color="#ffff00"> 394</font>
+<font color="#ffff00"> 395</font>  <font color="#98fb98">Key</font> twosuperior A C ToggleTerminal
+<font color="#ffff00"> 396</font>  <font color="#98fb98">Key</font> c A CM CenterWindow
+<font color="#ffff00"> 397</font>  <font color="#98fb98">Key</font> r A CM <font color="#98fb98">Restart</font>
+<font color="#ffff00"> 398</font>  <font color="#98fb98">Key</font> q A CM <font color="#98fb98">Quit</font>
+<font color="#ffff00"> 399</font>  <font color="#98fb98">Key</font> Return A M ToggleTitle
+<font color="#ffff00"> 400</font>
+<font color="#ffff00"> 401</font>
+<font color="#ffff00"> 402</font>  <font color="#87ceeb">####</font>
+<font color="#ffff00"> 403</font>  <font color="#87ceeb"># J'aime bien changer de bureau avec le clavier. Voici ma configuration :</font>
+<font color="#ffff00"> 404</font>  <font color="#87ceeb"># Ctrl + Alt + gauche ou droite, change de bureau vers la gauche ou la droite.</font>
+<font color="#ffff00"> 405</font>  <font color="#87ceeb"># Alt + 1, Alt + 2, Alt + 3 et Alt + 4 amènent respectivement directement au </font>
+<font color="#ffff00"> 406</font>  <font color="#87ceeb"># bureau 1, 2, 3 ou 4. Remarquez les deux derniers arguments &quot;0 3&quot; de la commande </font>
+<font color="#ffff00"> 407</font>  <font color="#87ceeb"># GoToDesk. J'utilise ceci pour dire à Fvwm de faire une boucle lorsque je change</font>
+<font color="#ffff00"> 408</font>  <font color="#87ceeb"># de bureau avec les flèches : arrivé au bureau 3 il retourne au bureau 0, il ne</font>
+<font color="#ffff00"> 409</font>  <font color="#87ceeb"># continue pas vers le numéro 4. Ça paraît évident mais ça ne l'est pas pour Fvwm.</font>
+<font color="#ffff00"> 410</font>  <font color="#87ceeb">##########################</font>
+<font color="#ffff00"> 411</font>  <font color="#98fb98">Key</font> ampersand   A       M       <font color="#98fb98">GoToDesk</font> 0 0
+<font color="#ffff00"> 412</font>  <font color="#98fb98">Key</font> eacute      A       M       <font color="#98fb98">GoToDesk</font> 0 1
+<font color="#ffff00"> 413</font>  <font color="#98fb98">Key</font> quotedbl    A       M       <font color="#98fb98">GoToDesk</font> 0 2
+<font color="#ffff00"> 414</font>  <font color="#98fb98">Key</font> apostrophe  A       M       <font color="#98fb98">GoToDesk</font> 0 3
+<font color="#ffff00"> 415</font>  <font color="#98fb98">Key</font> <font color="#98fb98">Left</font>        A       CM      <font color="#98fb98">GoToDesk</font> -1 0 3
+<font color="#ffff00"> 416</font>  <font color="#98fb98">Key</font> <font color="#98fb98">Right</font>       A       CM      <font color="#98fb98">GoToDesk</font> +1 0 3
+<font color="#ffff00"> 417</font>
+<font color="#ffff00"> 418</font>
+<font color="#ffff00"> 419</font>  <font color="#87ceeb">####</font>
+<font color="#ffff00"> 420</font>  <font color="#87ceeb"># Ceci est la configuration des modules Fvwm. Je ne rentre pas dans les détails :</font>
+<font color="#ffff00"> 421</font>  <font color="#87ceeb"># FvwmAnimate est le module qui s'occupe de la gestion de l'animation lorsque vous </font>
+<font color="#ffff00"> 422</font>  <font color="#87ceeb"># iconifiez une fenêtre, FvwmBanner se charge de montrer une belle image au </font>
+<font color="#ffff00"> 423</font>  <font color="#87ceeb"># démarrage du gestionnaire de fenêtres, FvwmEvent lance une fonction à partir de </font>
+<font color="#ffff00"> 424</font>  <font color="#87ceeb"># différents évenements, FvwmProxy est très utile : pressez donc alt + entrée</font>
+<font color="#ffff00"> 425</font>  <font color="#87ceeb"># lorsque votre bureau est envahi de fenêtres, et enfin FvwmIdent est le module </font>
+<font color="#ffff00"> 426</font>  <font color="#87ceeb"># qui vous donne plein d'informations sur une fenêtre (utile pour obtenir la classe, </font>
+<font color="#ffff00"> 427</font>  <font color="#87ceeb"># pour définir le style d'une fenêtre précise par exemple).</font>
+<font color="#ffff00"> 428</font>  <font color="#87ceeb">##########################</font>
+<font color="#ffff00"> 429</font>  <font color="#98fb98">DestroyModuleConfig</font> FvwmAnimate: *
+<font color="#ffff00"> 430</font>  <font color="#cd5c5c">*FvwmAnimate</font>: <font color="#f0e68c"><b>Color</b></font> white
+<font color="#ffff00"> 431</font>  <font color="#cd5c5c">*FvwmAnimate</font>: Delay 1
+<font color="#ffff00"> 432</font>  <font color="#cd5c5c">*FvwmAnimate</font>: Iterations 100
+<font color="#ffff00"> 433</font>  <font color="#cd5c5c">*FvwmAnimate</font>: Width 1
+<font color="#ffff00"> 434</font>  <font color="#cd5c5c">*FvwmAnimate</font>: Effect Frame
+<font color="#ffff00"> 435</font>
+<font color="#ffff00"> 436</font>  <font color="#98fb98">DestroyModuleConfig</font> FvwmBanner: *
+<font color="#ffff00"> 437</font>  <font color="#cd5c5c">*FvwmBanner</font>: NoDecor
+<font color="#ffff00"> 438</font>  <font color="#cd5c5c">*FvwmBanner</font>: <font color="#f0e68c"><b>Pixmap</b></font> gentoo.png
+<font color="#ffff00"> 439</font>  <font color="#cd5c5c">*FvwmBanner</font>: <font color="#f0e68c"><b>Timeout</b></font> 3
+<font color="#ffff00"> 440</font>
+<font color="#ffff00"> 441</font>  <font color="#98fb98">DestroyModuleConfig</font> FvwmEvent: *
+<font color="#ffff00"> 442</font>  <font color="#cd5c5c">*FvwmEvent</font>: new_desk NewDeskFunc
+<font color="#ffff00"> 443</font>  <font color="#cd5c5c">*FvwmEvent</font>: add_window AddWindowFunc
+<font color="#ffff00"> 444</font>  <font color="#cd5c5c">*FvwmEvent</font>: destroy_window CloseWindowFunc
+<font color="#ffff00"> 445</font>
+<font color="#ffff00"> 446</font>  <font color="#98fb98">DestroyModuleConfig</font> FvwmProxy: *
+<font color="#ffff00"> 447</font>  <font color="#cd5c5c">*FvwmProxy</font>: ProxyMove <font color="#f0e68c"><b>false</b></font>
+<font color="#ffff00"> 448</font>  <font color="#cd5c5c">*FvwmProxy</font>: <font color="#f0e68c"><b>Colorset</b></font> 1
+<font color="#ffff00"> 449</font>  <font color="#cd5c5c">*FvwmProxy</font>: <font color="#f0e68c"><b>Font</b></font> <font color="#ffa0a0">&quot;Shadow=0 se:xft:Lucida Grande:size=7:bold&quot;</font>
+<font color="#ffff00"> 450</font>
+<font color="#ffff00"> 451</font>  <font color="#98fb98">DestroyModuleConfig</font> FvwmIdent: *
+<font color="#ffff00"> 452</font>  <font color="#cd5c5c">*FvwmIdent</font>: <font color="#f0e68c"><b>Font</b></font> <font color="#ffa0a0">&quot;Shadow=0 se:xft:Lucida Grande:size=8:bold&quot;</font>
+<font color="#ffff00"> 453</font>  <font color="#cd5c5c">*FvwmIdent</font>: <font color="#f0e68c"><b>Colorset</b></font> 1
+<font color="#ffff00"> 454</font>
+<font color="#ffff00"> 455</font>  <font color="#87ceeb">####</font>
+<font color="#ffff00"> 456</font>  <font color="#87ceeb"># Il existe 3 fonctions spéciales : StartFunction, InitFunction et RestartFunction.</font>
+<font color="#ffff00"> 457</font>  <font color="#87ceeb"># Vous verrez qu'une seule est utile grace à la commande conditionnelle Test.</font>
+<font color="#ffff00"> 458</font>  <font color="#87ceeb"># La commande StartFunction est appellée par Fvwm lorsqu'il démarre, lorsqu'il </font>
+<font color="#ffff00"> 459</font>  <font color="#87ceeb"># redémmarre mais aussi lorsqu'il ferme. Ce qui peut nous faire mettre de coter</font>
+<font color="#ffff00"> 460</font>  <font color="#87ceeb"># les deux autres fonctions.</font>
+<font color="#ffff00"> 461</font>  <font color="#87ceeb"># </font>
+<font color="#ffff00"> 462</font>  <font color="#87ceeb"># On utilise la StartFunction pour lancer les modules au démarrage et effectuer</font>
+<font color="#ffff00"> 463</font>  <font color="#87ceeb"># différentes fonctions dont on a besoin au démarrage, redémarrage ou fermeture </font>
+<font color="#ffff00"> 464</font>  <font color="#87ceeb"># de Fvwm. C'est ici par exemple que je met en place le fond d'écran initial.</font>
+<font color="#ffff00"> 465</font>  <font color="#87ceeb">##########################</font>
+<font color="#ffff00"> 466</font>  <font color="#98fb98">DestroyFunc</font> <font color="#ffdead">StartFunction</font>
+<font color="#ffff00"> 467</font>  <font color="#98fb98">AddToFunc</font> <font color="#ffdead">StartFunction</font>
+<font color="#ffff00"> 468</font>  + I Test (Init) <font color="#98fb98">Module</font> FvwmBanner
+<font color="#ffff00"> 469</font>  + I Test (Init, x xscreensaver) <font color="#98fb98">Exec</font> xscreensaver -nosplash
+<font color="#ffff00"> 470</font>  + I Test (Init) <font color="#98fb98">SendToModule</font> Panel ChangeButton <font color="#f0e68c"><b>desk</b></font> <font color="#98fb98">Title</font> <font color="#ffa0a0">&quot;unan&quot;</font>
+<font color="#ffff00"> 471</font>  + I Test (Init, x /usr/bin/numlockx) <font color="#98fb98">Exec</font> /usr/bin/numlockx
+<font color="#ffff00"> 472</font>  + I Test (Init) <font color="#98fb98">Exec</font> rm <font color="#cd5c5c">$[FVWM_USERDIR]</font>/icon.tmp.*
+<font color="#ffff00"> 473</font>  + I <font color="#98fb98">Exec</font> fbsetbg -l
+<font color="#ffff00"> 474</font>  + I <font color="#98fb98">Module</font> FvwmAnimate
+<font color="#ffff00"> 475</font>  + I <font color="#98fb98">Module</font> FvwmProxy
+<font color="#ffff00"> 476</font>  + I <font color="#98fb98">Module</font> FvwmEvent
+<font color="#ffff00"> 477</font>  + I <font color="#98fb98">Module</font> FvwmTabs
+<font color="#ffff00"> 478</font>  + I Test (f <font color="#cd5c5c">$[FVWM_USERDIR]</font>/vert) ChangeThemeVert
+<font color="#ffff00"> 479</font>  + I Test (f <font color="#cd5c5c">$[FVWM_USERDIR]</font>/defaut) ChangeThemeDefaut
+<font color="#ffff00"> 480</font>  + I Test (<font color="#98fb98">Restart</font>) <font color="#f0e68c"><b>All</b></font> (<font color="#98fb98">Iconic</font>) Test (f <font color="#cd5c5c">$[FVWM_USERDIR]</font>/icon.tmp.<font color="#cd5c5c">$[w.id]</font>.png) WindowStyle <font color="#f0e68c"><b>IconOverride</b></font>, <font color="#f0e68c"><b>Icon</b></font> <font color="#cd5c5c">$[FVWM_USERDIR]</font>/icon.tmp.<font color="#cd5c5c">$[w.id]</font>.png
+<font color="#ffff00"> 481</font>  + I Test (<font color="#98fb98">Restart</font>) <font color="#f0e68c"><b>All</b></font> (GameConsole) <font color="#98fb98">Close</font>
+<font color="#ffff00"> 482</font>
+<font color="#ffff00"> 483</font>
+<font color="#ffff00"> 484</font>  <font color="#87ceeb">####</font>
+<font color="#ffff00"> 485</font>  <font color="#87ceeb"># Configuration du module FvwmPager. J'utilise deux configuration différentes</font>
+<font color="#ffff00"> 486</font>  <font color="#87ceeb"># suivant le thème. Voila pourquoi vous verrez autant de FvwmPager que de thème. </font>
+<font color="#ffff00"> 487</font>  <font color="#87ceeb">##########################</font>
+<font color="#ffff00"> 488</font>  <font color="#98fb98">DestroyModuleConfig</font> FvwmPager: *
+<font color="#ffff00"> 489</font>  <font color="#cd5c5c">*FvwmPager</font>: <font color="#f0e68c"><b>Colorset</b></font> * 3
+<font color="#ffff00"> 490</font>  <font color="#cd5c5c">*FvwmPager</font>: <font color="#f0e68c"><b>HilightColorset</b></font> * 5
+<font color="#ffff00"> 491</font>  <font color="#cd5c5c">*FvwmPager</font>: WindowColorsets 12 13
+<font color="#ffff00"> 492</font>  <font color="#cd5c5c">*FvwmPager</font>: BalloonColorset * 13
+<font color="#ffff00"> 493</font>  <font color="#cd5c5c">*FvwmPager</font>: <font color="#f0e68c"><b>Font</b></font> <font color="#98fb98">none</font>
+<font color="#ffff00"> 494</font>  <font color="#cd5c5c">*FvwmPager</font>: SmallFont <font color="#98fb98">none</font>
+<font color="#ffff00"> 495</font>  <font color="#cd5c5c">*FvwmPager</font>: Balloons <font color="#f0e68c"><b>All</b></font>
+<font color="#ffff00"> 496</font>  <font color="#cd5c5c">*FvwmPager</font>: BalloonFont <font color="#ffa0a0">&quot;Shadow=0 se:xft:Lucida Grande:size=7:bold&quot;</font>
+<font color="#ffff00"> 497</font>  <font color="#cd5c5c">*FvwmPager</font>: BalloonYOffset +2
+<font color="#ffff00"> 498</font>  <font color="#cd5c5c">*FvwmPager</font>: BalloonBorderWidth 1
+<font color="#ffff00"> 499</font>  <font color="#cd5c5c">*FvwmPager</font>: UseSkipList
+<font color="#ffff00"> 500</font>  <font color="#cd5c5c">*FvwmPager</font>: <font color="#98fb98">MoveThreshold</font> 0
+<font color="#ffff00"> 501</font>  <font color="#cd5c5c">*FvwmPager</font>: SolidSeparators
+<font color="#ffff00"> 502</font>  <font color="#cd5c5c">*FvwmPager</font>: WindowBorderWidth 1
+<font color="#ffff00"> 503</font>
+<font color="#ffff00"> 504</font>  <font color="#98fb98">DestroyModuleConfig</font> FvwmPagerTest: *
+<font color="#ffff00"> 505</font>  <font color="#cd5c5c">*FvwmPagerTest</font>: rows 2
+<font color="#ffff00"> 506</font>  <font color="#cd5c5c">*FvwmPagerTest</font>: Columns 2
+<font color="#ffff00"> 507</font>  <font color="#cd5c5c">*FvwmPagerTest</font>: <font color="#f0e68c"><b>Colorset</b></font> * 22
+<font color="#ffff00"> 508</font>  <font color="#cd5c5c">*FvwmPagerTest</font>: <font color="#f0e68c"><b>HilightColorset</b></font> * 22
+<font color="#ffff00"> 509</font>  <font color="#cd5c5c">*FvwmPagerTest</font>: WindowColorsets 21 21
+<font color="#ffff00"> 510</font>  <font color="#cd5c5c">*FvwmPagerTest</font>: BalloonColorset * 21
+<font color="#ffff00"> 511</font>  <font color="#cd5c5c">*FvwmPagerTest</font>: <font color="#f0e68c"><b>Font</b></font> <font color="#98fb98">none</font>
+<font color="#ffff00"> 512</font>  <font color="#cd5c5c">*FvwmPagerTest</font>: SmallFont <font color="#98fb98">none</font>
+<font color="#ffff00"> 513</font>  <font color="#cd5c5c">*FvwmPagerTest</font>: Balloons <font color="#f0e68c"><b>All</b></font>
+<font color="#ffff00"> 514</font>  <font color="#cd5c5c">*FvwmPagerTest</font>: BalloonFont <font color="#ffa0a0">&quot;Shadow=0 se:xft:Lucida Grande:size=7:bold&quot;</font>
+<font color="#ffff00"> 515</font>  <font color="#cd5c5c">*FvwmPagerTest</font>: BalloonYOffset +2
+<font color="#ffff00"> 516</font>  <font color="#cd5c5c">*FvwmPagerTest</font>: BalloonBorderWidth 1
+<font color="#ffff00"> 517</font>  <font color="#cd5c5c">*FvwmPagerTest</font>: UseSkipList
+<font color="#ffff00"> 518</font>  <font color="#cd5c5c">*FvwmPagerTest</font>: <font color="#98fb98">MoveThreshold</font> 0
+<font color="#ffff00"> 519</font>  <font color="#cd5c5c">*FvwmPagerTest</font>: SolidSeparators
+<font color="#ffff00"> 520</font>  <font color="#cd5c5c">*FvwmPagerTest</font>: WindowBorderWidth 1
+<font color="#ffff00"> 521</font>
+<font color="#ffff00"> 522</font>  <font color="#87ceeb"># Définition du style du pager.</font>
+<font color="#ffff00"> 523</font>  <font color="#98fb98">Style</font> FvwmPager <font color="#98fb98">Sticky</font>, <font color="#f0e68c"><b>NoTitle</b></font>, <font color="#f0e68c"><b>WindowListSkip</b></font>, <font color="#f0e68c"><b>StaysOnBottom</b></font>, \
+<font color="#ffff00"> 524</font>  FixedSize, <font color="#f0e68c"><b>NeverFocus</b></font>, !<font color="#f0e68c"><b>Handles</b></font>, !Borders, <font color="#f0e68c"><b>FixedPosition</b></font>
+<font color="#ffff00"> 525</font>
+<font color="#ffff00"> 526</font>
+<font color="#ffff00"> 527</font>  <font color="#87ceeb">####</font>
+<font color="#ffff00"> 528</font>  <font color="#87ceeb"># Configuration du tableau de bord. C'est largement copié sur Fluxbox mais je le </font>
+<font color="#ffff00"> 529</font>  <font color="#87ceeb"># trouve vraiment très simple et à la fois fonctionnel.</font>
+<font color="#ffff00"> 530</font>  <font color="#87ceeb">#</font>
+<font color="#ffff00"> 531</font>  <font color="#87ceeb"># Je commence par définir en pixels sa longueur, ce qui me permet par la suite </font>
+<font color="#ffff00"> 532</font>  <font color="#87ceeb"># avec un calcul simple en bash (la commande PipeRead permet de récupérer la sortie</font>
+<font color="#ffff00"> 533</font>  <font color="#87ceeb"># d'un script) d'obtenir en pixels un décalage par rapport au bord de l'écran.</font>
+<font color="#ffff00"> 534</font>  <font color="#87ceeb"># C'est une manière de centrer ce tableau de bord quelque soit la résolution </font>
+<font color="#ffff00"> 535</font>  <font color="#87ceeb"># d'écran (tant qu'elle ne passe pas en dessous de la longueur même du tableau</font>
+<font color="#ffff00"> 536</font>  <font color="#87ceeb"># de bord).</font>
+<font color="#ffff00"> 537</font>  <font color="#87ceeb">#</font>
+<font color="#ffff00"> 538</font>  <font color="#87ceeb"># La configuration est tout simplement celle de FvwmButtons : lisez la page man.</font>
+<font color="#ffff00"> 539</font>  <font color="#87ceeb"># Enfin, on définit le style de ce tableau de bord.</font>
+<font color="#ffff00"> 540</font>  <font color="#87ceeb">##########################</font>
+<font color="#ffff00"> 541</font>  <font color="#98fb98">SetEnv</font> panel.width 800
+<font color="#ffff00"> 542</font>  <font color="#98fb98">PipeRead</font> <font color="#ffa0a0">&quot;echo SetEnv offset.panel $$(( ($[vp.width]-$[panel.width]) / 2))&quot;</font>
+<font color="#ffff00"> 543</font>
+<font color="#ffff00"> 544</font>  <font color="#98fb98">DestroyModuleConfig</font> Panel:*
+<font color="#ffff00"> 545</font>  <font color="#cd5c5c">*Panel</font>: Frame 0
+<font color="#ffff00"> 546</font>  <font color="#cd5c5c">*Panel</font>: Padding 0 0
+<font color="#ffff00"> 547</font>  <font color="#cd5c5c">*Panel</font>: Geometry <font color="#cd5c5c">$[panel.width]</font>x23+<font color="#cd5c5c">$[offset.panel]</font>-5
+<font color="#ffff00"> 548</font>  <font color="#cd5c5c">*Panel</font>: Rows 23
+<font color="#ffff00"> 549</font>  <font color="#cd5c5c">*Panel</font>: Columns 800
+<font color="#ffff00"> 550</font>  <font color="#cd5c5c">*Panel</font>: <font color="#f0e68c"><b>Colorset</b></font> 5
+<font color="#ffff00"> 551</font>  <font color="#cd5c5c">*panel</font>: <font color="#f0e68c"><b>Font</b></font> <font color="#ffa0a0">&quot;Shadow=0 se:xft:Lucida Grande:size=7:bold&quot;</font>
+<font color="#ffff00"> 552</font>  <font color="#cd5c5c">*Panel</font>: (1x23, <font color="#f0e68c"><b>Colorset</b></font> 6)
+<font color="#ffff00"> 553</font>  <font color="#cd5c5c">*Panel</font>: (35x23, id <font color="#f0e68c"><b>desk</b></font>, <font color="#98fb98">Title</font> <font color="#ffa0a0">&quot;unan&quot;</font>, <font color="#f0e68c"><b>Colorset</b></font> 4, \
+<font color="#ffff00"> 554</font>  Action(<font color="#f0e68c"><b>Mouse</b></font> 5) '<font color="#98fb98">GoToDesk</font> -1 0 3', \
+<font color="#ffff00"> 555</font>  Action(<font color="#f0e68c"><b>Mouse</b></font> 4) '<font color="#98fb98">GoToDesk</font> +1 0 3')
+<font color="#ffff00"> 556</font>  <font color="#cd5c5c">*Panel</font>: (16x23, <font color="#f0e68c"><b>Icon</b></font> arrow-previous.xpm, Action(<font color="#f0e68c"><b>Mouse</b></font> 1) '<font color="#98fb98">GoToDesk</font> -1 0 3', \
+<font color="#ffff00"> 557</font>  Action(<font color="#f0e68c"><b>Mouse</b></font> 5) '<font color="#98fb98">GoToDesk</font> -1 0 3', \
+<font color="#ffff00"> 558</font>  Action(<font color="#f0e68c"><b>Mouse</b></font> 4) '<font color="#98fb98">GoToDesk</font> +1 0 3')
+<font color="#ffff00"> 559</font>  <font color="#cd5c5c">*Panel</font>: (16x23, <font color="#f0e68c"><b>Icon</b></font> arrow-next.xpm, Action(<font color="#f0e68c"><b>Mouse</b></font> 1) '<font color="#98fb98">GoToDesk</font> +1 0 3', \
+<font color="#ffff00"> 560</font>  Action(<font color="#f0e68c"><b>Mouse</b></font> 5) '<font color="#98fb98">GoToDesk</font> -1 0 3', \
+<font color="#ffff00"> 561</font>  Action(<font color="#f0e68c"><b>Mouse</b></font> 4) '<font color="#98fb98">GoToDesk</font> +1 0 3')
+<font color="#ffff00"> 562</font>  <font color="#cd5c5c">*Panel</font>: (691x23, Swallow FvwmIconMan <font color="#ffa0a0">&quot;Module FvwmIconMan&quot;</font>)
+<font color="#ffff00"> 563</font>  <font color="#cd5c5c">*Panel</font>: (40x23, Swallow <font color="#ffa0a0">&quot;TimeScript&quot;</font> 'FvwmScript <font color="#cd5c5c">$[scripts]</font>/TimeScript')
+<font color="#ffff00"> 564</font>  <font color="#cd5c5c">*Panel</font>: (1x23, <font color="#f0e68c"><b>Colorset</b></font> 6)
+<font color="#ffff00"> 565</font>
+<font color="#ffff00"> 566</font>  <font color="#87ceeb"># Définition du style du tableau de bord.</font>
+<font color="#ffff00"> 567</font>  <font color="#98fb98">Style</font> Panel <font color="#98fb98">Sticky</font>, <font color="#f0e68c"><b>NoTitle</b></font>, <font color="#f0e68c"><b>WindowListSkip</b></font>, <font color="#f0e68c"><b>StaysOnBottom</b></font>, \
+<font color="#ffff00"> 568</font>  FixedSize, <font color="#f0e68c"><b>NeverFocus</b></font>, !<font color="#f0e68c"><b>Handles</b></font>, !Borders
+<font color="#ffff00"> 569</font>
+<font color="#ffff00"> 570</font>
+<font color="#ffff00"> 571</font>  <font color="#87ceeb">####</font>
+<font color="#ffff00"> 572</font>  <font color="#87ceeb"># Configuration du panel pour le thème Vert. Celui-ci doit inclure</font>
+<font color="#ffff00"> 573</font>  <font color="#87ceeb"># le Pager ainsi que la date et l'heure. Le panel doit être rétractable,</font>
+<font color="#ffff00"> 574</font>  <font color="#87ceeb"># ceci est réalisé à l'aide de la fonction PanelVertHideFunc.</font>
+<font color="#ffff00"> 575</font>  <font color="#87ceeb">##########################</font>
+<font color="#ffff00"> 576</font>  <font color="#98fb98">SetEnv</font> panelvert.width 562
+<font color="#ffff00"> 577</font>  <font color="#98fb98">SetEnv</font> panelvert.height 67
+<font color="#ffff00"> 578</font>  <font color="#98fb98">PipeRead</font> <font color="#ffa0a0">&quot;echo SetEnv IconBoxVertWidth $$(($[vp.width]-$[panelvert.width]))&quot;</font>
+<font color="#ffff00"> 579</font>
+<font color="#ffff00"> 580</font>  <font color="#98fb98">DestroyModuleConfig</font> PanelVert: *
+<font color="#ffff00"> 581</font>  <font color="#cd5c5c">*PanelVert</font>: Frame 0
+<font color="#ffff00"> 582</font>  <font color="#cd5c5c">*PanelVert</font>: Padding 0 0
+<font color="#ffff00"> 583</font>  <font color="#cd5c5c">*PanelVert</font>: Geometry <font color="#cd5c5c">$[panelvert.width]</font>x<font color="#cd5c5c">$[panelvert.height]</font>-0-0
+<font color="#ffff00"> 584</font>  <font color="#cd5c5c">*PanelVert</font>: <font color="#f0e68c"><b>Colorset</b></font> 11
+<font color="#ffff00"> 585</font>  <font color="#cd5c5c">*PanelVert</font>: Rows 67
+<font color="#ffff00"> 586</font>  <font color="#cd5c5c">*PanelVert</font>: Columns 562
+<font color="#ffff00"> 587</font>  <font color="#cd5c5c">*PanelVert</font>: (562x5, <font color="#f0e68c"><b>Colorset</b></font> 2, Frame 1, Action(<font color="#f0e68c"><b>Mouse</b></font> 1) `PanelVertHideFunc <font color="#cd5c5c">$height</font>`)
+<font color="#ffff00"> 588</font>  <font color="#cd5c5c">*PanelVert</font>: (160x62, Swallow FvwmScript <font color="#ffa0a0">&quot;FvwmScript $[scripts]/TimeScriptVert&quot;</font>)
+<font color="#ffff00"> 589</font>  <font color="#cd5c5c">*PanelVert</font>: (402x62, Swallow FvwmPager <font color="#ffa0a0">&quot;Module FvwmPager 0 3&quot;</font>)
+<font color="#ffff00"> 590</font>
+<font color="#ffff00"> 591</font>  <font color="#87ceeb"># Définition du style du panel vert.</font>
+<font color="#ffff00"> 592</font>  <font color="#98fb98">Style</font> PanelVert <font color="#98fb98">Sticky</font>, <font color="#f0e68c"><b>NoTitle</b></font>, <font color="#f0e68c"><b>WindowListSkip</b></font>, <font color="#f0e68c"><b>StaysOnBottom</b></font>, \
+<font color="#ffff00"> 593</font>  FixedSize, !<font color="#f0e68c"><b>Handles</b></font>, !Borders, <font color="#f0e68c"><b>NeverFocus</b></font>
+<font color="#ffff00"> 594</font>
+<font color="#ffff00"> 595</font>
+<font color="#ffff00"> 596</font>  <font color="#87ceeb">####</font>
+<font color="#ffff00"> 597</font>  <font color="#87ceeb"># Exactement le même principe que pour le tableau de bord sauf que je n'utilise</font>
+<font color="#ffff00"> 598</font>  <font color="#87ceeb"># (plus) pas ce panneau latéral pour le moment. Il est prêt pour plus tard.</font>
+<font color="#ffff00"> 599</font>  <font color="#87ceeb"># Il sera censé regrouper le pager, quelques raccourcis de lancement rapide et des </font>
+<font color="#ffff00"> 600</font>  <font color="#87ceeb"># monitors de charge comme Xosview.</font>
+<font color="#ffff00"> 601</font>  <font color="#87ceeb">##########################</font>
+<font color="#ffff00"> 602</font>  <font color="#98fb98">SetEnv</font> side.width 183
+<font color="#ffff00"> 603</font>
+<font color="#ffff00"> 604</font>  <font color="#98fb98">DestroyModuleConfig</font> Side: *
+<font color="#ffff00"> 605</font>  <font color="#cd5c5c">*Side</font>: Frame 0
+<font color="#ffff00"> 606</font>  <font color="#cd5c5c">*Side</font>: Padding 0 0
+<font color="#ffff00"> 607</font>  <font color="#cd5c5c">*Side</font>: Geometry <font color="#cd5c5c">$[side.width]</font>x<font color="#cd5c5c">$[vp.height]</font>-0+0
+<font color="#ffff00"> 608</font>  <font color="#cd5c5c">*Side</font>: <font color="#f0e68c"><b>Colorset</b></font> 20
+<font color="#ffff00"> 609</font>  <font color="#cd5c5c">*Side</font>: Rows 1000
+<font color="#ffff00"> 610</font>  <font color="#cd5c5c">*Side</font>: Columns 183
+<font color="#ffff00"> 611</font>  <font color="#cd5c5c">*Side</font>: (3x1000, Frame 1, Action(<font color="#f0e68c"><b>Mouse</b></font> 1) `SideHideFunc <font color="#cd5c5c">$width</font>`)
+<font color="#ffff00"> 612</font>  <font color="#cd5c5c">*Side</font>: (5x62)
+<font color="#ffff00"> 613</font>  <font color="#cd5c5c">*Side</font>: (170x62, Swallow <font color="#ffa0a0">&quot;TimeScriptSide&quot;</font> '<font color="#98fb98">Module</font> FvwmScript <font color="#cd5c5c">$[scripts]</font>/TimeScriptSide')
+<font color="#ffff00"> 614</font>  <font color="#cd5c5c">*Side</font>: (5x62)
+<font color="#ffff00"> 615</font>  <font color="#cd5c5c">*Side</font>: (180x10)
+<font color="#ffff00"> 616</font>  <font color="#cd5c5c">*Side</font>: (25x20, <font color="#f0e68c"><b>Icon</b></font> side/cpu.png)
+<font color="#ffff00"> 617</font>  <font color="#cd5c5c">*Side</font>: (150x20, Swallow(UseOld) <font color="#ffa0a0">&quot;cpumon&quot;</font> `<font color="#98fb98">Exec</font> <font color="#98fb98">exec</font> xosview -title cpumon +cpu`)
+<font color="#ffff00"> 618</font>  <font color="#cd5c5c">*Side</font>: (5x100)
+<font color="#ffff00"> 619</font>  <font color="#cd5c5c">*Side</font>: (25x20, <font color="#f0e68c"><b>Icon</b></font> side/reseau.png)
+<font color="#ffff00"> 620</font>  <font color="#cd5c5c">*Side</font>: (150x20, Swallow(UseOld) <font color="#ffa0a0">&quot;netmon&quot;</font> `<font color="#98fb98">Exec</font> <font color="#98fb98">exec</font> xosview -title netmon +net`)
+<font color="#ffff00"> 621</font>  <font color="#cd5c5c">*Side</font>: (25x20, <font color="#f0e68c"><b>Icon</b></font> side/disquedur.png)
+<font color="#ffff00"> 622</font>  <font color="#cd5c5c">*Side</font>: (150x20, Swallow(UseOld) <font color="#ffa0a0">&quot;diskmon&quot;</font> `<font color="#98fb98">Exec</font> <font color="#98fb98">exec</font> xosview -title diskmon +disk`)
+<font color="#ffff00"> 623</font>  <font color="#cd5c5c">*Side</font>: (25x40, <font color="#f0e68c"><b>Icon</b></font> side/memoire.png)
+<font color="#ffff00"> 624</font>  <font color="#cd5c5c">*Side</font>: (150x40, Swallow(UseOld) <font color="#ffa0a0">&quot;memmon&quot;</font> `<font color="#98fb98">Exec</font> <font color="#98fb98">exec</font> xosview -title memmon +swap +mem`)
+<font color="#ffff00"> 625</font>  <font color="#cd5c5c">*Side</font>: (180x20)
+<font color="#ffff00"> 626</font>  <font color="#cd5c5c">*Side</font>: (10x100)
+<font color="#ffff00"> 627</font>  <font color="#cd5c5c">*Side</font>: (160x100, Swallow <font color="#ffa0a0">&quot;FvwmPager&quot;</font> '<font color="#98fb98">Module</font> FvwmPager FvwmPagerTest 0 3')
+<font color="#ffff00"> 628</font>  <font color="#cd5c5c">*Side</font>: (10x100)
+<font color="#ffff00"> 629</font>  <font color="#cd5c5c">*Side</font>: (180x828)
+<font color="#ffff00"> 630</font>  <font color="#cd5c5c">*Side</font>: BoxSize <font color="#f0e68c"><b>Fixed</b></font>
+<font color="#ffff00"> 631</font>  <font color="#cd5c5c">*Side</font>: <font color="#f0e68c"><b>Font</b></font> <font color="#ffa0a0">&quot;Shadow=0 se:xft:Lucida Grande:size=9:bold&quot;</font>
+<font color="#ffff00"> 632</font>
+<font color="#ffff00"> 633</font>  <font color="#87ceeb"># Définition du style du panneau latéral.</font>
+<font color="#ffff00"> 634</font>  <font color="#98fb98">Style</font> Side <font color="#98fb98">Sticky</font>, <font color="#f0e68c"><b>NoTitle</b></font>, <font color="#f0e68c"><b>WindowListSkip</b></font>, <font color="#f0e68c"><b>StaysOnBottom</b></font>, \
+<font color="#ffff00"> 635</font>  FixedSize, !<font color="#f0e68c"><b>Handles</b></font>, !Borders
+<font color="#ffff00"> 636</font>
+<font color="#ffff00"> 637</font>
+<font color="#ffff00"> 638</font>  <font color="#87ceeb">####</font>
+<font color="#ffff00"> 639</font>  <font color="#87ceeb"># FvwmIconMan est le module qui gère la barre des tâches. Remarquez qu'il est </font>
+<font color="#ffff00"> 640</font>  <font color="#87ceeb"># inclue dans le tableau de bord grace à la commande Swallow.</font>
+<font color="#ffff00"> 641</font>  <font color="#87ceeb"># La configuration est relativement standard, c'est à peu près le comportement </font>
+<font color="#ffff00"> 642</font>  <font color="#87ceeb"># que l'on retrouve sur la plupart des gestionnaires de fenêtres et ça me </font>
+<font color="#ffff00"> 643</font>  <font color="#87ceeb"># convient très bien. N'oubliez pas de jeter un oeil sur la page man de ce module </font>
+<font color="#ffff00"> 644</font>  <font color="#87ceeb"># pour bien comprendre les différentes options que j'utilise.</font>
+<font color="#ffff00"> 645</font>  <font color="#87ceeb">##########################</font>
+<font color="#ffff00"> 646</font>  <font color="#98fb98">DestroyModuleConfig</font> FvwmIconMan: *
+<font color="#ffff00"> 647</font>  <font color="#cd5c5c">*FvwmIconMan</font>: ButtonGeometry    200x23
+<font color="#ffff00"> 648</font>  <font color="#cd5c5c">*FvwmIconMan</font>: FollowFocus <font color="#f0e68c"><b>True</b></font>
+<font color="#ffff00"> 649</font>  <font color="#cd5c5c">*FvwmIconMan</font>: <font color="#f0e68c"><b>Colorset</b></font>  10
+<font color="#ffff00"> 650</font>  <font color="#cd5c5c">*FvwmIconMan</font>: PlainColorset 10
+<font color="#ffff00"> 651</font>  <font color="#cd5c5c">*FvwmIconMan</font>: DrawIcons <font color="#f0e68c"><b>false</b></font>
+<font color="#ffff00"> 652</font>  <font color="#cd5c5c">*FvwmIconMan</font>: FocusAndSelectColorset 9
+<font color="#ffff00"> 653</font>  <font color="#cd5c5c">*FvwmIconMan</font>: FocusColorset     9
+<font color="#ffff00"> 654</font>  <font color="#cd5c5c">*FvwmIconMan</font>: <font color="#f0e68c"><b>Font</b></font> <font color="#ffa0a0">&quot;Shadow=0 se:xft:Lucida Grande:size=6:bold&quot;</font>
+<font color="#ffff00"> 655</font>  <font color="#cd5c5c">*FvwmIconMan</font>: Format <font color="#ffa0a0">&quot;%t&quot;</font>
+<font color="#ffff00"> 656</font>  <font color="#cd5c5c">*FvwmIconMan</font>: ManagerGeometry 8x1
+<font color="#ffff00"> 657</font>  <font color="#cd5c5c">*FvwmIconMan</font>: ReliefThickness   0
+<font color="#ffff00"> 658</font>  <font color="#cd5c5c">*FvwmIconMan</font>: Resolution        page
+<font color="#ffff00"> 659</font>  <font color="#cd5c5c">*FvwmIconMan</font>: SelectColorset    10
+<font color="#ffff00"> 660</font>  <font color="#cd5c5c">*FvwmIconMan</font>: Sort              name
+<font color="#ffff00"> 661</font>  <font color="#cd5c5c">*FvwmIconMan</font>: <font color="#98fb98">Title</font>             <font color="#ffa0a0">&quot;&quot;</font>
+<font color="#ffff00"> 662</font>  <font color="#cd5c5c">*FvwmIconMan</font>: UseWinList        <font color="#f0e68c"><b>true</b></font>
+<font color="#ffff00"> 663</font>  <font color="#cd5c5c">*FvwmIconMan</font>: NoIconAction         <font color="#ffa0a0">&quot;SendToModule FvwmAnimate animate&quot;</font>
+<font color="#ffff00"> 664</font>  <font color="#cd5c5c">*FvwmIconMan</font>: Action    <font color="#f0e68c"><b>Mouse</b></font>   1 N sendcommand FocusOrIconify
+<font color="#ffff00"> 665</font>  <font color="#cd5c5c">*FvwmIconMan</font>: Action    <font color="#f0e68c"><b>Mouse</b></font>   3 N sendcommand `<font color="#98fb98">Menu</font> WindowControls <font color="#f0e68c"><b>Rectangle</b></font> +<font color="#cd5c5c">$left</font>+<font color="#cd5c5c">$top</font> 0 -100m`
+<font color="#ffff00"> 666</font>
+<font color="#ffff00"> 667</font>  <font color="#87ceeb"># Définition du style de la barre des tâches.</font>
+<font color="#ffff00"> 668</font>  <font color="#98fb98">Style</font> FvwmIconMan <font color="#98fb98">Sticky</font>, <font color="#f0e68c"><b>NoTitle</b></font>, <font color="#f0e68c"><b>WindowListSkip</b></font>, <font color="#f0e68c"><b>StaysOnBottom</b></font>, \
+<font color="#ffff00"> 669</font>  FixedSize, <font color="#f0e68c"><b>NeverFocus</b></font>, !<font color="#f0e68c"><b>Handles</b></font>, !Borders
+<font color="#ffff00"> 670</font>
+<font color="#ffff00"> 671</font>
+<font color="#ffff00"> 672</font>  <font color="#87ceeb">####</font>
+<font color="#ffff00"> 673</font>  <font color="#87ceeb"># La configuration de Fvwm est maintenant terminée. Il reste pourtant pas mal de </font>
+<font color="#ffff00"> 674</font>  <font color="#87ceeb"># choses en dessous : ce sont des fonctions. </font>
+<font color="#ffff00"> 675</font>  <font color="#87ceeb">#</font>
+<font color="#ffff00"> 676</font>  <font color="#87ceeb"># Regardons d'abord comment est constuite une fonction :</font>
+<font color="#ffff00"> 677</font>  <font color="#87ceeb">#</font>
+<font color="#ffff00"> 678</font>  <font color="#87ceeb">#   DestroyFunc FuncName</font>
+<font color="#ffff00"> 679</font>  <font color="#87ceeb">#   AddToFunc FuncName</font>
+<font color="#ffff00"> 680</font>  <font color="#87ceeb">#   + I (Action immédiate)</font>
+<font color="#ffff00"> 681</font>  <font color="#87ceeb">#   + C (Action sur un clic de la souris)</font>
+<font color="#ffff00"> 682</font>  <font color="#87ceeb">#   + D (Action sur un double clic)</font>
+<font color="#ffff00"> 683</font>  <font color="#87ceeb">#   + H (Action sur un to happen on a mouse 'hold')</font>
+<font color="#ffff00"> 684</font>  <font color="#87ceeb">#   + M (Action to happen on a mouse 'motion')</font>
+<font color="#ffff00"> 685</font>  <font color="#87ceeb">#</font>
+<font color="#ffff00"> 686</font>  <font color="#87ceeb"># La première chose à faire est de détruire la fonction avec DestroyFunc, </font>
+<font color="#ffff00"> 687</font>  <font color="#87ceeb"># ceci permet de remettre à zéro afin d'éviter quelques soucis si la fonction </font>
+<font color="#ffff00"> 688</font>  <font color="#87ceeb"># existait déja avant dans le fichier. Puis, la commande AddToFunc permet </font>
+<font color="#ffff00"> 689</font>  <font color="#87ceeb"># d'ajouter une liste d'action qui sera exécutée quand cette fonction sera </font>
+<font color="#ffff00"> 690</font>  <font color="#87ceeb"># appellée. Comme vous pouvez le voir ci-dessus, ces actions peuvent agir</font>
+<font color="#ffff00"> 691</font>  <font color="#87ceeb"># différemment avec les actions de la souris. Toutefois, on utilise principalement</font>
+<font color="#ffff00"> 692</font>  <font color="#87ceeb"># le I. Maintenant quand vous appellez une fonction dans FVWM, vous pouvez </font>
+<font color="#ffff00"> 693</font>  <font color="#87ceeb"># lui envoyer plusieurs paramètres. Par exemple, vous pouvez appeller la </font>
+<font color="#ffff00"> 694</font>  <font color="#87ceeb"># fonction par son nom suivi de variables : 'FuncName &quot;$0&quot; &quot;$1&quot; &quot;$2&quot; &quot;$3&quot;</font>
+<font color="#ffff00"> 695</font>  <font color="#87ceeb"># &quot;$4&quot;' où $0-$4 sont les options passées à+ I Key d A CM Next (CirculateHit,Side) SideHideFunc 3</font>
+<font color="#ffff00"> 696</font>   la fonction.
+<font color="#ffff00"> 697</font>  <font color="#87ceeb">#</font>
+<font color="#ffff00"> 698</font>  <font color="#87ceeb"># J'essaie de donner un nom explicite pour chacune des fonctions et d'optimiser</font>
+<font color="#ffff00"> 699</font>  <font color="#87ceeb"># au maximum chaque fonction : ne pas créer deux fonctions qui pourraient </font>
+<font color="#ffff00"> 700</font>  <font color="#87ceeb"># n'en faire qu'une seule par exemple.</font>
+<font color="#ffff00"> 701</font>  <font color="#87ceeb">##########################</font>
+<font color="#ffff00"> 702</font>
+<font color="#ffff00"> 703</font>
+<font color="#ffff00"> 704</font>  <font color="#87ceeb">####</font>
+<font color="#ffff00"> 705</font>  <font color="#87ceeb"># Deux fonctions pour la barre des tâches.</font>
+<font color="#ffff00"> 706</font>  <font color="#87ceeb"># La première s'occupe de lancer la fonction FuncSelectWindow si la fenêtre</font>
+<font color="#ffff00"> 707</font>  <font color="#87ceeb"># concernée n'a pas le focus, elle l'iconifie si la fenêtre a le focus.</font>
+<font color="#ffff00"> 708</font>  <font color="#87ceeb"># La seconde fonction FuncSelectWindow donne le focus, fait passer au premier</font>
+<font color="#ffff00"> 709</font>  <font color="#87ceeb"># plan et restaure la fenêtre concernée si elle était iconifiée.</font>
+<font color="#ffff00"> 710</font>  <font color="#87ceeb">##########################</font>
+<font color="#ffff00"> 711</font>  <font color="#98fb98">DestroyFunc</font> FocusOrIconify
+<font color="#ffff00"> 712</font>  <font color="#98fb98">AddToFunc</font> FocusOrIconify
+<font color="#ffff00"> 713</font>  + I ThisWindow (!Focused) FuncSelectWindow
+<font color="#ffff00"> 714</font>  + I TestRc (NoMatch) <font color="#98fb98">Iconify</font>
+<font color="#ffff00"> 715</font>
+<font color="#ffff00"> 716</font>  <font color="#98fb98">DestroyFunc</font> FuncSelectWindow
+<font color="#ffff00"> 717</font>  <font color="#98fb98">AddToFunc</font> FuncSelectWindow
+<font color="#ffff00"> 718</font>  + I <font color="#98fb98">Focus</font>
+<font color="#ffff00"> 719</font>  + I <font color="#98fb98">Iconify</font> <font color="#f0e68c"><b>false</b></font>
+<font color="#ffff00"> 720</font>  + I <font color="#98fb98">Raise</font>
+<font color="#ffff00"> 721</font>
+<font color="#ffff00"> 722</font>
+<font color="#ffff00"> 723</font>  <font color="#87ceeb">####</font>
+<font color="#ffff00"> 724</font>  <font color="#87ceeb"># Cette fonction est directement liée au panneau latéral.</font>
+<font color="#ffff00"> 725</font>  <font color="#87ceeb"># C'est elle qui permet de le montrer ou le cacher.</font>
+<font color="#ffff00"> 726</font>  <font color="#87ceeb">#</font>
+<font color="#ffff00"> 727</font>  <font color="#87ceeb"># On effectue dans un premier temps un test en bash avec la commande PipeRead</font>
+<font color="#ffff00"> 728</font>  <font color="#87ceeb"># qui compare la longueur du panneau additionnée à la longueur qu'il prend sur</font>
+<font color="#ffff00"> 729</font>  <font color="#87ceeb"># l'écran avec la longueur de l'écran. Si le résultat est plus petit que la longueur</font>
+<font color="#ffff00"> 730</font>  <font color="#87ceeb"># de l'écran, cela veut dire que le panneau est montré ; on donne alors un argument </font>
+<font color="#ffff00"> 731</font>  <font color="#87ceeb"># positif à la commande AnimatedMove (dont le fonctionnement est exactement le </font>
+<font color="#ffff00"> 732</font>  <font color="#87ceeb"># même que la commande Move) pour l'axe des abscisses. Si le résultat est plus grand</font>
+<font color="#ffff00"> 733</font>  <font color="#87ceeb"># que la longueur de l'écran, le panneau est donc caché et il faut le montrer ; on </font>
+<font color="#ffff00"> 734</font>  <font color="#87ceeb"># donne alors un argument négatif pour AnimatedMove. </font>
+<font color="#ffff00"> 735</font>  <font color="#87ceeb">#</font>
+<font color="#ffff00"> 736</font>  <font color="#87ceeb"># AnimatedMove accepte deux arguments : un horyzontal et un vertical. Les deux</font>
+<font color="#ffff00"> 737</font>  <font color="#87ceeb"># arguments horyzontaux sont choisis à l'aide de l'opérateur logique || (ou) et </font>
+<font color="#ffff00"> 738</font>  <font color="#87ceeb"># l'argument vertical est donné : keep (on garde la même valeur).</font>
+<font color="#ffff00"> 739</font>  <font color="#87ceeb">#</font>
+<font color="#ffff00"> 740</font>  <font color="#87ceeb"># C'est exactement le même principe pour la seconde action sauf que l'on modifie</font>
+<font color="#ffff00"> 741</font>  <font color="#87ceeb"># la variable $[strut.right] en fonction du résultat de la comparaison.</font>
+<font color="#ffff00"> 742</font>  <font color="#87ceeb"># Le contenu de la variable $[strut.right] est alors utilisée pour mettre à jour </font>
+<font color="#ffff00"> 743</font>  <font color="#87ceeb"># la commande EwmhBaseStruts.</font>
+<font color="#ffff00"> 744</font>  <font color="#87ceeb">#</font>
+<font color="#ffff00"> 745</font>  <font color="#87ceeb"># Enfin comme la zone de l'écran autorisé pour les fenêtres maximisées est bien </font>
+<font color="#ffff00"> 746</font>  <font color="#87ceeb"># définie en fonction de la position du panneau, on indique aux fenêtres maximisées</font>
+<font color="#ffff00"> 747</font>  <font color="#87ceeb"># de se remaximiser.</font>
+<font color="#ffff00"> 748</font>  <font color="#87ceeb">#</font>
+<font color="#ffff00"> 749</font>  <font color="#87ceeb">#</font>
+<font color="#ffff00"> 750</font>  <font color="#87ceeb"># La fontion PanelVertHideFunc a le même rôle sauf qu'elle ne s'applique que pour </font>
+<font color="#ffff00"> 751</font>  <font color="#87ceeb"># le panel du thème vert.</font>
+<font color="#ffff00"> 752</font>  <font color="#87ceeb">##########################</font>
+<font color="#ffff00"> 753</font>
+<font color="#ffff00"> 754</font>  <font color="#98fb98">DestroyFunc</font> SideHideFunc
+<font color="#ffff00"> 755</font>  <font color="#98fb98">AddToFunc</font> SideHideFunc
+<font color="#ffff00"> 756</font>  + I <font color="#98fb98">Next</font> (<font color="#f0e68c"><b>CirculateHit</b></font>,Side) <font color="#98fb98">PipeRead</font> '<font color="#98fb98">echo</font> <font color="#98fb98">AnimatedMove</font> <font color="#cd5c5c">$$</font>(test <font color="#cd5c5c">$$</font>((<font color="#cd5c5c">$[w.x]</font>+<font color="#cd5c5c">$[w.width]</font>)) -le <font color="#cd5c5c">$[vp.width]</font> \
+<font color="#ffff00"> 757</font>      &amp;&amp; <font color="#98fb98">echo</font> w<font color="#cd5c5c">$$</font>((<font color="#cd5c5c">$[w.width]</font>-<font color="#cd5c5c">$0</font>))p \
+<font color="#ffff00"> 758</font>      || <font color="#98fb98">echo</font> w-<font color="#cd5c5c">$$</font>((<font color="#cd5c5c">$[w.width]</font>-<font color="#cd5c5c">$0</font>))p) keep'
+<font color="#ffff00"> 759</font>  + I <font color="#98fb98">Next</font> (<font color="#f0e68c"><b>CirculateHit</b></font>,Side) <font color="#98fb98">PipeRead</font> 'test <font color="#cd5c5c">$$</font>((<font color="#cd5c5c">$[w.x]</font>+<font color="#cd5c5c">$[w.width]</font>)) -le <font color="#cd5c5c">$[vp.width]</font> \
+<font color="#ffff00"> 760</font>      &amp;&amp; <font color="#98fb98">echo</font> <font color="#98fb98">SetEnv</font> strut.right <font color="#cd5c5c">$[side.width]</font> \
+<font color="#ffff00"> 761</font>      || <font color="#98fb98">echo</font> <font color="#98fb98">SetEnv</font> strut.right <font color="#cd5c5c">$0</font>'
+<font color="#ffff00"> 762</font>  + I EwmhBaseStruts 0 <font color="#cd5c5c">$[strut.right]</font> 0 33
+<font color="#ffff00"> 763</font>  + I <font color="#f0e68c"><b>All</b></font> (<font color="#98fb98">Maximized</font>, !Side, !Panel) <font color="#98fb98">Maximize</font> <font color="#f0e68c"><b>True</b></font>
+<font color="#ffff00"> 764</font>  + I <font color="#98fb98">PipeRead</font> '<font color="#98fb98">echo</font> <font color="#98fb98">SetEnv</font> screen.x <font color="#cd5c5c">$$</font>((<font color="#cd5c5c">$[vp.width]</font>-<font color="#cd5c5c">$[strut.right]</font>+5))'
+<font color="#ffff00"> 765</font>  + I <font color="#f0e68c"><b>All</b></font> (GameConsole, !<font color="#98fb98">Shaded</font>) <font color="#98fb98">Resize</font> <font color="#cd5c5c">$[screen.x]</font>p keep
+<font color="#ffff00"> 766</font>
+<font color="#ffff00"> 767</font>  <font color="#98fb98">DestroyFunc</font> PanelVertHideFunc
+<font color="#ffff00"> 768</font>  <font color="#98fb98">AddToFunc</font> PanelVertHideFunc
+<font color="#ffff00"> 769</font>  + I <font color="#98fb98">Next</font> (PanelVert) <font color="#98fb98">PipeRead</font> '<font color="#98fb98">echo</font> <font color="#98fb98">AnimatedMove</font> keep <font color="#cd5c5c">$$</font>(test <font color="#cd5c5c">$$</font>((<font color="#cd5c5c">$[w.y]</font>+<font color="#cd5c5c">$[w.height]</font>)) -le <font color="#cd5c5c">$[vp.height]</font> \
+<font color="#ffff00"> 770</font>      &amp;&amp; <font color="#98fb98">echo</font> w<font color="#cd5c5c">$$</font>((<font color="#cd5c5c">$[w.height]</font>-<font color="#cd5c5c">$0</font>))p \
+<font color="#ffff00"> 771</font>      || <font color="#98fb98">echo</font> w-<font color="#cd5c5c">$$</font>((<font color="#cd5c5c">$[w.height]</font>-<font color="#cd5c5c">$0</font>))p)'
+<font color="#ffff00"> 772</font>  + I <font color="#98fb98">Next</font> (PanelVert) <font color="#98fb98">PipeRead</font> 'test <font color="#cd5c5c">$$</font>((<font color="#cd5c5c">$[w.y]</font>+<font color="#cd5c5c">$[w.height]</font>)) -le <font color="#cd5c5c">$[vp.height]</font> \
+<font color="#ffff00"> 773</font>      &amp;&amp; <font color="#98fb98">echo</font> <font color="#98fb98">SetEnv</font> strut.bottom <font color="#cd5c5c">$[w.height]</font> \
+<font color="#ffff00"> 774</font>      || <font color="#98fb98">echo</font> <font color="#98fb98">SetEnv</font> strut.bottom <font color="#cd5c5c">$0</font>'
+<font color="#ffff00"> 775</font>  + I EwmhBaseStruts 0 0 0 <font color="#cd5c5c">$[strut.bottom]</font>
+<font color="#ffff00"> 776</font>  + I <font color="#f0e68c"><b>All</b></font> (<font color="#98fb98">Maximized</font>, !PanelVert) <font color="#98fb98">Maximize</font> <font color="#f0e68c"><b>True</b></font>
+<font color="#ffff00"> 777</font>
+<font color="#ffff00"> 778</font>
+<font color="#ffff00"> 779</font>  <font color="#87ceeb">####</font>
+<font color="#ffff00"> 780</font>  <font color="#87ceeb"># Vous pouvez explorer des répertoires et des fichiers grace au script</font>
+<font color="#ffff00"> 781</font>  <font color="#87ceeb"># fvwm-menu-directory inclut dans Fvwm. C'est très configurable et très </font>
+<font color="#ffff00"> 782</font>  <font color="#87ceeb"># fonctionnel. Ces 3 fonctions sont directements tirées du fichier de </font>
+<font color="#ffff00"> 783</font>  <font color="#87ceeb"># configuration de Taviso.</font>
+<font color="#ffff00"> 784</font>  <font color="#87ceeb"># </font>
+<font color="#ffff00"> 785</font>  <font color="#87ceeb"># Il faudra les utiliser dans des menus dynamiques. Elles permettent</font>
+<font color="#ffff00"> 786</font>  <font color="#87ceeb"># d'explorer vos répertoires de videos et de musiques et de changer de fond d'écran.</font>
+<font color="#ffff00"> 787</font>  <font color="#87ceeb">##########################</font>
+<font color="#ffff00"> 788</font>  <font color="#98fb98">DestroyFunc</font> FuncFvwmMenuDirectory
+<font color="#ffff00"> 789</font>  <font color="#98fb98">AddToFunc</font> FuncFvwmMenuDirectory
+<font color="#ffff00"> 790</font>  + I <font color="#98fb98">PipeRead</font> 'case <font color="#ffa0a0">&quot;$0&quot;</font> in \
+<font color="#ffff00"> 791</font>          <font color="#ffa0a0">&quot;$[video]&quot;</font>*) myexec=<font color="#ffa0a0">&quot;$[video_exec]&quot;</font> mypng=<font color="#98fb98">menu</font>/video.png;; \
+<font color="#ffff00"> 792</font>          <font color="#ffa0a0">&quot;$[audio]&quot;</font>*) myexec=<font color="#ffa0a0">&quot;$[audio_exec]&quot;</font> mypng=<font color="#98fb98">menu</font>/audio.png;; \
+<font color="#ffff00"> 793</font>      esac; \
+<font color="#ffff00"> 794</font>      fvwm-menu-directory --icon-title <font color="#98fb98">menu</font>/dossier.png --icon-file ${mypng:-menu/dossier.png} \
+<font color="#ffff00"> 795</font>      --icon-dir <font color="#98fb98">menu</font>/dossier.png --dir <font color="#ffa0a0">&quot;$0&quot;</font> --exec-t=<font color="#ffa0a0">&quot;^${myexec:-gvim} *&quot;</font> \
+<font color="#ffff00"> 796</font>      --exec-file <font color="#ffa0a0">&quot;^${myexec:-gvim}&quot;</font>'
+<font color="#ffff00"> 797</font>
+<font color="#ffff00"> 798</font>  <font color="#98fb98">DestroyFunc</font> WallpaperBrowser
+<font color="#ffff00"> 799</font>  <font color="#98fb98">AddToFunc</font> WallpaperBrowser
+<font color="#ffff00"> 800</font>  + I <font color="#98fb98">PipeRead</font> 'test ! -d <font color="#ffa0a0">&quot;$0/.thumbs&quot;</font> &amp;&amp; mkdir <font color="#ffa0a0">&quot;$0/.thumbs&quot;</font>; \
+<font color="#ffff00"> 801</font>      for i in <font color="#ffa0a0">&quot;$0/&quot;</font>*; do \
+<font color="#ffff00"> 802</font>          test -f <font color="#ffa0a0">&quot;$0/.thumbs/${i##*/}&quot;</font> \
+<font color="#ffff00"> 803</font>              -a <font color="#ffa0a0">&quot;${i}&quot;</font> -ot <font color="#ffa0a0">&quot;$0/.thumbs/${i##*/}&quot;</font> || { \
+<font color="#ffff00"> 804</font>                  convert -quality 0 -scale 64 <font color="#ffa0a0">&quot;${i}&quot;</font> <font color="#ffa0a0">&quot;png:$0/.thumbs/${i##*/}&quot;</font> 2&gt;/dev/null \
+<font color="#ffff00"> 805</font>                      || continue;}; \
+<font color="#ffff00"> 806</font>      done; \
+<font color="#ffff00"> 807</font>      fvwm-menu-directory --icon-title dossier.png --icon-file __PIXMAP__ \
+<font color="#ffff00"> 808</font>      --icon-dir dossier.png --dir <font color="#cd5c5c">$0</font> --exec-file <font color="#ffa0a0">&quot;^fbsetbg -f&quot;</font> \
+<font color="#ffff00"> 809</font>      --exec-t=<font color="#ffa0a0">&quot;^eog *&quot;</font> | sed -e <font color="#ffa0a0">&quot;s#FuncFvwmMenuDirectory#WallpaperBrowser#g&quot;</font> \
+<font color="#ffff00"> 810</font>      -e <font color="#ffa0a0">&quot;s#__PIXMAP__\\(.*\\)\\&quot;</font>\\(.*/\\)\\(.*\\)\\<font color="#ffa0a0">&quot;#\\2.thumbs/\\3\\1\\2\\3#g&quot;</font>'
+<font color="#ffff00"> 811</font>
+<font color="#ffff00"> 812</font>  <font color="#98fb98">DestroyFunc</font> ScreenshotsBrowser
+<font color="#ffff00"> 813</font>  <font color="#98fb98">AddToFunc</font> ScreenshotsBrowser
+<font color="#ffff00"> 814</font>  + I <font color="#98fb98">PipeRead</font> 'test ! -d <font color="#ffa0a0">&quot;$0/.thumbs&quot;</font> &amp;&amp; mkdir <font color="#ffa0a0">&quot;$0/.thumbs&quot;</font>; \
+<font color="#ffff00"> 815</font>      for i in <font color="#ffa0a0">&quot;$0/&quot;</font>*; do \
+<font color="#ffff00"> 816</font>          test -f <font color="#ffa0a0">&quot;$0/.thumbs/${i##*/}&quot;</font> \
+<font color="#ffff00"> 817</font>              -a <font color="#ffa0a0">&quot;${i}&quot;</font> -ot <font color="#ffa0a0">&quot;$0/.thumbs/${i##*/}&quot;</font> || { \
+<font color="#ffff00"> 818</font>                  convert -quality 0 -scale 64 <font color="#ffa0a0">&quot;${i}&quot;</font> <font color="#ffa0a0">&quot;png:$0/.thumbs/${i##*/}&quot;</font> 2&gt;/dev/null \
+<font color="#ffff00"> 819</font>                      || continue;}; \
+<font color="#ffff00"> 820</font>      done; \
+<font color="#ffff00"> 821</font>      fvwm-menu-directory --icon-title dossier.png --icon-file __PIXMAP__ \
+<font color="#ffff00"> 822</font>      --icon-dir dossier.png --dir <font color="#cd5c5c">$0</font> --exec-file <font color="#ffa0a0">&quot;^eog&quot;</font> \
+<font color="#ffff00"> 823</font>      --exec-t=<font color="#ffa0a0">&quot;^eog *&quot;</font> | sed -e <font color="#ffa0a0">&quot;s#FuncFvwmMenuDirectory#ScreenshotsBrowser#g&quot;</font> \
+<font color="#ffff00"> 824</font>      -e <font color="#ffa0a0">&quot;s#__PIXMAP__\\(.*\\)\\&quot;</font>\\(.*/\\)\\(.*\\)\\<font color="#ffa0a0">&quot;#\\2.thumbs/\\3\\1\\2\\3#g&quot;</font>'
+<font color="#ffff00"> 825</font>
+<font color="#ffff00"> 826</font>
+<font color="#ffff00"> 827</font>  <font color="#87ceeb">####</font>
+<font color="#ffff00"> 828</font>  <font color="#87ceeb"># Fvwm possède une fonction native nommée WindowListFunc. Je n'aimais pas trop</font>
+<font color="#ffff00"> 829</font>  <font color="#87ceeb"># le comportement par defaut de cette fonction, alors je l'ai détruite et recréé</font>
+<font color="#ffff00"> 830</font>  <font color="#87ceeb"># afin de positionner le curseur de la souris sur la fenêtre sélectionnée.</font>
+<font color="#ffff00"> 831</font>  <font color="#87ceeb">##########################</font>
+<font color="#ffff00"> 832</font>  <font color="#98fb98">DestroyFunc</font> WindowListFunc
+<font color="#ffff00"> 833</font>  <font color="#98fb98">AddToFunc</font> WindowListFunc
+<font color="#ffff00"> 834</font>  + I <font color="#98fb98">Iconify</font> off
+<font color="#ffff00"> 835</font>  + I <font color="#98fb98">FlipFocus</font>
+<font color="#ffff00"> 836</font>  + I <font color="#98fb98">Raise</font>
+<font color="#ffff00"> 837</font>  + I <font color="#98fb98">WarpToWindow</font> 50 50
+<font color="#ffff00"> 838</font>
+<font color="#ffff00"> 839</font>
+<font color="#ffff00"> 840</font>  <font color="#87ceeb">####</font>
+<font color="#ffff00"> 841</font>  <font color="#87ceeb"># Fonction très simple qui permet avec une simple opération mathématique de</font>
+<font color="#ffff00"> 842</font>  <font color="#87ceeb"># centrer une fenêtre. J'utilise la même méthode pour centrer le tableau de bord.</font>
+<font color="#ffff00"> 843</font>  <font color="#87ceeb"># Cette fonction est appellée avec la combinaison de touche Alt+c.</font>
+<font color="#ffff00"> 844</font>  <font color="#87ceeb">##########################</font>
+<font color="#ffff00"> 845</font>  <font color="#98fb98">DestroyFunc</font> CenterWindow
+<font color="#ffff00"> 846</font>  <font color="#98fb98">AddToFunc</font>   CenterWindow
+<font color="#ffff00"> 847</font>  + I ThisWindow <font color="#98fb98">Piperead</font> &quot;<font color="#98fb98">echo</font> <font color="#98fb98">AnimatedMove</font> \
+<font color="#ffff00"> 848</font>        $(( <font color="#cd5c5c">$[vp.width]</font>/2-<font color="#cd5c5c">$[w.width]</font>/2 ))p \
+<font color="#ffff00"> 849</font>        $(( <font color="#cd5c5c">$[vp.height]</font>/2-<font color="#cd5c5c">$[w.height]</font>/2 ))p&quot;
+<font color="#ffff00"> 850</font>
+<font color="#ffff00"> 851</font>
+<font color="#ffff00"> 852</font>  <font color="#87ceeb">####</font>
+<font color="#ffff00"> 853</font>  <font color="#87ceeb"># Différentes fonctions qui s'occupe des opérations sur les fenêtres :</font>
+<font color="#ffff00"> 854</font>  <font color="#87ceeb"># iconifier, maximiser, plein écran, enlever la décoration etc.</font>
+<font color="#ffff00"> 855</font>  <font color="#87ceeb">##########################</font>
+<font color="#ffff00"> 856</font>  <font color="#98fb98">DestroyFunc</font> IconifyFunc
+<font color="#ffff00"> 857</font>  <font color="#98fb98">AddToFunc</font> IconifyFunc
+<font color="#ffff00"> 858</font>  + M <font color="#98fb98">Nop</font>
+<font color="#ffff00"> 859</font>  + C <font color="#98fb98">Iconify</font>
+<font color="#ffff00"> 860</font>
+<font color="#ffff00"> 861</font>  <font color="#98fb98">DestroyFunc</font> ThumbnailFunc
+<font color="#ffff00"> 862</font>  <font color="#98fb98">AddToFunc</font> ThumbnailFunc
+<font color="#ffff00"> 863</font>  + M <font color="#98fb98">Nop</font>
+<font color="#ffff00"> 864</font>  + C Thumbnail
+<font color="#ffff00"> 865</font>
+<font color="#ffff00"> 866</font>
+<font color="#ffff00"> 867</font>  <font color="#98fb98">DestroyFunc</font> MaximizeFunc
+<font color="#ffff00"> 868</font>  <font color="#98fb98">AddToFunc</font> MaximizeFunc
+<font color="#ffff00"> 869</font>  + C <font color="#98fb98">Maximize</font> <font color="#cd5c5c">$0</font>
+<font color="#ffff00"> 870</font>  + M <font color="#98fb98">Nop</font>
+<font color="#ffff00"> 871</font>
+<font color="#ffff00"> 872</font>  <font color="#98fb98">DestroyFunc</font> HoryMaximizeFunc
+<font color="#ffff00"> 873</font>  <font color="#98fb98">AddToFunc</font> HoryMaximizeFunc
+<font color="#ffff00"> 874</font>  + C <font color="#98fb98">Maximize</font> 100 0
+<font color="#ffff00"> 875</font>  + M <font color="#98fb98">Nop</font>
+<font color="#ffff00"> 876</font>
+<font color="#ffff00"> 877</font>  <font color="#98fb98">DestroyFunc</font> MaximizeTitleBarFunc
+<font color="#ffff00"> 878</font>  <font color="#98fb98">AddToFunc</font> MaximizeTitleBarFunc
+<font color="#ffff00"> 879</font>  + I <font color="#98fb98">Raise</font>
+<font color="#ffff00"> 880</font>  + D <font color="#98fb98">Maximize</font>
+<font color="#ffff00"> 881</font>  + M <font color="#98fb98">Move</font>
+<font color="#ffff00"> 882</font>
+<font color="#ffff00"> 883</font>  <font color="#98fb98">DestroyFunc</font> CloseFunc
+<font color="#ffff00"> 884</font>  <font color="#98fb98">AddToFunc</font> CloseFunc
+<font color="#ffff00"> 885</font>  + C <font color="#98fb98">Close</font>
+<font color="#ffff00"> 886</font>  + M <font color="#98fb98">Nop</font>
+<font color="#ffff00"> 887</font>
+<font color="#ffff00"> 888</font>  <font color="#98fb98">DestroyFunc</font> MoveFunc
+<font color="#ffff00"> 889</font>  <font color="#98fb98">AddToFunc</font> MoveFunc
+<font color="#ffff00"> 890</font>  + M <font color="#98fb98">Move</font>
+<font color="#ffff00"> 891</font>  + C <font color="#98fb98">Nop</font>
+<font color="#ffff00"> 892</font>
+<font color="#ffff00"> 893</font>  <font color="#98fb98">DestroyFunc</font> ResizeFunc
+<font color="#ffff00"> 894</font>  <font color="#98fb98">AddToFunc</font> ResizeFunc
+<font color="#ffff00"> 895</font>  + M <font color="#98fb98">Resize</font>
+<font color="#ffff00"> 896</font>  + C <font color="#98fb98">Menu</font> WindowControls
+<font color="#ffff00"> 897</font>  <font color="#98fb98">AddToFunc</font> DeiconifyAndRearrange
+<font color="#ffff00"> 898</font>   + I DeThumbnail
+<font color="#ffff00"> 899</font>   + I <font color="#f0e68c"><b>All</b></font> (<font color="#98fb98">CurrentPage</font>, <font color="#98fb98">Iconic</font>) <font color="#98fb98">PlaceAgain</font> <font color="#f0e68c"><b>Icon</b></font>
+<font color="#ffff00"> 900</font>
+<font color="#ffff00"> 901</font>   <font color="#98fb98">AddToFunc</font> IconFunc
+<font color="#ffff00"> 902</font>   + C DeiconifyAndRearrange
+<font color="#ffff00"> 903</font>   + M <font color="#98fb98">Raise</font>
+<font color="#ffff00"> 904</font>   + M <font color="#98fb98">Move</font>
+<font color="#ffff00"> 905</font>   + D DeiconifyAndRearrange
+<font color="#ffff00"> 906</font>
+<font color="#ffff00"> 907</font>  <font color="#98fb98">DestroyFunc</font> Thumbnail
+<font color="#ffff00"> 908</font>  <font color="#98fb98">AddToFunc</font> Thumbnail
+<font color="#ffff00"> 909</font>  + I <font color="#98fb98">Raise</font>
+<font color="#ffff00"> 910</font>  + I ThisWindow (!<font color="#98fb98">Iconic</font>) <font color="#98fb98">SetEnv</font> Icon-<font color="#cd5c5c">$[w.id]</font> <font color="#cd5c5c">$[w.iconfile]</font>
+<font color="#ffff00"> 911</font>  + I ThisWindow (!<font color="#98fb98">Shaded</font>, Iconifiable, !<font color="#98fb98">Iconic</font>) <font color="#98fb98">PipeRead</font> \
+<font color="#ffff00"> 912</font>  &quot;xwd -silent -id <font color="#cd5c5c">$[w.id]</font> | convert -scale 128 -frame 1x1 \
+<font color="#ffff00"> 913</font>  -mattecolor black -quality 0 xwd:- png:<font color="#cd5c5c">$[FVWM_USERDIR]</font>/icon.tmp.<font color="#cd5c5c">$[w.id]</font>.png \
+<font color="#ffff00"> 914</font>  &amp;&amp; <font color="#98fb98">echo</font> WindowStyle <font color="#f0e68c"><b>IconOverride</b></font>, <font color="#f0e68c"><b>Icon</b></font> <font color="#cd5c5c">$[FVWM_USERDIR]</font>/icon.tmp.<font color="#cd5c5c">$[w.id]</font>.png \
+<font color="#ffff00"> 915</font>  || <font color="#98fb98">echo</font> <font color="#98fb98">Nop</font>&quot;
+<font color="#ffff00"> 916</font>  + I TestRc (Match) Test (f <font color="#cd5c5c">$[w.miniiconfile]</font>, f <font color="#cd5c5c">$[FVWM_USERDIR]</font>/icon.tmp.<font color="#cd5c5c">$[w.id]</font>.png) <font color="#98fb98">PipeRead</font> \
+<font color="#ffff00"> 917</font>  &quot;composite -geometry +2+4 <font color="#cd5c5c">$[w.miniiconfile]</font> <font color="#cd5c5c">$[FVWM_USERDIR]</font>/icon.tmp.<font color="#cd5c5c">$[w.id]</font>.png \
+<font color="#ffff00"> 918</font>  <font color="#cd5c5c">$[FVWM_USERDIR]</font>/icon.tmp.<font color="#cd5c5c">$[w.id]</font>.png; <font color="#98fb98">echo</font> <font color="#98fb98">Nop</font>&quot;
+<font color="#ffff00"> 919</font>  + I <font color="#98fb98">Iconify</font>
+<font color="#ffff00"> 920</font>
+<font color="#ffff00"> 921</font>  <font color="#98fb98">DestroyFunc</font> DeThumbnail
+<font color="#ffff00"> 922</font>  <font color="#98fb98">AddToFunc</font> DeThumbnail
+<font color="#ffff00"> 923</font>  + I <font color="#98fb98">PipeRead</font> <font color="#ffa0a0">&quot;echo Test \\(i \\$\\[Icon-$[w.id]\\]\\) WindowStyle Icon \\$\\[Icon-$[w.id]\\]&quot;</font>
+<font color="#ffff00"> 924</font>  + I TestRc (NoMatch) WindowStyle <font color="#f0e68c"><b>NoIconOverride</b></font>, <font color="#f0e68c"><b>Icon</b></font>
+<font color="#ffff00"> 925</font>  + I <font color="#98fb98">Exec</font> rm -f <font color="#cd5c5c">$[FVWM_USERDIR]</font>/icon.tmp.<font color="#cd5c5c">$[w.id]</font>.png
+<font color="#ffff00"> 926</font>  + I <font color="#98fb98">UnsetEnv</font> Icon-<font color="#cd5c5c">$[w.id]</font>
+<font color="#ffff00"> 927</font>  + I <font color="#98fb98">Iconify</font> off
+<font color="#ffff00"> 928</font>
+<font color="#ffff00"> 929</font>  <font color="#87ceeb">####</font>
+<font color="#ffff00"> 930</font>  <font color="#87ceeb"># J'utilise FvwmEvent pour détecter le lancement de nouvelles fenêtres.</font>
+<font color="#ffff00"> 931</font>  <font color="#87ceeb"># Différentes actions sont exécutées en fonction de la fenêtre.</font>
+<font color="#ffff00"> 932</font>  <font color="#87ceeb"># Je décide par exemple de placer Irssi à une certaine position dès qu'ils souvre.</font>
+<font color="#ffff00"> 933</font>  <font color="#87ceeb">#</font>
+<font color="#ffff00"> 934</font>  <font color="#87ceeb"># Merci à Thomas_Adam sur les forums Fvwm pour m'avoir aidé sur ce point :</font>
+<font color="#ffff00"> 935</font>  <font color="#87ceeb"># lorsque vous maximisez une fenêtre et que vous la fermez, elle ne sera pas maximisée</font>
+<font color="#ffff00"> 936</font>  <font color="#87ceeb"># la prochaine fois (seule la taille est conservée). Si je ferme Firefox alors qu'il était </font>
+<font color="#ffff00"> 937</font>  <font color="#87ceeb"># maximisé je veux qu'il soit maximisé la prochaine fois que je l'ouvre ; mais je veux aussi</font>
+<font color="#ffff00"> 938</font>  <font color="#87ceeb"># qu'il ne le soit pas s'il ne l'était pas quand je l'avais fermé. C'est le comportement du</font>
+<font color="#ffff00"> 939</font>  <font color="#87ceeb"># gestionnaire de fenêtres Metacity de GNOME.</font>
+<font color="#ffff00"> 940</font>  <font color="#87ceeb">#</font>
+<font color="#ffff00"> 941</font>  <font color="#87ceeb"># C'est ce que font ces deux fonctions. Lorsqu'une fenêtre est ouverte, on vérifie si le nom</font>
+<font color="#ffff00"> 942</font>  <font color="#87ceeb"># de sa classe apparait dans le fichier $[FVWM_USERDIR]/windowlist, si oui alors la fenêtre est</font>
+<font color="#ffff00"> 943</font>  <font color="#87ceeb"># maximisée. Si son nom de classe n'apparait pas, on ne fait rien bien sur.</font>
+<font color="#ffff00"> 944</font>  <font color="#87ceeb">#</font>
+<font color="#ffff00"> 945</font>  <font color="#87ceeb"># Par contre lorsque je ferme une fenêtre, il y'a deux possibilités : elle était maximisée ou non.</font>
+<font color="#ffff00"> 946</font>  <font color="#87ceeb"># Si elle était maximisée et qu'on ne trouve pas le nom de sa classe dans le fichier $[FVWM_USERDIR]/windowlist</font>
+<font color="#ffff00"> 947</font>  <font color="#87ceeb"># alors on écrit la classe dans ce fichier. Si la fenêtre n'était pas maximisée et qu'on trouve le nom de </font>
+<font color="#ffff00"> 948</font>  <font color="#87ceeb"># sa classe dans le fichier, alors il faut le supprimer sinon elle sera maximisée la prochaine fois.</font>
+<font color="#ffff00"> 949</font>  <font color="#87ceeb">##########################</font>
+<font color="#ffff00"> 950</font>  <font color="#98fb98">DestroyFunc</font> AddWindowFunc
+<font color="#ffff00"> 951</font>  <font color="#98fb98">AddToFunc</font> AddWindowFunc
+<font color="#ffff00"> 952</font>  + I ThisWindow (irssi) <font color="#98fb98">Move</font> 30p 135p
+<font color="#ffff00"> 953</font>  + I ThisWindow <font color="#98fb98">PipeRead</font> `\
+<font color="#ffff00"> 954</font>  while <font color="#f0e68c"><b>read</b></font>; do \
+<font color="#ffff00"> 955</font>  [[ <font color="#ffa0a0">&quot;$REPLY&quot;</font> == <font color="#ffa0a0">&quot;$[w.resource]&quot;</font> ]] &amp;&amp; \
+<font color="#ffff00"> 956</font>  <font color="#98fb98">echo</font> 'ThisWindow (!<font color="#98fb98">Maximized</font>) <font color="#98fb98">Maximize</font>' || \
+<font color="#ffff00"> 957</font>  <font color="#98fb98">echo</font> <font color="#98fb98">Nop</font>; done &lt; <font color="#cd5c5c">$[FVWM_USERDIR]</font>/<font color="#98fb98">windowlist</font>`
+<font color="#ffff00"> 958</font>
+<font color="#ffff00"> 959</font>  <font color="#98fb98">DestroyFunc</font> CloseWindowFunc
+<font color="#ffff00"> 960</font>  <font color="#98fb98">AddToFunc</font> CloseWindowFunc
+<font color="#ffff00"> 961</font>  + I ThisWindow (<font color="#98fb98">Maximized</font>) <font color="#98fb98">Exec</font> /bin/sh -c \
+<font color="#ffff00"> 962</font>  'if ! grep -q <font color="#cd5c5c">$[w.resource]</font> <font color="#cd5c5c">$[FVWM_USERDIR]</font>/<font color="#98fb98">windowlist</font>; then <font color="#98fb98">echo</font> <font color="#cd5c5c">$[w.resource]</font> &gt;&gt; <font color="#cd5c5c">$[FVWM_USERDIR]</font>/<font color="#98fb98">windowlist</font>; fi'
+<font color="#ffff00"> 963</font>  + I ThisWindow (!<font color="#98fb98">Maximized</font>) <font color="#98fb98">Exec</font> /bin/sh -c \
+<font color="#ffff00"> 964</font>  'if grep -q <font color="#cd5c5c">$[w.resource]</font> <font color="#cd5c5c">$[FVWM_USERDIR]</font>/<font color="#98fb98">windowlist</font>; then sed -ie <font color="#ffa0a0">&quot;/$[w.resource]/d;&quot;</font> <font color="#cd5c5c">$[FVWM_USERDIR]</font>/<font color="#98fb98">windowlist</font>; fi'
+<font color="#ffff00"> 965</font>
+<font color="#ffff00"> 966</font>
+<font color="#ffff00"> 967</font>  <font color="#87ceeb">####</font>
+<font color="#ffff00"> 968</font>  <font color="#87ceeb"># Deux fonctions utilisées dans le menu des opérations sur les fenêtres.</font>
+<font color="#ffff00"> 969</font>  <font color="#87ceeb"># Elles permettent respectivement de faire passer une fenêtre en plein écran</font>
+<font color="#ffff00"> 970</font>  <font color="#87ceeb"># ou de la remettre dans son état initial. Ce que j'appelle plein écran, c'est </font>
+<font color="#ffff00"> 971</font>  <font color="#87ceeb"># une fenêtre sans bordures, sans décorations de fenêtres et maximisée au maximum.</font>
+<font color="#ffff00"> 972</font>  <font color="#87ceeb"># Voila ce que fait la fonction FullScreen et à l'inverse la fonction FullScreenOff.</font>
+<font color="#ffff00"> 973</font>  <font color="#87ceeb">##########################</font>
+<font color="#ffff00"> 974</font>  <font color="#98fb98">DestroyFunc</font> FullScreen
+<font color="#ffff00"> 975</font>  <font color="#98fb98">AddToFunc</font> FullScreen
+<font color="#ffff00"> 976</font>  + I ToggleTitle
+<font color="#ffff00"> 977</font>  + I ToggleBorder
+<font color="#ffff00"> 978</font>  + I <font color="#98fb98">UpdateStyles</font>
+<font color="#ffff00"> 979</font>  + I <font color="#98fb98">Maximize</font> ewmhiwa <font color="#f0e68c"><b>true</b></font>
+<font color="#ffff00"> 980</font>
+<font color="#ffff00"> 981</font>  <font color="#98fb98">DestroyFunc</font> FullScreenOff
+<font color="#ffff00"> 982</font>  <font color="#98fb98">AddToFunc</font> FullScreenOff
+<font color="#ffff00"> 983</font>  + I ToggleTitle
+<font color="#ffff00"> 984</font>  + I ToggleBorder
+<font color="#ffff00"> 985</font>  + I <font color="#98fb98">UpdateStyles</font>
+<font color="#ffff00"> 986</font>  + I <font color="#98fb98">Maximize</font> ewmhiwa <font color="#f0e68c"><b>false</b></font>
+<font color="#ffff00"> 987</font>
+<font color="#ffff00"> 988</font>
+<font color="#ffff00"> 989</font>  <font color="#87ceeb">####</font>
+<font color="#ffff00"> 990</font>  <font color="#87ceeb"># On a dit au début que toutes les fenêtres avait le State 1 (la barre de titre </font>
+<font color="#ffff00"> 991</font>  <font color="#87ceeb"># est bien la). La fonction ToggleTitle s'occupe d'appliquer le Style NoTitle</font>
+<font color="#ffff00"> 992</font>  <font color="#87ceeb"># à la fenêtre concernée si cette dernière avait bien le State 1. Dans le cas</font>
+<font color="#ffff00"> 993</font>  <font color="#87ceeb"># contraire (ce qui veut dire que la barre de titre n'est plus la), ToggleTitle</font>
+<font color="#ffff00"> 994</font>  <font color="#87ceeb"># applique le Style Title à la fenêtre.</font>
+<font color="#ffff00"> 995</font>  <font color="#87ceeb">#</font>
+<font color="#ffff00"> 996</font>  <font color="#87ceeb"># Exactement le même principe pour ToggleBorder sauf que l'on joue sur le Style </font>
+<font color="#ffff00"> 997</font>  <font color="#87ceeb"># Borders et !Borders ainsi que sur le State 2 (la bordure est bien la).</font>
+<font color="#ffff00"> 998</font>  <font color="#87ceeb">#</font>
+<font color="#ffff00"> 999</font>  <font color="#87ceeb"># Toujours le même principe pour TitleRotate. Cela paraît un peu plus compliqué </font>
+<font color="#ffff00">1000</font>  <font color="#87ceeb"># car c'est une boucle. Mais regardez bien : le State 3 définit que la barre de </font>
+<font color="#ffff00">1001</font>  <font color="#87ceeb"># titre est en haut. On indique donc à Fvwm de passer la barre de titre à gauche</font>
+<font color="#ffff00">1002</font>  <font color="#87ceeb"># si elle était en haut. Ensuite on dit que si la barre de titre est à gauche, cela </font>
+<font color="#ffff00">1003</font>  <font color="#87ceeb"># correspond au State 4. Si l'on rappelle cette fonction, on lui indique de faire </font>
+<font color="#ffff00">1004</font>  <font color="#87ceeb"># passer la barre de titre en bas si elle était à gauche ; ce qui fait passer la </font>
+<font color="#ffff00">1005</font>  <font color="#87ceeb"># fenêtre en State 5. Cela se répète jusqu'à revenir au State 3. </font>
+<font color="#ffff00">1006</font>  <font color="#87ceeb">#</font>
+<font color="#ffff00">1007</font>  <font color="#87ceeb"># Remarque : ces 3 fonctions sont très inspirées de fonctions écrites par Taviso.</font>
+<font color="#ffff00">1008</font>  <font color="#87ceeb">##########################</font>
+<font color="#ffff00">1009</font>  <font color="#98fb98">DestroyFunc</font> ToggleTitle
+<font color="#ffff00">1010</font>  <font color="#98fb98">AddToFunc</font> ToggleTitle
+<font color="#ffff00">1011</font>  + I ThisWindow (State 1) WindowStyle <font color="#f0e68c"><b>NoTitle</b></font>
+<font color="#ffff00">1012</font>  + I TestRc (Match) State 1 <font color="#f0e68c"><b>False</b></font>
+<font color="#ffff00">1013</font>  + I TestRc (NoMatch) WindowStyle <font color="#98fb98">Title</font>
+<font color="#ffff00">1014</font>  + I TestRc (NoMatch) State 1 <font color="#f0e68c"><b>True</b></font>
+<font color="#ffff00">1015</font>
+<font color="#ffff00">1016</font>  <font color="#98fb98">DestroyFunc</font> ToggleBorder
+<font color="#ffff00">1017</font>  <font color="#98fb98">AddToFunc</font> ToggleBorder
+<font color="#ffff00">1018</font>  + I ThisWindow (State 2) WindowStyle !Borders
+<font color="#ffff00">1019</font>  + I TestRc (Match) State 2 <font color="#f0e68c"><b>False</b></font>
+<font color="#ffff00">1020</font>  + I TestRc (NoMatch) WindowStyle Borders
+<font color="#ffff00">1021</font>  + I TestRc (NoMatch) State 2 <font color="#f0e68c"><b>True</b></font>
+<font color="#ffff00">1022</font>
+<font color="#ffff00">1023</font>  <font color="#98fb98">DestroyFunc</font> TitleRotateLeft
+<font color="#ffff00">1024</font>  <font color="#98fb98">AddToFunc</font> TitleRotateLeft
+<font color="#ffff00">1025</font>  + I ThisWindow (State 3) WindowStyle TitleAtLeft
+<font color="#ffff00">1026</font>  + I TestRc (Match) State 3 <font color="#f0e68c"><b>False</b></font>
+<font color="#ffff00">1027</font>  + I TestRc (Match) State 4 <font color="#f0e68c"><b>True</b></font>
+<font color="#ffff00">1028</font>  + I TestRc (Match) Break
+<font color="#ffff00">1029</font>  + I ThisWindow (State 4) WindowStyle <font color="#f0e68c"><b>TitleAtBottom</b></font>
+<font color="#ffff00">1030</font>  + I TestRc (Match) State 4 <font color="#f0e68c"><b>False</b></font>
+<font color="#ffff00">1031</font>  + I TestRc (Match) State 5 <font color="#f0e68c"><b>True</b></font>
+<font color="#ffff00">1032</font>  + I TestRc (Match) Break
+<font color="#ffff00">1033</font>  + I ThisWindow (State 5) WindowStyle TitleAtRight
+<font color="#ffff00">1034</font>  + I TestRc (Match) State 5 <font color="#f0e68c"><b>False</b></font>
+<font color="#ffff00">1035</font>  + I TestRc (Match) State 6 <font color="#f0e68c"><b>True</b></font>
+<font color="#ffff00">1036</font>  + I TestRc (Match) Break
+<font color="#ffff00">1037</font>  + I ThisWindow (State 6) WindowStyle <font color="#f0e68c"><b>TitleAtTop</b></font>
+<font color="#ffff00">1038</font>  + I TestRc (Match) State 6 <font color="#f0e68c"><b>False</b></font>
+<font color="#ffff00">1039</font>  + I TestRc (Match) State 3 <font color="#f0e68c"><b>True</b></font>
+<font color="#ffff00">1040</font>  + I TestRc (Match) Break
+<font color="#ffff00">1041</font>
+<font color="#ffff00">1042</font>  <font color="#98fb98">DestroyFunc</font> TitleRotateRight
+<font color="#ffff00">1043</font>  <font color="#98fb98">AddToFunc</font> TitleRotateRight
+<font color="#ffff00">1044</font>  + I ThisWindow (State 3) WindowStyle TitleAtRight
+<font color="#ffff00">1045</font>  + I TestRc (Match) State 3 <font color="#f0e68c"><b>False</b></font>
+<font color="#ffff00">1046</font>  + I TestRc (Match) State 6 <font color="#f0e68c"><b>True</b></font>
+<font color="#ffff00">1047</font>  + I TestRc (Match) Break
+<font color="#ffff00">1048</font>  + I ThisWindow (State 6) WindowStyle <font color="#f0e68c"><b>TitleAtBottom</b></font>
+<font color="#ffff00">1049</font>  + I TestRc (Match) State 6 <font color="#f0e68c"><b>False</b></font>
+<font color="#ffff00">1050</font>  + I TestRc (Match) State 5 <font color="#f0e68c"><b>True</b></font>
+<font color="#ffff00">1051</font>  + I TestRc (Match) Break
+<font color="#ffff00">1052</font>  + I ThisWindow (State 5) WindowStyle TitleAtLeft
+<font color="#ffff00">1053</font>  + I TestRc (Match) State 5 <font color="#f0e68c"><b>False</b></font>
+<font color="#ffff00">1054</font>  + I TestRc (Match) State 4 <font color="#f0e68c"><b>True</b></font>
+<font color="#ffff00">1055</font>  + I TestRc (Match) Break
+<font color="#ffff00">1056</font>  + I ThisWindow (State 4) WindowStyle <font color="#f0e68c"><b>TitleAtTop</b></font>
+<font color="#ffff00">1057</font>  + I TestRc (Match) State 4 <font color="#f0e68c"><b>False</b></font>
+<font color="#ffff00">1058</font>  + I TestRc (Match) State 3 <font color="#f0e68c"><b>True</b></font>
+<font color="#ffff00">1059</font>  + I TestRc (Match) Break
+<font color="#ffff00">1060</font>
+<font color="#ffff00">1061</font>
+<font color="#ffff00">1062</font>
+<font color="#ffff00">1063</font>
+<font color="#ffff00">1064</font>
+<font color="#ffff00">1065</font>
+<font color="#ffff00">1066</font>  <font color="#87ceeb">####</font>
+<font color="#ffff00">1067</font>  <font color="#87ceeb"># Celle ci s'occupe de remplacer le contenu de la variable $[desk.n] qui est </font>
+<font color="#ffff00">1068</font>  <font color="#87ceeb"># un chiffre représentatif du bureau courant (0, 1, 2 ou 3 dans notre cas) par </font>
+<font color="#ffff00">1069</font>  <font color="#87ceeb"># un mot, c'est du Breton mais libre à vous de mettre ce que vous voulez bien sur !</font>
+<font color="#ffff00">1070</font>  <font color="#87ceeb"># Remarquez l'utilité de la commande PipeRead.</font>
+<font color="#ffff00">1071</font>  <font color="#87ceeb">##########################</font>
+<font color="#ffff00">1072</font>  <font color="#98fb98">DestroyFunc</font> NewDeskFunc
+<font color="#ffff00">1073</font>  <font color="#98fb98">AddToFunc</font> NewDeskFunc
+<font color="#ffff00">1074</font>  + I <font color="#98fb98">Piperead</font> 'case <font color="#cd5c5c">$[desk.n]</font> in \
+<font color="#ffff00">1075</font>          <font color="#ffa0a0">&quot;0&quot;</font> ) <font color="#98fb98">echo</font> <font color="#98fb98">SetEnv</font> title.desk unan;; \
+<font color="#ffff00">1076</font>          <font color="#ffa0a0">&quot;1&quot;</font> ) <font color="#98fb98">echo</font> <font color="#98fb98">SetEnv</font> title.desk daou;; \
+<font color="#ffff00">1077</font>          <font color="#ffa0a0">&quot;2&quot;</font> ) <font color="#98fb98">echo</font> <font color="#98fb98">SetEnv</font> title.desk tri;; \
+<font color="#ffff00">1078</font>          <font color="#ffa0a0">&quot;3&quot;</font> ) <font color="#98fb98">echo</font> <font color="#98fb98">SetEnv</font> title.desk pevar;; esac'
+<font color="#ffff00">1079</font>  + I <font color="#98fb98">SendToModule</font> Panel ChangeButton <font color="#f0e68c"><b>desk</b></font> <font color="#98fb98">Title</font> <font color="#cd5c5c">$[title.desk]</font>
+<font color="#ffff00">1080</font>
+<font color="#ffff00">1081</font>
+<font color="#ffff00">1082</font>  <font color="#87ceeb">####</font>
+<font color="#ffff00">1083</font>  <font color="#87ceeb"># <A HREF="http://www.stationlinux.org/fiche.140.html">http://www.stationlinux.org/fiche.140.html</A></font>
+<font color="#ffff00">1084</font>  <font color="#87ceeb"># C'est ce que j'appelle la console Quake 3. Je crois que c'est parce que c'est </font>
+<font color="#ffff00">1085</font>  <font color="#87ceeb"># dans ce jeu que j'ai vu pour la première fois une console de ce genre.</font>
+<font color="#ffff00">1086</font>  <font color="#87ceeb">#</font>
+<font color="#ffff00">1087</font>  <font color="#87ceeb"># La fonction ToggleTerminal exécute la fonction StartTerminal si il n'existe pas de </font>
+<font color="#ffff00">1088</font>  <font color="#87ceeb"># fenêtre nommée GameConsole. Si il existe déja une fenêtre GameConsole, la fonction</font>
+<font color="#ffff00">1089</font>  <font color="#87ceeb"># lui donne le focus, la fait passer en premier plan et la déroule si elle était </font>
+<font color="#ffff00">1090</font>  <font color="#87ceeb"># enroulée ; ou bien appelle la fonction SetWindowShadeTrue si la GameConsole </font>
+<font color="#ffff00">1091</font>  <font color="#87ceeb"># était déroulée.</font>
+<font color="#ffff00">1092</font>  <font color="#87ceeb">#</font>
+<font color="#ffff00">1093</font>  <font color="#87ceeb"># La fonction StartTerminal ne fait que démarrer un terminal nommé GameConsole, </font>
+<font color="#ffff00">1094</font>  <font color="#87ceeb"># le redimmenssione de telle manière qu'il prenne toute la place de l'écran et</font>
+<font color="#ffff00">1095</font>  <font color="#87ceeb"># change le contenu de $[OpenedTerm] à True.</font>
+<font color="#ffff00">1096</font>  <font color="#87ceeb">#</font>
+<font color="#ffff00">1097</font>  <font color="#87ceeb"># La fonction SetWindowShadeTrue est appellée si la GameConsole est déroulée.</font>
+<font color="#ffff00">1098</font>  <font color="#87ceeb"># On test si $[OpenedTerm] contient bien False, alors on enroule le terminal.</font>
+<font color="#ffff00">1099</font>  <font color="#87ceeb">#</font>
+<font color="#ffff00">1100</font>  <font color="#87ceeb"># Si le terminal est collé en haut de l'écran, on obtient le même comportement</font>
+<font color="#ffff00">1101</font>  <font color="#87ceeb"># que sous Quake 3.</font>
+<font color="#ffff00">1102</font>  <font color="#87ceeb">##########################</font>
+<font color="#ffff00">1103</font>  <font color="#98fb98">DestroyFunc</font> ToggleTerminal
+<font color="#ffff00">1104</font>  <font color="#98fb98">AddToFunc</font> ToggleTerminal
+<font color="#ffff00">1105</font>  + I <font color="#98fb98">SetEnv</font> OpenedTerm <font color="#ffa0a0">&quot;False&quot;</font>
+<font color="#ffff00">1106</font>  + I <font color="#98fb98">None</font> (GameConsole) StartTerminal
+<font color="#ffff00">1107</font>  + I <font color="#f0e68c"><b>All</b></font> (GameConsole) <font color="#98fb98">Focus</font>
+<font color="#ffff00">1108</font>  + I <font color="#f0e68c"><b>All</b></font> (GameConsole) <font color="#98fb98">Raise</font>
+<font color="#ffff00">1109</font>  + I <font color="#f0e68c"><b>All</b></font> (GameConsole, <font color="#98fb98">Shaded</font>) SetWindowShadeFalse
+<font color="#ffff00">1110</font>  + I TestRc (NoMatch) SetWindowShadeTrue
+<font color="#ffff00">1111</font>
+<font color="#ffff00">1112</font>  <font color="#98fb98">DestroyFunc</font> SetWindowShadeTrue
+<font color="#ffff00">1113</font>  <font color="#98fb98">AddToFunc</font> SetWindowShadeTrue
+<font color="#ffff00">1114</font>  + I Test (EnvMatch OpenedTerm <font color="#f0e68c"><b>False</b></font>) <font color="#f0e68c"><b>All</b></font> (GameConsole) <font color="#98fb98">WindowShade</font> <font color="#f0e68c"><b>True</b></font>
+<font color="#ffff00">1115</font>
+<font color="#ffff00">1116</font>  <font color="#98fb98">DestroyFunc</font> SetWindowShadeFalse
+<font color="#ffff00">1117</font>  <font color="#98fb98">AddToFunc</font> SetWindowShadeFalse
+<font color="#ffff00">1118</font>  + I <font color="#f0e68c"><b>All</b></font> (GameConsole) <font color="#98fb98">WindowShade</font> <font color="#f0e68c"><b>False</b></font>
+<font color="#ffff00">1119</font>  + I <font color="#f0e68c"><b>All</b></font> (GameConsole) <font color="#98fb98">Resize</font> <font color="#cd5c5c">$[screen.x]</font>p keep
+<font color="#ffff00">1120</font>
+<font color="#ffff00">1121</font>  <font color="#98fb98">DestroyFunc</font> StartTerminal
+<font color="#ffff00">1122</font>  <font color="#98fb98">AddToFunc</font> StartTerminal
+<font color="#ffff00">1123</font>  + I <font color="#98fb98">Exec</font> <font color="#cd5c5c">$[TermQuake]</font>
+<font color="#ffff00">1124</font>  + I <font color="#98fb98">Wait</font> GameConsole
+<font color="#ffff00">1125</font>  + I <font color="#f0e68c"><b>All</b></font> (GameConsole) <font color="#98fb98">Resize</font> <font color="#cd5c5c">$[screen.x]</font>p keep
+<font color="#ffff00">1126</font>  + I <font color="#98fb98">SetEnv</font> OpenedTerm <font color="#ffa0a0">&quot;True&quot;</font>
+<font color="#ffff00">1127</font>
+<font color="#ffff00">1128</font>
+<font color="#ffff00">1129</font>  <font color="#87ceeb">####</font>
+<font color="#ffff00">1130</font>  <font color="#87ceeb"># ChangeThemeDefaut est lancée dans la StartFunction lors du démarrage de Fvwm (et </font>
+<font color="#ffff00">1131</font>  <font color="#87ceeb"># uniquement lors du démarrage grace au Test (Init)). Elle définie, tout comme </font>
+<font color="#ffff00">1132</font>  <font color="#87ceeb"># ChangeThemeVert, plusieurs Style, MenuStyle, Colorset et même des variables </font>
+<font color="#ffff00">1133</font>  <font color="#87ceeb"># d'environnement. ChangeThemeDefaut sélectionne le décor Default alors que </font>
+<font color="#ffff00">1134</font>  <font color="#87ceeb"># ChangeThemeVert sélectionne le décor Vert.</font>
+<font color="#ffff00">1135</font>  <font color="#87ceeb"># </font>
+<font color="#ffff00">1136</font>  <font color="#87ceeb"># ChangeThemeVert est lancée dans la StartFunction lors du redémarrage seulement</font>
+<font color="#ffff00">1137</font>  <font color="#87ceeb"># si elle à été lancée auparavant (grace à cette ligne : + I SetEnv theme vert).</font>
+<font color="#ffff00">1138</font>  <font color="#87ceeb"># En effet cela créé la variable $[theme] avec pour valeur &quot;vert&quot;, et regardez </font>
+<font color="#ffff00">1139</font>  <font color="#87ceeb"># bien dans la StartFunction :</font>
+<font color="#ffff00">1140</font>  <font color="#87ceeb"># + I Test (Init) SetEnv theme defaut</font>
+<font color="#ffff00">1141</font>  <font color="#87ceeb"># + I ChangeTheme$[theme]</font>
+<font color="#ffff00">1142</font>  <font color="#87ceeb"># On lance ChangeThemeDefaut lors du premier démarrage de Fvwm et on lance soit </font>
+<font color="#ffff00">1143</font>  <font color="#87ceeb"># ChangeThemeVert ou ChangeThemeDefaut selon le thème utilisé.</font>
+<font color="#ffff00">1144</font>  <font color="#87ceeb"># C'est un moyen de se souvenir quel était le thème utilisé. Il faudrait écrire </font>
+<font color="#ffff00">1145</font>  <font color="#87ceeb"># dans un fichier extérieur la valeur de la variable pour que Fvwm puisse restaurer</font>
+<font color="#ffff00">1146</font>  <font color="#87ceeb"># le thème utilisé auparavant lors d'un premier démarrage (après un reboot</font>
+<font color="#ffff00">1147</font>  <font color="#87ceeb"># par exemple).</font>
+<font color="#ffff00">1148</font>  <font color="#87ceeb"># </font>
+<font color="#ffff00">1149</font>  <font color="#87ceeb"># Il faut créer autant de fonctions similaires qu'il existe de thèmes.</font>
+<font color="#ffff00">1150</font>  <font color="#87ceeb">#</font>
+<font color="#ffff00">1151</font>  <font color="#87ceeb"># <A HREF="http://www.stationlinux.org/fiche.138.html">http://www.stationlinux.org/fiche.138.html</A></font>
+<font color="#ffff00">1152</font>  <font color="#87ceeb"># Utilisez EwmhBaseStruts pour empêcher les fenêtres de recouvrir une </font>
+<font color="#ffff00">1153</font>  <font color="#87ceeb"># zone de l'écran lorsqu'elles sont maximisées. Les valeurs sont en pixels.</font>
+<font color="#ffff00">1154</font>  <font color="#87ceeb"># Notez que vous pouvez utiliser l'argument ewmhiwa pour la commande Maximize,</font>
+<font color="#ffff00">1155</font>  <font color="#87ceeb"># ce qui aura pour conséquence d'ignorer EwmhBaseStruts.</font>
+<font color="#ffff00">1156</font>  <font color="#87ceeb"># EwmhBaseStruts $[strut.left] $[strut.right] $[strut.top] $[strut.bottom]</font>
+<font color="#ffff00">1157</font>  <font color="#87ceeb">##########################</font>
+<font color="#ffff00">1158</font>  <font color="#98fb98">DestroyFunc</font> ChangeThemeDefaut
+<font color="#ffff00">1159</font>  <font color="#98fb98">AddToFunc</font> ChangeThemeDefaut
+<font color="#ffff00">1160</font>  + I <font color="#98fb98">DefaultColorset</font> 9
+<font color="#ffff00">1161</font>  + I <font color="#98fb98">Style</font> * <font color="#f0e68c"><b>UseDecor</b></font> <font color="#98fb98">Default</font>, <font color="#f0e68c"><b>NoIcon</b></font>
+<font color="#ffff00">1162</font>  + I <font color="#f0e68c"><b>Colorset</b></font> 0 fg <font color="#bdb76b"><b>#c0c0c0</b></font>, bg <font color="#bdb76b"><b>#fdfdfd</b></font>
+<font color="#ffff00">1163</font>  + I <font color="#f0e68c"><b>Colorset</b></font> 2 fg <font color="#bdb76b"><b>#7b7b7b</b></font>, bg <font color="#bdb76b"><b>#fdfdfd</b></font>
+<font color="#ffff00">1164</font>  + I <font color="#f0e68c"><b>Colorset</b></font> 3 fg white, RootTransparent, Tint <font color="#bdb76b"><b>#414b54</b></font> 85
+<font color="#ffff00">1165</font>  + I <font color="#f0e68c"><b>Colorset</b></font> 4 fg <font color="#bdb76b"><b>#393b3a</b></font>, <font color="#f0e68c"><b>Pixmap</b></font> cinza/iconman.png
+<font color="#ffff00">1166</font>  + I <font color="#f0e68c"><b>Colorset</b></font> 5 fg <font color="#bdb76b"><b>#7b7b7b</b></font>, <font color="#f0e68c"><b>Pixmap</b></font> cinza/iconman.png
+<font color="#ffff00">1167</font>  + I <font color="#f0e68c"><b>Colorset</b></font> 6 <font color="#f0e68c"><b>Pixmap</b></font> cinza/panel-side.xpm
+<font color="#ffff00">1168</font>  + I <font color="#f0e68c"><b>Colorset</b></font> 7 fg <font color="#bdb76b"><b>#2c2c2c</b></font>, Translucent white 75, hi white, sh white
+<font color="#ffff00">1169</font>  + I <font color="#f0e68c"><b>Colorset</b></font> 8 fg white, bg <font color="#bdb76b"><b>#414b54</b></font>, hi white
+<font color="#ffff00">1170</font>  + I <font color="#f0e68c"><b>Colorset</b></font> 9 fg white, <font color="#f0e68c"><b>Pixmap</b></font> cinza/hilite.png
+<font color="#ffff00">1171</font>  + I <font color="#f0e68c"><b>Colorset</b></font> 10 fg <font color="#bdb76b"><b>#393b3a</b></font>, <font color="#f0e68c"><b>Pixmap</b></font> cinza/iconman.png
+<font color="#ffff00">1172</font>  + I <font color="#f0e68c"><b>Colorset</b></font> 20 fg white, <font color="#f0e68c"><b>Pixmap</b></font> cinza/hilite-side.png
+<font color="#ffff00">1173</font>  + I <font color="#f0e68c"><b>Colorset</b></font> 21 fg white, <font color="#f0e68c"><b>Pixmap</b></font> pager/active.png
+<font color="#ffff00">1174</font>  + I <font color="#f0e68c"><b>Colorset</b></font> 22 fg <font color="#bdb76b"><b>#393b3a</b></font>, <font color="#f0e68c"><b>Pixmap</b></font> pager/desk.png
+<font color="#ffff00">1175</font>  + I <font color="#f0e68c"><b>Mouse</b></font> 1 6 A IconifyFunc
+<font color="#ffff00">1176</font>  + I <font color="#98fb98">MenuStyle</font> * <font color="#f0e68c"><b>Font</b></font> <font color="#ffa0a0">&quot;Shadow=0 se:xft:snap&quot;</font>
+<font color="#ffff00">1177</font>  + I <font color="#98fb98">UpdateStyles</font>
+<font color="#ffff00">1178</font>  + I <font color="#98fb98">Key</font> d A CM <font color="#98fb98">Next</font> (<font color="#f0e68c"><b>CirculateHit</b></font>,Side) SideHideFunc 3
+<font color="#ffff00">1179</font>  + I <font color="#98fb98">PipeRead</font> <font color="#ffa0a0">&quot;if [ -f ${FVWM_USERDIR}/vert ]; then rm ${FVWM_USERDIR}/vert; fi&quot;</font>
+<font color="#ffff00">1180</font>  + I <font color="#98fb98">PipeRead</font> <font color="#ffa0a0">&quot;if [ -f ${FVWM_USERDIR}/defaut ]; then rm ${FVWM_USERDIR}/defaut; fi&quot;</font>
+<font color="#ffff00">1181</font>  + I <font color="#f0e68c"><b>All</b></font> (PanelVert) <font color="#98fb98">Close</font>
+<font color="#ffff00">1182</font>  + I <font color="#f0e68c"><b>All</b></font> (Panel) <font color="#98fb98">Close</font>
+<font color="#ffff00">1183</font>  + I <font color="#f0e68c"><b>All</b></font> (Side) <font color="#98fb98">Close</font>
+<font color="#ffff00">1184</font>  + I EwmhBaseStruts 0 <font color="#cd5c5c">$[strut.right]</font> 0 33
+<font color="#ffff00">1185</font>  + I <font color="#f0e68c"><b>All</b></font> (<font color="#98fb98">Maximized</font>, !Panel) <font color="#98fb98">Maximize</font> <font color="#f0e68c"><b>True</b></font>
+<font color="#ffff00">1186</font>  + I <font color="#98fb98">Module</font> FvwmButtons Panel
+<font color="#ffff00">1187</font>  + I <font color="#98fb98">SendToModule</font> Panel ChangeButton <font color="#f0e68c"><b>desk</b></font> <font color="#98fb98">Title</font> <font color="#cd5c5c">$[title.desk]</font>
+<font color="#ffff00">1188</font>  + I <font color="#98fb98">Module</font> FvwmButtons Side
+<font color="#ffff00">1189</font>  + I <font color="#98fb98">Wait</font> Side
+<font color="#ffff00">1190</font>  + I <font color="#f0e68c"><b>All</b></font> (Side) SideHideFunc 3
+<font color="#ffff00">1191</font>  + I <font color="#98fb98">Exec</font> touch <font color="#cd5c5c">$[FVWM_USERDIR]</font>/defaut
+<font color="#ffff00">1192</font>  + I <font color="#f0e68c"><b>All</b></font> (GameConsole) <font color="#98fb98">Close</font>
+<font color="#ffff00">1193</font>
+<font color="#ffff00">1194</font>  <font color="#98fb98">DestroyFunc</font> ChangeThemeVert
+<font color="#ffff00">1195</font>  <font color="#98fb98">AddToFunc</font> ChangeThemeVert
+<font color="#ffff00">1196</font>  + I EwmhBaseStruts 0 0 0 67
+<font color="#ffff00">1197</font>  + I <font color="#f0e68c"><b>Colorset</b></font> 0 fg <font color="#bdb76b"><b>#393b3a</b></font>, bg <font color="#bdb76b"><b>#b4d387</b></font>, IconAlpha 65
+<font color="#ffff00">1198</font>  + I <font color="#f0e68c"><b>Colorset</b></font> 2 fg black, bg <font color="#bdb76b"><b>#b4d387</b></font>, IconAlpha 100
+<font color="#ffff00">1199</font>  + I <font color="#f0e68c"><b>Colorset</b></font> 3 fg white, Tint white 70, RootTransparent buffer
+<font color="#ffff00">1200</font>  + I <font color="#f0e68c"><b>Colorset</b></font> 11 fg black, Tint white 70, RootTransparent buffer
+<font color="#ffff00">1201</font>  + I <font color="#f0e68c"><b>Colorset</b></font> 5 fg black, Tint white 80, RootTransparent buffer
+<font color="#ffff00">1202</font>  + I <font color="#f0e68c"><b>Mouse</b></font> 1 6 A ThumbnailFunc
+<font color="#ffff00">1203</font>  + I <font color="#f0e68c"><b>Mouse</b></font> 1 I A IconFunc
+<font color="#ffff00">1204</font>  + I <font color="#98fb98">Style</font> * <font color="#f0e68c"><b>UseDecor</b></font> Green, <font color="#f0e68c"><b>Icon</b></font>, <font color="#f0e68c"><b>NoIconTitle</b></font>
+<font color="#ffff00">1205</font>  + I <font color="#98fb98">Style</font> * <font color="#f0e68c"><b>IconBox</b></font> <font color="#cd5c5c">$[IconBoxVertWidth]</font>x<font color="#cd5c5c">$[panelvert.height]</font>+0-0
+<font color="#ffff00">1206</font>  + I <font color="#98fb98">Style</font> * <font color="#f0e68c"><b>IconGrid</b></font> 3 3, <font color="#f0e68c"><b>IconFill</b></font> <font color="#98fb98">bottom</font> <font color="#98fb98">left</font>
+<font color="#ffff00">1207</font>  + I <font color="#98fb98">DefaultColorset</font> 0
+<font color="#ffff00">1208</font>  + I <font color="#f0e68c"><b>Colorset</b></font> 7 fg <font color="#bdb76b"><b>#393b3a</b></font>, Translucent white 75, white, sh white
+<font color="#ffff00">1209</font>  + I <font color="#f0e68c"><b>Colorset</b></font> 8 fg <font color="#bdb76b"><b>#393b3a</b></font>, bg <font color="#bdb76b"><b>#b4d387</b></font>, hi white
+<font color="#ffff00">1210</font>  + I <font color="#f0e68c"><b>Colorset</b></font> 12 fg <font color="#bdb76b"><b>#393b3a</b></font>, bg <font color="#bdb76b"><b>#bbd09d</b></font>
+<font color="#ffff00">1211</font>  + I <font color="#f0e68c"><b>Colorset</b></font> 13 fg <font color="#bdb76b"><b>#393b3a</b></font>, bg <font color="#bdb76b"><b>#b4d387</b></font>, sh <font color="#bdb76b"><b>#393b3a</b></font>, hi <font color="#bdb76b"><b>#393b3a</b></font>
+<font color="#ffff00">1212</font>  + I <font color="#98fb98">MenuStyle</font> * <font color="#f0e68c"><b>Font</b></font> <font color="#ffa0a0">&quot;Shadow=0 se:xft:Lucida Grande:size=8&quot;</font>
+<font color="#ffff00">1213</font>  + I <font color="#98fb98">UpdateStyles</font>
+<font color="#ffff00">1214</font>  + I <font color="#f0e68c"><b>All</b></font> (<font color="#98fb98">Iconic</font>) Test (f <font color="#cd5c5c">$[FVWM_USERDIR]</font>/icon.tmp.<font color="#cd5c5c">$[w.id]</font>.png) WindowStyle <font color="#f0e68c"><b>IconOverride</b></font>, <font color="#f0e68c"><b>Icon</b></font> <font color="#cd5c5c">$[FVWM_USERDIR]</font>/icon.tmp.<font color="#cd5c5c">$[w.id]</font>.png
+<font color="#ffff00">1215</font>  + I <font color="#98fb98">Key</font> d A CM <font color="#98fb98">Next</font> (<font color="#f0e68c"><b>CirculateHit</b></font>,PanelVert) PanelVertHideFunc 5
+<font color="#ffff00">1216</font>  + I <font color="#98fb98">PipeRead</font> <font color="#ffa0a0">&quot;if [ -f ${FVWM_USERDIR}/vert ]; then rm ${FVWM_USERDIR}/vert; fi&quot;</font>
+<font color="#ffff00">1217</font>  + I <font color="#98fb98">PipeRead</font> <font color="#ffa0a0">&quot;if [ -f ${FVWM_USERDIR}/defaut ]; then rm ${FVWM_USERDIR}/defaut; fi&quot;</font>
+<font color="#ffff00">1218</font>  + I <font color="#98fb98">PipeRead</font> '<font color="#98fb98">echo</font> <font color="#98fb98">SetEnv</font> screen.x <font color="#cd5c5c">$$</font>((<font color="#cd5c5c">$[vp.width]</font>+5))'
+<font color="#ffff00">1219</font>  + I <font color="#f0e68c"><b>All</b></font> (Panel) <font color="#98fb98">Close</font>
+<font color="#ffff00">1220</font>  + I <font color="#f0e68c"><b>All</b></font> (Side) <font color="#98fb98">Close</font>
+<font color="#ffff00">1221</font>  + I <font color="#f0e68c"><b>All</b></font> (PanelVert) <font color="#98fb98">Close</font>
+<font color="#ffff00">1222</font>  + I <font color="#f0e68c"><b>All</b></font> (<font color="#98fb98">Maximized</font>, !PanelVert) <font color="#98fb98">Maximize</font> <font color="#f0e68c"><b>True</b></font>
+<font color="#ffff00">1223</font>  + I <font color="#98fb98">Module</font> FvwmButtons PanelVert
+<font color="#ffff00">1224</font>  + I <font color="#98fb98">Exec</font> touch <font color="#cd5c5c">$[FVWM_USERDIR]</font>/vert
+<font color="#ffff00">1225</font>  + I <font color="#f0e68c"><b>All</b></font> (GameConsole) <font color="#98fb98">Close</font>
+</pre>
+</body>
+</html>

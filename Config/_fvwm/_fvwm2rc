@@ -1,0 +1,250 @@
+# This Fvwm2 setup file is written for my own use with heavy copy/paste
+# from noble confirmed fvwm-users.
+# I've tried to write lots of comments because I will certainly forget
+# most of the details of Fvwm2's syntax and semantics before long.
+# Syntax: une ligne pour les petites séparations, pour les séparations de parties, 2.
+# de même les dièses: 3 pour les grandes annonces, 2 pour les petits reglages en
+# dessous
+
+
+### Set Environment variables
+SetEnv fvwm_home $[HOME]/.fvwm
+SetEnv img $[fvwm_home]/images
+SetEnv fvwm_wallpaper $[img]/wallpaper
+SetEnv fvwm_script $[fvwm_home]/scripts
+SetEnv screenshots_dir $[fvwm_home]/screenshots_perso/
+PipeRead "export screenshots_dir=$[fvwm_home]/screenshots_perso"
+SetEnv xtermperso "xterm -geometry 125x25" 
+## ImagePath
+ImagePath $[img]:$[img]/icons:$[img]/wallpaper
+
+
+### Startup Functions
+DestroyFunc InitFunction
+AddToFunc   InitFunction
++ I Exec exec fvwm-root --retain-pixmap $[fvwm_wallpaper]/lynder.png
+#+ I Exec exec Esetroot -s $[fvwm_wallpaper]/Tiger_on_river_1280x800.png
+#+ I Exec exec /usr/bin/conky
+
+DestroyFunc StartFunction
+AddToFunc   StartFunction
++ I Module FvwmPager
+
+DestroyFunc RestartFunction
+AddToFunc   RestartFunction
++ I All (iconic) ReThumbnail
+
+
+### General Settings
+## Mouse and Focus style
+ClickTime 350
+MoveThreshold 3
+Style * SloppyFocus, MouseFocusClickRaises
+EdgeThickness 0 
+# a retenir: procede par abcisse et ordonnees: left/top/right/bottom
+Style * IconBox 30 240 -100 -30, IconFill left bottom
+
+
+## Fonts 
+WindowFont "Shadow=1 C:xft:Another:pixelsize=15"
+IconFont "Shadow=1 C:xft:Another:pixelsize=18"
+Style * Font "Shadow=1 C:xft:Another:pixelsize=18"
+MenuStyle * Font "Shadow=2:xft:Another:Bold:size=11:antialias=True"
+
+## Colorset
+# X definitions located in /etc/X11/rgb.txt.
+CleanUpColorsets
+
+# Window Colorsets 
+ColorSet 0 fg white, bg black, hi white, sh black, RootTransparent, Tint black 50
+ColorSet 1 fg #aa99ff, bg black, hi #aa99ff, sh black, RootTransparent, Tint black 65
+
+# Menu Colorsets
+Colorset 7 fg Black, bg #e6e7d7, sh Black, hi #202070, Translucent
+Colorset 8 fg DarkRed, bg #e6e7d7, sh Black, hi #202070, Translucent
+
+
+### Styles
+## Applications Styles
+Style Firefox EWMHMiniIconOverride, MiniIcon firefox.png,IconFill top right
+Style Mutt EWMHMiniIconOverride, MiniIcon mutt.png
+Style $[xtermperso] EWMHMiniIconOverride, MiniIcon terminal.png
+Style Thunar EWMHMiniIconOverride, MiniIcon file-manager.png
+Style Xine  EWMHMiniIconOverride, MiniIcon xine.png
+Style Pidgin EWMHMiniIconOverride, MiniIcon pidgin.png
+Style Vim EWMHMiniIconOverride, MiniIcon vim16x16.xpm
+Style rTorrent EWMHMiniIconOverride, MiniIcon transmission.png
+Style OpenOffice.org Writer EWMHMiniIconOverride, MiniIcon ooo-writer.png
+Style conky NoTitle, Sticky, NoIcon, StaysOnBottom, !Borders
+
+## Window Styles
+Style "*" UseDecor MyDecor
+Style "*" !Borders, Handles
+Style "*" MWMBorder, FirmBorder
+Style "*" Colorset 0
+Style "*" HilightColorset 1
+
+## MenuStyles
+MenuStyle * PopupDelayed, PopupDelay 300, PopdownImmediately
+MenuStyle * PopupOffset -5 100, TitleWarpOff
+MenuStyle * TitleUnderlines2, SeparatorsLong, TrianglesSolid
+MenuStyle * AnimationOff, AutomaticHotkeysOff
+MenuStyle * BorderWidth 2
+MenuStyle * PopupAsSubmenu, HoldSubmenus, SubmenusRight
+MenuStyle * ItemFormat "%|%5.5i%1.3l%2.3>%|"
+MenuStyle * VerticalItemSpacing 1 1, VerticalTitleSpacing 2 2
+MenuStyle * MenuColorset 7
+MenuStyle * ActiveFore, Hilight3DOff
+MenuStyle * ActiveColorset 8
+
+## Module style
+Style FvwmPager NoTitle,  Sticky, WindowListSkip, CirculateSkip
+Style FvwmPager NoHandles, !Borders
+
+## Window Decor
+# Note that before a button can be added to a Decor it must first be bound to some
+# action via some binding
+DestroyDecor MyDecor
+AddToDecor   MyDecor
++ TitleStyle LeftJustified Height 18 
++ TitleStyle Inactive ColorSet 0 -- raised
++ TitleStyle Active ColorSet 1 -- raised
++ ButtonStyle All -- raised
+
+
+### Mouse bindings and shortcuts
+# To remember:
+# The syntax is: Mouse <button> <clicked where> <modifier> <do what>
+#
+#<button>: On a three button wheelmouse this can take the form of 0=any, 1=left,
+#2=middle, 3=right.
+#
+#<clicked where>: If this is a number it refers to a window button such as 1=raised
+#dash, 2=big square, 4=medium square, 6=dot. Otherwise, R=root window, W=window,
+#T=titlebar, I=icon, S=border
+#
+#<modifier>: A=any, M=meta(alt), N=none, S=shift, C=ctrl Super_L=winkey 
+
+## Actions sur le bureau
+Mouse 3         R       A       Menu FvwmRootMenu
+Mouse 1         R       A       Menu MenuUtilities
+
+## Actions sur les fenetres
+# Titlebar
+Mouse 1 T A Maximize
+Mouse 2 T A WindowShade 
+Mouse 3 T A Menu MenuFvwmWindowOps
+
+Mouse 1 W C Move
+Mouse 2 W C Resize
+
+Mouse 1 I A DeiconifyAndRearrange 
+Mouse 2 I A Move
+
+## shortcuts
+Key  c  WTI M Close
+Key  F4 A M Delete
+Key  c W CM CenterWindow
+Key  i W C Thumbnail
+# Applications
+Key  f A CM Exec exec firefox
+Key  t A CM Exec exec $[xtermperso]
+Key  o A CM Exec exec oowriter
+Key  m A CM Exec exec $[xtermperso] -e mutt
+Key  q A CM Exec exec quit
+Key  s A CM Exec exec $[fvwm_script]/screenshot.sh
+
+
+### Functions
+# DestroyFunc FuncName
+# AddToFunc   FuncName
+# + I (Action to happen immediately)
+# + C (Action to happen on a mouse 'click)
+# + D (Action to happen on a mouse 'double click')
+# + H (Action to happen on a mouse 'hold')
+# + M (Action to happen on a mouse 'motion')
+
+DestroyFunc DeiconifyAndRearrange
+AddToFunc DeiconifyAndRearrange
++ C Iconify off
++ C All (CurrentPage, Iconic) PlaceAgain Icon
+
+DestroyFunc ReThumbnail
+AddToFunc   ReThumbnail
++ I Iconify
++ I Thumbnail
+
+DestroyFunc CenterWindow
+AddToFunc   CenterWindow
++ I ThisWindow Piperead "echo AnimatedMove \
+        $(( $[vp.width]/2-$[w.width]/2 ))p \
+        $(( $[vp.height]/2-$[w.height]/2 ))p"
+# a ecrire
+#DestroyFunc TakeScreen
+#AddToFunc TakeScreen
+#+I PipeRead 
+
+## Thumbnails
+SetEnv fvwm_icon_size 128
+SetEnv imgtmp $[img]/icons/mini
+
+DestroyFunc Thumbnail
+AddToFunc Thumbnail
++ I Raise
++ I SetEnv Icon-$[w.id] $[w.iconfile]
++ I ThisWindow (!Shaded Iconifiable !Iconic) PipeRead \
+    "xwd -silent -id $[w.id] | convert -scale $[fvwm_icon_size] -frame 1x1 \
+    -mattecolor black -quality 0 xwd:- png:$[imgtmp]/icon.tmp.$[w.id].png \
+    && echo WindowStyle IconOverride, Icon $[imgtmp]/icon.tmp.$[w.id].png \
+    || echo Nop"
++ I TestRc (Match) Test (f $[imgtmp]/$[w.miniiconfile]) PipeRead "composite
+-geometry +2+4 \
+    $[imgtmp]/$[w.miniiconfile] $[imgtmp]/icon.tmp.$[w.id].png \
+    $[imgtmp]/icon.tmp.$[w.id].png && echo Nop \
+    || echo Beep"
++ I Iconify
+
+DestroyFunc DeThumbnail
+AddToFunc DeThumbnail
++ I PipeRead "echo WindowStyle Icon \\$\\[Icon-$[w.id]\\]"
++ I UnsetEnv Icon-$[w.id]
++ I Exec exec rm -f $[imgtmp]/icon.tmp.$[w.id].png
+
+*FvwmEvent: deiconify DeThumbnail
+
+####
+## Vous pouvez explorer des répertoires et des fichiers grace au script
+## fvwm-menu-directory inclut dans Fvwm. C'est très configurable et très 
+## fonctionnel. Ces 3 fonctions sont directements tirées du fichier de 
+## configuration de Taviso.
+## 
+## Il faudra les utiliser dans des menus dynamiques. Elles permettent
+## d'explorer vos répertoires de videos et de musiques et de changer de fond d'écran.
+###########################
+#
+DestroyFunc FuncFvwmMenuDirectory
+AddToFunc FuncFvwmMenuDirectory
++ I PipeRead 'case "$0" in \
+        "$[video]"*) myexec="$[video_exec]" mypng=menu/video.png;; \
+        "$[audio]"*) myexec="$[audio_exec]" mypng=menu/audio.png;; \
+    esac; \
+    fvwm-menu-directory --icon-title menu/dossier.png --icon-file ${mypng:-menu/dossier.png} \
+    --icon-dir menu/dossier.png --dir "$0" --exec-t="^${myexec:-vim} *" \
+    --exec-file "^${myexec:-vim}"'
+
+DestroyFunc WallpaperBrowser
+AddToFunc WallpaperBrowser
++ I PipeRead 'test ! -d "$0/.thumbs" && mkdir "$0/.thumbs"; \
+    for i in "$0/"*; do \
+            test -f "$0/.thumbs/${i##*/}" \
+                        -a "${i}" -ot "$0/.thumbs/${i##*/}" || { \
+                            convert -quality 0 -scale 64 "${i}" "png:$0/.thumbs/${i##*/}" 2>/dev/null \
+                                || continue;}; \
+done; \
+    fvwm-menu-directory --icon-title dossier.png --icon-file __PIXMAP__ \
+    --icon-dir dossier.png --dir $0 --exec-file "^Esetroot -s" \
+    --exec-t="^eog *" | sed -e "s#FuncFvwmMenuDirectory#WallpaperBrowser#g" \
+    -e "s#__PIXMAP__\\(.*\\)\\"\\(.*/\\)\\(.*\\)\\"#\\2.thumbs/\\3\\1\\2\\3#g"'
+
+read $[fvwm_home]/ConfigMenu
+read $[fvwm_home]/ConfigFvwmPager 
