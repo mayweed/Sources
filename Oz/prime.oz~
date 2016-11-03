@@ -20,10 +20,9 @@ fun {Prime N}
 	 end
       end
       if N==1 then false
-	 %seriously??And with bigger num?
       else {PrimeAux N N-1}
       end
    end
 end
 
-{Browse {Prime 888345}}
+{Browse {Prime 1}}

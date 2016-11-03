@@ -1,0 +1,15 @@
+declare
+fun {FactL N}
+   local Fact in
+      fun {Fact N A}
+	 if N < 1 then A
+	 else {Fact N-1 A*N}
+	 end
+      end
+      {Fact N 1}
+   end
+  
+end
+
+      
+{Browse {FactL 4}}
