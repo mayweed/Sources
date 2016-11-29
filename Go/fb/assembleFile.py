@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import os
+import sys
 
 """
 TODO: 
@@ -50,6 +51,7 @@ def scanAndAdd (fileList):
     beginning
     """
     fl=sanitizeList(fileList)
+    print(fl,file=sys.stderr)
     for file in fl:
         with open(file,'r') as f:
             # w+ to create the file, works with a+
