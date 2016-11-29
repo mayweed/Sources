@@ -3,6 +3,9 @@ package main
 import "fmt"
 //import "os"
 
+// TODO:
+//- wiz should be considered separately: one moves the snaffle and tries to intercept those thrown
+//by opponent, an other way keeps throwing to score!!
 func main() {
     const (
 		HEIGHT=7501
@@ -67,9 +70,10 @@ func main() {
 		}
 	}
 	//Find best move
-		//here: loop on wizard pick a snaffle and move to it?
-		//should not include command in the loop!!!
-		//Needs two lines for each wiz considered separately!!
+	//here: loop on wizard pick a snaffle and move to it?
+	//Needs two lines for each wiz considered separately!!
+    //TODO:one will go for the closest snaffle to his position
+    //the other one for the closest to oppGoal.
 	var bestSnaffle Entity
 		for _,wiz := range myWiz{
 			if wiz.state==0{
