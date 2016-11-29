@@ -3,17 +3,6 @@ package main
 import "fmt"
 //import "os"
 
-//to output a command either move or throw
-const (
-    MOVE = "MOVE"
-    THROW ="THROW"
-    )
-type command struct{
-    ctype string
-    destination position
-    power int
-}
-
 func main() {
     const (
 		HEIGHT=7501
@@ -22,12 +11,15 @@ func main() {
     // myTeamId: if 0 you need to score on the right of the map, if 1 you need to score on the left
     var myTeamId int
     fmt.Scan(&myTeamId)
-	var myGoal Position
+	var oppGoal Position
 	switch myTeamId{
-		case 0:
-			 myGoal=NewPosition(0,3750)
+	case 0:
+		//don't need that for the moment right?
+		//myGoal=newPosition(0,3750)
+		oppGoal=newPosition(16000,3750)
 		case 1:
-			 myGoal=NewPosition(16000,3750)
+		//myGoal=newPosition(16000,3750)
+		oppGoal=newPosition(0,3750)
 	}
         
     for {
@@ -66,14 +58,34 @@ func main() {
 		}
 		return closestSnaffle
 	}
-			    
-        //for i := 0; i < 2; i++ {
-            
-            // fmt.Fprintln(os.Stderr, "Debug messages...")
-            
-            // Edit this line to indicate the action for each wizard (0 <= thrust <= 150, 0 <= power <= 500)
+	//move to somewhere not right:(0 <= thrust <= 150, 0 <= power <= 500)
+	func command (arg string,dest Position,thrust int) string{
+		if arg=="move"{
+			fmt.Printf("MOVE" +" dest.x"+" dest.y"+" thrust\n")
+		}else if arg=="throw"{
+			fmt.Printf("THROW"+" dest.x"+" dest.y"+" thrust\n")
+		}
+	}
+	//Find best move
+		//here: loop on wizard pick a snaffle and move to it?
+		//should not include command in the loop!!!
+		//Needs two lines for each wiz considered separately!!
+	var bestSnaffle Entity
+		for _,wiz := range myWiz{
+			if wiz.state==0{
+				//no snaffle
+				bestSnaffle=pickSnaffle(wiz,snaffle)
+				destination:=newPosition(bestSnaffle.x,bestSnaffle.y)
+				command("move",destination,100)
+				//break
+			}else if wiz.state==1{
+				command("throw",oppGoal,400)
+			}
+		}
+	
+            // Edit this line to indicate the action for each wizard 
             // i.e.: "MOVE x y thrust" or "THROW x y power"
             //fmt.Printf("MOVE 8000 3750 100\n")
-        //}
+       
     }
 }
