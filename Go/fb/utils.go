@@ -7,7 +7,7 @@ func dist(x1, y1, x2, y2 int) float64 {
 	return dist
 }
 
-func distEntity(wizard, snaffle Entity) int {
+func distEntity(wizard Wizard, snaffle Snaffle) int {
 	distance := dist(wizard.x, snaffle.x, wizard.y, snaffle.y)
 	return int(distance)
 }
