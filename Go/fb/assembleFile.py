@@ -58,8 +58,9 @@ def scanAndAdd (fileList):
             with open("bigfile.go",'a+')as bf:
                 for line in f:
                     if line.startswith("package") or line.startswith("import"):
-                        if scanLines(bf,line):
-                            bf.write(line)
+                        #does not work...
+                        #if scanLines(bf,line):
+                        bf.write(line)
 
 
 def assemble(fileList):
@@ -80,7 +81,9 @@ def assemble(fileList):
                     bf.write("//"+file+"\n")
                     for line in f:
                         #prune files from package and import except main?
-                        if line.startswith("package") or line.startswith("import"):
+                        if line.startswith("package") or \
+                            line.startswith("import") or \
+                            line.startswith("//"):
                             continue
                         else:
                             bf.write(line)

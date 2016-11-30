@@ -13,7 +13,7 @@ type Snaffle struct {
 
 func newSnaffle(id int, etype string, x, y, vx, vy, state int) Snaffle {
 	if etype == "SNAFFLE" {
-		return Entity{
+		return Snaffle{
 			entityId:   id,
 			entityType: etype,
 			x:          x,

@@ -2,7 +2,7 @@ package fb
 
 //should use position here
 type Wizard struct {
-	entityId int
+	entityId   int
 	entityType string
 	x          int
 	y          int
@@ -12,8 +12,8 @@ type Wizard struct {
 }
 
 func newWizard(id int, etype string, x, y, vx, vy, state int) Wizard {
-	if etype!="SNAFFLE"{
-		return Entity{
+	if etype != "SNAFFLE" {
+		return Wizard{
 			entityId:   id,
 			entityType: etype,
 			x:          x,
@@ -22,6 +22,7 @@ func newWizard(id int, etype string, x, y, vx, vy, state int) Wizard {
 			vy:         vy,
 			state:      state,
 		}
+	}
 }
 
 func (w Wizard) hasGrabbedSnaffle() bool {

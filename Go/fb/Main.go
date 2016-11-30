@@ -45,10 +45,29 @@ func main() {
 				snaffle = append(snaffle, newSnaffle(entityId, entityType, x, y, vx, vy, state))
 			}
 		}
-
-		// Edit this line to indicate the action for each wizard
-		// i.e.: "MOVE x y thrust" or "THROW x y power"
-		//fmt.Printf("MOVE 8000 3750 100\n")
-
+	//SHOULD MOVE THAT ELSEWHERE (move.go?)
+	//check wiz to find best moves??
+	//a func that yields a map
+	//func findBestMove(myWiz []Wizard) map[Wizard]string{
+	//	var choices= make(map[Wizard]string) //a map with a wiz and a tag for action??
+	var bestSnaffle Snaffle
+	var oldDestination Position
+	for _,wiz := range myWiz{
+	//state is often 0, two wiz same direction...
+	if wiz.state==0{
+		//no snaffle 
+		bestSnaffle=pickNearestSnaffle(wiz,snaffle)
+		destination:=newPosition(bestSnaffle.x,bestSnaffle.y)
+		if destination==oldDestination{
+			//change destination for the second one...
+			closestSnaffle=pickClosestSnaffle(oppGoal,snaffles)
+		}
+		oldDestination=destination
+		//command("move",destination,100)
+		//break
+		//choices[wiz]=
+		}else if wiz.hasGrabbedSnaffle(){
+			command("throw",oppGoal,400)
+		}
 	}
 }
