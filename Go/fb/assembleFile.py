@@ -40,7 +40,7 @@ def scanLines(fileObject,line):
     """
     #do not use open() twice!!
     for l in fileObject:
-        if l==line:return False
+        if line==l:return False
         else: return True
     
 
@@ -50,9 +50,7 @@ def scanAndAdd (fileList):
     then check all lines of file and write import and package at the
     beginning
     """
-    fl=sanitizeList(fileList)
-    print(fl,file=sys.stderr)
-    for file in fl:
+    for file in fileList:
         with open(file,'r') as f:
             # w+ to create the file, works with a+
             with open("bigfile.go",'a+')as bf:
@@ -60,11 +58,11 @@ def scanAndAdd (fileList):
                     if line.startswith("package") or line.startswith("import"):
                         #does not work...
                         #if scanLines(bf,line):
+                        #    print(scanLines(bf,line),file=sys.stderr)
                         bf.write(line)
 
 
 def assemble(fileList):
-    
     #get rid of non go files
     fl=sanitizeList(fileList)
 
@@ -91,4 +89,4 @@ def assemble(fileList):
 
 assemble(filelist)
 
-os.system("gofmt -w bigfile.go")
+os.system("goimports bigfile.go")

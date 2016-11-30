@@ -1,4 +1,4 @@
-package fb
+//package fb
 
 //should use position here
 type Wizard struct {

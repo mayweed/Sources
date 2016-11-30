@@ -1,4 +1,4 @@
-package fb
+//package fb
 
 type Position struct {
 	x, y int
