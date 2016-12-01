@@ -39,10 +39,10 @@ func pickClosestSnaffle(oppGoal Position, snaffles []Snaffle) Snaffle {
 }
 
 //move to somewhere not right:(0 <= thrust <= 150, 0 <= power <= 500)
-func command(arg string, dest Position, thrust int) string {
+func command(arg string, dest Position, thrust int) {
 	if arg == "move" {
-		fmt.Printf("MOVE" + " dest.x" + " dest.y" + " thrust\n")
+		fmt.Printf("MOVE %d %d %d\n", dest.x, dest.y, thrust)
 	} else if arg == "throw" {
-		fmt.Printf("THROW" + " dest.x" + " dest.y" + " thrust\n")
+		fmt.Printf("THROW %d %d %d\n", dest.x, dest.y, thrust)
 	}
 }
