@@ -59,17 +59,20 @@ func main() {
 		bestSnaffle = pickNearestSnaffle(wiz, snaffles)
 		//wizPos = newPosition(wiz.x, wiz.y)
         if distEntity(wiz,bestSnaffle) >= 400 {
-            //wiz grabs no snaffle
-		    if wiz.state == 0 {
-			    destination = newPosition(bestSnaffle.x, bestSnaffle.y)
-			    command("move", destination, 120)
-		    } else if wiz.hasGrabbedSnaffle() {
+			if wiz.hasGrabbedSnaffle() {
 			    command("throw", oppGoal, 500)
-            //if a wiz has just thrown must pursue the ball to score!!
-			//should mark the snaffle and f*ckin run after it to trhow it max!!
-            }else if wiz.hasJustThrown = true{
-                command("move",SnaffleThrown,150)
-                }
-		}
+			}else{
+				//wiz grabs no snaffle
+				destination = newPosition(bestSnaffle.x, bestSnaffle.y)
+				command("move", destination, 120)
+				//Should check if a snaffle is nearer from the goal
+				//rather than a wiz?
+			}
+		//if a wiz has just thrown must pursue the ball to score!!
+		//should mark the snaffle and f*ckin run after it to trhow it max!!
+        }else if wiz.hasJustThrown == true{
+			snaffleThrown:=wiz.GrabbedSnaffle(snaffle)
+            command("move",snaffleThrown,150)
+        }
 	}
 }
