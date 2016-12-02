@@ -2,8 +2,6 @@ package main
 
 import "fmt"
 
-//import "os"
-
 func main() {
 	const (
 		HEIGHT = 7501
@@ -50,24 +48,28 @@ func main() {
 	//a func that yields a map
 	//func findBestMove(myWiz []Wizard) map[Wizard]string{
 	//	var choices= make(map[Wizard]string) //a map with a wiz and a tag for action??
-	var bestSnaffle Snaffle
-	var oldDestination Position
-	for _,wiz := range myWiz{
-	//state is often 0, two wiz same direction...
-	if wiz.state==0{
-		//no snaffle 
-		bestSnaffle=pickNearestSnaffle(wiz,snaffle)
-		destination:=newPosition(bestSnaffle.x,bestSnaffle.y)
-		if destination==oldDestination{
-			//change destination for the second one...
-			closestSnaffle=pickClosestSnaffle(oppGoal,snaffles)
-		}
-		oldDestination=destination
-		//command("move",destination,100)
-		//break
-		//choices[wiz]=
-		}else if wiz.hasGrabbedSnaffle(){
-			command("throw",oppGoal,400)
+
+    var bestSnaffle Snaffle
+	var closestSnaffle Snaffle
+	//var wizPos Position
+	//var oldWizPos Position
+	var destination Position
+	for _, wiz := range myWiz {
+		//Pick a Snaffle
+		bestSnaffle = pickNearestSnaffle(wiz, snaffles)
+		//wizPos = newPosition(wiz.x, wiz.y)
+        if distEntity(wiz,bestSnaffle) >= 400 {
+            //wiz grabs no snaffle
+		    if wiz.state == 0 {
+			    destination = newPosition(bestSnaffle.x, bestSnaffle.y)
+			    command("move", destination, 120)
+		    } else if wiz.hasGrabbedSnaffle() {
+			    command("throw", oppGoal, 500)
+            //if a wiz has just thrown must pursue the ball to score!!
+			//should mark the snaffle and f*ckin run after it to trhow it max!!
+            }else if wiz.hasJustThrown = true{
+                command("move",SnaffleThrown,150)
+                }
 		}
 	}
 }

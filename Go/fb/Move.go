@@ -8,7 +8,9 @@
 //Needs two lines for each wiz considered separately!!
 //TODO:one will go for the closest snaffle to his position
 //the other one for the closest to oppGoal.
-//should I make a map of possible moves and evaluate them ??
+
+//should I make a map/list of possible moves and evaluate them ??
+
 
 //check for the nearest snaffle?
 func pickNearestSnaffle(wiz Wizard, snaffles []Snaffle) Snaffle {

@@ -174,9 +174,6 @@ func main() {
 			}
 		}
 		//Find best move
-		//here: loop on wizard pick a snaffle and move to it?
-		//should not include command in the loop!!!
-		//Needs two lines for each wiz considered separately!!
 		//SHOULD MOVE THAT ELSEWHERE (move.go?)
 		//check wiz to find best moves??
 		//a func that yields a map

@@ -8,11 +8,12 @@ type Snaffle struct {
 	y          int
 	vx         int
 	vy         int
-	state      int
+    state   int
+    thrownBy   int
+    grabbedBy int
 }
 
 func newSnaffle(id int, etype string, x, y, vx, vy, state int) Snaffle {
-	if etype == "SNAFFLE" {
 		return Snaffle{
 			entityId:   id,
 			entityType: etype,
@@ -21,8 +22,8 @@ func newSnaffle(id int, etype string, x, y, vx, vy, state int) Snaffle {
 			vx:         vx,
 			vy:         vy,
 			state:      state,
+            //thrownBy:   0
 		}
-	}
 }
 
 func (s Snaffle) getSnafflePos() Position {
