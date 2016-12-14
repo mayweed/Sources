@@ -8,6 +8,7 @@ const (
 
 type Cell struct{
 	x,y int
+	visited bool
 }
 
 //a simple grid made of cells
@@ -15,7 +16,7 @@ var grid=make([][]Cell,height)
 for i := 0; i < height; i++ {
     grid[i]=make([]Cell,width)
     for j:= range(grid[i]){
-        grid[i][j]=Cell(i,j)
+        grid[i][j]=Cell{i,j}
     }
 }
 
