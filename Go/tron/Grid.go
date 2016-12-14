@@ -6,6 +6,7 @@ const (
 	HEIGHT=20
 )
 
+//should i write a grid type?
 type Cell struct{
 	x,y int
 	visited bool
