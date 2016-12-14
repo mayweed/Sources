@@ -1,15 +1,22 @@
 //copy pasted from there is no spoone
 //should modify it with tron to take Point
 //on a grid into account?
-var grid=make([][]string,height)
-    for i := 0; i < height; i++ {
-        scanner.Scan()
-        inputs:=strings.Split(scanner.Text(),"")
-        grid[i]=make([]string,width)
-        for j:= range(grid[i]){
-            //no need of that, could compare strings...
-            //x,_:= strconv.Atoi(inputs[j])
-            grid[i][j]=inputs[j]
-        }
+const (
+	WIDTH=30
+	HEIGHT=20
+)
+
+type Cell struct{
+	x,y int
+}
+
+//a simple grid made of cells
+var grid=make([][]Cell,height)
+for i := 0; i < height; i++ {
+    grid[i]=make([]Cell,width)
+    for j:= range(grid[i]){
+        grid[i][j]=Cell(i,j)
     }
-    log.Println(grid)
+}
+
+log.Println(grid)
