@@ -10,7 +10,7 @@
 //the other one for the closest to oppGoal.
 
 //should I make a map/list of possible moves and evaluate them ??
-
+//a map [int]int with id/distance of snaffle?
 
 //check for the nearest snaffle?
 func pickNearestSnaffle(wiz Wizard, snaffles []Snaffle) Snaffle {
@@ -39,6 +39,16 @@ func pickClosestSnaffle(oppGoal Position, snaffles []Snaffle) Snaffle {
 	}
 	return closestSnaffle
 }
+
+// that func...a snaffle for a wisard
+//func pickBestSnaffle (wiz Wizard, snaffles []Snaffle) Snaffle{
+//	nearestSnaffle=pickNearestSnaffle(wiz,snaffles)
+//	closestOppGoalSnaffle=pickClosestSnaffle(oppGoal,snaffles)
+
+//should list the nearest from me, the closest from opponent goal and
+//the closest from my goals
+//and then take a decision which one to pursue..
+
 
 //move to somewhere not right:(0 <= thrust <= 150, 0 <= power <= 500)
 func command(arg string, dest Position, thrust int) {
