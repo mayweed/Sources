@@ -40,15 +40,15 @@ func pickClosestSnaffle(oppGoal Position, snaffles []Snaffle) Snaffle {
 	return closestSnaffle
 }
 
-// that func...a snaffle for a wisard
-//func pickBestSnaffle (wiz Wizard, snaffles []Snaffle) Snaffle{
-//	nearestSnaffle=pickNearestSnaffle(wiz,snaffles)
-//	closestOppGoalSnaffle=pickClosestSnaffle(oppGoal,snaffles)
-
-//should list the nearest from me, the closest from opponent goal and
-//the closest from my goals
-//and then take a decision which one to pursue..
-
+//generate a simple map which key is snaffle id and dist to a wiz 
+func distAtSnaffle(wiz Wizard,snaffles []Snaffle) map[int]int{
+	var snafDist map[int]int
+	snafDist=make(map[int]int)
+	for _,snaffle :=range snaffles{
+		snafDist[snaffle.id]=distEntity(wiz,snaffle)
+	}
+	return snafDist
+}
 
 //move to somewhere not right:(0 <= thrust <= 150, 0 <= power <= 500)
 func command(arg string, dest Position, thrust int) {

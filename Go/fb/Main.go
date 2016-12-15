@@ -7,7 +7,7 @@ func main() {
 		HEIGHT = 7501
 		WIDTH  = 16001
 		MAX_THRUST = 150
-		MAX_POWER=500 
+		MAX_POWER=500
 	)
 	// myTeamId: if 0 you need to score on the right of the map, if 1 you need to score on the left
 	var myTeamId int
@@ -45,34 +45,23 @@ func main() {
 				snaffle = append(snaffle, newSnaffle(entityId, entityType, x, y, vx, vy, state))
 			}
 		}
-	//SHOULD MOVE THAT ELSEWHERE (move.go?)
-	//check wiz to find best moves??
-	//a func that yields a map
-	//func findBestMove(myWiz []Wizard) map[Wizard]string{
-	//	var choices= make(map[Wizard]string) //a map with a wiz and a tag for action??
-
-    var bestSnaffle Snaffle
-	var closestSnaffle Snaffle
-	//var wizPos Position
-	//var oldWizPos Position
-	var destination Position
-	for _, wiz := range myWiz {
-		//Pick a Snaffle
-		bestSnaffle = pickNearestSnaffle(wiz, snaffles)
-		//wizPos = newPosition(wiz.x, wiz.y)
-        if distEntity(wiz,bestSnaffle) >= 400 {
+		var bestSnaffle Snaffle
+		var destination Position
+		var oldDestination Position
+		for _, wiz := range myWiz {
+			//Pick a Snaffle
+			bestSnaffle = pickNearestSnaffle(wiz, snaffles)
+			dist:=distAtSnaffle(wiz,snaffles)
 			if wiz.hasGrabbedSnaffle() {
-			    command("throw", oppGoal, 500)
+				command("throw", oppGoal, MAX_POWER)
 			}else{
 				//wiz grabs no snaffle
 				destination = newPosition(bestSnaffle.x, bestSnaffle.y)
-				command("move", destination, 120)
+				if destination==oldDestination{
+					//should pick a second snaffle here...
+				command("move", destination, MAX_THRUST)
+				oldDestination=destination
 			}
-		//if a wiz has just thrown must pursue the ball to score!!
-		//should mark the snaffle and f*ckin run after it to trhow it max!!
-        }else if wiz.hasJustThrown == true{
-			snaffleThrown:=wiz.GrabbedSnaffle(snaffle)
-            command("move",snaffleThrown,150)
-        }
+		}
 	}
 }
