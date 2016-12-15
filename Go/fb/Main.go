@@ -6,6 +6,8 @@ func main() {
 	const (
 		HEIGHT = 7501
 		WIDTH  = 16001
+		MAX_THRUST = 150
+		MAX_POWER=500 
 	)
 	// myTeamId: if 0 you need to score on the right of the map, if 1 you need to score on the left
 	var myTeamId int
@@ -65,8 +67,6 @@ func main() {
 				//wiz grabs no snaffle
 				destination = newPosition(bestSnaffle.x, bestSnaffle.y)
 				command("move", destination, 120)
-				//Should check if a snaffle is nearer from the goal
-				//rather than a wiz?
 			}
 		//if a wiz has just thrown must pursue the ball to score!!
 		//should mark the snaffle and f*ckin run after it to trhow it max!!
