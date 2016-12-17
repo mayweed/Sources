@@ -24,13 +24,11 @@ func newPoint(x, y float64) Point {
 	}
 }
 func dist(x1, y1, x2, y2 float64) float64 {
-	dist := math.Sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2))
-	return dist
+	return math.Sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2))
 }
 
 func distEntity(wizard Wizard, snaffle Snaffle) float64 {
-	distance := dist(wizard.x, snaffle.x, wizard.y, snaffle.y)
-	return distance
+	return dist(wizard.x, wizard.y, snaffle.x, snaffle.y)
 }
 
 //WIZARDS
@@ -110,7 +108,8 @@ func pickNearestSnaffle(wiz Wizard, snaffles []Snaffle) Snaffle {
 	return nearestSnaffle
 }
 
-//check for closest snaffle from oppGoal
+//check for closest snaffle from oppGoal if dist to closest is < to
+//nearest go for it!!
 func pickClosestSnaffle(oppGoal Point, snaffles []Snaffle) Snaffle {
 	var best = WIDTH
 	var closestSnaffle Snaffle
