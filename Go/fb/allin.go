@@ -2,7 +2,8 @@ package main
 
 import "fmt"
 import "math"
-import "log"
+
+//import "log"
 
 //CONSTS
 const (
@@ -54,14 +55,6 @@ func newWizard(id, vx, vy, state int, etype string, x, y float64) Wizard {
 	}
 }
 
-func (w Wizard) hasGrabbedSnaffle() bool {
-	if w.state == 1 {
-		return true
-	} else {
-		return false
-	}
-}
-
 //SNAFFLES
 type Snaffle struct {
 	entityId   int
@@ -99,7 +92,7 @@ func pickNearestSnaffle(wiz Wizard, snaffles []Snaffle) Snaffle {
 	var nearestSnaffle Snaffle
 	for _, snaffle := range snaffles {
 		distance := distEntity(wiz, snaffle)
-		log.Println("Snaffle:", snaffle.entityId, "Distance: ", distance)
+		//log.Println("Snaffle:", snaffle.entityId, "Distance: ", distance)
 		if distance < best {
 			best = distance
 			nearestSnaffle = snaffle
@@ -172,10 +165,10 @@ func main() {
 				snaffles = append(snaffles, newSnaffle(entityId, vx, vy, state, entityType, float64(x), float64(y)))
 			}
 		}
-		//Find best move
-		//here: loop on wizard pick a snaffle and move to it?
-		//should not include command in the loop!!!
-		//Needs two lines for each wiz considered separately!!
+		//Now the 2 wiz work independently next step: when a snaffle is
+		//scored, the snaffle should move at the center of the field to
+		//grab some other snaffle til the game has not ended.
+		//Should keep track of score now... Interface??
 		var destination Point
 		for _, wiz := range myWiz {
 			var bestSnaffle Snaffle
@@ -185,9 +178,7 @@ func main() {
 			} else {
 				//no snaffle
 				bestSnaffle = pickNearestSnaffle(wiz, snaffles)
-				log.Println(wiz.entityId, int(wiz.x), int(wiz.y), bestSnaffle.entityId)
-				//from the codingame cast!!
-				//bestSnaffle=snaffles[i%len(myWiz)]
+				//log.Println(wiz.entityId, int(wiz.x), int(wiz.y), bestSnaffle.entityId)
 				destination = newPoint(bestSnaffle.x, bestSnaffle.y)
 				command("move", destination, MAX_THRUST)
 			}

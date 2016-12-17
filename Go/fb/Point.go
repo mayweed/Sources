@@ -21,7 +21,7 @@ func dist(x1, y1, x2, y2 float64) float64 {
 
 //dist from a point to coordinates
 func (p Point) dist2(x2,y2 float64) float64{
-    return dist(p.x, p.y, x2, y2)
+    return dist(p.x,p.y, x2, y2)
 }
 
 //last step:point to point
