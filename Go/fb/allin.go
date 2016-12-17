@@ -2,21 +2,24 @@ package main
 
 import "fmt"
 import "math"
-import "log"
+
+//import "log"
 
 //CONSTS
 const (
-	HEIGHT = 7501
-	WIDTH  = 16001
+	HEIGHT     = 7501.
+	WIDTH      = 16001.
+	MAX_POWER  = 500
+	MAX_THRUST = 150
 )
 
 //POSITION
-type Position struct {
-	x, y int
+type Point struct {
+	x, y float64
 }
 
-func newPosition(x, y int) Position {
-	return Position{
+func newPoint(x, y float64) Point {
+	return Point{
 		x: x,
 		y: y,
 	}
@@ -24,26 +27,24 @@ func newPosition(x, y int) Position {
 
 //WIZARDS
 type Wizard struct {
-	entityId      int
-	entityType    string
-	x             int
-	y             int
-	vx            int
-	vy            int
-	state         int
-	hasJustThrown bool
+	entityId   int
+	entityType string
+	x          float64
+	y          float64
+	vx         int
+	vy         int
+	state      int
 }
 
-func newWizard(id int, etype string, x, y, vx, vy, state int) Wizard {
+func newWizard(id, vx, vy, state int, etype string, x, y float64) Wizard {
 	return Wizard{
-		entityId:      id,
-		entityType:    etype,
-		x:             x,
-		y:             y,
-		vx:            vx,
-		vy:            vy,
-		state:         state,
-		hasJustThrown: false,
+		entityId:   id,
+		entityType: etype,
+		x:          x,
+		y:          y,
+		vx:         vx,
+		vy:         vy,
+		state:      state,
 	}
 }
 
@@ -59,14 +60,14 @@ func (w Wizard) hasGrabbedSnaffle() bool {
 type Snaffle struct {
 	entityId   int
 	entityType string
-	x          int
-	y          int
+	x          float64
+	y          float64
 	vx         int
 	vy         int
 	state      int
 }
 
-func newSnaffle(id int, etype string, x, y, vx, vy, state int) Snaffle {
+func newSnaffle(id, vx, vy, state int, etype string, x, y float64) Snaffle {
 	return Snaffle{
 		entityId:   id,
 		entityType: etype,
@@ -78,20 +79,20 @@ func newSnaffle(id int, etype string, x, y, vx, vy, state int) Snaffle {
 	}
 }
 
-func (s Snaffle) getSnafflePos() Position {
-	pos := newPosition(s.x, s.y)
+func (s Snaffle) getSnafflePos() Point {
+	pos := newPoint(s.x, s.y)
 	return pos
 }
 
 //UTILS
-func dist(x1, y1, x2, y2 int) int {
-	dist := math.Sqrt((float64(x1)-float64(x2))*(float64(x1)-float64(x2)) + (float64(y1)-float64(y2))*(float64(y1)-float64(y2)))
-	return int(dist)
+func dist(x1, y1, x2, y2 float64) float64 {
+	dist := math.Sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2))
+	return dist
 }
 
-func distEntity(wizard Wizard, snaffle Snaffle) int {
+func distEntity(wizard Wizard, snaffle Snaffle) float64 {
 	distance := dist(wizard.x, snaffle.x, wizard.y, snaffle.y)
-	return int(distance)
+	return distance
 }
 
 //COMMANDS? EVALUATOR?
@@ -112,10 +113,11 @@ func pickNearestSnaffle(wiz Wizard, snaffles []Snaffle) Snaffle {
 }
 
 //check for closest snaffle from oppGoal
-func pickClosestSnaffle(oppGoal Position, snaffles []Snaffle) Snaffle {
+func pickClosestSnaffle(oppGoal Point, snaffles []Snaffle) Snaffle {
 	var best = WIDTH
 	var closestSnaffle Snaffle
 	for _, snaffle := range snaffles {
+		//'int' from distEntity!!
 		distance := dist(oppGoal.x, snaffle.x, oppGoal.y, snaffle.y)
 		if distance < best {
 			best = distance
@@ -127,11 +129,11 @@ func pickClosestSnaffle(oppGoal Position, snaffles []Snaffle) Snaffle {
 
 //move to somewhere not right:(0 <= thrust <= 150, 0 <= power <= 500)
 //should I use sprintf and yield a string?
-func command(arg string, dest Position, thrust int) {
+func command(arg string, dest Point, thrust int) {
 	if arg == "move" {
-		fmt.Printf("MOVE %d %d %d\n", dest.x, dest.y, thrust)
+		fmt.Printf("MOVE %d %d %d\n", int(dest.x), int(dest.y), thrust)
 	} else if arg == "throw" {
-		fmt.Printf("THROW %d %d %d\n", dest.x, dest.y, thrust)
+		fmt.Printf("THROW %d %d %d\n", int(dest.x), int(dest.y), thrust)
 	}
 }
 
@@ -141,14 +143,14 @@ func main() {
 	// myTeamId: if 0 you need to score on the right of the map, if 1 you need to score on the left
 	var myTeamId int
 	fmt.Scan(&myTeamId)
-	var oppGoal Position
+	var oppGoal Point
 	switch myTeamId {
 	case 0:
 		//myGoal=newPosition(0,3750)
-		oppGoal = newPosition(16000, 3750)
+		oppGoal = newPoint(16000., 3750.)
 	case 1:
 		//myGoal=newPosition(16000,3750)
-		oppGoal = newPosition(0, 3750)
+		oppGoal = newPoint(0., 3750.)
 	}
 
 	for {
@@ -166,48 +168,37 @@ func main() {
 			var x, y, vx, vy, state int
 			fmt.Scan(&entityId, &entityType, &x, &y, &vx, &vy, &state)
 			if entityType == "WIZARD" {
-				myWiz = append(myWiz, newWizard(entityId, entityType, x, y, vx, vy, state))
+				myWiz = append(myWiz, newWizard(entityId, vx, vy, state, entityType, float64(x), float64(y)))
 			} else if entityType == "OPPONENT_WIZARD" {
-				oppWiz = append(oppWiz, newWizard(entityId, entityType, x, y, vx, vy, state))
+				oppWiz = append(oppWiz, newWizard(entityId, vx, vy, state, entityType, float64(x), float64(y)))
 			} else if entityType == "SNAFFLE" {
-				snaffles = append(snaffles, newSnaffle(entityId, entityType, x, y, vx, vy, state))
+				snaffles = append(snaffles, newSnaffle(entityId, vx, vy, state, entityType, float64(x), float64(y)))
 			}
 		}
 		//Find best move
+		//here: loop on wizard pick a snaffle and move to it?
+		//should not include command in the loop!!!
+		//Needs two lines for each wiz considered separately!!
 		//SHOULD MOVE THAT ELSEWHERE (move.go?)
 		//check wiz to find best moves??
 		//a func that yields a map
 		//func findBestMove(myWiz []Wizard) map[Wizard]string{
 		//	var choices= make(map[Wizard]string) //a map with a wiz and a tag for action??
-		var bestSnaffle Snaffle
-		var closestSnaffle Snaffle
-		var wizPos Position
-		var oldWizPos Position
-		var destination Position
+		//var closestSnaffle Snaffle
+		var destination Point
 		for _, wiz := range myWiz {
+			var bestSnaffle Snaffle
 			//state is often 0, two wiz same direction...
-			wizPos = newPosition(wiz.x, wiz.y)
-			if wiz.state == 0 {
+			if wiz.hasGrabbedSnaffle() {
+				command("throw", oppGoal, MAX_POWER)
+			} else {
 				//no snaffle
 				bestSnaffle = pickNearestSnaffle(wiz, snaffles)
-				destination = newPosition(bestSnaffle.x, bestSnaffle.y)
-				//This loop is USELESS!!!
-				if oldWizPos == wizPos {
-					log.Println(oldWizPos, wizPos)
-					//change destination for the second one...
-					closestSnaffle = pickClosestSnaffle(oppGoal, snaffles)
-					destination = newPosition(closestSnaffle.x, closestSnaffle.y)
-				}
-				//oldDestination=destination
-				command("move", destination, 120)
-			} else if wiz.hasGrabbedSnaffle() {
-				command("throw", oppGoal, 500)
-				wiz.hasJustThrown = true
-				//if a wiz has just thrown must pursue the ball to score!!
-				//should mark the snaffle and f*ckin run after it to trhow it max!!
+				//from the codingame cast!!
+				//bestSnaffle=snaffles[i%len(myWiz)]
+				destination = newPoint(bestSnaffle.x, bestSnaffle.y)
+				command("move", destination, MAX_THRUST)
 			}
-			oldWizPos = newPosition(wiz.x, wiz.y)
-			log.Println(wiz.hasJustThrown)
 		}
 	}
 }
