@@ -2,8 +2,7 @@ package main
 
 import "fmt"
 import "math"
-
-//import "log"
+import "log"
 
 //CONSTS
 const (
@@ -13,7 +12,7 @@ const (
 	MAX_THRUST = 150
 )
 
-//POSITION
+//POINT
 type Point struct {
 	x, y float64
 }
@@ -23,6 +22,15 @@ func newPoint(x, y float64) Point {
 		x: x,
 		y: y,
 	}
+}
+func dist(x1, y1, x2, y2 float64) float64 {
+	dist := math.Sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2))
+	return dist
+}
+
+func distEntity(wizard Wizard, snaffle Snaffle) float64 {
+	distance := dist(wizard.x, snaffle.x, wizard.y, snaffle.y)
+	return distance
 }
 
 //WIZARDS
@@ -84,17 +92,6 @@ func (s Snaffle) getSnafflePos() Point {
 	return pos
 }
 
-//UTILS
-func dist(x1, y1, x2, y2 float64) float64 {
-	dist := math.Sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2))
-	return dist
-}
-
-func distEntity(wizard Wizard, snaffle Snaffle) float64 {
-	distance := dist(wizard.x, snaffle.x, wizard.y, snaffle.y)
-	return distance
-}
-
 //COMMANDS? EVALUATOR?
 //check for the closest snaffle? Should update snaffle: when one is chosen
 //a second best one should be available (2 wizards!!)
@@ -104,6 +101,7 @@ func pickNearestSnaffle(wiz Wizard, snaffles []Snaffle) Snaffle {
 	var nearestSnaffle Snaffle
 	for _, snaffle := range snaffles {
 		distance := distEntity(wiz, snaffle)
+		log.Println("Snaffle:", snaffle.entityId, "Distance: ", distance)
 		if distance < best {
 			best = distance
 			nearestSnaffle = snaffle
@@ -179,12 +177,6 @@ func main() {
 		//here: loop on wizard pick a snaffle and move to it?
 		//should not include command in the loop!!!
 		//Needs two lines for each wiz considered separately!!
-		//SHOULD MOVE THAT ELSEWHERE (move.go?)
-		//check wiz to find best moves??
-		//a func that yields a map
-		//func findBestMove(myWiz []Wizard) map[Wizard]string{
-		//	var choices= make(map[Wizard]string) //a map with a wiz and a tag for action??
-		//var closestSnaffle Snaffle
 		var destination Point
 		for _, wiz := range myWiz {
 			var bestSnaffle Snaffle
@@ -194,6 +186,7 @@ func main() {
 			} else {
 				//no snaffle
 				bestSnaffle = pickNearestSnaffle(wiz, snaffles)
+				log.Println(wiz.entityId, int(wiz.x), int(wiz.y), bestSnaffle.entityId)
 				//from the codingame cast!!
 				//bestSnaffle=snaffles[i%len(myWiz)]
 				destination = newPoint(bestSnaffle.x, bestSnaffle.y)
