@@ -2,15 +2,12 @@ package main
 
 import "fmt"
 import "math"
-
-//import "log"
+import "log"
 
 //CONSTS
 const (
 	HEIGHT     = 7501.
 	WIDTH      = 16001.
-	MAX_POWER  = 500
-	MAX_THRUST = 150
 )
 
 //POINT
@@ -36,46 +33,22 @@ func distEntity(wizard Wizard, snaffle Snaffle) float64 {
 type Wizard struct {
 	entityId   int
 	entityType string
-	x          float64
-	y          float64
 	vx         int
 	vy         int
 	state      int
-}
-
-func newWizard(id, vx, vy, state int, etype string, x, y float64) Wizard {
-	return Wizard{
-		entityId:   id,
-		entityType: etype,
-		x:          x,
-		y:          y,
-		vx:         vx,
-		vy:         vy,
-		state:      state,
-	}
+	x          float64
+	y          float64
 }
 
 //SNAFFLES
 type Snaffle struct {
 	entityId   int
 	entityType string
-	x          float64
-	y          float64
 	vx         int
 	vy         int
 	state      int
-}
-
-func newSnaffle(id, vx, vy, state int, etype string, x, y float64) Snaffle {
-	return Snaffle{
-		entityId:   id,
-		entityType: etype,
-		x:          x,
-		y:          y,
-		vx:         vx,
-		vy:         vy,
-		state:      state,
-	}
+	x          float64
+	y          float64
 }
 
 func (s Snaffle) getSnafflePos() Point {
@@ -92,7 +65,7 @@ func pickNearestSnaffle(wiz Wizard, snaffles []Snaffle) Snaffle {
 	var nearestSnaffle Snaffle
 	for _, snaffle := range snaffles {
 		distance := distEntity(wiz, snaffle)
-		//log.Println("Snaffle:", snaffle.entityId, "Distance: ", distance)
+		log.Println("Snaffle: ",snaffle.entityId,"Distance: ",distance)
 		if distance < best {
 			best = distance
 			nearestSnaffle = snaffle
@@ -158,30 +131,27 @@ func main() {
 			var x, y, vx, vy, state int
 			fmt.Scan(&entityId, &entityType, &x, &y, &vx, &vy, &state)
 			if entityType == "WIZARD" {
-				myWiz = append(myWiz, newWizard(entityId, vx, vy, state, entityType, float64(x), float64(y)))
+				myWiz = append(myWiz, Wizard{entityId, entityType,vx, vy, state, float64(x), float64(y)})
 			} else if entityType == "OPPONENT_WIZARD" {
-				oppWiz = append(oppWiz, newWizard(entityId, vx, vy, state, entityType, float64(x), float64(y)))
+				oppWiz = append(oppWiz, Wizard{entityId, entityType, vx, vy, state, float64(x), float64(y)})
 			} else if entityType == "SNAFFLE" {
-				snaffles = append(snaffles, newSnaffle(entityId, vx, vy, state, entityType, float64(x), float64(y)))
-			}
-		}
-		//Now the 2 wiz work independently next step: when a snaffle is
-		//scored, the snaffle should move at the center of the field to
-		//grab some other snaffle til the game has not ended.
-		//Should keep track of score now... Interface??
-		var destination Point
+				snaffles = append(snaffles, Snaffle{entityId, entityType, vx, vy, state, float64(x), float64(y)})
+			    }
+		    }
+		    
+		//pick the nearest, go for it...
+		var bestSnaffle Snaffle
 		for _, wiz := range myWiz {
-			var bestSnaffle Snaffle
-			//state is often 0, two wiz same direction...
-			if wiz.hasGrabbedSnaffle() {
-				command("throw", oppGoal, MAX_POWER)
+		    if wiz.state==1 {
+			    fmt.Printf("THROW %d %d 500\n",int(oppGoal.x), int(oppGoal.y))
 			} else {
-				//no snaffle
-				bestSnaffle = pickNearestSnaffle(wiz, snaffles)
-				//log.Println(wiz.entityId, int(wiz.x), int(wiz.y), bestSnaffle.entityId)
-				destination = newPoint(bestSnaffle.x, bestSnaffle.y)
-				command("move", destination, MAX_THRUST)
+			    bestSnaffle = pickNearestSnaffle(wiz, snaffles)
+			    //log.Println(wiz.entityId, int(wiz.x), int(wiz.y), bestSnaffle.entityId)
+			    fmt.Printf("MOVE %d %d 150\n",int(bestSnaffle.x), int(bestSnaffle.y))
 			}
 		}
-	}
+    }
 }
+
+            // i.e.: "MOVE x y thrust" or "THROW x y power"
+//            fmt.Printf("MOVE 8000 3750 100\n")
