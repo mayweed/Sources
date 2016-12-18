@@ -49,23 +49,28 @@ type Snaffle struct {
 	state      int
 	x          float64
 	y          float64
+	dead       bool
 }
 
-func (s Snaffle) getSnafflePos() Point {
-	pos := newPoint(s.x, s.y)
-	return pos
+func snaffleCarried(wiz Wizard, snaffles []Snaffle) Snaffle{
+    //why cant I just return inside if ? got a no return error??
+    var carried Snaffle
+    for _,snaf := range snaffles{
+        if (snaf.x==wiz.x) && (snaf.y==wiz.y){
+            carried=snaf
+            break
+        }
+    }
+    return carried
 }
 
-//COMMANDS? EVALUATOR?
-//check for the closest snaffle? Should update snaffle: when one is chosen
-//a second best one should be available (2 wizards!!)
 //check for the nearest snaffle?
 func pickNearestSnaffle(wiz Wizard, snaffles []Snaffle) Snaffle {
 	var best = WIDTH
 	var nearestSnaffle Snaffle
 	for _, snaffle := range snaffles {
 		distance := distEntity(wiz, snaffle)
-		log.Println("Snaffle: ",snaffle.entityId,"Distance: ",distance)
+		//log.Println("Snaffle: ",snaffle.entityId,"Distance: ",distance)
 		if distance < best {
 			best = distance
 			nearestSnaffle = snaffle
@@ -80,7 +85,6 @@ func pickClosestSnaffle(oppGoal Point, snaffles []Snaffle) Snaffle {
 	var best = WIDTH
 	var closestSnaffle Snaffle
 	for _, snaffle := range snaffles {
-		//'int' from distEntity!!
 		distance := dist(oppGoal.x, snaffle.x, oppGoal.y, snaffle.y)
 		if distance < best {
 			best = distance
@@ -106,17 +110,14 @@ func main() {
 	// myTeamId: if 0 you need to score on the right of the map, if 1 you need to score on the left
 	var myTeamId int
 	fmt.Scan(&myTeamId)
-	var oppGoal Point
-	switch myTeamId {
-	case 0:
-		//myGoal=newPosition(0,3750)
-		oppGoal = newPoint(16000., 3750.)
-	case 1:
-		//myGoal=newPosition(16000,3750)
-		oppGoal = newPoint(0., 3750.)
-	}
 
 	for {
+		var myScore, myMagic int
+        fmt.Scan(&myScore, &myMagic)
+
+        var opponentScore, opponentMagic int
+        fmt.Scan(&opponentScore, &opponentMagic)
+
 		// entities: number of entities still in game
 		var entities int
 		fmt.Scan(&entities)
@@ -135,23 +136,40 @@ func main() {
 			} else if entityType == "OPPONENT_WIZARD" {
 				oppWiz = append(oppWiz, Wizard{entityId, entityType, vx, vy, state, float64(x), float64(y)})
 			} else if entityType == "SNAFFLE" {
-				snaffles = append(snaffles, Snaffle{entityId, entityType, vx, vy, state, float64(x), float64(y)})
+				snaffles = append(snaffles, Snaffle{entityId, entityType, vx, vy, state, float64(x), float64(y), false})
 			    }
 		    }
-		    
-		//pick the nearest, go for it...
+
+	    //pick the nearest, go for it...
+	    var oppGoal Point
+	    var myGoal Point
+	    switch myTeamId {
+	        case 0:
+		        myGoal=newPoint(0.,3750.)
+		        oppGoal = newPoint(16000., 3750.)
+	        case 1:
+		        myGoal=newPoint(16000.,3750.)
+		        oppGoal = newPoint(0., 3750.)
+	    }
 		var bestSnaffle Snaffle
 		for _, wiz := range myWiz {
 		    if wiz.state==1 {
 			    fmt.Printf("THROW %d %d 500\n",int(oppGoal.x), int(oppGoal.y))
+			    carried:=snaffleCarried(wiz,snaffles)
+			    }
+			    log.Println(myScore)
 			} else {
 			    bestSnaffle = pickNearestSnaffle(wiz, snaffles)
-			    //log.Println(wiz.entityId, int(wiz.x), int(wiz.y), bestSnaffle.entityId)
-			    fmt.Printf("MOVE %d %d 150\n",int(bestSnaffle.x), int(bestSnaffle.y))
+			    if bestSnaffle.dead{
+			        //idea:sweep the remaining snaffles?
+			        snaf:=pickClosestSnaffle(myGoal,snaffles)
+			        fmt.Printf("MOVE %d %d 150\n",int(snaf.x),int(snaf.y))
+			    }else{
+			        //log.Println(wiz.entityId, int(wiz.x), int(wiz.y), bestSnaffle.entityId)
+			        fmt.Printf("MOVE %d %d 150\n",int(bestSnaffle.x), int(bestSnaffle.y))
+			    }
 			}
-		}
-    }
-}
 
-            // i.e.: "MOVE x y thrust" or "THROW x y power"
-//            fmt.Printf("MOVE 8000 3750 100\n")
+		}
+	}
+}
