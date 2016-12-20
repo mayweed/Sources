@@ -30,7 +30,8 @@ type Graph struct {
 }
 
 ///To write+read soniakeys lib on github for implementation idea
-//func (g Graph) addEdge(edge []string)
+//dont forget weight
+//func (g Graph) addEdge(from,to Node)
 
 /// DISTANCE
 //To convert degrees in radians: degrees*PI/180
