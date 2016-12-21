@@ -135,10 +135,12 @@ func main() {
 		countMul += len(v)
 	}
 
-	for _, v := range myGraph.route {
+	for k, v := range myGraph.route {
 		if len(v) == 8 {
 			for _, w := range v {
-				fmt.Println(w.to.id, w.weight)
+				fmt.Println("Start Node:", k, "Destination Node:", w.to.id, "Distance to dest point:", w.weight)
+				//another one to grasp names
+				//fmt.Println("Start Node:",myGraph.nodes[k].name,"Destination Node:",w.to.id,"Distance to dest point:",w.weight)
 			}
 		}
 	}
