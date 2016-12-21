@@ -25,23 +25,40 @@ type Graph struct {
 	//string==node id in each cases?
 	nodes map[string]Node
 	//a map of node to slice of edge struct
-	route map[string]Edge
+	route map[string][]Edge
+}
+
+//a constructor to handle map init correctly
+func newGraph() Graph {
+	return Graph{
+		nodes: make(map[string]Node),
+		route: make(map[string][]Edge),
+	}
 }
 
 //GRAPH HANDLERS
 func (g Graph) addNode(n Node) {
-	g.nodes = make(map[string]Node)
+	//g.nodes=make(map[string]Node)
 	g.nodes[n.id] = n
 }
 func (g Graph) addEdge(from, to string) {
-	g.route = make(map[string]Edge)
+	//g.route=make(map[string]Edge)
 	e := Edge{g.nodes[to], distNodes(g.nodes[from], g.nodes[to])}
-	g.route[from] = e
+	g.route[from] = append(g.route[from], e)
 }
 
+//func (g Graph) deleteEdge
+
 //check func TO REWRITE FOR GRAPHS
-func (n Node) toString() {
-	fmt.Printf("Node %s: %s, %f, %f\n", n.id, n.name, n.latitude, n.longitude)
+//should handle error cases and bette than if!?!?
+func (g Graph) toString() {
+	if g.nodes != nil {
+		for key, n := range g.nodes {
+			fmt.Printf("Node %s: %s, %f, %f\n", key, n.name, n.latitude, n.longitude)
+		}
+	} else {
+		fmt.Println("Empty map?")
+	}
 }
 
 // DISTANCE
@@ -77,7 +94,7 @@ func main() {
 	scanner.Scan()
 	fmt.Sscan(scanner.Text(), &N)
 
-	var myGraph = Graph{}
+	var myGraph = newGraph()
 	for i := 0; i < N; i++ {
 		scanner.Scan()
 		//clean things up
@@ -97,15 +114,28 @@ func main() {
 	scanner.Scan()
 	fmt.Sscan(scanner.Text(), &M)
 
-	var edge []string
 	for i := 0; i < M; i++ {
 		scanner.Scan()
 		route := strings.Split(scanner.Text(), " ")
+		var edge []string
 		for _, r := range route {
 			edge = append(edge, strings.TrimPrefix(r, "StopArea:"))
 		}
-		log.Println(edge)
+
+		myGraph.addEdge(edge[0], edge[1])
+		//log.Println(edge)
 	}
+	//myGraph.toString()
+	//to test if every route is indeed in it!!
+	//countMul must be equal to M
+	var countMul int
+	for _, v := range myGraph.route {
+		countMul += len(v)
+	}
+	fmt.Println(countMul)
+	log.Println("My Num of stops:", len(myGraph.nodes), "My num of routes:", len(myGraph.route))
+	log.Println("Number of stops:", N, "number of routes:", M)
+
 	// fmt.Fprintln(os.Stderr, "Debug messages...")
-	fmt.Println("IMPOSSIBLE") // Write answer to stdout
+	//fmt.Println("IMPOSSIBLE")// Write answer to stdout
 }
