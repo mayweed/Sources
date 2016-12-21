@@ -125,12 +125,22 @@ func main() {
 		myGraph.addEdge(edge[0], edge[1])
 		//log.Println(edge)
 	}
+
+	//TESTS
 	//myGraph.toString()
 	//to test if every route is indeed in it!!
 	//countMul must be equal to M
 	var countMul int
 	for _, v := range myGraph.route {
 		countMul += len(v)
+	}
+
+	for _, v := range myGraph.route {
+		if len(v) == 8 {
+			for _, w := range v {
+				fmt.Println(w.weight)
+			}
+		}
 	}
 	fmt.Println(countMul)
 	log.Println("My Num of stops:", len(myGraph.nodes), "My num of routes:", len(myGraph.route))
