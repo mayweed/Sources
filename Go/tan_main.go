@@ -136,6 +136,8 @@ func main() {
 	log.Println("My Num of stops:", len(myGraph.nodes), "My num of routes:", len(myGraph.route))
 	log.Println("Number of stops:", N, "number of routes:", M)
 
+	//only dijkstra is missing here no?
+
 	// fmt.Fprintln(os.Stderr, "Debug messages...")
 	//fmt.Println("IMPOSSIBLE")// Write answer to stdout
 }
