@@ -17,23 +17,34 @@ type Node struct {
 	latitude  float64
 	longitude float64
 }
+type Edge struct {
+	to     Node
+	weight float64
+}
+type Graph struct {
+	//string==node id in each cases?
+	nodes map[string]Node
+	//a map of node to slice of edge struct
+	route map[string]Edge
+}
 
-//check func
+//GRAPH HANDLERS
+func (g Graph) addNode(n Node) {
+	g.nodes = make(map[string]Node)
+	g.nodes[n.id] = n
+}
+func (g Graph) addEdge(from, to string) {
+	g.route = make(map[string]Edge)
+	e := Edge{g.nodes[to], distNodes(g.nodes[from], g.nodes[to])}
+	g.route[from] = e
+}
+
+//check func TO REWRITE FOR GRAPHS
 func (n Node) toString() {
 	fmt.Printf("Node %s: %s, %f, %f\n", n.id, n.name, n.latitude, n.longitude)
 }
 
-type Graph struct {
-	nodes []Node
-	//a map of map to got dist via route[ADBLA][ADBU] for ex
-	route map[Node]map[Node]float64
-}
-
-///To write+read soniakeys lib on github for implementation idea
-//dont forget weight
-//func (g Graph) addEdge(from,to Node)
-
-/// DISTANCE
+// DISTANCE
 //To convert degrees in radians: degrees*PI/180
 func degreesToRad(degrees float64) float64 {
 	return degrees * math.Pi / 180
@@ -49,6 +60,7 @@ func distNodes(from, to Node) float64 {
 	return distance(from.latitude, from.longitude, to.latitude, to.longitude)
 }
 
+//MAIN
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Buffer(make([]byte, 1000000), 1000000)
@@ -65,7 +77,7 @@ func main() {
 	scanner.Scan()
 	fmt.Sscan(scanner.Text(), &N)
 
-	var nodes []Node
+	var myGraph = Graph{}
 	for i := 0; i < N; i++ {
 		scanner.Scan()
 		//clean things up
@@ -78,10 +90,9 @@ func main() {
 		long, _ := strconv.ParseFloat(stopName[4], 64)
 		long1 := degreesToRad(long)
 
-		nodes = append(nodes, Node{stopName[0], stopName[1], lat1, long1})
+		myGraph.addNode(Node{stopName[0], stopName[1], lat1, long1})
 	}
 
-	//here should instantiate my graph...
 	var M int
 	scanner.Scan()
 	fmt.Sscan(scanner.Text(), &M)
@@ -95,9 +106,6 @@ func main() {
 		}
 		log.Println(edge)
 	}
-
-	var edgeWeight float64
-	edgeWeight = distance(nodes[edge[0]].latitude, nodes[edge[0]].longitude, nodes[edge[1]].latitude, nodes[edge[1]].longitude)
-	log.Println(edgeWeight)
-	//fmt.Println("IMPOSSIBLE")// Write answer to stdout
+	// fmt.Fprintln(os.Stderr, "Debug messages...")
+	fmt.Println("IMPOSSIBLE") // Write answer to stdout
 }
