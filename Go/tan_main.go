@@ -138,7 +138,7 @@ func main() {
 	for _, v := range myGraph.route {
 		if len(v) == 8 {
 			for _, w := range v {
-				fmt.Println(w.weight)
+				fmt.Println(w.to.id, w.weight)
 			}
 		}
 	}
