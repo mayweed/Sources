@@ -1,4 +1,5 @@
 // cf https://www.hackerrank.com/challenges/bfsshortreach
+//First post very insightful here: http://stackoverflow.com/questions/1821811/how-to-read-write-from-to-file
 package main
 
 import (
@@ -11,8 +12,6 @@ import (
 
 type Graph struct {
 	//num nodes
-	nodes int
-	//num vertices
 	vertices int
 	//a node: a list of connected nodes
 	edges map[int][]int
@@ -24,20 +23,39 @@ func (g Graph) addEdge(node, node2 int) {
 	g.edges[node2] = append(g.edges[node2], node)
 }
 
-func main() {
-	//Scanner better to split stdin
-	//s:=bufio.NewScanner(os.Stdin)
-	//for s.Scan() {
-	//    fmt.Println(scanner.Text)
+//want to make a variadic func here: multiple nodes
+//should be passed has args
+func (g Graph) edgeToString() {
+	for k, v := range g.edges {
+		for _, val := range v {
+			fmt.Printf("%d -> %d\n", k, val)
+		}
+	}
+}
 
-	//Should do the same for a file
+//same here should be able to pass one or + nodes
+func (g Graph) degree() {
+	for k, v := range g.edges {
+		fmt.Printf("Node n°%d degree:%d\n", k, len(v))
+	}
+}
+
+/*
+func (g Graph) dfs(startNode,endNode int){
+	var queue []int
+	visited=make(map[int]bool)
+	queue=g.edges[startNode]
+	for queue{
+*/
+
+func main() {
 	fi, err := os.Open("mediumG.txt")
 	if err != nil {
 		panic(err)
 	}
 	defer fi.Close()
 
-	//first two lines: v==num of vertices, e== num of edges
+	//first two lines: v==num of vertices, e==num of edges
 	scanner := bufio.NewScanner(fi)
 	scanner.Scan()
 	V, _ := strconv.Atoi(scanner.Text())
@@ -46,7 +64,7 @@ func main() {
 
 	//should put that in a func but test..
 	g := new(Graph)
-	g.nodes = V
+	g.vertices = V
 	g.edges = make(map[int][]int)
 
 	for i := 0; i < E; i++ {
@@ -58,6 +76,8 @@ func main() {
 	}
 
 	//fmt.Println(len(g.edges))
-	fmt.Println(g.edges)
+	fmt.Println(len(g.edges))
+
+	g.edgeToString()
 
 }
