@@ -44,15 +44,15 @@ func (g Graph) degree() {
 
 /*
 //should add an endNode arg later on
-func (g Graph) dfs(startNode int){
+func (g Graph) dfs(startNode,endNode int){
 	var queue []int
 	visited=make(map[int]bool)
 	queue=g.edges[startNode]
 	for m:=range (queue){
+		visited[m]=true
 		if !visited[m]{
 			dfs(m)
 		}
-		visited[m]=true
 	}
 }
 */
