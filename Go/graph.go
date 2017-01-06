@@ -47,10 +47,11 @@ func (g Graph) degree() {
 func (g Graph) dfs(startNode,endNode int){
 	var queue []int
 	visited=make(map[int]bool)
-	queue=g.edges[startNode]
-	for m:=range (queue){
+	stack=g.edges[startNode]
+	for m:=range (stack){
 		visited[m]=true
 		if !visited[m]{
+			stack=append(stack,g.edges[m])
 			dfs(m)
 		}
 	}
