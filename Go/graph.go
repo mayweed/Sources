@@ -25,12 +25,14 @@ func (g Graph) addEdge(node, node2 int) {
 
 //want to make a variadic func here: multiple nodes
 //should be passed has args
-func (g Graph) edgeToString() {
+func (g Graph) String() string {
+	var s string
 	for k, v := range g.edges {
 		for _, val := range v {
-			fmt.Printf("%d -> %d\n", k, val)
+			s += fmt.Sprintf("%d -> %d\n", k, val)
 		}
 	}
+	return s
 }
 
 //same here should be able to pass one or + nodes
@@ -85,6 +87,6 @@ func main() {
 	//fmt.Println(len(g.edges))
 	fmt.Println(len(g.edges))
 
-	g.edgeToString()
+	fmt.Println(g.String())
 
 }
