@@ -1,66 +1,70 @@
 package main
 
 import (
-    "fmt"
-    "time"
-    "math/rand"
-    )
+	"fmt"
+	"os"
+)
 
-// POSITION
-type position struct{
-    x,y int
-}
-func NewPosition(x,y int) position{
-    return position{
-        x:x,
-        y:y,
-    }
-}
-//p is batman pos
-//UL/DL etc do not work...
-func (p position) bombDir(pos position) string{
-    var dir string
-    switch{
-        case p.y < pos.y:
-            dir="UP"
-        case p.y < pos.y && p.x < pos.x:
-            dir="UL"
-        case p.y < pos.y && p.x > pos.x:
-            dir="UR"
-        case p.y > pos.y:
-            dir="DOWN"
-        case p.y > pos.y && p.x < pos.x:
-            dir="DL"
-        case p.y > pos.y && p.x < pos.x:
-            dir="DR"
-        case p.x < pos.x:
-            dir="LEFT"
-        case p.x > pos.x:
-            dir="RIGHT"
-    }
-    return dir
+type Point struct {
+	x, y int
 }
 
-//Should use command args here:os.Args
-var W,H =10,10
+//not a method, it's calculator
+func calculateCenter(p1, p2 Point) Point {
+	return Point{
+		x: (p1.x + p2.x) / 2,
+		y: (p1.y + p2.y) / 2,
+	}
+}
+
+//should redraw the area wrt the bombdir
+//func focus()
 
 func main() {
-	// The default number generator is deterministic, so it'll
-	// produce the same sequence of numbers each time by default.
-	// To produce varying sequences, give it a seed that changes.
-	// Note that this is not safe to use for random numbers you
-	// intend to be secret, use `crypto/rand` for those.
-    // cf https://play.golang.org/p/ZdFpbahgC1
-	s1 := rand.NewSource(time.Now().UnixNano())
-	r1 := rand.New(s1)
+	// W: width of the building.
+	// H: height of the building.
+	var W, H int
+	fmt.Scan(&W, &H)
 
-    //ATTENTION!! bomb_pos is fixed once and for all!!
-    var bomb_pos=NewPosition(r1.Intn(W),r1.Intn(H))
-	var batman_pos=NewPosition(r1.Intn(W),r1.Intn(H))
+	// N: maximum number of turns before game over.
+	var N int
+	fmt.Scan(&N)
 
-    fmt.Println("BOMBE:",bomb_pos,"BATMAN:",batman_pos)
+	var X0, Y0 int
+	fmt.Scan(&X0, &Y0)
 
-    //takes a pos and yields "UP"/"DOWN" etc..
-    //remember: top left is (0,0)
-    fmt.Println(batman_pos.bombDir(bomb_pos))
+	//to keep track of where I am
+	//update those structs
+	var myPos = Point{X0, Y0}
+	//var oldPos=Point{X0,Y0}
+
+	for {
+		// bombDir: the direction of the bombs from batman's current location (U, UR, R, DR, D, DL, L or UL)
+		var bombDir string
+		fmt.Scan(&bombDir)
+
+		//use a map litteral dir[bombDir] yields a Point struct
+		//those values should be updated wrt batman pos
+		//ex: if myPos.x==23 and myPos.y==33, UL={23,33}...etc etc...
+		var dir = map[string]Point{
+			"UR": Point{W, 0},
+			"UL": Point{0, 0},
+			"DR": Point{W, H},
+			"DL": Point{0, H},
+			//HERE!!Y or X do not move
+			"U": Point{0, myPos.y},
+			"D": Point{myPos.x, H},
+			"R": Point{W, myPos.y},
+			"L": Point{0, myPos.y},
+		}
+
+		fmt.Fprintln(os.Stderr, H, W, bombDir, myPos.x, myPos.y, dir[bombDir])
+
+		// the location of the next window Batman should jump to.
+		//fmt.Println(dir[bombDir])
+		pos := calculateCenter(myPos, dir[bombDir])
+		//oldPos=myPos
+		fmt.Println(pos.x, pos.y)
+		myPos = pos
+	}
 }
