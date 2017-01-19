@@ -6,6 +6,9 @@ import (
 	"strings"
 )
 
+//calculer le plus court chemin avec un DFS
+//l'enregister dans edgeTo[]
+//depiler edgeTo[] et construire la grille d'output
 const (
 	LEFT  string = "<"
 	RIGHT string = ">"
@@ -13,6 +16,12 @@ const (
 	DOWN  string = "v"
 )
 
+/*
+var LEFT = point{-1, 0}
+var RIGHT = point{1, 0}
+var DOWN = point{0, 1}
+var UP = point{1, 0}
+*/
 type point struct {
 	x, y int
 }
