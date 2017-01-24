@@ -85,6 +85,7 @@ func main() {
 		{8, "S"}, {12, "H"}, {11, "D"}, {14, "D"}, {11, "C"}, {14, "S"}, {12, "S"},
 		{14, "H"}, {11, "H"}, {1, "0"}, {9, "C"}, {8, "H"}, {12, "C"}, {9, "D"}}
 
+	var turn int
 	// Do not handle war!!
 	log.Println("BEFORE: ", queueCardp1, queueCardp2)
 	//oki this is queue!! I should dequeue til empty!! or nil for a
@@ -121,7 +122,16 @@ func main() {
 		if len(queueCardp1) == 0 || len(queueCardp2) == 0 {
 			break
 		}
+		turn += 1
 	}
 	log.Println("AFTER: ", queueCardp1, queueCardp2)
+
+	var player int
+	if len(queueCardp1) == 0 {
+		player = 2
+	} else {
+		player = 1
+	}
+	fmt.Printf("%d %d\n", player, turn)
 	//fmt.Println("PAT")// Write answer to stdout
 }
