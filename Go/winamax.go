@@ -74,6 +74,8 @@ func main() {
 
 		}
 	*/
+
+	/*testcase 2
 	//Should extend capacity of each queue to (m+n)
 	var queueCardp1 = []Card{{5, "C"}, {3, "D"}, {2, "C"}, {7, "D"}, {8, "C"},
 		{7, "S"}, {5, "D"}, {5, "H"}, {6, "D"}, {5, "S"}, {4, "D"}, {6, "H"}, {6, "S"},
@@ -84,6 +86,12 @@ func main() {
 		{13, "S"}, {1, "0"}, {1, "0"}, {9, "S"}, {12, "D"}, {11, "S"}, {1, "0"},
 		{8, "S"}, {12, "H"}, {11, "D"}, {14, "D"}, {11, "C"}, {14, "S"}, {12, "S"},
 		{14, "H"}, {11, "H"}, {1, "0"}, {9, "C"}, {8, "H"}, {12, "C"}, {9, "D"}}
+	*/
+
+	//test case 4 battle
+	//straightforward: 2 should win and get all the card from p1
+	var queueCardp1 = []Card{{8, C}, {13, D}, {14, H}, {12, H}, {2, S}}
+	var queueCardp2 = []Card{{8, D}, {2, D}, {3, H}, {4, D}, {3, S}}
 
 	var turn int
 	// Do not handle war!!
