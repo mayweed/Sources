@@ -22,26 +22,44 @@ func newGraph() graph {
 	}
 }
 
+func (g *graph) pickUpNode() {
+	for k, _ := range g.edges {
+		g.nodes = append(g.nodes, k)
+	}
+	//does not work: should append only nodes that are not already
+	//in the list
+	for _, v := range g.edges {
+		var notIn bool
+		for _, node := range v {
+			for n := range g.nodes {
+				if node == n {
+					notIn = true
+				}
+			}
+			if !notIn {
+				g.nodes = append(g.nodes, node)
+			}
+		}
+	}
+}
+
 //a int that is the height of the graph
 func (g graph) dfs(startNode int) int {
 	var visited = make(map[int]bool)
 	var stack []int
-	var height int
+	var height = 1
 
 	//i dont need that in a rec func non?
 	stack = g.edges[startNode]
-	//log.Println(stack,len(stack))
-	popNode := stack[len(stack)-1]
 	visited[startNode] = true
-	log.Println(visited)
-	stack = stack[:len(stack)-1]
-	//log.Println(stack,popNode)
-	//HERE BUG!!
-	for len(stack) != 0 {
-		if visited[popNode] {
+	//log.Println(visited)
+
+	//is this correct? no LIFO no?
+	for _, n := range stack {
+		if visited[n] {
 			continue
 		} else {
-			g.dfs(popNode)
+			g.dfs(n)
 			height += 1
 		}
 	}
