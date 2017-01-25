@@ -27,15 +27,21 @@ func (g graph) dfs(startNode int) int {
 	var visited = make(map[int]bool)
 	var stack []int
 	var height int
+
+	//i dont need that in a rec func non?
 	stack = g.edges[startNode]
-	//!!!LIFO!!!
-	//for _,node := range stack{
-	for i := len(stack); i >= 0; i-- {
-		if visited[i] {
+	//log.Println(stack,len(stack))
+	popNode := stack[len(stack)-1]
+	visited[startNode] = true
+	log.Println(visited)
+	stack = stack[:len(stack)-1]
+	//log.Println(stack,popNode)
+	//HERE BUG!!
+	for len(stack) != 0 {
+		if visited[popNode] {
 			continue
 		} else {
-			visited[i] = true
-			g.dfs(i)
+			g.dfs(popNode)
 			height += 1
 		}
 	}
