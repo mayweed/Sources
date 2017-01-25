@@ -22,23 +22,25 @@ func newGraph() graph {
 	}
 }
 
-/*
 //a int that is the height of the graph
-func (g graph) dfs(startNode int) int{
-    var visited=make[int]bool
-    var stack []int
-    stack=g.edges[startNode]
-    //!!!LIFO!!!
-    //for _,node := range stack{
-    for i:=len(stack);i>=0;i--{
-        if visited[i]{continue}
-        else{
-            visited[i]=true
-            dfs(i)
-        }
-    }
+func (g graph) dfs(startNode int) int {
+	var visited = make(map[int]bool)
+	var stack []int
+	var height int
+	stack = g.edges[startNode]
+	//!!!LIFO!!!
+	//for _,node := range stack{
+	for i := len(stack); i >= 0; i-- {
+		if visited[i] {
+			continue
+		} else {
+			visited[i] = true
+			g.dfs(i)
+			height += 1
+		}
+	}
+	return height
 }
-*/
 
 func main() {
 	// n: the number of relationships of influence
