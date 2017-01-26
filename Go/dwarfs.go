@@ -5,10 +5,6 @@ import (
 	"log"
 )
 
-type edge struct {
-	from int
-	to   int
-}
 type graph struct {
 	nodes []int
 	edges map[int][]int
@@ -28,51 +24,32 @@ func newGraph() graph {
 			2:[]int{8},
 		},
 		//TODO find a way to quickly parse that
-		//(5,6),(5,3),(6,1),(7,4),(6,2),(9,4),(4,5),(2,8) 
+        //oki string: first split on space then split num on ""
+        //or num[0] => x num[1] =>y
+		// 56  53  61  74  62  94  45  28  
 	}
 }
 
-func (g *graph) pickUpNode() {
-	for k, _ := range g.edges {
-		g.nodes = append(g.nodes, k)
-	}
-	//does not work: should append only nodes that are not already
-	//in the list
-	for _, v := range g.edges {
-		var notIn bool
-		for _, node := range v {
-			for n := range g.nodes {
-				if node == n {
-					notIn = true
-				}
-			}
-			if !notIn {
-				g.nodes = append(g.nodes, node)
-			}
-		}
-	}
-}
-
+// cf orderedSet: https://github.com/stevenle/topsort/blob/master/topsort.go
 //a int that is the height of the graph
 func (g graph) dfs(startNode int) int {
 	var visited = make(map[int]bool)
 	var stack []int
-	var height = 1
+	var height int
+    var testTopo []int
 
-	//i dont need that in a rec func non?
 	stack = g.edges[startNode]
 	visited[startNode] = true
-	//log.Println(visited)
+	log.Println(visited,stack)
 
-	//is this correct? no LIFO no?
 	for _, n := range stack {
-		if visited[n] {
-			continue
-		} else {
-			g.dfs(n)
-			height += 1
+		if !visited[n] {
+		    g.dfs(n)
+			//height += 1
 		}
+        testTopo=append(testTopo,n)
 	}
+    log.Println("??",testTopo)
 	return height
 }
 
@@ -90,14 +67,13 @@ func main() {
         fmt.Scan(&x, &y)
         g.edges[x]=append(g.edges[x],y)
     }
-    (&g).pickUpNode()
 	*/
 	//test case
 	g:=newGraph()
     //g.dfs(1)
-    log.Println(g.nodes,g.edges,g.dfs(1))
+    //log.Println(g.nodes,g.edges,g.dfs(1))
     // fmt.Fprintln(os.Stderr, "Debug messages...")
-    
+
     // The number of people involved in the longest succession of influences
     //var max=0
     for k,_ := range g.edges{
