@@ -57,15 +57,17 @@ func (g graph) bfs(startNode int) {
 	var queue []int
 	queue = append(queue, startNode)
 
-	//log.Println(visited)
 
 	for 0 < len(queue) {
+        //pop the first element
 		v := queue[0]
-		for w := range g.edges[v] {
+        queue=queue[1:]
+
+		for _,w := range g.edges[v] {
 			if !visited[w] {
 				visited[w] = true
 				queue = append(queue, w)
-				log.Println(queue)
+				log.Println(queue,visited)
 			}
 		}
 
