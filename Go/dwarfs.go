@@ -16,17 +16,17 @@ func newGraph() graph {
 		nodes: nil,
 		//edges: make(map[int][]int),
 		edges: map[int][]int{
-			5:[]int{3,6},
-			6:[]int{1,2},
-			7:[]int{4},
-			9:[]int{4},
-			4:[]int{5},
-			2:[]int{8},
+			5: []int{3, 6},
+			6: []int{1, 2},
+			7: []int{4},
+			9: []int{4},
+			4: []int{5},
+			2: []int{8},
 		},
 		//TODO find a way to quickly parse that
-        //oki string: first split on space then split num on ""
-        //or num[0] => x num[1] =>y
-		// 56  53  61  74  62  94  45  28  
+		//oki string: first split on space then split num on ""
+		//or num[0] => x num[1] =>y
+		// 56  53  61  74  62  94  45  28
 	}
 }
 
@@ -36,53 +36,50 @@ func (g graph) dfs(startNode int) int {
 	var visited = make(map[int]bool)
 	var stack []int
 	var height int
-    var testTopo []int
 
 	stack = g.edges[startNode]
 	visited[startNode] = true
-	log.Println(visited,stack)
+	log.Println(visited, stack)
 
 	for _, n := range stack {
 		if !visited[n] {
-		    g.dfs(n)
+			g.dfs(n)
 			//height += 1
 		}
-        testTopo=append(testTopo,n)
 	}
-    log.Println("??",testTopo)
 	return height
 }
 
 func main() {
 	/*
-    // n: the number of relationships of influence
-    var n int
-    fmt.Scan(&n)
+	   // n: the number of relationships of influence
+	   var n int
+	   fmt.Scan(&n)
 
-    g:=newGraph()
+	   g:=newGraph()
 
-    for i := 0; i < n; i++ {
-        // x: a relationship of influence between two people (x influences y)
-        var x, y int
-        fmt.Scan(&x, &y)
-        g.edges[x]=append(g.edges[x],y)
-    }
+	   for i := 0; i < n; i++ {
+	       // x: a relationship of influence between two people (x influences y)
+	       var x, y int
+	       fmt.Scan(&x, &y)
+	       g.edges[x]=append(g.edges[x],y)
+	   }
 	*/
 	//test case
-	g:=newGraph()
-    //g.dfs(1)
-    //log.Println(g.nodes,g.edges,g.dfs(1))
-    // fmt.Fprintln(os.Stderr, "Debug messages...")
+	g := newGraph()
+	//g.dfs(1)
+	//log.Println(g.nodes,g.edges,g.dfs(1))
+	// fmt.Fprintln(os.Stderr, "Debug messages...")
 
-    // The number of people involved in the longest succession of influences
-    //var max=0
-    for k,_ := range g.edges{
-        height:=g.dfs(k)
-        /*
-        if height > max{
-            max=height
-        }
-        */
-        fmt.Printf("Node %d has depth %d\n",k,height)
-    }
+	// The number of people involved in the longest succession of influences
+	//var max=0
+	for k, _ := range g.edges {
+		height := g.dfs(k)
+		/*
+		   if height > max{
+		       max=height
+		   }
+		*/
+		fmt.Printf("Node %d has depth %d\n", k, height)
+	}
 }
