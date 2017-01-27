@@ -39,7 +39,7 @@ func (g graph) dfs(startNode int) int {
 
 	stack = g.edges[startNode]
 	visited[startNode] = true
-	log.Println(visited, stack)
+	//log.Println(visited, stack)
 
 	for _, n := range stack {
 		if !visited[n] {
@@ -48,6 +48,28 @@ func (g graph) dfs(startNode int) int {
 		}
 	}
 	return height
+}
+
+func (g graph) bfs(startNode int) {
+	var visited = make(map[int]bool)
+	visited[startNode] = true
+
+	var queue []int
+	queue = append(queue, startNode)
+
+	//log.Println(visited)
+
+	for 0 < len(queue) {
+		v := queue[0]
+		for w := range g.edges[v] {
+			if !visited[w] {
+				visited[w] = true
+				queue = append(queue, w)
+				log.Println(queue)
+			}
+		}
+
+	}
 }
 
 func main() {
@@ -72,14 +94,18 @@ func main() {
 	// fmt.Fprintln(os.Stderr, "Debug messages...")
 
 	// The number of people involved in the longest succession of influences
-	//var max=0
+	//var max = 0
+	var height int
 	for k, _ := range g.edges {
-		height := g.dfs(k)
-		/*
-		   if height > max{
-		       max=height
-		   }
-		*/
-		fmt.Printf("Node %d has depth %d\n", k, height)
+		log.Println("Edges of node", k)
+		//height := g.dfs(k)
+		g.bfs(k)
+
+		//if height > max {
+		//	max = height
+		//}
+
+		//fmt.Printf("Node %d has depth %d\n", k, height)
 	}
+	fmt.Println(height)
 }
