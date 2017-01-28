@@ -3,11 +3,11 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"log"
+	"math"
 	"os"
 	"strconv"
 	"strings"
-	//"log"
-	"math"
 )
 
 func tsToSec(ts string) int {
@@ -24,7 +24,7 @@ func tsToSec(ts string) int {
 	return seconds
 }
 
-func calculusToTs(sec int) string {
+func secToTs(sec int) string {
 	var min int
 	for sec > 60 {
 		sec -= 60
@@ -34,9 +34,6 @@ func calculusToTs(sec int) string {
 	return ts
 }
 
-//2 particular cases are missing in this code:
-// - timer starts game
-// - room filled
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Buffer(make([]byte, 1000000), 1000000)
@@ -46,24 +43,37 @@ func main() {
 	fmt.Sscan(scanner.Text(), &n)
 
 	var calculus float64
+	var timeStamp string
+	var s string
+
 	for i := 0; i < n; i++ {
 		scanner.Scan()
-		timeStamp := scanner.Text()
-
+		timeStamp = scanner.Text()
 		t := tsToSec(timeStamp)
-		calculus = float64(t) - 256./(math.Exp2(float64(n-1)))
+		//log.Println(calculusToTs(t))
 
-		//log.Println(timeStamp,tsToSec(timeStamp),calculusToTs(int(calculus)),seconds)
+		var timeToStart = tsToSec(secToTs(int(calculus)))
+		if t < timeToStart {
+			s = secToTs(timeToStart)
+			break
+		}
+		calculus = float64(t) - 256./(math.Exp2(float64(i)))
+		//log.Println(calculus)
+		log.Println("Timestamp:", timeStamp, "Time to start:", secToTs(int(calculus)))
 	}
 
-	var s string
 	if calculus < 0 {
 		s = "0:00"
 	} else {
-		s = calculusToTs(int(calculus))
+		s = secToTs(int(calculus))
 	}
+	//switch here? func validateN(num int) string{ ??
 	if n == 0 {
 		s = "NO GAME"
 	}
-	fmt.Println(s) // Write answer to stdout
+	if n == 7 {
+		//clash immediately
+		s = timeStamp
+	}
+	fmt.Println(s)
 }
