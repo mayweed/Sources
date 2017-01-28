@@ -34,6 +34,9 @@ func calculusToTs(sec int) string {
 	return ts
 }
 
+//2 particular cases are missing in this code:
+// - timer starts game
+// - room filled
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Buffer(make([]byte, 1000000), 1000000)
@@ -49,10 +52,8 @@ func main() {
 
 		t := tsToSec(timeStamp)
 		calculus = float64(t) - 256./(math.Exp2(float64(n-1)))
-		//seconds:=float64(t)-calculus
 
 		//log.Println(timeStamp,tsToSec(timeStamp),calculusToTs(int(calculus)),seconds)
-		//fmt.Printf("It starts %d seconds from now\n",int(seconds))
 	}
 
 	var s string
