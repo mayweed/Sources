@@ -1,11 +1,11 @@
 package main
 
 import (
-	"bufio"
+//	"bufio"
 	"fmt"
-	"log"
-	"math"
-	"os"
+//	"log"
+	//"math"
+	//"os"
 	"strconv"
 	"strings"
 )
@@ -30,7 +30,12 @@ func secToTs(sec int) string {
 		sec -= 60
 		min++
 	}
-	ts := fmt.Sprintf("%d:%d", min, sec)
+    var ts string
+    if sec < 10{
+        ts=fmt.Sprintf("%d:0%d",min,sec)
+    }else{
+	    ts= fmt.Sprintf("%d:%d", min, sec)
+    }
 	return ts
 }
 
