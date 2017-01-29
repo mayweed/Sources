@@ -1,0 +1,29 @@
+256 >> 5
+8
+you offset 256 from 5 bits right like: 256/2^5
+
+LEFT
+3 << 3
+24
+it's like 3*2^3
+
+REMEMBER:
+RIGHT OFFSET: x >> y == x/2^y
+LEFT OFFSET: x << y == x * 2^y
+
+
+>>> 3 << 2
+12
+>>> 3 << 1
+6
+>>> 3 >> 1
+1
+>>> 3 >> 2
+0
+>>> 3 >> 3
+0
+>>> 12 >> 3
+1
+>>> 12 >> 1
+6
+
