@@ -63,47 +63,53 @@ func (g graph) dfs(startNode int) int {
 //very primitive should write that with 2 queues one 
 //for the current and one for the next
 // first comm http://stackoverflow.com/questions/10258305/how-to-implement-a-breadth-first-search-to-a-certain-depth/16923440#16923440
-func (g graph) bfs(startNode int) int{
+func (g graph) bfs(startNode,stopNode int) []int{
 	var visited = make(map[int]bool)
 	visited[startNode] = true
 
 	var queue []int
 	queue = append(queue, startNode)
 
+    var parent=make(map[int]int)
+    var path []int
+
+    var countChildren=len(queue)
     var depth int
-    var pendingDepthIncrease bool
 
 	for 0 < len(queue) {
-        var timeToDepthIncrease=len(queue)
-        log.Println("INIT",timeToDepthIncrease)
         //pop the first element
 		v := queue[0]
         queue=queue[1:]
 
-        timeToDepthIncrease-=1
-        log.Println("END",timeToDepthIncrease)
-
-
 		for _,w := range g.edges[v] {
+            if v==10{
+                log.Println("Node",v,"Child",w,"Count",countChildren)
+            }
 			if !visited[w] {
 				visited[w] = true
+                parent[w]=v
 				queue = append(queue, w)
-                if pendingDepthIncrease{
-                    timeToDepthIncrease=len(queue)-1
-                    pendingDepthIncrease=false
-                    }
 				//log.Println(queue,visited)
             }
         }
-        if timeToDepthIncrease==0{
+		if countChildren==0{
                 depth+=1
-                pendingDepthIncrease=true
+                countChildren=len(queue)
         }
+    }
 
-		//}
-
-	}
-    return depth
+    //backtrace path from parent to parent starting to endNode
+    path=append(path,parent[stopNode])
+    var node=stopNode
+    for k,_ :=range(parent){
+        path=append(path,parent[k])
+        node=v
+        if node == startNode{
+        break
+        }
+    }
+    log.Println(parent)
+    return path
 }
 
 func main() {
@@ -128,17 +134,17 @@ func main() {
 	// fmt.Fprintln(os.Stderr, "Debug messages...")
 
 	// The number of people involved in the longest succession of influences
-	var max = 0
+	//var max = 0
 	//var height int
-	for k, _ := range g.edges {
+	//for k, _ := range g.edges {
 		//height := g.dfs(k)
-		height:=g.bfs(k)
+		height:=g.bfs(10,5)
 
-		if height > max {
-			max = height
-		}
-
-		fmt.Printf("Node %d has depth %d\n", k, height)
-	}
-	fmt.Println(max)
+		//if height > max {
+		//	max = height
+		//}
+        fmt.Println(height)
+		//fmt.Printf("Node 10 has depth %d\n",  height)
+	//}
+	//fmt.Println(max)
 }
