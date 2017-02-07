@@ -15,7 +15,7 @@ func newGraph() graph {
 	return graph{
 		nodes: nil,
 		//edges: make(map[int][]int),
-        /*  depth max 6
+		/*  depth max 6
 		edges: map[int][]int{
 			5: []int{3, 6},
 			6: []int{1, 2},
@@ -24,13 +24,13 @@ func newGraph() graph {
 			4: []int{5},
 			2: []int{8},
 		},
-        */
-        //depth max 4
-        edges: map[int][]int{
+		*/
+		//depth max 4
+		edges: map[int][]int{
 			10: []int{1, 3, 11},
-			1: []int{2, 3},
-			3: []int{4},
-			2: []int{4,5},
+			1:  []int{2, 3},
+			3:  []int{4},
+			2:  []int{4, 5},
 		},
 
 		//TODO find a way to quickly parse that
@@ -60,56 +60,56 @@ func (g graph) dfs(startNode int) int {
 	return height
 }
 
-//very primitive should write that with 2 queues one 
+//very primitive should write that with 2 queues one
 //for the current and one for the next
 // first comm http://stackoverflow.com/questions/10258305/how-to-implement-a-breadth-first-search-to-a-certain-depth/16923440#16923440
-func (g graph) bfs(startNode,stopNode int) []int{
+func (g graph) bfs(startNode, stopNode int) []int {
 	var visited = make(map[int]bool)
 	visited[startNode] = true
 
 	var queue []int
 	queue = append(queue, startNode)
 
-    var parent=make(map[int]int)
-    var path []int
+	var parent = make(map[int]int)
+	var path []int
 
-    var countChildren=len(queue)
-    var depth int
+	var countChildren = len(queue)
+	var depth int
 
 	for 0 < len(queue) {
-        //pop the first element
+		//pop the first element
 		v := queue[0]
-        queue=queue[1:]
+		queue = queue[1:]
 
-		for _,w := range g.edges[v] {
-            if v==10{
-                log.Println("Node",v,"Child",w,"Count",countChildren)
-            }
+		for _, w := range g.edges[v] {
+			if v == 10 {
+				log.Println("Node", v, "Child", w, "Count", countChildren)
+			}
 			if !visited[w] {
 				visited[w] = true
-                parent[w]=v
+				parent[w] = v
 				queue = append(queue, w)
 				//log.Println(queue,visited)
-            }
-        }
-		if countChildren==0{
-                depth+=1
-                countChildren=len(queue)
-        }
-    }
+			}
+		}
+		if countChildren == 0 {
+			depth += 1
+			countChildren = len(queue)
+		}
+	}
 
-    //backtrace path from parent to parent starting to endNode
-    path=append(path,parent[stopNode])
-    var node=stopNode
-    for k,_ :=range(parent){
-        path=append(path,parent[k])
-        node=v
-        if node == startNode{
-        break
-        }
-    }
-    log.Println(parent)
-    return path
+	//backtrace path from parent to parent starting to endNode
+	path = append(path, parent[stopNode])
+	var node = stopNode
+	for k, _ := range parent {
+		path = append(path, parent[k])
+		node = parent[k]
+		if node == startNode {
+			break
+		}
+	}
+	log.Println(parent)
+	return path
 }
 
 func main() {
@@ -137,14 +137,14 @@ func main() {
 	//var max = 0
 	//var height int
 	//for k, _ := range g.edges {
-		//height := g.dfs(k)
-		height:=g.bfs(10,5)
+	//height := g.dfs(k)
+	height := g.bfs(10, 5)
 
-		//if height > max {
-		//	max = height
-		//}
-        fmt.Println(height)
-		//fmt.Printf("Node 10 has depth %d\n",  height)
+	//if height > max {
+	//	max = height
+	//}
+	fmt.Println(height)
+	//fmt.Printf("Node 10 has depth %d\n",  height)
 	//}
 	//fmt.Println(max)
 }
