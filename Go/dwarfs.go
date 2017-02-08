@@ -60,21 +60,13 @@ func (g graph) dfs(startNode int) int {
 	return height
 }
 
-//very primitive should write that with 2 queues one
-//for the current and one for the next
-// first comm http://stackoverflow.com/questions/10258305/how-to-implement-a-breadth-first-search-to-a-certain-depth/16923440#16923440
-func (g graph) bfs(startNode, stopNode int) []int {
+// a simple bfs
+func (g graph) bfs(startNode int) {
 	var visited = make(map[int]bool)
 	visited[startNode] = true
 
 	var queue []int
 	queue = append(queue, startNode)
-
-	var parent = make(map[int]int)
-	var path []int
-
-	var countChildren = len(queue)
-	var depth int
 
 	for 0 < len(queue) {
 		//pop the first element
@@ -82,34 +74,41 @@ func (g graph) bfs(startNode, stopNode int) []int {
 		queue = queue[1:]
 
 		for _, w := range g.edges[v] {
-			if v == 10 {
-				log.Println("Node", v, "Child", w, "Count", countChildren)
-			}
 			if !visited[w] {
 				visited[w] = true
 				parent[w] = v
 				queue = append(queue, w)
-				//log.Println(queue,visited)
 			}
 		}
-		if countChildren == 0 {
-			depth += 1
-			countChildren = len(queue)
-		}
 	}
+}
 
-	//backtrace path from parent to parent starting to endNode
-	path = append(path, parent[stopNode])
-	var node = stopNode
-	for k, _ := range parent {
-		path = append(path, parent[k])
-		node = parent[k]
-		if node == startNode {
-			break
+//a bfs which gives path
+func (g graph) bfsPath(start, end int) []int {
+	var queue [][]int
+	node := []int{start}
+	queue = append(queue, node)
+
+	for 0 < len(queue) {
+		//pop the first element
+		path := queue[0]
+		queue = queue[1:]
+
+		//last node
+		lastNode := path[len(path)-1]
+		if lastNode == end {
+			return path
+		}
+
+		for _, w := range g.edges[lastNode] {
+			var new_path = path
+			new_path = append(new_path, w)
+			queue = append(queue, new_path)
 		}
 	}
-	log.Println(parent)
-	return path
+	//empty to return sth
+	return []int{}
+
 }
 
 func main() {
@@ -138,12 +137,13 @@ func main() {
 	//var height int
 	//for k, _ := range g.edges {
 	//height := g.dfs(k)
-	height := g.bfs(10, 5)
+	//height := g.bfs(10, 5)
 
 	//if height > max {
 	//	max = height
 	//}
-	fmt.Println(height)
+	//fmt.Println(height)
+	fmt.Println(g.bfsPath(10, 5))
 	//fmt.Printf("Node 10 has depth %d\n",  height)
 	//}
 	//fmt.Println(max)

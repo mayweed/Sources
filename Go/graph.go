@@ -10,14 +10,14 @@ import (
 	"strings"
 )
 
-type Graph struct {
+type graph struct {
 	//num nodes
-	vertices int
+	nodes []int
 	//a node: a list of connected nodes
 	edges map[int][]int
 }
 
-func (g Graph) addEdge(node, node2 int) {
+func (g graph) addEdge(node, node2 int) {
 	g.edges[node] = append(g.edges[node], node2)
 	//if it's no directed graph:
 	g.edges[node2] = append(g.edges[node2], node)
@@ -25,7 +25,7 @@ func (g Graph) addEdge(node, node2 int) {
 
 //want to make a variadic func here: multiple nodes
 //should be passed has args
-func (g Graph) String() string {
+func (g graph) String() string {
 	var s string
 	for k, v := range g.edges {
 		for _, val := range v {
@@ -36,27 +36,77 @@ func (g Graph) String() string {
 }
 
 //same here should be able to pass one or + nodes
-func (g Graph) degree() {
+func (g graph) degree() {
 	for k, v := range g.edges {
 		fmt.Printf("Node n°%d degree:%d\n", k, len(v))
 	}
 }
 
-/*
-//should add an endNode arg later on
-func (g Graph) dfs(startNode,endNode int){
-	var queue []int
-	visited=make(map[int]bool)
-	stack=g.edges[startNode]
-	for m:=range (stack){
-		visited[m]=true
-		if !visited[m]{
-			stack=append(stack,g.edges[m])
-			dfs(m)
+//a simple dfs
+func (g graph) dfs(startNode int) {
+	var visited = make(map[int]bool)
+	var stack []int
+
+	stack = g.edges[startNode]
+	visited[startNode] = true
+
+	for _, n := range stack {
+		if !visited[n] {
+			g.dfs(n)
 		}
 	}
 }
-*/
+
+// a simple bfs
+func (g graph) bfs(startNode int) {
+	var visited = make(map[int]bool)
+	visited[startNode] = true
+
+	var queue []int
+	queue = append(queue, startNode)
+
+	for 0 < len(queue) {
+		//pop the first element
+		v := queue[0]
+		queue = queue[1:]
+
+		for _, w := range g.edges[v] {
+			if !visited[w] {
+				visited[w] = true
+				parent[w] = v
+				queue = append(queue, w)
+			}
+		}
+	}
+}
+
+//a bfs which gives path
+func (g graph) bfsPath(start, end int) []int {
+	var queue [][]int
+	node := []int{start}
+	queue = append(queue, node)
+
+	for 0 < len(queue) {
+		//pop the first element
+		path := queue[0]
+		queue = queue[1:]
+
+		//last node
+		lastNode := path[len(path)-1]
+		if lastNode == end {
+			return path
+		}
+
+		for _, w := range g.edges[lastNode] {
+			var new_path = path
+			new_path = append(new_path, w)
+			queue = append(queue, new_path)
+		}
+	}
+	//empty to return sth
+	return []int{}
+
+}
 
 func main() {
 	fi, err := os.Open("mediumG.txt")
@@ -73,7 +123,7 @@ func main() {
 	E, _ := strconv.Atoi(scanner.Text())
 
 	//should put that in a func but test..
-	g := new(Graph)
+	g := new(graph)
 	g.vertices = V
 	g.edges = make(map[int][]int)
 
