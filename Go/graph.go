@@ -113,6 +113,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
 	defer fi.Close()
 
 	//first two lines: v==num of vertices, e==num of edges
@@ -135,7 +136,6 @@ func main() {
 		g.addEdge(node1, node2)
 	}
 
-	//fmt.Println(len(g.edges))
 	fmt.Println(len(g.edges))
 
 	fmt.Println(g.String())

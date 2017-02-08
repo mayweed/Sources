@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"log"
+	//	"log"
 )
 
 type graph struct {
@@ -15,7 +15,7 @@ func newGraph() graph {
 	return graph{
 		nodes: nil,
 		//edges: make(map[int][]int),
-		/*  depth max 6
+		//  depth max 6
 		edges: map[int][]int{
 			5: []int{3, 6},
 			6: []int{1, 2},
@@ -24,15 +24,16 @@ func newGraph() graph {
 			4: []int{5},
 			2: []int{8},
 		},
-		*/
-		//depth max 4
-		edges: map[int][]int{
-			10: []int{1, 3, 11},
-			1:  []int{2, 3},
-			3:  []int{4},
-			2:  []int{4, 5},
-		},
+		/*
+			//depth max 4
+			edges: map[int][]int{
+				10: []int{1, 3, 11},
+				1:  []int{2, 3},
+				3:  []int{4},
+				2:  []int{4, 5},
+			},
 
+		*/
 		//TODO find a way to quickly parse that
 		//oki string: first split on space then split num on ""
 		//or num[0] => x num[1] =>y
@@ -76,7 +77,6 @@ func (g graph) bfs(startNode int) {
 		for _, w := range g.edges[v] {
 			if !visited[w] {
 				visited[w] = true
-				parent[w] = v
 				queue = append(queue, w)
 			}
 		}
@@ -104,6 +104,7 @@ func (g graph) bfsPath(start, end int) []int {
 			var new_path = path
 			new_path = append(new_path, w)
 			queue = append(queue, new_path)
+			//log.Println(queue)
 		}
 	}
 	//empty to return sth
@@ -143,7 +144,8 @@ func main() {
 	//	max = height
 	//}
 	//fmt.Println(height)
-	fmt.Println(g.bfsPath(10, 5))
+	fmt.Println(g.bfsPath(9, 8))
+	//}
 	//fmt.Printf("Node 10 has depth %d\n",  height)
 	//}
 	//fmt.Println(max)
