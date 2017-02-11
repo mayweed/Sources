@@ -41,24 +41,46 @@ func newGraph() graph {
 	}
 }
 
-// cf orderedSet: https://github.com/stevenle/topsort/blob/master/topsort.go
-//a int that is the height of the graph
-func (g graph) dfs(startNode int) int {
+//a simple dfs
+func (g graph) dfs(startNode int) {
 	var visited = make(map[int]bool)
 	var stack []int
-	var height int
 
 	stack = g.edges[startNode]
 	visited[startNode] = true
-	//log.Println(visited, stack)
 
 	for _, n := range stack {
 		if !visited[n] {
 			g.dfs(n)
-			//height += 1
 		}
 	}
-	return height
+}
+
+//a dfs which gives path
+var path []int
+
+func (g graph) dfsPath(startNode, endNode int) []int {
+	var visited = make(map[int]bool)
+	var stack []int
+
+	stack = g.edges[startNode]
+	visited[startNode] = true
+
+	//path = []int{startNode}
+
+	for _, n := range stack {
+		if n == endNode {
+			path = append(path, n)
+			return path
+		}
+
+		if _, ok := visited[n]; !ok {
+			path = append(path, n)
+			g.dfsPath(n, endNode)
+		}
+
+	}
+	return path
 }
 
 // a simple bfs
@@ -144,7 +166,10 @@ func main() {
 	//	max = height
 	//}
 	//fmt.Println(height)
-	fmt.Println(g.bfsPath(9, 8))
+	//for k, _ := range g.edges {
+	//fmt.Println(g.bfsPath(9, 8))
+	fmt.Println(g.dfsPath(5, 8))
+	//}
 	//}
 	//fmt.Printf("Node 10 has depth %d\n",  height)
 	//}
