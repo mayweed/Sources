@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	//	"log"
+	"log"
 )
 
 type graph struct {
@@ -72,14 +72,14 @@ func (g graph) dfsPath(startNode, endNode int) map[int]int {
 	for _, n := range stack {
 		if n == endNode {
 			path = append(path, n)
-			parent[startNode] = n
+			parent[n] = startNode
 			//return path
 			return parent
 		}
 
 		if _, ok := visited[n]; !ok {
 			g.dfsPath(n, endNode)
-			parent[startNode] = n
+			parent[n] = startNode
 		}
 
 	}
@@ -87,14 +87,23 @@ func (g graph) dfsPath(startNode, endNode int) map[int]int {
 	return parent
 }
 
-func buildPath(pt map[int]int) []int {
-	//liste: startNode+parent[startNode]+parent[parent[startNode]] til
-	//endNode
+func buildPath(src, dest int) []int {
 	var p []int
-	for k, _ := range pt {
-		p = append(p, k)
+	//this loop from dfsPath // Sedgewick!!
+	for x := dest; x != src; x = parent[x] {
+		p = append(p, x)
 	}
-	return p
+	//to be complete
+	p = append(p, src)
+
+	//reverse p, should definitely write a stack type one day...
+	var q []int
+	for i := len(p) - 1; i >= 0; i-- {
+		q = append(q, p[i])
+	}
+
+	return q
+
 }
 
 // a simple bfs
@@ -166,5 +175,5 @@ func main() {
 
 	fmt.Println(g.dfsPath(9, 8), len(parent))
 
-	//log.Println(buildPath(parent))
+	log.Println(buildPath(9, 8))
 }
