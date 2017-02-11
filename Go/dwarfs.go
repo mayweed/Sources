@@ -58,29 +58,43 @@ func (g graph) dfs(startNode int) {
 
 //a dfs which gives path
 var path []int
+var parent = make(map[int]int)
 
-func (g graph) dfsPath(startNode, endNode int) []int {
+func (g graph) dfsPath(startNode, endNode int) map[int]int {
 	var visited = make(map[int]bool)
 	var stack []int
 
 	stack = g.edges[startNode]
 	visited[startNode] = true
 
-	//path = []int{startNode}
+	path = append(path, startNode)
 
 	for _, n := range stack {
 		if n == endNode {
 			path = append(path, n)
-			return path
+			parent[startNode] = n
+			//return path
+			return parent
 		}
 
 		if _, ok := visited[n]; !ok {
-			path = append(path, n)
 			g.dfsPath(n, endNode)
+			parent[startNode] = n
 		}
 
 	}
-	return path
+	//return []int{}
+	return parent
+}
+
+func buildPath(pt map[int]int) []int {
+	//liste: startNode+parent[startNode]+parent[parent[startNode]] til
+	//endNode
+	var p []int
+	for k, _ := range pt {
+		p = append(p, k)
+	}
+	return p
 }
 
 // a simple bfs
@@ -126,7 +140,6 @@ func (g graph) bfsPath(start, end int) []int {
 			var new_path = path
 			new_path = append(new_path, w)
 			queue = append(queue, new_path)
-			//log.Println(queue)
 		}
 	}
 	//empty to return sth
@@ -149,29 +162,9 @@ func main() {
 	       g.edges[x]=append(g.edges[x],y)
 	   }
 	*/
-	//test case
 	g := newGraph()
-	//g.dfs(1)
-	//log.Println(g.nodes,g.edges,g.dfs(1))
-	// fmt.Fprintln(os.Stderr, "Debug messages...")
 
-	// The number of people involved in the longest succession of influences
-	//var max = 0
-	//var height int
-	//for k, _ := range g.edges {
-	//height := g.dfs(k)
-	//height := g.bfs(10, 5)
+	fmt.Println(g.dfsPath(9, 8), len(parent))
 
-	//if height > max {
-	//	max = height
-	//}
-	//fmt.Println(height)
-	//for k, _ := range g.edges {
-	//fmt.Println(g.bfsPath(9, 8))
-	fmt.Println(g.dfsPath(5, 8))
-	//}
-	//}
-	//fmt.Printf("Node 10 has depth %d\n",  height)
-	//}
-	//fmt.Println(max)
+	//log.Println(buildPath(parent))
 }
