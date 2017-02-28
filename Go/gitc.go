@@ -30,6 +30,11 @@ type troop struct {
 	ownership      int
 }
 
+func mv(from, to, cyb int) string {
+	s := fmt.Sprintf("MOVE %d %d %d\n", from, to, cyb)
+	return s
+}
+
 /*
 func (g graph) sendTroop()(from,to, numCyb int){
     for _,v := range g.factories{
