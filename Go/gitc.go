@@ -35,17 +35,6 @@ func mv(from, to, cyb int) string {
 	return s
 }
 
-/*
-func (g graph) sendTroop()(from,to, numCyb int){
-    for _,v := range g.factories{
-        if v.ownership==1{
-*/
-/*
-strat: check my factories, check opponent fact, divide my
-num of cyb/opp fact,send troops to it
-Need a real game state with lots of intell
-*/
-
 func main() {
 	// factoryCount: the number of factories
 	var factoryCount int
@@ -103,30 +92,41 @@ func main() {
 		myFactories = myFactories[1:]
 
 		//DOES NOT WORK AS INTENDED especially:
-		//always sending to the same node!!
-		// + should use WAIT!!
-
-		//keep track of where I previously sent troops
-		var lastSendTroopsNode = startNode.id
-
-		//should put that in a list: never send twice to the same factory??
-		//except maybe to take it?
-		var min = network.pickMinNode(startNode)
+		//IDEA: take all v[0] of my startNode put theme in a queue
+		//dequeue and send packets...
+		//var min =network.pickMinNode(startNode)
 		var s string
+		var num = 3
 
-		if min == lastSendTroopsNode {
-			//pick anothernode,let's say a node with 0 cyb and neutral
-			s = mv(startNode.id, neutralFactories[0].id, 2)
-			//TEST!!
-			fmt.Println("Bind!!")
-			lastSendTroopsNode = neutralFactories[0].id
-		} else {
-			s = mv(startNode.id, min, 2)
-			lastSendTroopsNode = min
+		//TODO factorize plz
+		for k, _ := range network.edges {
+			if k != startNode.id {
+				queue = append(queue, k)
+			}
 		}
 
+		dest := queue[0]
+		//oki new errors:
+		//Can't send a troop to the factory it is issued from (0)
+
+		if startNode.cyborgs > num {
+			s = mv(startNode.id, dest, num)
+		} else {
+			//pick another starting node
+			//should check that it has cyborgs?
+			//the other way round: bfs? neighboring nodes of startNode?
+			//check that the nearest node has cyborgs and use it as new base?
+			//SHOULD BE ABLE TO REBASE
+			//SHOULD KEEP TRACK OF CYBIORGS NUM with production rate. Should not send
+			//more cyborgs than produce?
+			startNode = queue[len(queue)]
+		}
 		//log.Println(min,lastSendTroopsNode,neutralFactories[0].id,network.edges)
 		// Any valid action, such as "WAIT" or "MOVE source destination cyborgs"
+		//fmt.Sprintf("MOVE" startNode network.edges[startNode][0] prod)
 		fmt.Printf("%s", s)
+
+		//put nodes at end
+		queue = append(queue[1:], dest)
 	}
 }
