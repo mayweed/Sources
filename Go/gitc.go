@@ -99,8 +99,34 @@ func main() {
 				network.troops = append(network.troops, troop{arg2, arg3, arg4, arg5, arg1})
 			}
 		}
-		log.Println(network.edges, network.factories, network.troops)
+		var startNode = myFactories[0]
+		myFactories = myFactories[1:]
+
+		//DOES NOT WORK AS INTENDED especially:
+		//always sending to the same node!!
+		// + should use WAIT!!
+
+		//keep track of where I previously sent troops
+		var lastSendTroopsNode = startNode.id
+
+		//should put that in a list: never send twice to the same factory??
+		//except maybe to take it?
+		var min = network.pickMinNode(startNode)
+		var s string
+
+		if min == lastSendTroopsNode {
+			//pick anothernode,let's say a node with 0 cyb and neutral
+			s = mv(startNode.id, neutralFactories[0].id, 2)
+			//TEST!!
+			fmt.Println("Bind!!")
+			lastSendTroopsNode = neutralFactories[0].id
+		} else {
+			s = mv(startNode.id, min, 2)
+			lastSendTroopsNode = min
+		}
+
+		//log.Println(min,lastSendTroopsNode,neutralFactories[0].id,network.edges)
 		// Any valid action, such as "WAIT" or "MOVE source destination cyborgs"
-		fmt.Println("WAIT")
+		fmt.Printf("%s", s)
 	}
 }
