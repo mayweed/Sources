@@ -68,6 +68,10 @@ func main() {
 		var entityCount int
 		fmt.Scan(&entityCount)
 
+		var myFactories []factory
+		var oppFactories []factory
+		var neutralFactories []factory
+
 		for i := 0; i < entityCount; i++ {
 			var entityId int
 			var entityType string
@@ -76,6 +80,16 @@ func main() {
 			switch entityType {
 			case "FACTORY":
 				network.factories = append(network.factories, factory{entityId, arg2, arg3, arg1})
+				if arg1 == 1 {
+					fac := factory{entityId, arg2, arg3, arg1}
+					myFactories = append(myFactories, fac)
+				} else if arg1 == -1 {
+					fac := factory{entityId, arg2, arg3, arg1}
+					oppFactories = append(oppFactories, fac)
+				} else if arg1 == 0 {
+					fac := factory{entityId, arg2, arg3, arg1}
+					neutralFactories = append(neutralFactories, fac)
+				}
 			case "TROOP":
 				network.troops = append(network.troops, troop{arg2, arg3, arg4, arg5, arg1})
 			}
