@@ -9,7 +9,8 @@ type graph struct {
 	factoryCount int
 	linkCount    int
 	//a int from a slice of ints(factory2 + distance)
-	edges     map[int][][]int
+	edges map[int][][]int
+
 	factories []factory
 	troops    []troop
 }
@@ -57,19 +58,33 @@ func (g graph) getFactQueue(startNode factory) []factory {
 	return queue
 }
 
+//SCORE
 //oki does not work
-func (g graph) countScore() (x, y int) {
+func (g graph) baseScore() (x, y int) {
 	var myScore = 0
 	var oppScore = 0
 	for _, v := range g.factories {
 		switch v.owner {
 		case 1:
-			myScore += v.cyborgs
+			myScore = v.cyborgs
 		case -1:
-			oppScore += v.cyborgs
+			oppScore = v.cyborgs
 		}
 	}
 	return myScore, oppScore
+}
+func (g graph) countTroops(myScore, oppScore *int) {
+	for _, troop := range g.troops {
+		if troop.remainingTurns == 0 {
+			//troops arrived
+			switch troop.owner {
+			case 1:
+				*(myScore) += troop.cyborgs
+			case -1:
+				*(oppScore) += troop.cyborgs
+			}
+		}
+	}
 }
 
 func (g graph) pickAnotherFactory(queue []factory, doneQueue []int, num int, lastStart factory) (q1 []factory, q2 []int, node factory) {
@@ -77,13 +92,12 @@ func (g graph) pickAnotherFactory(queue []factory, doneQueue []int, num int, las
 	//and promote it to start node
 	var startNode factory
 	//should select the one with maxnodes?
-	var min = num * 2
 	for _, factory := range g.factories {
 		//should own the factory
 		if factory.owner == 1 {
 			if factory.id == doneQueue[0] {
 				//num == number of sent cyborgs
-				if factory.cyborgs >= min && factory.owner == 1 {
+				if factory.cyborgs >= num && factory.owner == 1 {
 					startNode = factory
 				}
 			}
@@ -154,6 +168,9 @@ func main() {
 	//so two queues : one with dest factory and the second one with send
 	var queue []factory
 	var sendQueue []int
+	var turns int
+	var myScore int
+	var oppScore int
 
 	for {
 		// entityCount: the number of entities (e.g. factories and troops)
@@ -163,6 +180,8 @@ func main() {
 		var myFactories []factory
 		var oppFactories []factory
 		var neutralFactories []factory
+
+		myScore, oppScore = network.baseScore()
 
 		for i := 0; i < entityCount; i++ {
 			var entityId int
@@ -221,14 +240,19 @@ func main() {
 			//oki new errors:
 			//Can't send a troop to the factory it is issued from (0)
 			//OOPS!! src and dest MUST be different!!
+			//This one happens too: Can't send a troop from a factory you don't control (3)
 			fmt.Printf("%s", s)
-			//log.Println(network.countScore())
-			//put nodes at end
-			//queue=append(queue[1:],dest)
+
 			//WHY TWO QUEUES??
 			queue = queue[1:]
 			myFactories = myFactories[1:]
 		}
 		//fmt.Printf("WAIT\n")
+
+		turns += 1
+		log.Println(turns)
+		//myScore,oppScore=
+		network.countTroops(&myScore, &oppScore)
+		log.Println(myScore, oppScore)
 	}
 }
