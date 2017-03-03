@@ -9,17 +9,27 @@ type graph struct {
 	factoryCount int
 	linkCount    int
 	//a int from a slice of ints(factory2 + distance)
-	edges map[int][][]int
-
+	edges     map[int][][]int
 	factories []factory
 	troops    []troop
 }
-
 type factory struct {
 	id         int
 	cyborgs    int
 	production int
 	owner      int
+}
+type move struct {
+	from    factory
+	to      factory
+	cyborgs int
+}
+type player struct {
+	id        int
+	factories []factory
+	troops    []troop
+	score     int
+	lastMove  move
 }
 
 //helper func
@@ -56,6 +66,7 @@ func (g graph) maxProdFactory(f []factory) (factory, []factory) {
 }
 
 type troop struct {
+	id             int
 	from           int
 	to             int
 	cyborgs        int
@@ -65,6 +76,8 @@ type troop struct {
 
 //OKI this is a test never done that before
 //IDEA: develop a game state + a tree of possible moves
+//GOSH!! I forgot that in a game you've got players!!
+
 type gameState struct {
 	//our sources
 	myCurrentBase factory
@@ -80,11 +93,6 @@ type gameState struct {
 	score      int
 
 	possibleMoves []move
-}
-type move struct {
-	from    factory
-	to      factory
-	cyborgs int
 }
 
 //GRAPH METHODS
@@ -107,23 +115,36 @@ func (g graph) getFactQueue(startNode factory) []factory {
 	return queue
 }
 
-func (g graph) pickSourceFactory(queue []factory, num int, lastStart factory) (node factory) {
+func (g graph) pickSourceFactory(me player, num int, lastStart factory) (node factory) {
 	var startNode factory
 	//should select the one with maxnodes?
-	for _, factory := range g.factories {
-		//should own the factory
-		if factory.owner == 1 {
-			if factory.cyborgs >= num && factory.id != lastStart.id {
-				startNode = factory
-			}
+	for _, factory := range me.factories {
+		if factory.cyborgs >= num && factory.id != lastStart.id {
+			startNode = factory
 		}
 	}
 	return startNode
 }
 
-//func (g graph) pickDestFactory(facts []factory,startNode factory) factory{
-//First minNode + maxProd of opponent?
-//for _,v := range (g.factories){
+//should I pas player as arg here?
+func (g graph) pickDestFactory(startNode factory) factory {
+	f, _ := g.maxProdFactory(g.factories)
+	log.Println(f)
+	min := g.pickMinNode(startNode)
+	log.Println(min)
+	if ok := amIowner(f); !ok {
+		return f
+	} else if ok := amIowner(min); !ok {
+		return min
+	} else {
+		for _, v := range g.factories {
+			if v.id != startNode.id && v.owner != 1 {
+				return v
+			}
+		}
+	}
+	return factory{}
+}
 
 //return the id of the nearest node of a given factory
 //and a factory I own if possible
@@ -141,8 +162,8 @@ func (g graph) pickMinNode(f factory) factory {
 			}
 		}
 	}
-	f := g.getFactory(id)
-	return f
+	x := g.getFactory(id)
+	return x
 }
 
 //SCORE
@@ -205,9 +226,9 @@ func main() {
 
 	//enqueue nodes
 	//so two queues : one with dest factory and the second one with send
-	var queue []factory
-	var myScore int
-	var oppScore int
+	// var queue []factory
+	//var myScore int
+	//var oppScore int
 
 	for {
 		// entityCount: the number of entities (e.g. factories and troops)
@@ -218,10 +239,17 @@ func main() {
 		var oppFactories []factory
 		var neutralFactories []factory
 
-		myScore, oppScore = network.baseScore()
-		//test count troops
-		var Score = 0
-		var opp = 0
+		//myScore,oppScore=network.baseScore()
+
+		//players
+		var me = player{
+			id:        1,
+			factories: myFactories,
+		}
+		var opp = player{
+			id:        -1,
+			factories: oppFactories,
+		}
 
 		for i := 0; i < entityCount; i++ {
 			var entityId int
@@ -230,68 +258,52 @@ func main() {
 			fmt.Scan(&entityId, &entityType, &arg1, &arg2, &arg3, &arg4, &arg5)
 			switch entityType {
 			case "FACTORY":
-				network.factories = append(network.factories, factory{entityId, arg2, arg3, arg1})
-				if arg1 == 1 {
+				if arg1 == me.id {
 					fac := factory{entityId, arg2, arg3, arg1}
-					myFactories = append(myFactories, fac)
-				} else if arg1 == -1 {
+					me.factories = append(me.factories, fac)
+				} else if arg1 == opp.id {
 					fac := factory{entityId, arg2, arg3, arg1}
-					oppFactories = append(oppFactories, fac)
+					opp.factories = append(opp.factories, fac)
 				} else if arg1 == 0 {
 					fac := factory{entityId, arg2, arg3, arg1}
 					neutralFactories = append(neutralFactories, fac)
 				}
 			case "TROOP":
-				network.troops = append(network.troops, troop{arg2, arg3, arg4, arg5, arg1})
+				if arg1 == me.id {
+					t := troop{entityId, arg2, arg3, arg4, arg5, arg1}
+					me.troops = append(me.troops, t)
+				} else if arg1 == opp.id {
+					t := troop{entityId, arg2, arg3, arg4, arg5, arg1}
+					opp.troops = append(opp.troops, t)
+				}
 			}
 		}
+		//m,n:=network.maxProdFactory(oppFactories)
+		var s string
+		var num = 3
+		var startNode = network.pickSourceFactory(me, num, factory{})
+		log.Println(me.factories)
+		eval.myCurrentBase = startNode
 
-		m, n := network.maxProdFactory(oppFactories)
-		log.Println("MAXPROD", m, n)
+		//queue=network.getFactQueue(startNode)
 
-		//BFS like non? should i use myFactories or queue?
-		//Think: myFactories those are my base start. Should attack oppFactories
-		for len(myFactories) > 0 {
-			var s string
-			var num = 3
-			var startNode = network.pickSourceFactory(myFactories, num, factory{})
-			eval.myCurrentBase = startNode
-			//log.Println(myFactories,oppFactories)
-			queue = network.getFactQueue(startNode)
-			log.Println(queue)
+		//HERE I should pick either a neutral or an opponent fact!!
+		dest := network.pickDestFactory(startNode)
 
-			//WHY in the hell use an int here?
-			//HERE I should pick either a neutral or an opponent fact!!
-			dest := queue[0].id
+		s = mv(startNode.id, dest.id, num)
+		me.lastMove = move{startNode, dest, num}
+		//This one happens too: Can't send a troop from a factory you don't control (3)
+		//ex: try to send last cyb from a node the foe will capture next turn
+		fmt.Printf("%s", s)
 
-			///THIS IS checked in pick source??
-			if startNode.cyborgs >= num {
-				s = mv(startNode.id, dest, num)
-			} else if startNode.cyborgs < num {
-				startNode = network.pickSourceFactory(myFactories, num, startNode)
-				s = mv(startNode.id, dest, num)
-				log.Println("I was here", startNode.id)
-			}
-			//oki new errors:
-			//Can't send a troop to the factory it is issued from (0)
-			//OOPS!! src and dest MUST be different!!
-			//This one happens too: Can't send a troop from a factory you don't control (3)
-			fmt.Printf("%s", s)
-
-			//WHY TWO QUEUES??
-			queue = queue[1:]
-			myFactories = myFactories[1:]
-		}
+		//WHY TWO QUEUES??
+		//queue=queue[1:]
+		//myFactories=myFactories[1:]
 		eval.numOfTurns += 1
-
-		//SCORE, does not work...
-		network.countTroops(&Score, &opp)
-		//log.Println(Score,opp)
-		//log.Println(myScore,oppScore)
 
 	}
 	//should be reset at the end of each turn
-	myScore = 0
-	oppScore = 0
+	//myScore=0
+	//oppScore=0
 
 }
