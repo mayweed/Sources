@@ -5,25 +5,28 @@ import (
 	"log"
 )
 
-type graph struct {
-	factoryCount int
-	linkCount    int
-	//a int from a slice of ints(factory2 + distance)
-	edges     map[int][][]int
-	factories []factory
-	troops    []troop
-}
 type factory struct {
 	id         int
 	cyborgs    int
 	production int
 	owner      int
 }
-type move struct {
-	from    factory
-	to      factory
-	cyborgs int
+type troop struct {
+	id             int
+	from           int
+	to             int
+	cyborgs        int
+	remainingTurns int
+	owner          int
 }
+type graph struct {
+	factoryCount int
+	linkCount    int
+	//a int from a slice of ints(factory2 + distance)
+	edges map[int][][]int
+}
+
+//IDEA: develop a game state + a tree of possible moves
 type player struct {
 	id        int
 	factories []factory
@@ -31,6 +34,29 @@ type player struct {
 	score     int
 	cybTroop  int
 	lastMove  move
+}
+type move struct {
+	from    factory
+	to      factory
+	cyborgs int
+}
+type gameState struct {
+	//map of the game
+	network graph
+	//opponent
+	opponent player
+	//neutral
+	neutralFactories []factory
+	//game
+	numOfTurns int
+	//moves
+	possibleMoves []move
+}
+
+//COMMAND HELPER
+func mv(from, to, cyb int) string {
+	s := fmt.Sprintf("MOVE %d %d %d\n", from, to, cyb)
+	return s
 }
 
 //helper func
@@ -42,73 +68,26 @@ func amIowner(f factory) bool {
 	}
 }
 
-//slice thing does not work
-func (g graph) maxProdFactory(f []factory) (factory, []factory) {
-	var maxFact factory
-	//cf go blog slice
-	//newSlice := make([]int, len(slice), 2*cap(slice))
-	var maxFacts = make([]factory, len(g.factories))
-	var max = 0
-	for _, fact := range f {
-		if fact.production >= max {
-			maxFact = fact
-			max = fact.production
-			//I grow the slice by one elt (cf cap)
-			//maxFacts=maxFacts[0:len(maxFacts)+1]
-			//make room at the front
-			copy(maxFacts[1:], maxFacts[:len(maxFacts)-1])
-			//assign front elt
-			maxFacts[0] = fact
-		} else if fact.production <= max {
-			maxFacts = append(maxFacts, fact)
-		}
-	}
-	return maxFact, maxFacts
-}
-
-type troop struct {
-	id             int
-	from           int
-	to             int
-	cyborgs        int
-	remainingTurns int
-	owner          int
-}
-
-//OKI this is a test never done that before
-//IDEA: develop a game state + a tree of possible moves
-//GOSH!! I forgot that in a game you've got players!!
-
-type gameState struct {
-	//our sources
-	myCurrentBase factory
-	oppBase       factory
-	//our destinations
-	myLastDest  factory
-	oppLastDest factory
-	//our troops
-	myTroops  []troop
-	oppTroops []troop
-
-	numOfTurns int
-	score      int
-
-	possibleMoves []move
-}
-
-//GRAPH METHODS
-func (g graph) getFactory(id int) factory {
-	for _, fac := range g.factories {
+//GRAPH METHODS:should be attached either to player or to gamestate!!
+func (g gameState) getFactory(id int) factory {
+	for _, fac := range g.opponent.factories {
 		if fac.id == id {
 			return fac
 		}
 	}
+	for _, fact := range g.neutralFactories {
+		if fact.id == id {
+			return fact
+		}
+	}
+
 	return factory{}
 }
 
-func (g graph) getFactQueue(startNode factory) []factory {
+//idea: put maxprod first
+func (g gameState) getFactQueue(startNode factory) []factory {
 	var queue []factory
-	for k, _ := range g.edges {
+	for k, _ := range g.network.edges {
 		if k != startNode.id {
 			queue = append(queue, g.getFactory(k))
 		}
@@ -116,10 +95,11 @@ func (g graph) getFactQueue(startNode factory) []factory {
 	return queue
 }
 
-func (g graph) pickSourceFactory(me player, num int, lastStart factory) (node factory) {
+//should REWORK that...
+func (p player) pickSourceFactory(num int, lastStart factory) factory {
 	var startNode factory
 	//should select the one with maxnodes?
-	for _, factory := range me.factories {
+	for _, factory := range p.factories {
 		if factory.cyborgs >= num && factory.id != lastStart.id {
 			startNode = factory
 		}
@@ -127,39 +107,17 @@ func (g graph) pickSourceFactory(me player, num int, lastStart factory) (node fa
 	return startNode
 }
 
-//should I pas player as arg here?
-func (g graph) pickDestFactory(startNode factory) factory {
-	f, _ := g.maxProdFactory(g.factories)
-	log.Println(f)
-	var min = g.pickMinNode(startNode)
-	log.Println(min)
-	if ok := amIowner(f); !ok {
-		return f
-	} else if ok := amIowner(min); !ok {
-		return min
-	} else {
-		for _, v := range g.factories {
-			if v.id != startNode.id && v.owner != 1 {
-				return v
-			}
-		}
-	}
-	return factory{}
-}
-
 //return the id of the nearest node of a given factory
 //and a factory I own if possible
-func (g graph) pickMinNode(f factory) factory {
+func (g gameState) pickMinNode(f factory) factory {
 	var minDist = 20
 	var id int
-	var idSlice []int
 	fact := g.getFactory(f.id)
-	for _, v := range g.edges[f.id] {
+	for _, v := range g.network.edges[f.id] {
 		if fact.owner == 1 {
 			if v[1] < minDist {
 				minDist = v[1]
 				id = v[0]
-				idSlice = append(idSlice, id)
 			}
 		}
 	}
@@ -167,10 +125,44 @@ func (g graph) pickMinNode(f factory) factory {
 	return x
 }
 
-//COMMAND HELPER
-func mv(from, to, cyb int) string {
-	s := fmt.Sprintf("MOVE %d %d %d\n", from, to, cyb)
-	return s
+//Should use sort Interface to sort fact struc by production!!
+func (g gameState) maxProdFactory() factory {
+	var maxFact factory
+	var max = 0
+	for _, fact := range g.opponent.factories {
+		if fact.production >= max {
+			maxFact = fact
+			max = fact.production
+		}
+	}
+	for _, fac := range g.neutralFactories {
+		if fac.production >= max {
+			maxFact = fac
+			max = fac.production
+		}
+	}
+	return maxFact
+}
+
+//should I pas player as arg here?
+func (g gameState) pickDestFactory(startNode factory) factory {
+	var maxP = g.maxProdFactory()
+	log.Println(maxP)
+	var minD = g.pickMinNode(startNode)
+	log.Println(minD)
+	if ok := amIowner(maxP); !ok {
+		return maxP
+	} else if ok := amIowner(minD); !ok {
+		return minD
+	} else {
+		for _, v := range g.opponent.factories {
+			//should take the one with the least cyb and the highest prodrate!!
+			if v.id != startNode.id && v.owner != 1 {
+				return v
+			}
+		}
+	}
+	return factory{}
 }
 
 func main() {
@@ -187,7 +179,15 @@ func main() {
 		linkCount:    linkCount,
 		edges:        make(map[int][][]int),
 	}
-	eval := gameState{}
+
+	eval := gameState{
+		network: network,
+		opponent: player{
+			id:        -1,
+			factories: []factory{},
+		},
+		neutralFactories: []factory{},
+	}
 
 	for i := 0; i < linkCount; i++ {
 		var factory1, factory2, distance int
@@ -198,23 +198,10 @@ func main() {
 		network.edges[factory2] = append(network.edges[factory2], []int{factory1, distance})
 	}
 
-	//enqueue nodes
-	//so two queues : one with dest factory and the second one with send
-	// var queue []factory
-	//var myScore int
-	//var oppScore int
-	var myFactories []factory
-	var oppFactories []factory
-	var neutralFactories []factory
-
-	//players
+	//player
 	var me = player{
 		id:        1,
-		factories: myFactories,
-	}
-	var opp = player{
-		id:        -1,
-		factories: oppFactories,
+		factories: []factory{},
 	}
 
 	for {
@@ -222,9 +209,9 @@ func main() {
 		var entityCount int
 		fmt.Scan(&entityCount)
 
-		var myScore, oppScore = network.baseScore()
-		log.Println(myScore, oppScore)
+		eval.numOfTurns += 1
 
+		//use sort Interface to sort factory by production, highest first
 		for i := 0; i < entityCount; i++ {
 			var entityId int
 			var entityType string
@@ -235,44 +222,40 @@ func main() {
 				if arg1 == me.id {
 					fac := factory{entityId, arg2, arg3, arg1}
 					me.factories = append(me.factories, fac)
-				} else if arg1 == opp.id {
+				} else if arg1 == eval.opponent.id {
 					fac := factory{entityId, arg2, arg3, arg1}
-					opp.factories = append(opp.factories, fac)
+					eval.opponent.factories = append(eval.opponent.factories, fac)
 				} else if arg1 == 0 {
 					fac := factory{entityId, arg2, arg3, arg1}
-					neutralFactories = append(neutralFactories, fac)
+					eval.neutralFactories = append(eval.neutralFactories, fac)
 				}
 			case "TROOP":
 				if arg1 == me.id {
 					t := troop{entityId, arg2, arg3, arg4, arg5, arg1}
 					me.troops = append(me.troops, t)
-				} else if arg1 == opp.id {
+				} else if arg1 == eval.opponent.id {
 					t := troop{entityId, arg2, arg3, arg4, arg5, arg1}
-					opp.troops = append(opp.troops, t)
+					eval.opponent.troops = append(eval.opponent.troops, t)
 				}
 			}
 		}
-		//m,n:=network.maxProdFactory(oppFactories)
 		var s string
+		//should write a func to compute the best num of cyb to send+ choose my startNode wrt that..
+		//Rule: you overtake a factory if you send more cyb than it will have when you arrived.
+		//EX: send one cyb to *all* nodes with cyb==0
 		var num = 3
-		var startNode = network.pickSourceFactory(me, num, factory{})
-		log.Println(me.factories)
-		eval.myCurrentBase = startNode
 
-		//queue=network.getFactQueue(startNode)
+		//problem here with the second arg. Should keep the second arg cf eval for last stat?
+		var startNode = me.pickSourceFactory(num, factory{})
+		var dest = eval.pickDestFactory(startNode)
 
-		//HERE I should pick either a neutral or an opponent fact!!
-		dest := network.pickDestFactory(startNode)
-
+		//should modify mv to chain commands with ;
 		s = mv(startNode.id, dest.id, num)
 		me.lastMove = move{startNode, dest, num}
 		//This one happens too: Can't send a troop from a factory you don't control (3)
 		//ex: try to send last cyb from a node the foe will capture next turn
 		fmt.Printf("%s", s)
 
-		//WHY TWO QUEUES??
-		//queue=queue[1:]
-		//myFactories=myFactories[1:]
 		eval.numOfTurns += 1
 
 		//SCORE
@@ -284,12 +267,12 @@ func main() {
 			me.cybTroop += v.cyborgs
 		}
 		log.Println(me.score, me.cybTroop)
+
 		me.factories = []factory{}
-		opp.factories = []factory{}
-		neutralFactories = []factory{}
+		eval.opponent.factories = []factory{}
+		eval.neutralFactories = []factory{}
 		me.score = 0
 		me.cybTroop = 0
-
 	}
 
 }
