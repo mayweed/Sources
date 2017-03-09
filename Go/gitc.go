@@ -29,6 +29,7 @@ type player struct {
 	factories []factory
 	troops    []troop
 	score     int
+	cybTroop  int
 	lastMove  move
 }
 
@@ -130,7 +131,7 @@ func (g graph) pickSourceFactory(me player, num int, lastStart factory) (node fa
 func (g graph) pickDestFactory(startNode factory) factory {
 	f, _ := g.maxProdFactory(g.factories)
 	log.Println(f)
-	min := g.pickMinNode(startNode)
+	var min = g.pickMinNode(startNode)
 	log.Println(min)
 	if ok := amIowner(f); !ok {
 		return f
@@ -164,33 +165,6 @@ func (g graph) pickMinNode(f factory) factory {
 	}
 	x := g.getFactory(id)
 	return x
-}
-
-//SCORE
-func (g graph) baseScore() (x, y int) {
-	var myScore = 0
-	var oppScore = 0
-	for _, v := range g.factories {
-		switch v.owner {
-		case 1:
-			myScore = v.cyborgs
-		case -1:
-			oppScore = v.cyborgs
-		}
-	}
-	return myScore, oppScore
-}
-
-//oki does not work
-func (g graph) countTroops(myScore, oppScore *int) {
-	for _, troop := range g.troops {
-		switch troop.owner {
-		case 1:
-			*(myScore) = troop.cyborgs
-		case -1:
-			*(oppScore) = troop.cyborgs
-		}
-	}
 }
 
 //COMMAND HELPER
@@ -229,27 +203,27 @@ func main() {
 	// var queue []factory
 	//var myScore int
 	//var oppScore int
+	var myFactories []factory
+	var oppFactories []factory
+	var neutralFactories []factory
+
+	//players
+	var me = player{
+		id:        1,
+		factories: myFactories,
+	}
+	var opp = player{
+		id:        -1,
+		factories: oppFactories,
+	}
 
 	for {
 		// entityCount: the number of entities (e.g. factories and troops)
 		var entityCount int
 		fmt.Scan(&entityCount)
 
-		var myFactories []factory
-		var oppFactories []factory
-		var neutralFactories []factory
-
-		//myScore,oppScore=network.baseScore()
-
-		//players
-		var me = player{
-			id:        1,
-			factories: myFactories,
-		}
-		var opp = player{
-			id:        -1,
-			factories: oppFactories,
-		}
+		var myScore, oppScore = network.baseScore()
+		log.Println(myScore, oppScore)
 
 		for i := 0; i < entityCount; i++ {
 			var entityId int
@@ -301,9 +275,21 @@ func main() {
 		//myFactories=myFactories[1:]
 		eval.numOfTurns += 1
 
+		//SCORE
+		for _, v := range me.factories {
+			me.score += v.cyborgs
+		}
+		//troop??
+		for _, v := range me.troops {
+			me.cybTroop += v.cyborgs
+		}
+		log.Println(me.score, me.cybTroop)
+		me.factories = []factory{}
+		opp.factories = []factory{}
+		neutralFactories = []factory{}
+		me.score = 0
+		me.cybTroop = 0
+
 	}
-	//should be reset at the end of each turn
-	//myScore=0
-	//oppScore=0
 
 }
