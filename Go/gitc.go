@@ -32,9 +32,20 @@ type player struct {
 	factories []factory
 	troops    []troop
 	score     int
-	cybTroop  int
 	lastMove  move
 }
+
+func (p *player) countScore() {
+	p.score = 0
+	for _, v := range p.factories {
+		p.score += v.cyborgs
+	}
+	for _, v := range p.troops {
+		p.score += v.cyborgs
+	}
+	//log.Println(me.score)
+}
+
 type move struct {
 	from    factory
 	to      factory
@@ -155,9 +166,7 @@ func (g gameState) maxProdFactory() factory {
 //should I pas player as arg here?
 func (g gameState) pickDestFactory(startNode factory) factory {
 	var maxP = g.maxProdFactory()
-	log.Println(maxP)
 	var minD = g.pickMinNode(startNode)
-	log.Println(minD)
 	if ok := amIowner(maxP); !ok {
 		return maxP
 	} else if ok := amIowner(minD); !ok {
@@ -179,7 +188,7 @@ func (g gameState) pickDestFactory(startNode factory) factory {
 //a string like "WAIT" it's just checking next turn
 //to see if last fact remaining will be overtaken
 //in that case "WAIT" instead of Can't send a troop from a factory you don't control (0)
-func (g gameState) checkEndGame() string{
+func (g gameState) checkEndGame() bool{
     if len(facts)==1{
 TODO    */
 
@@ -276,21 +285,16 @@ func main() {
 
 		eval.numOfTurns += 1
 
-		//SCORE
-		for _, v := range me.factories {
-			me.score += v.cyborgs
-		}
-		//troop??
-		for _, v := range me.troops {
-			me.cybTroop += v.cyborgs
-		}
-		log.Println(me.score, me.cybTroop)
+		(&me).countScore()
+		log.Println(me.score)
 
+		//THIS is a must, without that keeps appending to the same list
+		//again and again..
 		me.factories = []factory{}
+		me.troops = []troop{}
 		eval.opponent.factories = []factory{}
+		eval.opponent.troops = []troop{}
 		eval.neutralFactories = []factory{}
-		me.score = 0
-		me.cybTroop = 0
 	}
 
 }
