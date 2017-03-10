@@ -53,7 +53,9 @@ type gameState struct {
 	possibleMoves []move
 }
 
-//COMMAND HELPER
+//COMMAND HELPER should implement WAIT especially
+//at endgame if I have 0 cybs in my last fact should
+//wait til endgame. //+chain command with ;
 func mv(from, to, cyb int) string {
 	s := fmt.Sprintf("MOVE %d %d %d\n", from, to, cyb)
 	return s
@@ -80,19 +82,25 @@ func (g gameState) getFactory(id int) factory {
 			return fact
 		}
 	}
-
 	return factory{}
 }
 
-//idea: put maxprod first
-func (g gameState) getFactQueue(startNode factory) []factory {
-	var queue []factory
-	for k, _ := range g.network.edges {
-		if k != startNode.id {
-			queue = append(queue, g.getFactory(k))
+//zero factory
+func (g gameState) zeroFactory() []factory {
+	//yield all opp + neutral fact with 1 or less cyborgs
+	//TODO: ordered them by production rate!!
+	var fact []factory
+	for _, v := range g.opponent.factories {
+		if v.cyborgs <= 1 {
+			fact = append(fact, v)
 		}
 	}
-	return queue
+	for _, v := range g.neutralFactories {
+		if v.cyborgs <= 1 {
+			fact = append(fact, v)
+		}
+	}
+	return fact
 }
 
 //should REWORK that...
@@ -164,6 +172,16 @@ func (g gameState) pickDestFactory(startNode factory) factory {
 	}
 	return factory{}
 }
+
+/* TODO
+//should check a factory node
+//should have a way to assess score
+//a string like "WAIT" it's just checking next turn
+//to see if last fact remaining will be overtaken
+//in that case "WAIT" instead of Can't send a troop from a factory you don't control (0)
+func (g gameState) checkEndGame() string{
+    if len(facts)==1{
+TODO    */
 
 func main() {
 	// factoryCount: the number of factories
