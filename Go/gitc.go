@@ -5,12 +5,29 @@ import (
 	"log"
 )
 
+//MAP
+type graph struct {
+	factoryCount int
+	linkCount    int
+	//a int from a slice of ints(factory2 + distance)
+	edges map[int][][]int
+}
 type factory struct {
 	id         int
 	cyborgs    int
 	production int
 	owner      int
 }
+
+//helper func
+func (f factory) amIowner() bool {
+	if f.owner == 1 {
+		return true
+	} else {
+		return false
+	}
+}
+
 type troop struct {
 	id             int
 	from           int
@@ -19,20 +36,15 @@ type troop struct {
 	remainingTurns int
 	owner          int
 }
-type graph struct {
-	factoryCount int
-	linkCount    int
-	//a int from a slice of ints(factory2 + distance)
-	edges map[int][][]int
-}
 
-//IDEA: develop a game state + a tree of possible moves
+//PLAYER
 type player struct {
-	id        int
-	factories []factory
-	troops    []troop
-	score     int
-	lastMove  move
+	id          int
+	factories   []factory
+	troops      []troop
+	score       int
+	lastMove    move
+	currentMove move
 }
 
 func (p *player) countScore() {
@@ -43,14 +55,19 @@ func (p *player) countScore() {
 	for _, v := range p.troops {
 		p.score += v.cyborgs
 	}
-	//log.Println(me.score)
+}
+func (p player) pickSourceFactory(num int, lastStart factory) factory {
+	var startNode factory
+	//should select the one with maxnodes?
+	for _, factory := range p.factories {
+		if factory.cyborgs >= num && factory.id != lastStart.id {
+			startNode = factory
+		}
+	}
+	return startNode
 }
 
-type move struct {
-	from    factory
-	to      factory
-	cyborgs int
-}
+//GAMESTATE
 type gameState struct {
 	//map of the game
 	network graph
@@ -64,24 +81,6 @@ type gameState struct {
 	possibleMoves []move
 }
 
-//COMMAND HELPER should implement WAIT especially
-//at endgame if I have 0 cybs in my last fact should
-//wait til endgame. //+chain command with ;
-func mv(from, to, cyb int) string {
-	s := fmt.Sprintf("MOVE %d %d %d\n", from, to, cyb)
-	return s
-}
-
-//helper func
-func amIowner(f factory) bool {
-	if f.owner == 1 {
-		return true
-	} else {
-		return false
-	}
-}
-
-//GRAPH METHODS:should be attached either to player or to gamestate!!
 func (g gameState) getFactory(id int) factory {
 	for _, fac := range g.opponent.factories {
 		if fac.id == id {
@@ -114,16 +113,25 @@ func (g gameState) zeroFactory() []factory {
 	return fact
 }
 
-//should REWORK that...
-func (p player) pickSourceFactory(num int, lastStart factory) factory {
-	var startNode factory
-	//should select the one with maxnodes?
-	for _, factory := range p.factories {
-		if factory.cyborgs >= num && factory.id != lastStart.id {
-			startNode = factory
-		}
-	}
-	return startNode
+//MOVE
+type move struct {
+	from    factory
+	to      factory
+	cyborgs int
+}
+
+//COMMAND HELPER should implement WAIT especially
+//at endgame if I have 0 cybs in my last fact should
+//wait til endgame. //+chain command with ;
+//should be attach to a move object
+func mv(from, to, cyb int) string {
+	//here should be m.from etc...in the end
+	s := fmt.Sprintf("MOVE %d %d %d\n", from, to, cyb)
+	return s
+}
+func (m move) String() string {
+	s := fmt.Sprintf("MOVE %d to %d with %d cyborgs\n", m.from, m.to, m.cyborgs)
+	return s
 }
 
 //return the id of the nearest node of a given factory
@@ -162,14 +170,21 @@ func (g gameState) maxProdFactory() factory {
 	}
 	return maxFact
 }
-
-//should I pas player as arg here?
 func (g gameState) pickDestFactory(startNode factory) factory {
+	//var cybToSend int
 	var maxP = g.maxProdFactory()
 	var minD = g.pickMinNode(startNode)
-	if ok := amIowner(maxP); !ok {
+
+	/*//test
+	for _,v := range g.opponent.troops{
+	    if v.id==maxP.id{
+	        cybToSend=v.cyborgs+1
+	    }
+	}*/
+
+	if ok := maxP.amIowner(); !ok {
 		return maxP
-	} else if ok := amIowner(minD); !ok {
+	} else if ok := minD.amIowner(); !ok {
 		return minD
 	} else {
 		for _, v := range g.opponent.factories {
@@ -190,6 +205,9 @@ func (g gameState) pickDestFactory(startNode factory) factory {
 //in that case "WAIT" instead of Can't send a troop from a factory you don't control (0)
 func (g gameState) checkEndGame() bool{
     if len(facts)==1{
+func (g gameState) selectMove() move{
+   for _,v := range g.possibleMove{
+       ...
 TODO    */
 
 func main() {
@@ -275,10 +293,9 @@ func main() {
 		//problem here with the second arg. Should keep the second arg cf eval for last stat?
 		var startNode = me.pickSourceFactory(num, factory{})
 		var dest = eval.pickDestFactory(startNode)
-
+		me.currentMove = move{startNode, dest, num}
 		//should modify mv to chain commands with ;
 		s = mv(startNode.id, dest.id, num)
-		me.lastMove = move{startNode, dest, num}
 		//This one happens too: Can't send a troop from a factory you don't control (3)
 		//ex: try to send last cyb from a node the foe will capture next turn
 		fmt.Printf("%s", s)
@@ -286,7 +303,8 @@ func main() {
 		eval.numOfTurns += 1
 
 		(&me).countScore()
-		log.Println(me.score)
+		(&eval.opponent).countScore()
+		log.Println(me.score, eval.opponent.score, eval.numOfTurns, me.currentMove, me.lastMove)
 
 		//THIS is a must, without that keeps appending to the same list
 		//again and again..
@@ -295,6 +313,7 @@ func main() {
 		eval.opponent.factories = []factory{}
 		eval.opponent.troops = []troop{}
 		eval.neutralFactories = []factory{}
+		me.lastMove = me.currentMove
 	}
 
 }
