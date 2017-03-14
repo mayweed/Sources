@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"sort"
 )
 
 //MAP
@@ -27,6 +28,13 @@ func (f factory) amIowner() bool {
 		return false
 	}
 }
+
+//sort interface
+type byProd []factory
+
+func (b byProd) Len() int           { return len(b) }
+func (b byProd) Less(i, j int) bool { return b[i].production < b[j].production }
+func (b byProd) Swap(i, j int)      { b[i], b[j] = b[j], b[i] }
 
 type troop struct {
 	id             int
@@ -100,6 +108,7 @@ func (g gameState) zeroFactory() []factory {
 	//yield all opp + neutral fact with 1 or less cyborgs
 	//TODO: ordered them by production rate!!
 	var fact []factory
+	sort.Sort(byProd(g.opponent.factories))
 	for _, v := range g.opponent.factories {
 		if v.cyborgs <= 1 {
 			fact = append(fact, v)
@@ -290,6 +299,8 @@ func main() {
 		//EX: send one cyb to *all* nodes with cyb==0
 		var num = 3
 
+		sort.Sort(byProd(eval.opponent.factories))
+		log.Println(eval.opponent.factories)
 		//problem here with the second arg. Should keep the second arg cf eval for last stat?
 		var startNode = me.pickSourceFactory(num, factory{})
 		var dest = eval.pickDestFactory(startNode)
