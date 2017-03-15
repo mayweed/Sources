@@ -11,10 +11,51 @@ type graph struct {
 }
 
 //init
+//func newGraph() graph {
+//	return graph{
+//		nodes: nil,
+//		edges: make(map[int][]int),
+//	}
+//}
+//init
 func newGraph() graph {
 	return graph{
 		nodes: nil,
-		edges: make(map[int][]int),
+        /*
+		//edges: make(map[int][]int),
+		//  depth max 6
+		edges: map[int][]int{
+			5: []int{3, 6},
+			6: []int{1, 2},
+			7: []int{4},
+			9: []int{4},
+			4: []int{5},
+			2: []int{8},
+		},
+        */
+        //(1,2),(2,3),(2,4),(3,4),(4,5)
+        //should be five...
+        edges: map[int][]int{
+			1: []int{2},
+			2: []int{3, 4},
+			3: []int{4},
+			4: []int{5},
+		},
+
+		/*
+			//depth max 4
+			edges: map[int][]int{
+				10: []int{1, 3, 11},
+				1:  []int{2, 3},
+				3:  []int{4},
+				2:  []int{4, 5},
+			},
+
+		*/
+		//TODO find a way to quickly parse that
+		//oki string: first split on space then split num on ""
+		//or num[0] => x num[1] =>y
+		// 56  53  61  74  62  94  45  28
 	}
 }
 
@@ -39,7 +80,6 @@ func checkList(c int, d []int) bool {
 	}
 	return false
 }
-
 //simple bfs
 func (g graph) bfs(startNode, endNode int) []int {
 	var visited = make(map[int]bool)
@@ -72,6 +112,7 @@ func (g graph) bfs(startNode, endNode int) []int {
 
 //MAIN
 func main() {
+/*
 	// n: the number of relationships of influence
 	var n int
 	fmt.Scan(&n)
@@ -84,18 +125,20 @@ func main() {
 		fmt.Scan(&x, &y)
 		g.edges[x] = append(g.edges[x], y)
 	}
+    */
+    g := newGraph()
+
 	(&g).collectNode()
 
 	var queue = g.nodes
 	var max = 0
 	//var longestPath []int //for sake of it
-
 	for 0 < len(queue) {
 		startNode := queue[0]
 		queue = queue[1:]
 		for i := 0; i < len(queue); i++ {
 			path := g.bfs(startNode, queue[i])
-			//log.Println(path)
+			log.Println(path)
 			if len(path) > max {
 				max = len(path)
 				//longestPath=path
