@@ -29,6 +29,16 @@ func (f factory) amIowner() bool {
 	}
 }
 
+//given a factory, how many cyb will it have in X turns
+//SHOULD CHECK INCOMING/OUTCOMING TROOPS!!
+func (f factory) cybNextTurn(numTurns int) int {
+	var numStart = f.cyborgs
+	for i := 0; i < numTurns; i++ {
+		numStart += f.production
+	}
+	return numStart
+}
+
 //sort interface
 type byProd []factory
 
@@ -64,6 +74,7 @@ func (p *player) countScore() {
 		p.score += v.cyborgs
 	}
 }
+
 func (p player) pickSourceFactory(num int, lastStart factory) factory {
 	var startNode factory
 	//should select the one with maxnodes?
@@ -89,6 +100,23 @@ type gameState struct {
 	possibleMoves []move
 }
 
+/*
+//work on the num of cyb to send in a troop
+//idea: scan factories of opponent
+//other idea to implement: if cyborgs in a given fact >
+//what I got, what about switch base?
+//Idea: why not yield a factory? of better, a move??
+//and put that in gameState.possibleMoves??
+//should stop when? my cyborgs run out??
+func(g gameState) checkCyborgs() int{
+    for _,fact := range g.opponent.factories{
+        if f.cyborgs > v.cyborgs{
+            return v.cyborgs+1
+        }
+    }
+    return f.cyborgs
+}
+*/
 func (g gameState) getFactory(id int) factory {
 	for _, fac := range g.opponent.factories {
 		if fac.id == id {
@@ -208,7 +236,6 @@ func (g gameState) pickDestFactory(startNode factory) factory {
 
 /* TODO
 //should check a factory node
-//should have a way to assess score
 //a string like "WAIT" it's just checking next turn
 //to see if last fact remaining will be overtaken
 //in that case "WAIT" instead of Can't send a troop from a factory you don't control (0)
@@ -299,14 +326,15 @@ func main() {
 		//EX: send one cyb to *all* nodes with cyb==0
 		var num = 3
 
-		sort.Sort(byProd(eval.opponent.factories))
-		log.Println(eval.opponent.factories)
+		sort.Sort(byProd(eval.neutralFactories))
+		log.Println(eval.neutralFactories)
 		//problem here with the second arg. Should keep the second arg cf eval for last stat?
 		var startNode = me.pickSourceFactory(num, factory{})
 		var dest = eval.pickDestFactory(startNode)
 		me.currentMove = move{startNode, dest, num}
 		//should modify mv to chain commands with ;
 		s = mv(startNode.id, dest.id, num)
+		log.Println(startNode.cyborgs, startNode.production, startNode.cybNextTurn(3))
 		//This one happens too: Can't send a troop from a factory you don't control (3)
 		//ex: try to send last cyb from a node the foe will capture next turn
 		fmt.Printf("%s", s)
