@@ -5,7 +5,7 @@ import (
 	"log"
 )
 
-func keepAdding(participants int, ppl []int) {
+func keepAdding(participants, L int, ppl []int) {
 	var count int
 	var p = ppl[0] + participants
 	count += 1
@@ -15,8 +15,9 @@ func keepAdding(participants int, ppl []int) {
 		ppl = append(ppl[count:], ppl[count])
 		break //exit the loop
 	} else {
-		keepAdding(participants, ppl)
+		keepAdding(participants, L, ppl)
 	}
+	//should return sth: queue + rides??
 }
 
 func main() {
@@ -33,6 +34,10 @@ func main() {
 
 	//for each ride keep track of how many ppl goes in
 	var rides = make(map[int]int, C)
+
+	// ride n°2=ride[0]+ride[1]. Idea you wanna know
+	//earned dirhams for a particular ride , call ride[X]
+	var dirhamPerRide = make(map[int]int)
 
 	var count_dirhams int
 	var participants = ppl[0]
