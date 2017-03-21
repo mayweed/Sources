@@ -64,7 +64,7 @@ func newGraph() graph {
 func (g graph) traverseGraph(node, depth int) int {
 	for _, v := range g.edges[node] {
 		log.Println(v)
-		traverseGraph(v, depth+1)
+		g.traverseGraph(v, depth+1)
 	}
 	return depth
 }
@@ -156,8 +156,8 @@ func main() {
 			}
 		}
 	}
-	log.Println(g.traverseGraph(1, 0))
-	log.Println(g.nodes, g.edges)
+	depth := g.traverseGraph(1, 0)
+	log.Println(g.nodes, g.edges, depth)
 	// The number of people involved in the longest succession of influences
 	//Should apply bfs from one node to all the others and take the longest one
 	fmt.Println(max)
