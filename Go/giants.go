@@ -21,21 +21,21 @@ type graph struct {
 func newGraph() graph {
 	return graph{
 		nodes: nil,
-        /*
-		//edges: make(map[int][]int),
-		//  depth max 6
+		/*
+			//edges: make(map[int][]int),
+			//  depth max 6
+			edges: map[int][]int{
+				5: []int{3, 6},
+				6: []int{1, 2},
+				7: []int{4},
+				9: []int{4},
+				4: []int{5},
+				2: []int{8},
+			},
+		*/
+		//(1,2),(2,3),(2,4),(3,4),(4,5)
+		//should be five...
 		edges: map[int][]int{
-			5: []int{3, 6},
-			6: []int{1, 2},
-			7: []int{4},
-			9: []int{4},
-			4: []int{5},
-			2: []int{8},
-		},
-        */
-        //(1,2),(2,3),(2,4),(3,4),(4,5)
-        //should be five...
-        edges: map[int][]int{
 			1: []int{2},
 			2: []int{3, 4},
 			3: []int{4},
@@ -59,6 +59,16 @@ func newGraph() graph {
 	}
 }
 
+//oki and what's the base case??
+//https://myarch.com/treeiter/traditways/ ex 1
+func (g graph) traverseGraph(node, depth int) int {
+	for _, v := range g.edges[node] {
+		log.Println(v)
+		traverseGraph(v, depth+1)
+	}
+	return depth
+}
+
 //collect all the nodes
 func (g *graph) collectNode() {
 	for k, _ := range g.edges {
@@ -80,6 +90,7 @@ func checkList(c int, d []int) bool {
 	}
 	return false
 }
+
 //simple bfs
 func (g graph) bfs(startNode, endNode int) []int {
 	var visited = make(map[int]bool)
@@ -112,21 +123,21 @@ func (g graph) bfs(startNode, endNode int) []int {
 
 //MAIN
 func main() {
-/*
-	// n: the number of relationships of influence
-	var n int
-	fmt.Scan(&n)
+	/*
+		// n: the number of relationships of influence
+		var n int
+		fmt.Scan(&n)
 
+		g := newGraph()
+
+		for i := 0; i < n; i++ {
+			// x: a relationship of influence between two people (x influences y)
+			var x, y int
+			fmt.Scan(&x, &y)
+			g.edges[x] = append(g.edges[x], y)
+		}
+	*/
 	g := newGraph()
-
-	for i := 0; i < n; i++ {
-		// x: a relationship of influence between two people (x influences y)
-		var x, y int
-		fmt.Scan(&x, &y)
-		g.edges[x] = append(g.edges[x], y)
-	}
-    */
-    g := newGraph()
 
 	(&g).collectNode()
 
@@ -145,7 +156,7 @@ func main() {
 			}
 		}
 	}
-
+	log.Println(g.traverseGraph(1, 0))
 	log.Println(g.nodes, g.edges)
 	// The number of people involved in the longest succession of influences
 	//Should apply bfs from one node to all the others and take the longest one
