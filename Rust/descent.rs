@@ -11,27 +11,23 @@ macro_rules! parse_input {
  * and where you have to print an output (the index of the mountain to fire on)
  * The inputs you are given are automatically updated according to your last actions.
  **/
- //SHOULD YIELD THE *INDEX* not the number in itself but it works my first working rust func ;)
- fn largest (high:&[i32]) -> i32{
-    let mut max=high[0];
-    for &item in high.iter() {
-        if item > max{
-            max = item;
-        }
-    }
-    max 
-}
+ 
 fn main() {
-
-    let mut high = vec![];
     loop {
+        //put that two inside the loop scope and it works?!
+        let mut index=0;
+        let mut mountainH=0;
         for i in 0..8 {
             let mut input_line = String::new();
             io::stdin().read_line(&mut input_line).unwrap();
             let mountain_h = parse_input!(input_line, i32); // represents the height of one mountain.
-            high.push(mountain_h);
+            //if the height of the current mountain is > to the last ever seen
+            //should update my mountainH and index
+            if mountain_h>mountainH{
+                mountainH=mountain_h;
+                index=i;
+                }
         }
-    let maxi=largest(&high); 
-    println!("{}",maxi); // The index of the mountain to fire on.
+    println!("{}",index); // The index of the mountain to fire on.
     }
 }
