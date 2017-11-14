@@ -65,6 +65,21 @@ fn main() {
             batLoc=batPos(Area{left:batLoc.x+1,right:w,top:batLoc.y+1,bottom:h});
             println!("{} {}",batLoc.x,batLoc.y);
             }
+		//tower does not pass
+        if bomb_dir=="D"{
+            batLoc=batPos(Area{left:batLoc.x,right:batLoc.x,top:batLoc.y,bottom:h});
+            println!("{} {}",batLoc.x,batLoc.y);
+            }
+        if bomb_dir=="U"{
+            batLoc=batPos(Area{left:batLoc.x,right:batLoc.x,top:0,bottom:batLoc.y});
+            println!("{} {}",batLoc.x,batLoc.y);
+            }
+        if bomb_dir=="L"{
+            println!("{} {}",batLoc.x-1,batLoc.y);
+            }
+        if bomb_dir=="R"{
+            println!("{} {}",batLoc.x+1,batLoc.y);
+            }
         // Write an action using println!("message...");
         print_err!("W:{}, H:{}, N:{}, bomb_dir:{},x0:{},y0:{}, batLoc.x {} batloc.y {}",w,h,n,bomb_dir,x0,y0,batLoc.x,batLoc.y);
 
