@@ -13,7 +13,6 @@ macro_rules! parse_input {
     ($x:expr, $t:ident) => ($x.trim().parse::<$t>().unwrap())
 }
 
-#[derive(Debug)]    
 struct Point{
     x: i32,
     y: i32,
@@ -50,10 +49,10 @@ fn main() {
     let inputs = input_line.split(" ").collect::<Vec<_>>();
     let x0 = parse_input!(inputs[0], i32);
     let y0 = parse_input!(inputs[1], i32);
-
+    let mut batLoc=Point{x:x0,y:y0};
+    
     // game loop
     loop {
-        let mut batLoc=Point{x:x0,y:y0};
         let mut input_line = String::new();
         io::stdin().read_line(&mut input_line).unwrap();
         let bomb_dir = input_line.trim().to_string(); // the direction of the bombs from batman's current location (U, UR, R, DR, D, DL, L or UL)
@@ -63,28 +62,32 @@ fn main() {
             }
         if bomb_dir =="DR"{
             batLoc=batPos(Area{left:batLoc.x+1,right:w,top:batLoc.y+1,bottom:h});
-            println!("{} {}",batLoc.x,batLoc.y);
             }
-		//tower does not pass
+        if bomb_dir =="UR"{
+            batLoc=batPos(Area{left:0,right:batLoc.x-1,top:0,bottom:batLoc.y-1});
+            }
+        if bomb_dir == "UL"{
+            batLoc=batPos(Area{left:batLoc.x+1,right:w,top:0,bottom:batLoc.y-1});
+            }
+        //those are the easy cases indeed does not pass tower, you have to 
+        //recompute the area!!
         if bomb_dir=="D"{
             batLoc=batPos(Area{left:batLoc.x,right:batLoc.x,top:batLoc.y,bottom:h});
-            println!("{} {}",batLoc.x,batLoc.y);
             }
         if bomb_dir=="U"{
             batLoc=batPos(Area{left:batLoc.x,right:batLoc.x,top:0,bottom:batLoc.y});
-            println!("{} {}",batLoc.x,batLoc.y);
             }
         if bomb_dir=="L"{
-            println!("{} {}",batLoc.x-1,batLoc.y);
+            batLoc=batPos(Area{left:0,right:batLoc.x-1,top:batLoc.y,bottom:batLoc.y});
             }
         if bomb_dir=="R"{
-            println!("{} {}",batLoc.x+1,batLoc.y);
+            batLoc=batPos(Area{left:batLoc.x+1,right:w,top:batLoc.y,bottom:batLoc.y});
             }
         // Write an action using println!("message...");
         print_err!("W:{}, H:{}, N:{}, bomb_dir:{},x0:{},y0:{}, batLoc.x {} batloc.y {}",w,h,n,bomb_dir,x0,y0,batLoc.x,batLoc.y);
 
 
         // the location of the next window Batman should jump to.
-        //println!("0 0");
+        println!("{} {}",batLoc.x,batLoc.y);
     }
 }
