@@ -1,13 +1,15 @@
 use std::io;
+use std::collections::{VecDeque};
 
-//macro_rules! print_err {
-//    ($($arg:tt)*) => (
-//        {
-//            use std::io::Write;
-//            writeln!(&mut ::std::io::stderr(), $($arg)*).ok();
-//        }
-//    )
-//}
+#[allow(dead_code)]
+macro_rules! print_err {
+    ($($arg:tt)*) => (
+        {
+            use std::io::Write;
+            writeln!(&mut ::std::io::stderr(), $($arg)*).ok();
+        }
+    )
+}
 
 macro_rules! parse_input {
     ($x:expr, $t:ident) => ($x.trim().parse::<$t>().unwrap())
@@ -96,7 +98,9 @@ fn main() {
         io::stdin().read_line(&mut input_line).unwrap();
         let unit_count = parse_input!(input_line, i32);
         
-        let mut units=vec![];
+        let mut myReapers=vec![];
+        let mut enemyReapers=vec![];
+        let mut wreckTanks = VecDeque::new();
         
         for i in 0..unit_count as usize {
             let mut input_line = String::new();
@@ -113,14 +117,30 @@ fn main() {
             let vy = parse_input!(inputs[8], i32);
             let extra = parse_input!(inputs[9], i32);
             let extra_2 = parse_input!(inputs[10], i32);
-            units.push(Unit::new(unit_id,unit_type,player,mass,radius,x,y,vx,vy,extra,extra_2));
+            
+            //consider using a match
+            if unit_type==0 && player == 0{
+                myReapers.push(Unit::new(unit_id,unit_type,player,mass,radius,x,y,vx,vy,extra,extra_2));
+            }else if unit_type==4{
+                wreckTanks.push_back(Unit::new(unit_id,unit_type,player,mass,radius,x,y,vx,vy,extra,extra_2));
+            }else{
+                enemyReapers.push(Unit::new(unit_id,unit_type,player,mass,radius,x,y,vx,vy,extra,extra_2));
+            }
         }
 
-        // Write an action using println!("message...");
-        // To debug: print_err!("Debug message...");
-
+        //should use a queue a minima...
+        //should go to those with no enmey reapers
+        //for tank in wreckTanks{
+        //opt for the nearest tank with no enemy reapers on it?
+        //unwrap: get the value, sure therie is one ;)
+        let mut first=wreckTanks.pop_front().unwrap();
+            
+        //THREE input lines!!
+        println!("{} {} 200",&first.x,&first.y);
         println!("WAIT");
         println!("WAIT");
-        println!("WAIT");
+        
+        wreckTanks.push_back(first);
+        //print_err!("{} {}",first.x,first.y);
     }
 }
