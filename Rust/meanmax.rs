@@ -1,7 +1,8 @@
 use std::io;
+use std::f64;
+//use std::fmt; no need with format
 use std::collections::{VecDeque};
 
-#[allow(dead_code)]
 macro_rules! print_err {
     ($($arg:tt)*) => (
         {
@@ -20,8 +21,28 @@ struct Point{
     x:i32,
     y:i32,
 }
+
+impl Point{
+    fn distance (&self, p:Point) -> f64{
+        //cast here...
+        let x=self.x as f64;
+        let y=self.y as f64;
+        let other_x=p.x as f64;
+        let other_y = p.y as f64;
+        f64::sqrt((x-other_x)*(x-other_x) + (y-other_y)*(y-other_y)) 
+       }
+    fn isInRange (&self, p:Point,r:f64) -> bool{
+        if self.distance(p)<=r{
+            true
+        } else {
+            false
+        }
+    }
+        
+}
     
 //UNIT
+#[derive(Debug)]
 struct Unit{
     unitid:i32,
     unitType:i32,
@@ -36,19 +57,21 @@ struct Unit{
     extra2:i32,
 }
 impl Unit{
+    //why not update instead of new??
     fn new(unitid:i32, unitType:i32, playerId:i32, mass:f64, radius:i32, x:i32, y:i32, vx:i32, vy:i32, extra:i32, extra2:i32) -> Unit{
         Unit{
-            unitid:unitid,
-            unitType:unitType,
-            playerId:playerId,
-            mass:mass,
-            radius:radius,
-            x:x,
-            y:y,
-            vx:vx,
-            vy:vy,
-            extra:extra,
-            extra2:extra2,
+            //apply field init shorthand
+            unitid,
+            unitType,
+            playerId,
+            mass,
+            radius,
+            x,
+            y,
+            vx,
+            vy,
+            extra,
+            extra2,
             }
     }
     pub fn getTanks(&self) -> bool{
@@ -66,8 +89,35 @@ impl Unit{
             }
     }
                 
-    //take a reaper move it to nearby tanks
-    //pub fn moveToTanks{
+    //idea: output a string with X/Y/THROTTLE
+    //tankers list should be pass as pointer you modify it??
+    pub fn moveToTanker (&self,mut tankers:VecDeque<Unit>) -> String{
+        //OOPS only if tankers is NOT empty
+        //if it's empty you simply output "wait"
+        //should modify via unitType to differentiate doof and destroyer
+        //so that they act separately/independently!!
+        if tankers.len() as i32 !=0{
+            //persevere on the first?
+            let mut tanker=tankers.pop_front().unwrap();
+            format!("{} {} 300",&tanker.x,&tanker.y)
+        } else {
+            format!("WAIT")
+            }
+        }
+        
+    //for reapers    
+    pub fn moveToWreck(&self,mut wrecks:VecDeque<Unit>) -> String{
+        //OOPS only if there is wrecks!!
+        //if it's empty you simply output "wait"
+        if wrecks.len() as i32 !=0{
+            //persevere on the first?
+            let mut target=wrecks.pop_front().unwrap();
+            format!("{} {} 300",&target.x,&target.y)
+        } else {
+            format!("WAIT")
+            }
+        }
+        
 }
 
 //GAMESTATE
@@ -98,9 +148,14 @@ fn main() {
         io::stdin().read_line(&mut input_line).unwrap();
         let unit_count = parse_input!(input_line, i32);
         
-        let mut myReapers=vec![];
+        //init_entities gamestate?
+        let mut myReapers=VecDeque::new();
         let mut enemyReapers=vec![];
+        let mut myDestroyers=VecDeque::new();
+        let mut enemyDestroyers=vec![];
+        let mut tankers=VecDeque::new();
         let mut wreckTanks = VecDeque::new();
+        let mut myDoofs=VecDeque::new();
         
         for i in 0..unit_count as usize {
             let mut input_line = String::new();
@@ -118,29 +173,48 @@ fn main() {
             let extra = parse_input!(inputs[9], i32);
             let extra_2 = parse_input!(inputs[10], i32);
             
-            //consider using a match
-            if unit_type==0 && player == 0{
-                myReapers.push(Unit::new(unit_id,unit_type,player,mass,radius,x,y,vx,vy,extra,extra_2));
-            }else if unit_type==4{
-                wreckTanks.push_back(Unit::new(unit_id,unit_type,player,mass,radius,x,y,vx,vy,extra,extra_2));
+            //match => non exhaustive pattern in unit_type '_'
+            if player == 0 {
+                if unit_type == 0{
+                    myReapers.push_back(Unit::new(unit_id,unit_type,player,mass,radius,x,y,vx,vy,extra,extra_2));
+                } else if unit_type ==1{
+                    myDestroyers.push_back(Unit::new(unit_id,unit_type,player,mass,radius,x,y,vx,vy,extra,extra_2));
+                } else if unit_type==2{
+                    myDoofs.push_back(Unit::new(unit_id,unit_type,player,mass,radius,x,y,vx,vy,extra,extra_2));
+                }
             }else{
-                enemyReapers.push(Unit::new(unit_id,unit_type,player,mass,radius,x,y,vx,vy,extra,extra_2));
+                if unit_type == 0{
+                    enemyReapers.push(Unit::new(unit_id,unit_type,player,mass,radius,x,y,vx,vy,extra,extra_2));
+                } else if unit_type ==1{
+                    enemyDestroyers.push(Unit::new(unit_id,unit_type,player,mass,radius,x,y,vx,vy,extra,extra_2));
+                } else if unit_type == 3{
+                    tankers.push_back(Unit::new(unit_id,unit_type,player,mass,radius,x,y,vx,vy,extra,extra_2));
+                } else if unit_type == 4{    
+                    wreckTanks.push_back(Unit::new(unit_id,unit_type,player,mass,radius,x,y,vx,vy,extra,extra_2));
+                }
             }
         }
-
-        //should use a queue a minima...
-        //should go to those with no enmey reapers
-        //for tank in wreckTanks{
+        //print_err!("{:#?}",myDestroyers);
         //opt for the nearest tank with no enemy reapers on it?
-        //unwrap: get the value, sure therie is one ;)
-        let mut first=wreckTanks.pop_front().unwrap();
+        let mut reaperGuillaume=myReapers.pop_front().unwrap();
+        let mut str1=reaperGuillaume.moveToWreck(wreckTanks);
+        
+        let mut destroyerGuillaume=myDestroyers.pop_front().unwrap();
+        let mut str2=destroyerGuillaume.moveToTanker(tankers);
+        
+        //just test not good!!
+        let mut doofGuillaume=myDoofs.pop_front().unwrap();
+        let mut str3=doofGuillaume.moveToTanker(tankers);
+        
             
         //THREE input lines!!
-        println!("{} {} 200",&first.x,&first.y);
-        println!("WAIT");
+        //first line reaper
+        //second destroyer
+        //third doof
+        println!("{}",str1);
+        println!("{}",str2);
         println!("WAIT");
         
-        wreckTanks.push_back(first);
-        //print_err!("{} {}",first.x,first.y);
+        print_err!("{}",str2);
     }
 }
