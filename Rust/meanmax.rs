@@ -34,7 +34,7 @@ struct Point{
 }
 
 impl Point{
-    fn distance (&self, p:Point) -> f64{
+    fn distance (&self, p:&Point) -> f64{
         //cast here...
         let x=self.x as f64;
         let y=self.y as f64;
@@ -44,8 +44,8 @@ impl Point{
        }
       
     //move the point to an other point for a given distance
-    fn moveTo(self,p:Point,distance:f64){
-        let d:f64=self.distance(p);
+    fn moveTo(mut self,p:Point,distance:f64){
+        let d:f64=self.distance(&p);
         
         if d > EPSILON{
            let dx:f64=self.x - p.x;
@@ -59,9 +59,9 @@ impl Point{
            }
     }
     
-      //r cf looter radius
+    //r cf looter radius
     fn isInRange (&self, p:Point,r:f64) -> bool{
-        if self.distance(p)<=r{
+        if self.distance(&p)<=r{
             true
         } else {
             false
@@ -309,14 +309,14 @@ fn main() {
         let destroyerGuillaume=myDestroyers.pop_front().unwrap();
         let str2=destroyerGuillaume.moveToTanker(tankers);
         
+        
+        let doofGuillaume=myDoofs.pop_front().unwrap();
+        //let str3={
+           
+        //};
         //if score1 > score2 tu prends les reapers 1 comme cible
         //si score2 > score 1 tu prends les reapers 2 comme cible
-        let doofGuillaume=myDoofs.pop_front().unwrap();
-        let str3=if enemy_score_1 > enemy_score_2{
-            doofGuillaume.chaseTheReaper(enemy1Reapers); 
-        }else if enemy_score_1 < enemy_score_2{
-            doofGuillaume.chaseTheReaper(enemy2Reapers); 
-        };
+        
         
         //THREE input lines!!
         //first line reaper
@@ -324,8 +324,25 @@ fn main() {
         //third doof
         println!("{}",str1);
         println!("{}",str2);
-        println!("{}",str3);
         
-        print_err!("{:?}",str3);
+        //my code is better WITHOUT that i dont get doofs!! how should i correctly use them??
+        //need to thisnk
+         //if enemy_score_1 > enemy_score_2{
+               // println!("{}",doofGuillaume.chaseTheReaper(enemy1Reapers));
+                //try to pass the ref to the string outside the scope
+                //&s;
+                //}
+           // if enemy_score_1 < enemy_score_2{
+           //     println!("{}",doofGuillaume.chaseTheReaper(enemy2Reapers));
+                //&s;
+           // }  
+           // else {
+           //     println!("WAIT");
+                //&s;
+            //    }
+        println!("WAIT");
+        //println!("{}",&str3);
+        
+        print_err!("{}",str2);
     }
 }
