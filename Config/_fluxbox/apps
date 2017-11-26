@@ -1,0 +1,9 @@
+[app] (name=fbrun)
+  [Position]	(CENTER)	{0 0}
+  [Layer]	{2}
+[end]
+[app] (name=chromium) (class=Chromium)
+  [Minimized]	{no}
+[end]
+[app] (name=Terminal) (class=Terminal) (role=Terminal-0x8269870-1853-1323773580)
+[end]
