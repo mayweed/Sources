@@ -1,0 +1,62 @@
+[begin] (FluxBox)
+	[exec] (Terminal) {xfce4-terminal}
+	[exec] (Thunar) {thunar}
+	[exec] (LibreOffice) {libreoffice}
+	[exec] (Firefox) {firefox}
+    [exec] (Scribus) {scribus}
+    [exec] (Gimp) {gimp}
+    [exec] (Blender) {blender}
+    [exec] (Inkscape) {inkscape}
+    [exec] (Handbrake) {ghb}
+	[separator]
+	[submenu] (Shells)
+		[exec] (Vim) {xfterm4 -e vim}
+        [exec] (Emacs) {emacs}
+		[exec] (Top) {xfterm4 -e top}
+        [exec] (monoDevelop) {monodevelop}
+	[end]
+	[submenu] (Office)
+		[exec] (Adobe Reader 9) {acroread}
+	[end]
+    [submenu] (Multimedia)
+		[exec] (ALSA mixer) {xfterm4 -e alsamixer}
+		[exec] (Grip) {grip}
+       	[exec] (Shotwell) {shotwell}
+		[exec] (VLC media player) {vlc}
+        [exec] (Nitrogen) {nitrogen}
+        [exec] (Xfburn) {xfburn}
+	[end]
+	[submenu] (Network)
+        [exec] (Steam) {steam}
+        [exec] (Chromium) {chromium}
+        [exec] (Wireshark) {wireshark-gtk}
+        [exec] (Systemd-manager) {systemd-manager}
+	[end]
+    [submenu] (System)
+		[exec] (Log Out) {xfce4-session-logout}
+	[submenu] (Utilities)
+		[exec] (Activate ScreenSaver [Random]) {xscreensaver-command -activate}
+		[exec] (Disable XScreenSaver) {xscreensaver-command -exit}
+		[exec] (Enable XScreenSaver) {xscreensaver}
+		[exec] (Reinitialize XScreenSaver) {xscreensaver-command -restart}
+		[exec] (Run Program...) {xfrun4}
+		[exec] (ScreenSaver Preferences) {xscreensaver-command -prefs}
+	[end]
+	[end]
+	[separator]
+	[submenu] (FluxBox)
+		[workspaces] (Workspaces)
+		[submenu] (Styles)
+			[stylesdir] (/usr/share/fluxbox/styles)
+			[stylesdir] (~/.fluxbox/styles)
+		[end]
+        [submenu] (Wallpapers)
+            [wallpapers] (~/.fluxbox/backgrounds)
+		[end]
+		[config] (Configure)
+		[reconfig] (Reconfig)
+		[restart] (Restart)
+		[separator]
+		[exit] (Exit)
+	[end]
+	
