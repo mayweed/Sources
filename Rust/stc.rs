@@ -33,10 +33,20 @@ struct Stone{
 
 //probably the most important struct !!
 //#[derive(Debug)]
-//struct Board{
+type Board=Vec<Vec<i32>>;
 //impl Board{
+    //yield an empty *free* board
+fn new() -> Board{
+    let mut new_board:Board=vec![vec![FREE;WIDTH as usize];HEIGHT as usize];
+    //w/o return it does not work...
+    return new_board
+  }
+
 //take a string output a line of i32 in a vec
 //fill the board quoi
+//take the board, take the pieces yield the int num of a col
+//fn place_stones(self,s:Vec<Stone>) -> i32{
+//this is not a board func?
 fn parse_row(r:String) -> Vec<i32>{
     let mut dum:Vec<i32>=Vec::new();
     for elem in r.chars(){
