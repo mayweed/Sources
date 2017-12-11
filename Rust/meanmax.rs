@@ -230,13 +230,7 @@ impl Player{
     }
 }
 
-//GAMESTATE
-//??
-//struct GameState{
-// expected liftime parameters for player??
-//    players:Player,
-//    }
-    
+//MAIN
 fn main() { 
     // game loop
     loop {
@@ -263,23 +257,12 @@ fn main() {
         let unit_count = parse_input!(input_line, i32);
         
         //init_entities gamestate?
-        //let mut myReapers=VecDeque::new();
-        let mut enemy1Reapers=VecDeque::new();
-        let mut enemy2Reapers=VecDeque::new();
-        
-        //let mut myDestroyers=VecDeque::new();
-        let mut enemy1Destroyers=VecDeque::new();
-        let mut enemy2Destroyers=VecDeque::new();
-        
-        //let mut myDoofs=VecDeque::new(); 
-        let mut enemy1Doofs=VecDeque::new(); 
-        let mut enemy2Doofs=VecDeque::new(); 
-        
-        let mut tankers=VecDeque::new();
-        let mut wreckTanks = VecDeque::new();
-        
         //should write a new new() func for this struct?
         let mut me=Player{id:0,score:my_score,rage:my_rage,reapers:VecDeque::new(),destroyers:VecDeque::new(),doofs:VecDeque::new()};
+        let mut enemy1=Player{id:1,score:enemy_score_1,rage:enemy_rage_1,reapers:VecDeque::new(),destroyers:VecDeque::new(),doofs:VecDeque::new()};
+        let mut enemy2=Player{id:2,score:enemy_score_2,rage:enemy_rage_2,reapers:VecDeque::new(),destroyers:VecDeque::new(),doofs:VecDeque::new()};
+        let mut tankers=VecDeque::new();
+        let mut wreckTanks = VecDeque::new();
         
         for i in 0..unit_count as usize {
             let mut input_line = String::new();
@@ -298,8 +281,6 @@ fn main() {
             let extra = parse_input!(inputs[9], i32);
             let extra_2 = parse_input!(inputs[10], i32);
             
-            //match => non exhaustive pattern in unit_type '_'
-            //UGLY of the UGLIEST!! should factor that one day!!
             if player == 0 {
                 if unit_type == 0{
                     me.reapers.push_back(Unit::new(unit_id,unit_type,player,mass,radius,point,vx,vy,extra,extra_2));
@@ -310,19 +291,19 @@ fn main() {
                 }
             }else if player ==1{
                 if unit_type == 0{
-                    enemy1Reapers.push_back(Unit::new(unit_id,unit_type,player,mass,radius,point,vx,vy,extra,extra_2));
+                    enemy1.reapers.push_back(Unit::new(unit_id,unit_type,player,mass,radius,point,vx,vy,extra,extra_2));
                 } else if unit_type ==1{
-                    enemy1Destroyers.push_back(Unit::new(unit_id,unit_type,player,mass,radius,point,vx,vy,extra,extra_2));
+                    enemy1.destroyers.push_back(Unit::new(unit_id,unit_type,player,mass,radius,point,vx,vy,extra,extra_2));
                 } else if unit_type==2{
-                    enemy1Doofs.push_back(Unit::new(unit_id,unit_type,player,mass,radius,point,vx,vy,extra,extra_2));
+                    enemy1.doofs.push_back(Unit::new(unit_id,unit_type,player,mass,radius,point,vx,vy,extra,extra_2));
                 }
             }else if player==2{
                 if unit_type == 0{
-                    enemy2Reapers.push_back(Unit::new(unit_id,unit_type,player,mass,radius,point,vx,vy,extra,extra_2));
+                    enemy2.reapers.push_back(Unit::new(unit_id,unit_type,player,mass,radius,point,vx,vy,extra,extra_2));
                 } else if unit_type ==1{
-                    enemy2Destroyers.push_back(Unit::new(unit_id,unit_type,player,mass,radius,point,vx,vy,extra,extra_2));
+                    enemy2.destroyers.push_back(Unit::new(unit_id,unit_type,player,mass,radius,point,vx,vy,extra,extra_2));
                 } else if unit_type==2{
-                    enemy2Doofs.push_back(Unit::new(unit_id,unit_type,player,mass,radius,point,vx,vy,extra,extra_2));
+                    enemy2.doofs.push_back(Unit::new(unit_id,unit_type,player,mass,radius,point,vx,vy,extra,extra_2));
                 }
             } else if unit_type == 3{
                 tankers.push_back(Unit::new(unit_id,unit_type,player,mass,radius,point,vx,vy,extra,extra_2));
