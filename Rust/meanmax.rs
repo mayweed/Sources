@@ -18,7 +18,11 @@ macro_rules! parse_input {
 //CONSTANTS
 //idea: looter must stay in watertown or not?
 const MAP_RADIUS:f64=6000.0;
-const WATERTOWN:f64=3000.0;
+const WATERTOWN_RADIUS:f64=3000.0;
+const WATERTOWN:Point=Point{x:0.0,y:0.0};
+//should write an empty associate func to coll?
+//cant call func in a const!! should try cleaner with Option<>
+//const NULL_COLLISION:Collision=Collision{unit1:Unit::new(),unit2:Unit::new(),t:0.0};
 const MAX_THRUST:i32 = 300;
 const MAX_RAGE:i32 = 300;
 const WIN_SCORE:i32 = 50;
@@ -126,28 +130,26 @@ impl Point{
 }
     
 //UNIT
-enum unit_kind{
-    //should correlate that with unit_type value
-    reaper,
-    destroyer,
-    doof,
-    tanker,
-    wreck,
-    }
 #[derive(Debug,Copy,Clone)]
 struct Unit{
-    //kind:unit_kind,
     unitid:i32,
     unitType:i32,
     playerId:i32,
     mass:f64,
-    radius:i32,
+    radius:f64,
     point:Point,
-    vx:i32,
-    vy:i32,
+    vx:f64,
+    vy:f64,
     extra:i32,
     extra2:i32,
 }
+//trait Collision which implement
+//fn collision with map border
+//fn collision with other unit
+//fn bounce
+//and then impl Collision for unit
+//wouldnt things be clearer???
+//use Option instead of empty struct!!
 impl Unit{
     fn new() -> Unit{
         Unit{
@@ -155,16 +157,15 @@ impl Unit{
             unitType:0,
             playerId:0,
             mass:0.0,
-            radius:0,
+            radius:0.0,
             point:Point::new(),
-            vx:0,
-            vy:0,
+            vx:0.0,
+            vy:0.0,
             extra:0,
             extra2:0,
             }
     }
-    //should add unit_kind one day...
-    fn update(unitid:i32, unitType:i32, playerId:i32, mass:f64, radius:i32, point:Point, vx:i32, vy:i32, extra:i32, extra2:i32) -> Unit{
+    fn update(unitid:i32, unitType:i32, playerId:i32, mass:f64, radius:f64, point:Point, vx:f64, vy:f64, extra:i32, extra2:i32) -> Unit{
         Unit{
             //apply field init shorthand
             unitid,
@@ -181,21 +182,108 @@ impl Unit{
     }
     //should I change vx/vy parse types?
     fn unit_move(mut self,t:f64) {
-            self.point.x += self.vx as f64 * t;
-            self.point.y += self.vy as f64 * t;
+            self.point.x += self.vx * t;
+            self.point.y += self.vy * t;
         }
 
     fn unit_speed(&self)->f64{
-            return f64::sqrt(self.vx as f64* self.vx as f64+ self.vy as f64* self.vy as f64);
+            return f64::sqrt(self.vx * self.vx+ self.vy * self.vy);
         }
-       
-     //SHOULD TAKE RAGE INTO ACCOUNT
+        
+    
+    // Search the next collision of a unit with the map border
+    fn get_collision_border(self) -> Collision{
+            // Check instant collision
+            if self.point.distance(&WATERTOWN) + self.radius >= MAP_RADIUS {
+                return Collision{unit1:self,unit2:Unit::new(),t:0.0}
+            }
+
+            // We are not moving, we can't reach the map border
+            if self.vx == 0.0 && self.vy == 0.0{
+                return Collision::new()
+            }
+
+            // Search collision with map border
+            // Resolving: sqrt((x + t*vx)^2 + (y + t*vy)^2) = MAP_RADIUS - radius <=> t^2*(vx^2 + vy^2) + t*2*(x*vx + y*vy) + x^2 + y^2 - (MAP_RADIUS - radius)^2 = 0
+            // at^2 + bt + c = 0;
+            // a = vx^2 + vy^2
+            // b = 2*(x*vx + y*vy)
+            // c = x^2 + y^2 - (MAP_RADIUS - radius)^2
+
+            let mut a = self.vx * self.vx + self.vy * self.vy;
+
+            if a <= 0.0{
+                return Collision::new()
+            }
+
+            let mut b = 2.0 * (self.point.x * self.vx + self.point.y * self.vy);
+            let mut c = self.point.x * self.point.x + self.point.y * self.point.y - (MAP_RADIUS - self.radius as f64) * (MAP_RADIUS - self.radius as f64);
+            let mut delta = b * b - 4.0 * a * c;
+
+            if delta <= 0.0 {
+                return Collision::new()
+            }
+
+            let mut t = (-b + f64::sqrt(delta)) / (2.0 * a);
+
+            if t <= 0.0 {
+                return Collision::new()
+            }
+            //yields a collision at instant t with my unitA, the other is empty
+            return Collision{unit1:self,unit2:Unit::new(),t}
+        }
+
+    // Search the next collision with an other unit
+        fn get_collision_unit(self,u:Unit) -> Collision{
+            // Check instant collision
+            if self.point.distance(&u.point) <= self.radius + u.radius{
+                return Collision{unit1:self,unit2:u,t:0.0}
+            }
+
+            // Both units are motionless
+            if self.vx == 0.0 && self.vy == 0.0 && u.vx == 0.0 && u.vy == 0.0{
+                return Collision::new()
+            }
+
+            // Change referencial
+            // Unit u is not at point (0, 0) with a speed vector of (0, 0)
+            let x2 = self.point.x - u.point.x;
+            let y2 = self.point.y - u.point.y;
+            let r2 = self.radius + u.radius;
+            let vx2 = self.vx - u.vx;
+            let vy2 = self.vy - u.vy;
+
+            // Resolving: sqrt((x + t*vx)^2 + (y + t*vy)^2) = radius <=> t^2*(vx^2 + vy^2) + t*2*(x*vx + y*vy) + x^2 + y^2 - radius^2 = 0
+            // at^2 + bt + c = 0;
+            // a = vx^2 + vy^2
+            // b = 2*(x*vx + y*vy)
+            // c = x^2 + y^2 - radius^2 
+
+            let a = vx2 * vx2 + vy2 * vy2;
+
+            if a <= 0.0 {
+                return Collision::new()
+            }
+
+            let b = 2.0 * (x2 * vx2 + y2 * vy2);
+            let c = x2 * x2 + y2 * y2 - r2 * r2;
+            let delta = b * b - 4.0 * a * c;
+
+            if delta < 0.0{
+                return Collision::new()
+            }
+
+            let t = (-b - f64::sqrt(delta)) / (2.0 * a);
+
+            if t <= 0.0 {
+                return Collision::new()
+            }
+
+            return Collision{unit1:self,unit2:u,t}
+    }
     //for destroyers
     pub fn moveToTanker (&self,mut tankers:VecDeque<Unit>,rage:i32) -> String{
         //OOPS only if tankers is NOT empty
-        //if it's empty you simply output "wait"
-        //should modify via unitType to differentiate doof and destroyer
-        //so that they act separately/independently!!
         if tankers.len() as i32 !=0{
             //persevere on the first?
             let mut tanker=tankers.pop_front().unwrap();
@@ -255,7 +343,24 @@ impl Unit{
         //    }
         }
 }
+//COLLISION
+//This is insane, I don't even know why am doiing that!!
+#[derive(Debug,Copy,Clone)]
+struct Collision{
+    unit1:Unit,
+    unit2:Unit,
+    t:f64,
+    }
 
+impl Collision{
+    fn new() -> Collision{
+        Collision{
+            unit1:Unit::new(),
+            unit2:Unit::new(),
+            t:0.0,
+            }
+        }
+}
 //PLAYER
 #[derive(Debug)]
 struct Player{
@@ -287,18 +392,7 @@ impl Player{
     //}
 }
 
-//COLLISION
-//This is insane, I don't even know why am doiing that!!
-#[derive(Debug,Copy,Clone)]
-struct Collision{
-    unit1:Unit,
-    unit2:Unit,
-    t:f64,
-    }
 
-impl Collision{
-//...
-}
 
 //MAIN
 fn main() { 
@@ -342,12 +436,12 @@ fn main() {
             let unit_type = parse_input!(inputs[1], i32);
             let player = parse_input!(inputs[2], i32);
             let mass = parse_input!(inputs[3], f64);
-            let radius = parse_input!(inputs[4], i32);
+            let radius = parse_input!(inputs[4], f64);
             let x = parse_input!(inputs[5], f64);
             let y = parse_input!(inputs[6], f64);
             let point=Point{x,y};
-            let vx = parse_input!(inputs[7], i32);
-            let vy = parse_input!(inputs[8], i32);
+            let vx = parse_input!(inputs[7], f64);
+            let vy = parse_input!(inputs[8], f64);
             let extra = parse_input!(inputs[9], i32);
             let extra_2 = parse_input!(inputs[10], i32);
             
