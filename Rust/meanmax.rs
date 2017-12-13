@@ -134,7 +134,7 @@ enum unit_kind{
     tanker,
     wreck,
     }
-#[derive(Debug)]
+#[derive(Debug,Copy,Clone)]
 struct Unit{
     //kind:unit_kind,
     unitid:i32,
@@ -210,13 +210,27 @@ impl Unit{
         }
         
     //for reapers    
-    //should evaluate the wrecks to target. Idea: a very simple wreck-scoring algorithm, (water content) * FACTOR - (distance to reaper). I forget what the factor was, but it was high like 12000 or something
+    //yield the highest filled wreck(basic)
+     //should evaluate the wrecks to target. Idea: a very simple wreck-scoring algorithm, (water content) * FACTOR - (distance to reaper). I forget what the factor was, but it was high like 12000 or something
+    pub fn high_filled_wreck(mut wrecks:VecDeque<Unit>) -> Unit{ // really?->VecDeque<Unit>{
+        let mut max_water=0;
+        let mut wreck=Unit::new(); //to store the highest
+        for &item in wrecks.iter(){
+            if item.extra > max_water{
+                max_water=item.extra;
+                wreck=item;
+                }
+            }
+        wreck
+        }
+   
     pub fn moveToWreck(&self,mut wrecks:VecDeque<Unit>) -> String{
         //OOPS only if there is wrecks!!
         //if it's empty you simply output "wait"
         if wrecks.len() as i32 !=0{
             //persevere on the first?
-            let mut target=wrecks.pop_front().unwrap();
+            //let mut target=wrecks.pop_front().unwrap();
+            let mut target=Unit::high_filled_wreck(wrecks);
             if target.point.isInRange(self.point,LOOTER_RADIUS){
                 format!("{} {} 200",&target.point.x,&target.point.y)
                 }else{
@@ -271,6 +285,19 @@ impl Player{
        // }
         //max_score
     //}
+}
+
+//COLLISION
+//This is insane, I don't even know why am doiing that!!
+#[derive(Debug,Copy,Clone)]
+struct Collision{
+    unit1:Unit,
+    unit2:Unit,
+    t:f64,
+    }
+
+impl Collision{
+//...
 }
 
 //MAIN
@@ -361,24 +388,21 @@ fn main() {
         }
         
         //opt for the nearest tank with no enemy reapers on it?
-        //let reaperGuillaume=me.reapers.pop_front().unwrap();
         let str1=me.reaper.moveToWreck(wrecks);
-        println!("{}",str1);
+        println!("{} REAPER",str1);
         
-        //let destroyerGuillaume=me.destroyers.pop_front().unwrap();
         let str2=me.destroyer.moveToTanker(tankers,me.rage);
-        println!("{}",str2);
+        println!("{} DESTROYER",str2);
         
-        //let doofGuillaume=me.doof.pop_front().unwrap();
         //should take into account all of the reapers!! and pick the
         //best one to hinder!!should target the enemy with bestScore!!
         //modify and use a value outside its scope in rust...
         if enemy1.score > enemy2.score{
-            let str3=me.doof.chaseTheReaper(enemy1.reaper,me.rage);
+           let str3=me.doof.chaseTheReaper(enemy1.reaper,me.rage);
             println!("{}",str3);
             }else {
             let str3=me.doof.chaseTheReaper(enemy2.reaper,me.rage);
-            println!("{}",str3);
+            println!("{} DOOF",str3);
             }
            
         //THREE input lines!!
