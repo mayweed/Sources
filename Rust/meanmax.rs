@@ -86,6 +86,12 @@ struct Point{
 }
 
 impl Point{
+    fn new() -> Point{
+        Point{
+            x:0.0,
+            y:0.0,
+            }
+    }
     fn distance (self, p:&Point) -> f64{
         let x=self.x;
         let y=self.y; 
@@ -111,9 +117,9 @@ impl Point{
     //Yields true if a object is in radius range
     fn isInRange (self, p:Point,radius:f64) -> bool{
         if self.distance(&p)<=radius{
-            true
+            return true
         } else {
-            false
+            return false
         }
     }
         
@@ -143,8 +149,22 @@ struct Unit{
     extra2:i32,
 }
 impl Unit{
+    fn new() -> Unit{
+        Unit{
+            unitid:0,
+            unitType:0,
+            playerId:0,
+            mass:0.0,
+            radius:0,
+            point:Point::new(),
+            vx:0,
+            vy:0,
+            extra:0,
+            extra2:0,
+            }
+    }
     //should add unit_kind one day...
-    fn new(unitid:i32, unitType:i32, playerId:i32, mass:f64, radius:i32, point:Point, vx:i32, vy:i32, extra:i32, extra2:i32) -> Unit{
+    fn update(unitid:i32, unitType:i32, playerId:i32, mass:f64, radius:i32, point:Point, vx:i32, vy:i32, extra:i32, extra2:i32) -> Unit{
         Unit{
             //apply field init shorthand
             unitid,
@@ -169,9 +189,8 @@ impl Unit{
             return f64::sqrt(self.vx as f64* self.vx as f64+ self.vy as f64* self.vy as f64);
         }
        
-    //idea: output a string with X/Y/THROTTLE
-    //IDEA SKILL=when adverse reaper is in range of my reaper, Skill instead of ...
-    //tankers list should be pass as pointer you modify it??
+     //SHOULD TAKE RAGE INTO ACCOUNT
+    //for destroyers
     pub fn moveToTanker (&self,mut tankers:VecDeque<Unit>,rage:i32) -> String{
         //OOPS only if tankers is NOT empty
         //if it's empty you simply output "wait"
@@ -180,7 +199,7 @@ impl Unit{
         if tankers.len() as i32 !=0{
             //persevere on the first?
             let mut tanker=tankers.pop_front().unwrap();
-            if tanker.point.isInRange(self.point,LOOTER_RADIUS)&&rage > 60{
+            if tanker.point.distance(&self.point)<REAPER_SKILL_RANGE && rage>DESTROYER_SKILL_COST{
                 format!("SKILL {} {}",&tanker.point.x,&tanker.point.y)
                 }else{
                 format!("{} {} 300",&tanker.point.x,&tanker.point.y)
@@ -191,6 +210,7 @@ impl Unit{
         }
         
     //for reapers    
+    //should evaluate the wrecks to target. Idea: a very simple wreck-scoring algorithm, (water content) * FACTOR - (distance to reaper). I forget what the factor was, but it was high like 12000 or something
     pub fn moveToWreck(&self,mut wrecks:VecDeque<Unit>) -> String{
         //OOPS only if there is wrecks!!
         //if it's empty you simply output "wait"
@@ -207,21 +227,19 @@ impl Unit{
             }
         }
     
-    //for doofs very minimalist (no dist etc...)
-    //mut reapers: cannot borrow immutable argument 'reapers' as mutable
-    pub fn chaseTheReaper(&self,mut reapers:VecDeque<Unit>) -> String{
-        if reapers.len() as i32 !=0{
-            let mut target=reapers.pop_front().unwrap();
-            if target.point.isInRange(self.point,LOOTER_RADIUS){
-                format!("SKILL {} {}",&target.point.x,&target.point.y)
-                }else{
-                format!("{} {} 300",&target.point.x,&target.point.y)
-                }
-            } else{
-                format!("WAIT")
-            }
+    //for doofs 
+    //TODO: modify to take into accounts ALL reapers from enemy + target
+    // precisely which one to attack (score based? distance based?...)
+    pub fn chaseTheReaper(&self,mut reaper:Unit,rage:i32) -> String{
+        if reaper.point.distance(&self.point)<DOOF_SKILL_RANGE&&rage >DOOF_SKILL_COST {
+            format!("SKILL {} {}",&reaper.point.x,&reaper.point.y)
+        }else{
+            format!("{} {} 300",&reaper.point.x,&reaper.point.y)
         }
-        
+        //    } else{
+        //        format!("WAIT")
+        //    }
+        }
 }
 
 //PLAYER
@@ -230,26 +248,29 @@ struct Player{
     id:i32, //0 for me, 1 and 2 for others
     score:i32,
     rage:i32,
-    reapers:VecDeque<Unit>,
-    destroyers:VecDeque<Unit>,
-    doofs:VecDeque<Unit>,
+    reaper:Unit,
+    destroyer:Unit,
+    doof:Unit,
     }
     
 impl Player{
     //idea: get the max score player's reapers targeted by doofs!! 
     //what about equal scores?
-    //yield the id of the player?
-    fn best_score(self,p1:Player,p2:Player)->i32{
-        let mut max_score=0;
-        if self.score > p1.score && self.score > p2.score{
-            max_score=self.id;
-        }else if p1.score > self.score && p1.score > p2.score{
-            max_score=p1.id;
-        }else if p2.score > self.score && p2.score > p1.score{
-            max_score=p2.id;
-        }
-        max_score
-    }
+    //fn best_score(self,p1:Player,p2:Player)-> Player{
+        //empty struct?
+        //let mut max_score=self;
+        //match??
+        //if self.score > p1.score && self.score > p2.score{
+           // self
+        //}
+        //if p1.score > self.score && p1.score > p2.score{
+        //    p1
+        //    }
+        //if p2.score > self.score && p2.score > p1.score{
+       //     p2
+       // }
+        //max_score
+    //}
 }
 
 //MAIN
@@ -280,11 +301,11 @@ fn main() {
         
         //init_entities gamestate?
         //should write a new new() func for this struct?
-        let mut me=Player{id:0,score:my_score,rage:my_rage,reapers:VecDeque::new(),destroyers:VecDeque::new(),doofs:VecDeque::new()};
-        let mut enemy1=Player{id:1,score:enemy_score_1,rage:enemy_rage_1,reapers:VecDeque::new(),destroyers:VecDeque::new(),doofs:VecDeque::new()};
-        let mut enemy2=Player{id:2,score:enemy_score_2,rage:enemy_rage_2,reapers:VecDeque::new(),destroyers:VecDeque::new(),doofs:VecDeque::new()};
+        let mut me=Player{id:0,score:my_score,rage:my_rage,reaper:Unit::new(),destroyer:Unit::new(),doof:Unit::new()};
+        let mut enemy1=Player{id:1,score:enemy_score_1,rage:enemy_rage_1,reaper:Unit::new(),destroyer:Unit::new(),doof:Unit::new()};
+        let mut enemy2=Player{id:2,score:enemy_score_2,rage:enemy_rage_2,reaper:Unit::new(),destroyer:Unit::new(),doof:Unit::new()};
         let mut tankers=VecDeque::new();
-        let mut wreckTanks = VecDeque::new();
+        let mut wrecks = VecDeque::new();
         
         for i in 0..unit_count as usize {
             let mut input_line = String::new();
@@ -305,52 +326,64 @@ fn main() {
             
             if player == 0 {
                 if unit_type == 0{
-                    me.reapers.push_back(Unit::new(unit_id,unit_type,player,mass,radius,point,vx,vy,extra,extra_2));
+                    me.reaper=Unit::update(unit_id,unit_type,player,mass,radius,point,vx,vy,extra,extra_2);
                 } else if unit_type ==1{
-                    me.destroyers.push_back(Unit::new(unit_id,unit_type,player,mass,radius,point,vx,vy,extra,extra_2));
+                    me.destroyer=Unit::update(unit_id,unit_type,player,mass,radius,point,vx,vy,extra,extra_2);
                 } else if unit_type==2{
-                    me.doofs.push_back(Unit::new(unit_id,unit_type,player,mass,radius,point,vx,vy,extra,extra_2));
+                    me.doof=Unit::update(unit_id,unit_type,player,mass,radius,point,vx,vy,extra,extra_2);
                 }
             }else if player ==1{
                 if unit_type == 0{
-                    enemy1.reapers.push_back(Unit::new(unit_id,unit_type,player,mass,radius,point,vx,vy,extra,extra_2));
+                    enemy1.reaper=Unit::update(unit_id,unit_type,player,mass,radius,point,vx,vy,extra,extra_2);
                 } else if unit_type ==1{
-                    enemy1.destroyers.push_back(Unit::new(unit_id,unit_type,player,mass,radius,point,vx,vy,extra,extra_2));
+                    enemy1.destroyer=Unit::update(unit_id,unit_type,player,mass,radius,point,vx,vy,extra,extra_2);
                 } else if unit_type==2{
-                    enemy1.doofs.push_back(Unit::new(unit_id,unit_type,player,mass,radius,point,vx,vy,extra,extra_2));
+                    enemy1.doof=Unit::update(unit_id,unit_type,player,mass,radius,point,vx,vy,extra,extra_2);
                 }
             }else if player==2{
                 if unit_type == 0{
-                    enemy2.reapers.push_back(Unit::new(unit_id,unit_type,player,mass,radius,point,vx,vy,extra,extra_2));
+                    enemy2.reaper=Unit::update(unit_id,unit_type,player,mass,radius,point,vx,vy,extra,extra_2);
                 } else if unit_type ==1{
-                    enemy2.destroyers.push_back(Unit::new(unit_id,unit_type,player,mass,radius,point,vx,vy,extra,extra_2));
+                    enemy2.destroyer=Unit::update(unit_id,unit_type,player,mass,radius,point,vx,vy,extra,extra_2);
                 } else if unit_type==2{
-                    enemy2.doofs.push_back(Unit::new(unit_id,unit_type,player,mass,radius,point,vx,vy,extra,extra_2));
+                    enemy2.doof=Unit::update(unit_id,unit_type,player,mass,radius,point,vx,vy,extra,extra_2);
                 }
             } else if unit_type == 3{
-                tankers.push_back(Unit::new(unit_id,unit_type,player,mass,radius,point,vx,vy,extra,extra_2));
+                tankers.push_back(Unit::update(unit_id,unit_type,player,mass,radius,point,vx,vy,extra,extra_2));
             } else if unit_type == 4{    
-                wreckTanks.push_back(Unit::new(unit_id,unit_type,player,mass,radius,point,vx,vy,extra,extra_2));
+                //should sort by distance:the center of the reaper in the wreck and reaper radius ==400 
+                if me.reaper.point.distance(&Point{x,y}) > LOOTER_RADIUS{
+                wrecks.push_back(Unit::update(unit_id,unit_type,player,mass,radius,point,vx,vy,extra,extra_2));
+                }else{
+                wrecks.push_front(Unit::update(unit_id,unit_type,player,mass,radius,point,vx,vy,extra,extra_2));
+                }
             }
         }
         
         //opt for the nearest tank with no enemy reapers on it?
-        let reaperGuillaume=me.reapers.pop_front().unwrap();
-        let str1=reaperGuillaume.moveToWreck(wreckTanks);
+        //let reaperGuillaume=me.reapers.pop_front().unwrap();
+        let str1=me.reaper.moveToWreck(wrecks);
+        println!("{}",str1);
         
-        let destroyerGuillaume=me.destroyers.pop_front().unwrap();
-        let str2=destroyerGuillaume.moveToTanker(tankers,me.rage);
+        //let destroyerGuillaume=me.destroyers.pop_front().unwrap();
+        let str2=me.destroyer.moveToTanker(tankers,me.rage);
+        println!("{}",str2);
         
-        let doofGuillaume=me.doofs.pop_front().unwrap();
-        //should take into account all of the reapers!!
-        let str3=doofGuillaume.chaseTheReaper(enemy1.reapers);
+        //let doofGuillaume=me.doof.pop_front().unwrap();
+        //should take into account all of the reapers!! and pick the
+        //best one to hinder!!should target the enemy with bestScore!!
+        //modify and use a value outside its scope in rust...
+        if enemy1.score > enemy2.score{
+            let str3=me.doof.chaseTheReaper(enemy1.reaper,me.rage);
+            println!("{}",str3);
+            }else {
+            let str3=me.doof.chaseTheReaper(enemy2.reaper,me.rage);
+            println!("{}",str3);
+            }
            
         //THREE input lines!!
         //first line reaper
         //second destroyer
         //third doof
-        println!("{}",str1);
-        println!("{}",str2);
-        println!("{}",str3);
     }
 }
