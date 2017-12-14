@@ -190,7 +190,11 @@ impl Unit{
             return f64::sqrt(self.vx * self.vx+ self.vy * self.vy);
         }
         
+<<<<<<< HEAD
     //shamelessly copy/paste from referee and quickly rustify!!
+=======
+    
+>>>>>>> 79b4baf9978700366e943847ff30401e1b88c615
     // Search the next collision of a unit with the map border
     fn get_collision_border(self) -> Collision{
             // Check instant collision
@@ -281,6 +285,7 @@ impl Unit{
 
             return Collision{unit1:self,unit2:u,t}
     }
+<<<<<<< HEAD
     // Bounce between 2 units
     //very mutable gaffe!!
     fn bounce(mut self, mut u:Unit) {
@@ -326,6 +331,8 @@ impl Unit{
                 u.point.moveTo(self.point, diff - EPSILON);
             }
     }
+=======
+>>>>>>> 79b4baf9978700366e943847ff30401e1b88c615
     //for destroyers
     pub fn moveToTanker (&self,mut tankers:VecDeque<Unit>,rage:i32) -> String{
         //OOPS only if tankers is NOT empty
