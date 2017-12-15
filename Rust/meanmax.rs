@@ -190,11 +190,7 @@ impl Unit{
             return f64::sqrt(self.vx * self.vx+ self.vy * self.vy);
         }
         
-<<<<<<< HEAD
     //shamelessly copy/paste from referee and quickly rustify!!
-=======
-    
->>>>>>> 79b4baf9978700366e943847ff30401e1b88c615
     // Search the next collision of a unit with the map border
     fn get_collision_border(self) -> Collision{
             // Check instant collision
@@ -285,7 +281,6 @@ impl Unit{
 
             return Collision{unit1:self,unit2:u,t}
     }
-<<<<<<< HEAD
     // Bounce between 2 units
     //very mutable gaffe!!
     fn bounce(mut self, mut u:Unit) {
@@ -331,8 +326,39 @@ impl Unit{
                 u.point.moveTo(self.point, diff - EPSILON);
             }
     }
-=======
->>>>>>> 79b4baf9978700366e943847ff30401e1b88c615
+    // Bounce with the map border
+    fn bounce_with_borders(mut self) {
+            let mut mcoeff = 1.0 / self.mass;
+            let mut nxnysquare = self.point.x * self.point.x + self.point.y * self.point.y;
+            let mut product = (self.point.x * self.vx + self.point.y * self.vy) / (nxnysquare * mcoeff);
+            let mut fx = self.point.x * product;
+            let mut fy = self.point.y * product;
+
+            self.vx -= fx * mcoeff;
+            self.vy -= fy * mcoeff;
+
+            fx = fx * IMPULSE_COEFF;
+            fy = fy * IMPULSE_COEFF;
+
+            // Normalize vector at min or max impulse
+            let mut impulse = f64::sqrt(fx * fx + fy * fy);
+            let mut coeff = 1.0;
+            if impulse > EPSILON && impulse < MIN_IMPULSE {
+                coeff = MIN_IMPULSE / impulse;
+            }
+
+            fx = fx * coeff;
+            fy = fy * coeff;
+            self.vx -= fx * mcoeff;
+            self.vy -= fy * mcoeff;
+
+            let mut diff = self.point.distance(&WATERTOWN) + self.radius - MAP_RADIUS;
+            if diff >= 0.0 {
+                // Unit still outside of the map, reposition it
+                self.point.moveTo(WATERTOWN, diff + EPSILON);
+            }
+    }
+    
     //for destroyers
     pub fn moveToTanker (&self,mut tankers:VecDeque<Unit>,rage:i32) -> String{
         //OOPS only if tankers is NOT empty
