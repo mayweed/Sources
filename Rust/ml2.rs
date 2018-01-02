@@ -1,3 +1,6 @@
+//the 1st in rust got 2296 of fuel left!!
+//objective here: simulate mars landing and use monte carlo or gen algo
+//https://pastebin.com/3SUUjgSF
 use std::io;
 
 macro_rules! print_err {
@@ -12,10 +15,10 @@ macro_rules! print_err {
 macro_rules! parse_input {
     ($x:expr, $t:ident) => ($x.trim().parse::<$t>().unwrap())
 }
+//CONSTANTS
+const GRAVITY:f64=3,711;
 
-//the 1st in rust got 2296 of fuel left!!
-//objective here: simulate mars landing and use monte carlo or gen algo
-//https://pastebin.com/3SUUjgSF
+//FLAT_GROUND
 #[derive(Debug,Clone,Copy)]
 struct flat_ground{
     x0:f64,
@@ -50,7 +53,7 @@ impl flat_ground{
     }
     fn is_landing_zone(self) -> bool{
         self.s1_y ==0.0
-        }
+    }
 }
 
 fn main() {
