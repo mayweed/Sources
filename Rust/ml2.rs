@@ -16,7 +16,7 @@ macro_rules! parse_input {
     ($x:expr, $t:ident) => ($x.trim().parse::<$t>().unwrap())
 }
 //CONSTANTS
-const GRAVITY:f64=3,711;
+const GRAVITY:f64=3.711;
 
 //FLAT_GROUND
 #[derive(Debug,Clone,Copy)]
@@ -101,8 +101,10 @@ fn main() {
         let fuel = parse_input!(inputs[4], i32); // the quantity of remaining fuel in liters.
         let rotate = parse_input!(inputs[5], i32); // the rotation angle in degrees (-90 to 90).
         let power = parse_input!(inputs[6], i32); // the thrust power (0 to 4).
-
+        
+        print_err!("hspeed:{}, vspeed:{}, fuel:{}, rotate:{}, power:{}",h_speed,v_speed,fuel,rotate,power);
+        
         // rotate power. rotate is the desired rotation angle. power is the desired thrust power.
-        println!("-20 3");
+        println!("0 2");
     }
 }
