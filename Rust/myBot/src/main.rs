@@ -11,7 +11,7 @@ use hlt::game::Game;
 use hlt::logging::Logger;
 
 fn main() {
-    let name = "Settler";
+    let name = "may's Bot";
 
     // Initiailize the game
     let game = Game::new();
