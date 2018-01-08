@@ -1,4 +1,5 @@
 use std::io;
+use std::collections::HashMap;
 
 macro_rules! print_err {
     ($($arg:tt)*) => (
@@ -15,6 +16,7 @@ macro_rules! parse_input {
 
 //first idea: for each index (num of groups) you got
 //a certain amount of cash
+//use that in hash like viking?
 #[derive(Debug)]
 struct index_cache{
     //not index rather than num of groups!!
@@ -33,8 +35,8 @@ fn main() {
     
     let mut queue:Vec<i64>=Vec::new();
     let mut remaining_places=&l;
-    
-    let mut cache:Vec<index_cache>=Vec::new();
+    let mut cache= HashMap::new();
+    //let mut cache:Vec<index_cache>=Vec::new();
     
     for i in 0..n as usize {
         let mut input_line = String::new();
@@ -55,12 +57,25 @@ fn main() {
         //what the hell to cache?
         let mut num_groups=0;
         
+        //does not work..even for test 5...hashmap??
+        //for i in cache.iter(){
+         //   if i.index==index && i.num_groups==num_groups{
+                //cache.push(index_cache{num_groups,index,dirhams_ride});
+          //      cash_earned+=i.dirhams_ride;
+           //     continue;
+         //       }
+           // }
         loop{
             if index as i32 >= n{index=0};
             //test 4 come on!!
             if l > n && num_groups==n{break};
             
-            
+            //for (k,v) in &cache{
+            //    if k==index{
+            //        println!("dejavu");
+            //    }
+            //}
+                
             
             if remaining_places-queue[index] < 0{
                 break
@@ -80,11 +95,11 @@ fn main() {
         //        cache.push(index_cache{num_groups,index,dirhams_ride});
         //        }
         //    }
-        
-        
+        cache.insert (index,dirhams_ride);
+        //cache.push(index_cache{num_groups,index,dirhams_ride});
         //TEST on case 6...
         if num_groups==190{
-        print_err!("groups {}, index {},cash per ride {}, total {}",num_groups,index,dirhams_ride,cash_earned);
+        print_err!("groups {}, index {},cash per ride {}, total {} cache: {:?}",num_groups,index,dirhams_ride,cash_earned,cache);
         }
     }
     //for indexB in cache.iter(){
