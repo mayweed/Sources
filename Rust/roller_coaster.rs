@@ -1,4 +1,5 @@
 use std::io;
+use std::time::Instant;
 use std::collections::HashMap;
 
 macro_rules! print_err {
@@ -40,21 +41,12 @@ fn main() {
     
     print_err!("Num of places {}, num of times per day {}, num of groups {}",l,c,n);    
     
+    let now=Instant::now();
     for run in 0..c{
         let mut dirhams_ride:i64=0;
         let mut remaining_places:i64=l as i64;
         //what the hell to cache?
         let mut num_groups=0;
-        
-        //To test!!
-        //TOO LONG!!
-        //Is key in cache? If so add the value to the cash and get
-        //to the next iteration
-        //oki where should I put that??
-        //if cache.contains_key(&index){
-         //      cash_earned+=*cache.get(&index).unwrap();
-               //continue;
-           // }
         
         loop{
             if index as i32 >= n{index=0};
@@ -71,18 +63,14 @@ fn main() {
             }
             
         }
-        if cache.contains_key(&index){
-               cash_earned+=*cache.get(&index).unwrap();
-               //continue;
-            } else{
-            cash_earned+=dirhams_ride;
-            }
-
+        cash_earned+=dirhams_ride;
         cache.insert (index,dirhams_ride);
         //TEST on case 6...
         if num_groups==190{
         print_err!("index {},cash per ride {}, total {} cache: {:?}",index,dirhams_ride,cash_earned,cache);
         }
     }
+    let end=now.elapsed();
+    print_err!("Elapsed: {} ms",(end.as_secs() * 1_000) + (end.subsec_nanos() / 1_000_000) as u64);
     println!("{}",cash_earned);
 }
