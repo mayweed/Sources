@@ -25,7 +25,6 @@ fn main() {
     let mut queue:Vec<i64>=Vec::new();
     let mut remaining_places=&l;
     let mut cache= HashMap::new();
-    //let mut cache:Vec<index_cache>=Vec::new();
     
     for i in 0..n as usize{
         let mut input_line = String::new();
@@ -48,20 +47,19 @@ fn main() {
         let mut num_groups=0;
         
         //To test!!
+        //TOO LONG!!
         //Is key in cache? If so add the value to the cash and get
         //to the next iteration
         //oki where should I put that??
-        if cache.contains_key(&index){//.is_some(){
-               cash_earned+=*cache.get(&index).unwrap();
-               continue;
-            }
-
+        //if cache.contains_key(&index){
+         //      cash_earned+=*cache.get(&index).unwrap();
+               //continue;
+           // }
+        
         loop{
             if index as i32 >= n{index=0};
             //test 4 come on!!
             if l > n && num_groups==n{break};
-            
-            
             
             if remaining_places-queue[index] < 0{
                 break
@@ -73,10 +71,14 @@ fn main() {
             }
             
         }
-        
-        cash_earned+=dirhams_ride;
+        if cache.contains_key(&index){
+               cash_earned+=*cache.get(&index).unwrap();
+               //continue;
+            } else{
+            cash_earned+=dirhams_ride;
+            }
+
         cache.insert (index,dirhams_ride);
-        //cache.push(index_cache{num_groups,index,dirhams_ride});
         //TEST on case 6...
         if num_groups==190{
         print_err!("index {},cash per ride {}, total {} cache: {:?}",index,dirhams_ride,cash_earned,cache);
