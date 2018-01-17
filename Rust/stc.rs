@@ -20,8 +20,9 @@ macro_rules! parse_input {
     ($x:expr, $t:ident) => ($x.trim().parse::<$t>().unwrap())
 }
 
-const HEIGHT:i32=12;
-const WIDTH:i32=6;
+//usize easier for indexing Vec<i32> which does not implement trait index<i32> blablabla...
+const HEIGHT:usize=12;
+const WIDTH:usize=6;
 const FREE:i32=-1;
 
 #[derive(Debug)]
@@ -30,18 +31,36 @@ struct Stone{
     color_b:i32,
 }
 
+//wont accept Copy??
+#[derive(Clone,Debug)]
+struct Board{
+    row:Vec<i32>,
+    columns:Vec<i32>,
+    grid:Vec<Vec<i32>>,
+    }
 
-//probably the most important struct !!
-//#[derive(Debug)]
-type Board=Vec<Vec<i32>>;
-//impl Board{
-    //yield an empty *free* board
+impl Board{
 fn new() -> Board{
-    let mut new_board:Board=vec![vec![FREE;WIDTH as usize];HEIGHT as usize];
-    //w/o return it does not work...
-    return new_board
-  }
-
+    Board{
+        row:Vec::new(),
+        columns:Vec::new(),
+        grid:vec![vec![FREE;WIDTH];HEIGHT],
+        }
+    }
+//should i use a closure here?
+fn get_column(&self,index:usize) -> Vec<i32>{
+    let mut cols:Vec<i32>=Vec::new();
+    for column in self.grid.iter(){
+            cols.push(column[index])
+        }
+    cols
+    }
+    
+fn get_row(&self,index:usize) -> &Vec<i32>{
+    &self.grid[index]
+    }
+  
+}
 //take a string output a line of i32 in a vec
 //fill the board quoi
 //take the board, take the pieces yield the int num of a col
@@ -59,8 +78,6 @@ fn parse_row(r:String) -> Vec<i32>{
         }
     dum
     }
-//check board: is there group of same colors?
-
 
 fn main() {
     
@@ -69,7 +86,10 @@ fn main() {
     //to store future pieces
     let mut pieces:VecDeque<Stone>=VecDeque::new();
     
-    let mut board:Vec<Vec<i32>>=Vec::new();
+    let mut my_board:Board=Board::new();
+    
+    let mut new_board=vec![vec![FREE;WIDTH as usize];HEIGHT as usize];
+    print_err!("{:?}",new_board);
     
     // game loop
     loop {
@@ -89,7 +109,7 @@ fn main() {
             let mut input_line = String::new();
             io::stdin().read_line(&mut input_line).unwrap();
             let row = input_line.trim().to_string(); // One line of the map ('.' = empty, '0' = skull block, '1' to '5' = colored block)
-            board.push(parse_row(row));
+            my_board.grid.push(parse_row(row));
         }
         let mut input_line = String::new();
         io::stdin().read_line(&mut input_line).unwrap();
@@ -100,14 +120,19 @@ fn main() {
             let row = input_line.trim().to_string();
             
         }
-
+        
         for num in 0..6{
             println!("{}", num); // "x": the column in which to drop your blocks
             }
             
-        turn+=1;
+        print_err!("{:?}",&my_board.get_column(0));
+        print_err!("{:?}",&my_board.get_row(11));
         
-        print_err!("{:?}",board[11][0]);
-        board.clear();
+        //it works?? no need of indexMut???
+        print_err!("{:?}",&my_board.grid[11-1][1]);//(11));
+        
+        my_board.grid.clear();
+        pieces.pop_front();
+        turn+=1;
     }
 }
