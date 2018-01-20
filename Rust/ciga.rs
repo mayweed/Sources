@@ -1,4 +1,5 @@
 use std::io;
+use std::collections::HashMap;
 
 macro_rules! print_err {
     ($($arg:tt)*) => (
@@ -18,18 +19,17 @@ fn num_diff(cigars:&Vec<i32>) -> Vec<Vec<i32>>{
     let mut diffs_diffs:Vec<Vec<i32>>=Vec::new();
     for _ in cigars.iter(){
         let mut diffs:Vec<i32>=Vec::new();
-        //WRONG : it should compare with ALL the elts remaining in the vector, including preceding ones!!
-        //two vecs with pop()??
         //is there a simpler way??
         let mut start=cigars[idx];
-        //should begin from index
-        for cig in cigars.iter(){
+        //should begin from idx
+        //drain takes a &mut self!!
+        //let mut cigbis=cigars.drain(0..idx);
+        for cig in cigars[idx]..cigars[cigars.len()-1]{//cigars.iter(){
             //ternary op in rust?
-            let mut diff= if *cig > start {cig-start}else {start-cig};
+            let mut diff= if cig > start {cig-start}else {start-cig};
             diffs.push(diff);
             }
         diffs_diffs.push(diffs);
-        //diffs.clear();
         idx+=1;
         }
     diffs_diffs
@@ -46,8 +46,21 @@ fn main() {
         let lnt = parse_input!(input_line, i32);
         cigars.push(lnt);
     }
-
-    print_err!("{:?} {:?}",cigars,num_diff(&cigars));
+    let test=num_diff(&cigars);
+    let mut count=HashMap::new();
+    for elem in test.iter(){
+    //hashmap: k is difference/v is count of diff
+        for cnt in elem.iter(){
+        //if count.contains_key(cnt){
+            let counter_value=count.entry(cnt).or_insert(0);
+            *counter_value+=1;
+            }
+        }
+            
+    for (k,v) in count{
+        print_err!("{} {}",k,v);
+        }
+    print_err!("{:?} {:?}",&cigars,num_diff(&cigars));
 
     println!("2");
 }
