@@ -102,6 +102,9 @@ struct game_state{
     last_color:i32,
     last_column:i32,
     }
+//need to build a simu of the grid
+//with fmt::Display to watch it
+
 //take a string output a line of i32 in a vec
 //should be a board func?
 fn parse_row(r:String) -> Vec<i32>{
@@ -128,6 +131,8 @@ fn main() {
     
     let mut new_board=vec![vec![FREE;WIDTH as usize];HEIGHT as usize];
     print_err!("{:?}",new_board);
+    
+    let mut last_col:u32=0;
     
     // game loop
     loop {
@@ -161,17 +166,26 @@ fn main() {
         let mut rng = thread_rng();
         let n: u32 = rng.gen_range(0,6);
         let color=pieces[0].color_a;
-        println!("{}", n);
+        
+        //not twice the same :)
+        if n==last_col{
+            let mut m = rng.gen_range(0,6);
+            println!("{}",m);
+        }else{
+            println!("{}", n);
+        }
             
+        //TESTS
         print_err!("{:?}",&my_board.get_column(0));
         //should work on test!!
         print_err!("{:?}",Board::is_empty(&my_board.get_row(11)));
-        
         //it works?? no need of indexMut???
         print_err!("{:?}",&my_board.grid[11-1][1]);//(11));
+        print_err!("{} {}",n,last_col);
         
         my_board.grid.clear();
         pieces.pop_front();
         turn+=1;
+        last_col=n;
     }
 }
