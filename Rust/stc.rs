@@ -1,3 +1,6 @@
+extern crate rand;
+use rand::{thread_rng,Rng};
+
 use std::io;
 use std::collections::{VecDeque};
 
@@ -20,8 +23,10 @@ macro_rules! parse_input {
     ($x:expr, $t:ident) => ($x.trim().parse::<$t>().unwrap())
 }
 
-const HEIGHT:i32=12;
-const WIDTH:i32=6;
+//usize easier for indexing Vec<i32> which does not implement trait index<i32> blablabla...
+const HEIGHT:usize=12;
+const WIDTH:usize=6;
+const SKULL:i32=0;
 const FREE:i32=-1;
 
 #[derive(Debug)]
@@ -30,23 +35,78 @@ struct Stone{
     color_b:i32,
 }
 
+//wont accept Copy??
+#[derive(Clone,Debug)]
+struct Board{
+    row:Vec<i32>,
+    columns:Vec<i32>,
+    grid:Vec<Vec<i32>>,
+    }
 
-//probably the most important struct !!
-//#[derive(Debug)]
-type Board=Vec<Vec<i32>>;
-//impl Board{
-    //yield an empty *free* board
+impl Board{
 fn new() -> Board{
-    let mut new_board:Board=vec![vec![FREE;WIDTH as usize];HEIGHT as usize];
-    //w/o return it does not work...
-    return new_board
-  }
+    Board{
+        row:Vec::new(),
+        columns:Vec::new(),
+        grid:vec![vec![FREE;WIDTH];HEIGHT],
+        }
+    }
+//should i use a closure here?
+fn get_column(&self,index:usize) -> Vec<i32>{
+    let mut cols:Vec<i32>=Vec::new();
+    for column in self.grid.iter(){
+            cols.push(column[index])
+        }
+    cols
+    }
+    
+fn get_row(&self,index:usize) -> &Vec<i32>{
+    &self.grid[index]
+    }
+    
+//closure on |color| ??
+fn is_empty(colrow:&Vec<i32>) -> bool{
+    for color in colrow.iter(){
+        if *color != FREE{
+            return false
+        }
+    }
+    true
+}
+// I DONT NEED THAT: should mem last color and last column in gamestate wtf!!            
+fn check_color(self,color_stone:i32) -> i32{
+    let mut col:i32=0;
+    for num in 0..6{
+        let mut c=&self.get_column(num);
+        for color_col in c.iter(){
+            if *color_col==color_stone{ //et case précédente libre{
+                col=num as i32;
+                break;
+                }
+            }
+        }
+       col 
+    }
+        
+    
+//then you place stones during 99ms (timeout==100ms)
+//and you choose the best one?? DEPTH??
+//fn place_stones(self,s:Vec<Stone>) -> i32{}
+  
+}
+//very simple idea:
+//if current col==last col and col[1] FREE output last column
+
+struct game_state{
+    boardstate:Board,
+    last_color:i32,
+    last_column:i32,
+    }
+//need to build a simu of the grid
+//with fmt::Display to watch it
 
 //take a string output a line of i32 in a vec
-//fill the board quoi
-//take the board, take the pieces yield the int num of a col
-//fn place_stones(self,s:Vec<Stone>) -> i32{
-//this is not a board func?
+//should be a board func?
 fn parse_row(r:String) -> Vec<i32>{
     let mut dum:Vec<i32>=Vec::new();
     for elem in r.chars(){
@@ -59,8 +119,6 @@ fn parse_row(r:String) -> Vec<i32>{
         }
     dum
     }
-//check board: is there group of same colors?
-
 
 fn main() {
     
@@ -69,7 +127,12 @@ fn main() {
     //to store future pieces
     let mut pieces:VecDeque<Stone>=VecDeque::new();
     
-    let mut board:Vec<Vec<i32>>=Vec::new();
+    let mut my_board:Board=Board::new();
+    
+    let mut new_board=vec![vec![FREE;WIDTH as usize];HEIGHT as usize];
+    print_err!("{:?}",new_board);
+    
+    let mut last_col:u32=0;
     
     // game loop
     loop {
@@ -89,7 +152,7 @@ fn main() {
             let mut input_line = String::new();
             io::stdin().read_line(&mut input_line).unwrap();
             let row = input_line.trim().to_string(); // One line of the map ('.' = empty, '0' = skull block, '1' to '5' = colored block)
-            board.push(parse_row(row));
+            my_board.grid.push(parse_row(row));
         }
         let mut input_line = String::new();
         io::stdin().read_line(&mut input_line).unwrap();
@@ -100,14 +163,29 @@ fn main() {
             let row = input_line.trim().to_string();
             
         }
-
-        for num in 0..6{
-            println!("{}", num); // "x": the column in which to drop your blocks
-            }
-            
-        turn+=1;
+        let mut rng = thread_rng();
+        let n: u32 = rng.gen_range(0,6);
+        let color=pieces[0].color_a;
         
-        print_err!("{:?}",board[11][0]);
-        board.clear();
+        //not twice the same :)
+        if n==last_col{
+            let mut m = rng.gen_range(0,6);
+            println!("{}",m);
+        }else{
+            println!("{}", n);
+        }
+            
+        //TESTS
+        print_err!("{:?}",&my_board.get_column(0));
+        //should work on test!!
+        print_err!("{:?}",Board::is_empty(&my_board.get_row(11)));
+        //it works?? no need of indexMut???
+        print_err!("{:?}",&my_board.grid[11-1][1]);//(11));
+        print_err!("{} {}",n,last_col);
+        
+        my_board.grid.clear();
+        pieces.pop_front();
+        turn+=1;
+        last_col=n;
     }
 }

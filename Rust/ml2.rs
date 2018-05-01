@@ -124,6 +124,39 @@ impl flat_ground{
         //     } = landing_zone;
         landing_zone
     }
+    //where to put that with variables??
+    //fn is_Landed(&self)->i32 {
+        //result = ON_AIR;
+        //Check Landing
+        //if x <0{return CRASH}
+        //if y <0{return CRASH}
+        //if y >=3000{return CRASH}
+        //if x >=7000{return CRASH}
+     
+        //if self.collide(prev_x,prev_y,x,y){
+            //if (angle != 90)
+                //{
+                //    return LAND_BAD_ANGLE;
+                //}
+            //if (abs(vy)>MAX_LAND_VSPEED)
+              //  {
+            //        return LAND_BAD_SPEED;
+            //    }
+            //if (abs(vx)>MAX_LAND_HSPEED)
+            //    {
+            //    return LAND_BAD_SPEED;
+            //    }
+            //return LANDED;
+        //}
+        
+        //for (int i = 0; i < surfaceN-1; i++){
+         //if (landLines[i].collides(prev_x,prev_y,x,y))
+         //{
+         //    return CRASH;
+         //}
+     //}
+     //return result;
+  //}
 }
 
 //TRIGO => macros??
@@ -151,6 +184,8 @@ struct game_state{
     fuel:f64,
     power:f64,
     }
+//impl game_state -> i32 {
+
     
 struct Genoma{
     rotation:Vec<f64>,
