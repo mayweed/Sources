@@ -2,36 +2,25 @@ package main
 
 import (
 	"fmt"
-	"log"
+	//"log"
 	"sort"
+	"strings"
 )
 
-//MAP
-type graph struct {
-	factoryCount int
-	linkCount    int
-	//a int from a slice of ints(factory2 + distance)
-	edges map[int][][]int
-}
-type factory struct {
-	id         int
+//FACTORY
+type Factory struct {
+	id int
+	//1 for me, -1 for opp, 0 neutral
+	owner      int
 	cyborgs    int
 	production int
-	owner      int
-}
-
-//helper func
-func (f factory) amIowner() bool {
-	if f.owner == 1 {
-		return true
-	} else {
-		return false
-	}
+	//first int is id of neighbour fact and second dist between the two
+	distance map[int]int
 }
 
 //given a factory, how many cyb will it have in X turns
 //SHOULD CHECK INCOMING/OUTCOMING TROOPS!!
-func (f factory) cybNextTurn(numTurns int) int {
+func (f Factory) cybNextTurn(numTurns int) int {
 	var numStart = f.cyborgs
 	for i := 0; i < numTurns; i++ {
 		numStart += f.production
@@ -40,32 +29,34 @@ func (f factory) cybNextTurn(numTurns int) int {
 }
 
 //sort interface
-type byProd []factory
+type byProd []Factory
 
 func (b byProd) Len() int           { return len(b) }
 func (b byProd) Less(i, j int) bool { return b[i].production < b[j].production }
 func (b byProd) Swap(i, j int)      { b[i], b[j] = b[j], b[i] }
 
-type troop struct {
-	id             int
+//TROOP
+type Troop struct {
+	id int
+	//1 for me, -1 for opp
+	owner          int
 	from           int
 	to             int
 	cyborgs        int
 	remainingTurns int
-	owner          int
 }
 
 //PLAYER
-type player struct {
+type Player struct {
 	id          int
-	factories   []factory
-	troops      []troop
+	factories   []Factory
+	troops      []Troop
 	score       int
 	lastMove    move
 	currentMove move
 }
 
-func (p *player) countScore() {
+func (p *Player) countScore() {
 	p.score = 0
 	for _, v := range p.factories {
 		p.score += v.cyborgs
@@ -75,8 +66,9 @@ func (p *player) countScore() {
 	}
 }
 
-func (p player) pickSourceFactory(num int, lastStart factory) factory {
-	var startNode factory
+//WHY num??
+func (p Player) pickSourceFactory(num int, lastStart Factory) Factory {
+	var startNode Factory
 	//should select the one with maxnodes?
 	for _, factory := range p.factories {
 		if factory.cyborgs >= num && factory.id != lastStart.id {
@@ -88,56 +80,22 @@ func (p player) pickSourceFactory(num int, lastStart factory) factory {
 
 //GAMESTATE
 type gameState struct {
-	//map of the game
-	network graph
+	me Player
 	//opponent
-	opponent player
+	opp Player
 	//neutral
-	neutralFactories []factory
+	neutralFactories []Factory
 	//game
 	numOfTurns int
 	//moves
 	possibleMoves []move
 }
 
-/*
-//work on the num of cyb to send in a troop
-//idea: scan factories of opponent
-//other idea to implement: if cyborgs in a given fact >
-//what I got, what about switch base?
-//Idea: why not yield a factory? of better, a move??
-//and put that in gameState.possibleMoves??
-//should stop when? my cyborgs run out??
-func(g gameState) checkCyborgs() int{
-    for _,fact := range g.opponent.factories{
-        if f.cyborgs > v.cyborgs{
-            return v.cyborgs+1
-        }
-    }
-    return f.cyborgs
-}
-*/
-func (g gameState) getFactory(id int) factory {
-	for _, fac := range g.opponent.factories {
-		if fac.id == id {
-			return fac
-		}
-	}
-	for _, fact := range g.neutralFactories {
-		if fact.id == id {
-			return fact
-		}
-	}
-	return factory{}
-}
-
-//zero factory
-func (g gameState) zeroFactory() []factory {
-	//yield all opp + neutral fact with 1 or less cyborgs
-	//TODO: ordered them by production rate!!
-	var fact []factory
-	sort.Sort(byProd(g.opponent.factories))
-	for _, v := range g.opponent.factories {
+//yield all opp + neutral fact with 1 or less cyborgs
+func (g gameState) zeroFactory() []Factory {
+	var fact []Factory
+	sort.Sort(byProd(g.opp.factories))
+	for _, v := range g.opp.factories {
 		if v.cyborgs <= 1 {
 			fact = append(fact, v)
 		}
@@ -150,30 +108,9 @@ func (g gameState) zeroFactory() []factory {
 	return fact
 }
 
-//MOVE
-type move struct {
-	from    factory
-	to      factory
-	cyborgs int
-}
-
-//COMMAND HELPER should implement WAIT especially
-//at endgame if I have 0 cybs in my last fact should
-//wait til endgame. //+chain command with ;
-//should be attach to a move object
-func mv(from, to, cyb int) string {
-	//here should be m.from etc...in the end
-	s := fmt.Sprintf("MOVE %d %d %d\n", from, to, cyb)
-	return s
-}
-func (m move) String() string {
-	s := fmt.Sprintf("MOVE %d to %d with %d cyborgs\n", m.from, m.to, m.cyborgs)
-	return s
-}
-
 //return the id of the nearest node of a given factory
 //and a factory I own if possible
-func (g gameState) pickMinNode(f factory) factory {
+func (g gameState) pickMinNode(f Factory) Factory {
 	var minDist = 20
 	var id int
 	fact := g.getFactory(f.id)
@@ -190,10 +127,10 @@ func (g gameState) pickMinNode(f factory) factory {
 }
 
 //Should use sort Interface to sort fact struc by production!!
-func (g gameState) maxProdFactory() factory {
+func (g gameState) maxProdFactory() Factory {
 	var maxFact factory
 	var max = 0
-	for _, fact := range g.opponent.factories {
+	for _, fact := range g.opp.factories {
 		if fact.production >= max {
 			maxFact = fact
 			max = fact.production
@@ -207,45 +144,44 @@ func (g gameState) maxProdFactory() factory {
 	}
 	return maxFact
 }
-func (g gameState) pickDestFactory(startNode factory) factory {
+
+//here should return a list of factories...
+func (g gameState) pickDestFactory(startNode Factory) Factory {
 	//var cybToSend int
 	var maxP = g.maxProdFactory()
 	var minD = g.pickMinNode(startNode)
-
-	/*//test
-	for _,v := range g.opponent.troops{
-	    if v.id==maxP.id{
-	        cybToSend=v.cyborgs+1
-	    }
-	}*/
 
 	if ok := maxP.amIowner(); !ok {
 		return maxP
 	} else if ok := minD.amIowner(); !ok {
 		return minD
 	} else {
-		for _, v := range g.opponent.factories {
+		for _, v := range g.opp.factories {
 			//should take the one with the least cyb and the highest prodrate!!
 			if v.id != startNode.id && v.owner != 1 {
 				return v
 			}
 		}
 	}
-	return factory{}
+	return Factory{}
 }
 
-/* TODO
-//should check a factory node
-//a string like "WAIT" it's just checking next turn
-//to see if last fact remaining will be overtaken
-//in that case "WAIT" instead of Can't send a troop from a factory you don't control (0)
-func (g gameState) checkEndGame() bool{
-    if len(facts)==1{
-func (g gameState) selectMove() move{
-   for _,v := range g.possibleMove{
-       ...
-TODO    */
+//COMMANDS
+func mv(from, to, cyb int) string {
+	s := fmt.Sprintf("MOVE %d %d %d\n", from, to, cyb)
+	return s
+}
 
+//format multiple orders
+func enqueueJoin(moveOrders []string) string {
+	var s string
+	for _, order := range moveOrders {
+		s = append(s, order)
+	}
+	return strings.Join(s, ";")
+}
+
+//MAIN
 func main() {
 	// factoryCount: the number of factories
 	var factoryCount int
@@ -255,42 +191,25 @@ func main() {
 	var linkCount int
 	fmt.Scan(&linkCount)
 
-	network := graph{
-		factoryCount: factoryCount,
-		linkCount:    linkCount,
-		edges:        make(map[int][][]int),
-	}
+	//move orders in a queue?
+	//moveOrders := []string
 
-	eval := gameState{
-		network: network,
-		opponent: player{
-			id:        -1,
-			factories: []factory{},
-		},
-		neutralFactories: []factory{},
-	}
+	//player
+	me := Player{id: 1, factories: []Factory{}}
+opp:
+	Player{id: -1, factories: []Factory{}}
+
+	eval := gameState{me: me, opp: opp, neutralFactories: []Factory{}}
 
 	for i := 0; i < linkCount; i++ {
 		var factory1, factory2, distance int
 		fmt.Scan(&factory1, &factory2, &distance)
-		//not directed SHOULD BE al list of lists... to handle multiple edges
-		//or list of edges
-		network.edges[factory1] = append(network.edges[factory1], []int{factory2, distance})
-		network.edges[factory2] = append(network.edges[factory2], []int{factory1, distance})
-	}
-
-	//player
-	var me = player{
-		id:        1,
-		factories: []factory{},
 	}
 
 	for {
 		// entityCount: the number of entities (e.g. factories and troops)
 		var entityCount int
 		fmt.Scan(&entityCount)
-
-		eval.numOfTurns += 1
 
 		//use sort Interface to sort factory by production, highest first
 		for i := 0; i < entityCount; i++ {
@@ -300,59 +219,55 @@ func main() {
 			fmt.Scan(&entityId, &entityType, &arg1, &arg2, &arg3, &arg4, &arg5)
 			switch entityType {
 			case "FACTORY":
-				if arg1 == me.id {
-					fac := factory{entityId, arg2, arg3, arg1}
-					me.factories = append(me.factories, fac)
-				} else if arg1 == eval.opponent.id {
-					fac := factory{entityId, arg2, arg3, arg1}
-					eval.opponent.factories = append(eval.opponent.factories, fac)
+				if arg1 == eval.me.id {
+					eval.me.factories = append(me.factories, Factory{id: entityId, owner: arg1, cyborgs: arg2, production: arg3})
+				} else if arg1 == eval.opp.id {
+					eval.opp.factories = append(eval.opponent.factories, Factory{id: entityId, owner: arg1, cyborgs: arg2, production: arg3})
 				} else if arg1 == 0 {
-					fac := factory{entityId, arg2, arg3, arg1}
-					eval.neutralFactories = append(eval.neutralFactories, fac)
+					eval.neutralFactories = append(eval.neutralFactories, Factory{id: entityId, owner: arg1, cyborgs: arg2, production: arg3})
 				}
 			case "TROOP":
 				if arg1 == me.id {
-					t := troop{entityId, arg2, arg3, arg4, arg5, arg1}
-					me.troops = append(me.troops, t)
+					eval.me.troops = append(me.troops, Troop{id: entityId, owner: arg1, from: arg2, to: arg3, cyborgs: arg4, remainingTurns: arg5})
 				} else if arg1 == eval.opponent.id {
-					t := troop{entityId, arg2, arg3, arg4, arg5, arg1}
-					eval.opponent.troops = append(eval.opponent.troops, t)
+					eval.opponent.troops = append(eval.opponent.troops, Troop{id: entityId, owner: arg1, from: arg2, to: arg3, cyborgs: arg4, remainingTurns: arg5})
 				}
 			}
 		}
-		var s string
-		//should write a func to compute the best num of cyb to send+ choose my startNode wrt that..
-		//Rule: you overtake a factory if you send more cyb than it will have when you arrived.
-		//EX: send one cyb to *all* nodes with cyb==0
-		var num = 3
 
+		//LOGS
+		//log.Println(eval.neutralFactories)
+
+		//NAIVE STRATEGY
+		//Take all the nodes that are mine, calculate to send troops to all remaining nodes
+		//write a findTarget func for each node of mine :)
+		//ALGO:
+		/*
+			for _,myFac := range me.factories{
+			    -check they are no sending troops already (arg2)
+			    -if not find a suitable targets: either neutral or opp that I could afford
+			    -queue the command
+		*/
+
+		//OLD CODE
+		var num = 3
 		sort.Sort(byProd(eval.neutralFactories))
-		log.Println(eval.neutralFactories)
-		//problem here with the second arg. Should keep the second arg cf eval for last stat?
 		var startNode = me.pickSourceFactory(num, factory{})
 		var dest = eval.pickDestFactory(startNode)
 		me.currentMove = move{startNode, dest, num}
-		//should modify mv to chain commands with ;
-		s = mv(startNode.id, dest.id, num)
-		log.Println(startNode.cyborgs, startNode.production, startNode.cybNextTurn(3))
-		//This one happens too: Can't send a troop from a factory you don't control (3)
-		//ex: try to send last cyb from a node the foe will capture next turn
+		s := mv(startNode.id, dest.id, num)
 		fmt.Printf("%s", s)
 
 		eval.numOfTurns += 1
-
 		(&me).countScore()
 		(&eval.opponent).countScore()
-		log.Println(me.score, eval.opponent.score, eval.numOfTurns, me.currentMove, me.lastMove)
 
-		//THIS is a must, without that keeps appending to the same list
-		//again and again..
-		me.factories = []factory{}
-		me.troops = []troop{}
-		eval.opponent.factories = []factory{}
-		eval.opponent.troops = []troop{}
-		eval.neutralFactories = []factory{}
+		//clear the buckets
+		me.factories = []Factory{}
+		me.troops = []Troop{}
+		eval.opponent.factories = []Factory{}
+		eval.opponent.troops = []Troop{}
+		eval.neutralFactories = []Factory{}
 		me.lastMove = me.currentMove
 	}
-
 }
