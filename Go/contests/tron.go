@@ -5,72 +5,64 @@ import (
 	"log"
 )
 
-type point struct {
-	x, y int
-	mark string
-}
+const (
+	WIDTH  = 30
+	HEIGHT = 20
+)
 
-//func (p point)comparePoint
-//equals less etc??
-type player struct {
-	id       int
-	position point
-	lastPos  point
+type Cell struct {
+	x, y  int
+	owner int
 }
-
-//This one should have a string meth
-//to got traces + an update meth to take into
-//account moves
-type board struct {
+type Board struct {
 	width  int //=30
 	height int //=20
 	//list of points
-	cells [][]point
+	cells [][]Cell
+}
+type Player struct {
+	id       int
+	startPos Cell
+	lastPos  Cell
+}
+type gameState struct {
+	//where int is the id?
+	players map[int]Player
+	board   Board
 }
 
 //should be inited with w h // gameState??
-func (b board) initBoard(width, height int, start ...point) board {
+func initBoard(width, height int) Board { //dont need that no?,start ...point)board{
 	//a simple grid made of cells
 	var i, j int
-	var m = "."
-	var grid = make([][]point, height)
+	//no player got -1 id
+	var m = -1
+	var grid = make([][]Cell, height)
 	for i = 0; i < height; i++ {
-		grid[i] = make([]point, width)
+		grid[i] = make([]Cell, width)
 		for j = range grid[i] {
-			grid[i][j] = point{i, j, m}
+			grid[i][j] = Cell{i, j, m}
 		}
 	}
-	//should mark with player id
-	for _, v := range start {
-		grid[v.x][v.y].mark = player.id
-	}
-	//should MARK start point here!!
-	return board{
+
+	return Board{
 		width:  width,
 		height: height,
 		cells:  grid,
 	}
 }
 
-type gameState struct {
-	//based on id: player[0] gives first player etc...
-	players []player
-	//should update board with trace, either with a lettre or sth
-	//where a player has played (or the id??)
-	//board grid
-	numOfTurns int
-}
-
 func main() {
 	//is this the right struct for this?
 	var actions = make(map[string][]int)
+	//left: x-=1 :)
 	actions["LEFT"] = []int{-1, 0}
 	actions["RIGHT"] = []int{1, 0}
 	actions["UP"] = []int{0, -1}
 	actions["DOWN"] = []int{0, 1}
 
-	g := gameState{}
-
+	g := gameState{players: make(map[int]Player)}
+	board := initBoard(WIDTH, HEIGHT)
 	for {
 		// N: total number of players (2 to 4).
 		// P: your player number (0 to 3).
@@ -84,12 +76,21 @@ func main() {
 			// Y1: starting Y coordinate of lightcycle (can be the same as Y0 if you play before this player)
 			var X0, Y0, X1, Y1 int
 			fmt.Scan(&X0, &Y0, &X1, &Y1)
+			//i== player, first is me that is 0
+			g.players[i] = Player{i, Cell{X0, Y0, i}, Cell{X1, Y1, i}}
+			board.cells[Y1][X1].owner = i
 			log.Println(X0, Y0, X1, Y1)
 		}
 
-		g.numOfTurns += 1
-		log.Println(g.numOfTurns)
-		// fmt.Fprintln(os.Stderr, "Debug messages...")
+		//Does it work? Seems so
+		//for dy:=0;dy<HEIGHT;dy++{
+		//    for dx:=0;dx<WIDTH;dx++{
+		//        if board.cells[dy][dx].owner==0{
+		//            log.Println(board.cells[dy][dx])
+		//        }
+		//    }
+		//}
+		log.Println(g.players[0])
 		fmt.Println("LEFT") // A single line with UP, DOWN, LEFT or RIGHT
 	}
 }
