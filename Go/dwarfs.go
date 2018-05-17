@@ -10,170 +10,63 @@ type graph struct {
 	edges map[int][]int
 }
 
-//init
-func newGraph() graph {
-	return graph{
-		nodes: nil,
-		//edges: make(map[int][]int),
-		//  depth max 6
-		edges: map[int][]int{
-			5: []int{3, 6},
-			6: []int{1, 2},
-			7: []int{4},
-			9: []int{4},
-			4: []int{5},
-			2: []int{8},
-		},
-		/*
-			//depth max 4
-			edges: map[int][]int{
-				10: []int{1, 3, 11},
-				1:  []int{2, 3},
-				3:  []int{4},
-				2:  []int{4, 5},
-			},
-
-		*/
-		//TODO find a way to quickly parse that
-		//oki string: first split on space then split num on ""
-		//or num[0] => x num[1] =>y
-		// 56  53  61  74  62  94  45  28
-	}
-}
-
-//a simple dfs
-func (g graph) dfs(startNode int) {
-	var visited = make(map[int]bool)
-	var stack []int
-
-	stack = g.edges[startNode]
-	visited[startNode] = true
-
-	for _, n := range stack {
-		if !visited[n] {
-			g.dfs(n)
+func checkList(c int, d []int) bool {
+	for _, v := range d {
+		if v == c {
+			return true
 		}
 	}
+	return false
 }
 
-//a dfs which gives path
-var path []int
-var parent = make(map[int]int)
-
-func (g graph) dfsPath(startNode, endNode int) map[int]int {
-	var visited = make(map[int]bool)
-	var stack []int
-
-	stack = g.edges[startNode]
-	visited[startNode] = true
-
-	path = append(path, startNode)
-
-	for _, n := range stack {
-		if n == endNode {
-			path = append(path, n)
-			parent[n] = startNode
-			//return path
-			return parent
-		}
-
-		if _, ok := visited[n]; !ok {
-			g.dfsPath(n, endNode)
-			parent[n] = startNode
-		}
-
-	}
-	//return []int{}
-	return parent
-}
-
-func buildPath(src, dest int) []int {
-	var p []int
-	//this loop from dfsPath // Sedgewick!!
-	for x := dest; x != src; x = parent[x] {
-		p = append(p, x)
-	}
-	//to be complete
-	p = append(p, src)
-
-	//reverse p, should definitely write a stack type one day...
-	var q []int
-	for i := len(p) - 1; i >= 0; i-- {
-		q = append(q, p[i])
-	}
-
-	return q
-
-}
-
-// a simple bfs
-func (g graph) bfs(startNode int) {
-	var visited = make(map[int]bool)
-	visited[startNode] = true
-
-	var queue []int
-	queue = append(queue, startNode)
-
-	for 0 < len(queue) {
-		//pop the first element
-		v := queue[0]
-		queue = queue[1:]
-
-		for _, w := range g.edges[v] {
-			if !visited[w] {
-				visited[w] = true
-				queue = append(queue, w)
+//count directly here?
+func (g graph) dfs(node int) int {
+	var acc = 1
+	if len(g.edges[node]) > 0 {
+		visited := make(map[int]bool)
+		visited[node] = true
+		for n := range g.edges[node] {
+			acc += 1
+			if !visited[n] {
+				g.dfs(n)
 			}
 		}
 	}
+	return acc + 1
 }
 
-//a bfs which gives path
-func (g graph) bfsPath(start, end int) []int {
-	var queue [][]int
-	node := []int{start}
-	queue = append(queue, node)
+//MAIN
+func main() {
+	// n: the number of relationships of influence
+	var n int
+	fmt.Scan(&n)
+	g := graph{edges: make(map[int][]int)}
 
-	for 0 < len(queue) {
-		//pop the first element
-		path := queue[0]
-		queue = queue[1:]
-
-		//last node
-		lastNode := path[len(path)-1]
-		if lastNode == end {
-			return path
+	for i := 0; i < n; i++ {
+		// x: a relationship of influence between two people (x influences y)
+		var x, y int
+		fmt.Scan(&x, &y)
+		//dont think it's necessary!!take the nodes from map key!!
+		if !checkList(x, g.nodes) {
+			g.nodes = append(g.nodes, x)
 		}
+		if !checkList(y, g.nodes) {
+			g.nodes = append(g.nodes, y)
+		}
+		g.edges[x] = append(g.edges[x], y)
+	}
 
-		for _, w := range g.edges[lastNode] {
-			var new_path = path
-			new_path = append(new_path, w)
-			queue = append(queue, new_path)
+	var max = 0
+	for n, _ := range g.edges {
+		log.Println(g.dfs(n))
+		if g.dfs(n) > max {
+			max = g.dfs(n)
 		}
 	}
-	//empty to return sth
-	return []int{}
 
-}
+	//LOGS
+	//log.Println(g.nodes,g.edges)
 
-func main() {
-	/*
-	   // n: the number of relationships of influence
-	   var n int
-	   fmt.Scan(&n)
-
-	   g:=newGraph()
-
-	   for i := 0; i < n; i++ {
-	       // x: a relationship of influence between two people (x influences y)
-	       var x, y int
-	       fmt.Scan(&x, &y)
-	       g.edges[x]=append(g.edges[x],y)
-	   }
-	*/
-	g := newGraph()
-
-	fmt.Println(g.dfsPath(9, 8), len(parent))
-
-	log.Println(buildPath(9, 8))
+	// The number of people involved in the longest succession of influences
+	fmt.Println(max)
 }
