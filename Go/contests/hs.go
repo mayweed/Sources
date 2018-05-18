@@ -1,106 +1,120 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"log"
+	"strconv"
 	"strings"
 )
 
-type position struct {
+const (
+	WIDTH  = 13
+	HEIGHT = 11
+	//entityType
+	PLAYER = 0
+	BOMB   = 1
+	CRATE  = 2
+)
+
+type Grid [WIDTH][HEIGHT]Cell
+
+//A cell is a pair of coordinate + what's on it!!
+type Cell struct {
 	x, y int
+	what Entity
 }
 
-func NewPosition(x, y int) position {
-	return position{
-		x: x,
-		y: y,
-	}
+type Entity struct {
+	entityType int
+	owner      int //id of the player or id of the one who sets the bomb
+	param1     int
+	param2     int
 }
 
-type commande struct {
-	command string
-	pos     position
-}
-
-//should be intialized differently for a bomb or a player in NewEntity func
-type entity struct {
-	entityType, owner, x, y, param1, param2 int
-}
-
-func NewEntity(entityType, owner, x, y, param1, param2 int) entity {
-	return entity{
-		entityType: entityType,
-		owner:      owner,
-		x:          x,
-		y:          y,
-		param1:     param1,
-		param2:     param2,
-	}
-}
-
-type myBot struct {
+type Player struct {
 	//my position should i use anon struct position here?
-	x int
-	y int
+	Entity
 	//my num of bombs left
 	myBombs int
 }
 
+type World struct {
+	board   Grid
+	crates  []Cell
+	bombs   []Cell
+	players []Cell
+}
+
+func (g Grid) String() string {
+	var result bytes.Buffer
+	for y := 0; y < HEIGHT; y += 1 {
+		for x := 0; x < WIDTH; x += 1 {
+			if g[x][y].what.entityType == -1 {
+				result.WriteString(".")
+			} else {
+				if g[x][y].what.entityType == 0 {
+					result.WriteString(strconv.Itoa(g[x][y].what.owner))
+				} else {
+					result.WriteString(strconv.Itoa(g[x][y].what.entityType))
+				}
+			}
+		}
+		result.WriteString("\n")
+	}
+	return result.String()
+}
+
 func main() {
+	//method readGrid from world?
 	var width, height, myId int
 	fmt.Scan(&width, &height, &myId)
-
+	var board Grid
 	for {
-		var grid = make([][]string, height)
-		for i := 0; i < height; i++ {
+		for y := 0; y < HEIGHT; y++ {
 			var row string
 			fmt.Scan(&row)
 			inputs := strings.Split(row, "")
-			grid[i] = make([]string, width)
-			for j := 0; j < width; j++ {
-				grid[i][j] = inputs[j]
+			for x := 0; x < WIDTH; x++ {
+				//THAT WORKS BUT THAT SUCKS!!
+				var c int
+				if inputs[x] == "." {
+					c = -1
+				} else {
+					//c,_=strconv.Atoi(inputs[x])
+					c = 2 //crate!!
+				}
+				board[x][y] = Cell{x: x, y: y, what: Entity{entityType: c}}
 			}
 		}
-		//log.Println(grid)
 
 		var entities int
 		fmt.Scan(&entities)
-		//log.Println(entities)
 
-		var players []entity
-		var bombs []entity
+		//method updateEntities from world!!
 		for i := 0; i < entities; i++ {
 			var entityType, owner, x, y, param1, param2 int
 			fmt.Scan(&entityType, &owner, &x, &y, &param1, &param2)
-			if entityType == 0 {
-				players = append(players, NewEntity(entityType, owner, x, y, param1, param2))
-			} else if entityType == 1 {
-				bombs = append(bombs, NewEntity(entityType, owner, x, y, param1, param2))
-			}
+			//update
+			//example:
+			board[x][y].what.entityType = entityType
+			board[x][y].what.owner = owner
+			board[x][y].what.param1 = param1
+
+			//if entityType == 0 {
+			//	players = append(players, entity{entityType, owner, x, y, param1, param2})
+			//} else if entityType == 1 {
+			//	bombs = append(bombs, entity{entityType, owner, x, y, param1, param2})
+			//}
 
 		}
-		log.Println(players)
-		log.Println(myId)
 
-		var me myBot
-		for _, p := range players {
-			if p.owner == myId {
-				me = myBot{x: p.x, y: p.y, myBombs: p.param1}
-			}
-		}
-		log.Println(me.x)
+		//LOGS
+		log.Println(board.String())
 
 		//MOVE test
-		var xx = me.x + 1
-		var yy = me.y + 1
-		if grid[xx][me.y] == "." {
-			fmt.Println("MOVE", xx, me.y)
-		} else if grid[xx][me.y] == "1" {
-			if grid[xx][yy] == "." {
-				fmt.Println("MOVE", xx, yy)
-			}
-		}
-		//fmt.Fprintln(os.Stderr,entities)
-		//fmt.Println("MOVE 11 13")// Write action to stdout
+		//should list possible moves+simulate where to leave bombs to get
+		//more boxes destroy
+		fmt.Println("MOVE 11 13") // Write action to stdout
 	}
 }
