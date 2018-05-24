@@ -2,15 +2,6 @@ use std::io;
 use std::f64;
 use std::collections::{VecDeque};
 
-macro_rules! print_err {
-    ($($arg:tt)*) => (
-        {
-            use std::io::Write;
-            writeln!(&mut ::std::io::stderr(), $($arg)*).ok();
-        }
-    )
-}
-
 macro_rules! parse_input {
     ($x:expr, $t:ident) => ($x.trim().parse::<$t>().unwrap())
 }
@@ -561,7 +552,7 @@ fn main() {
         
         //opt for the nearest tank with no enemy reapers on it?
         let str1=me.reaper.moveToWreck(wrecks);
-        print_err!("{:#?}",me.reaper.get_collision_border());
+        eprintln!("{:#?}",me.reaper.get_collision_border());
         println!("{} REAPER",str1);
         
         let str2=me.destroyer.moveToTanker(tankers,me.rage);
