@@ -1,15 +1,6 @@
 use std::io;
 use std::collections::VecDeque;
 
-macro_rules! print_err {
-    ($($arg:tt)*) => (
-        {
-            use std::io::Write;
-            writeln!(&mut ::std::io::stderr(), $($arg)*).ok();
-        }
-    )
-}
-
 macro_rules! parse_input {
     ($x:expr, $t:ident) => ($x.trim().parse::<$t>().unwrap())
 }
@@ -17,7 +8,8 @@ struct Card{
     value:i32,
     suit:char,
     }
-    
+
+//use enum
 impl card{
     fn parse_card(c:str) -> Card{
         let mut value;
@@ -30,6 +22,8 @@ impl card{
         //idea: iterate on str and fulfill the struct
         //if Some(chars.next() char::is_numeric) => value
         //else => suit
+        }
+    }
 fn main() {
     let mut my_deck:VecDeque<Card>=VecDeque::new();
     let mut input_line = String::new();
