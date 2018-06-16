@@ -27,7 +27,9 @@ type State struct {
 	emptyCells []Cell
 }
 
-func (c Cell) findWhat() {}
+func (c Cell) findWhat() string {
+	return c.what
+}
 
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
@@ -83,5 +85,8 @@ func main() {
 		}
 		log.Println(gState.explorers)
 		fmt.Println("WAIT") // MOVE <x> <y> | WAIT
+
+		gState.explorers = []Entity{}
+		gState.wanderers = []Entity{}
 	}
 }
