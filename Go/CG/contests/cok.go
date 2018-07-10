@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"log"
 	"os"
 	"strings"
 )
@@ -13,20 +14,22 @@ type Cell struct {
 	what string
 }
 type Entity struct {
-	entityType string
-	id         int
-	pos        Cell
-	sanity     int
+	id     int
+	pos    Cell
+	param1 int
+	param2 int
 }
 
 type State struct {
 	board      [][]Cell
-	wanderer   Entity
-	explorer   Entity
+	wanderers  []Entity
+	explorers  []Entity
 	emptyCells []Cell
 }
 
-func (c Cell) findWhat() {}
+func (c Cell) findWhat() string {
+	return c.what
+}
 
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
@@ -54,7 +57,6 @@ func main() {
 			}
 		}
 	}
-
 	// sanityLossLonely: how much sanity you lose every turn when alone, always 3 until wood 1
 	// sanityLossGroup: how much sanity you lose every turn when near another player, always 1 until wood 1
 	// wandererSpawnTime: how many turns the wanderer take to spawn, always 3 until wood 1
@@ -74,9 +76,17 @@ func main() {
 			var id, x, y, param0, param1, param2 int
 			scanner.Scan()
 			fmt.Sscan(scanner.Text(), &entityType, &id, &x, &y, &param0, &param1, &param2)
+			switch entityType {
+			case "EXPLORER":
+				gState.explorers = append(gState.explorers, Entity{id: id, pos: Cell{x: x, y: y, what: entityType}, param1: param1, param2: param2})
+			case "WANDERER":
+				gState.wanderers = append(gState.wanderers, Entity{id: id, pos: Cell{x: x, y: y, what: entityType}, param1: param1, param2: param2})
+			}
 		}
-
-		// fmt.Fprintln(os.Stderr, "Debug messages...")
+		log.Println(gState.explorers)
 		fmt.Println("WAIT") // MOVE <x> <y> | WAIT
+
+		gState.explorers = []Entity{}
+		gState.wanderers = []Entity{}
 	}
 }
