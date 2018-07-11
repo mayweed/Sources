@@ -1,0 +1,24 @@
+
+
+Consider what being "even" and "odd" means in "bit" terms. Since binary integer data is stored with bits indicating multiples of 2, the lowest-order bit will correspond to 20, which is of course 1, while all of the other bits will correspond to multiples of 2 (21 = 2, 22 = 4, etc.). Gratuituous ASCII art:
+
+NNNNNNNN
+||||||||
+|||||||+−− bit 0, value =   1 (20)
+||||||+−−− bit 1, value =   2 (21)
+|||||+−−−− bit 2, value =   4 (22)
+||||+−−−−− bit 3, value =   8 (23)
+|||+−−−−−− bit 4, value =  16 (24)
+||+−−−−−−− bit 5, value =  32 (25)
+|+−−−−−−−− bit 6, value =  64 (26)
++−−−−−−−−− bit 7 (highest order bit), value = 128 (27) for unsigned numbers,
+                 value = -128 (-27) for signed numbers (2's complement)
+
+I've only shown 8 bits there, but you get the idea.
+
+So you can tell whether an integer is even or odd by looking only at the lowest-order bit: If it's set, the number is odd. If not, it's even. You don't care about the other bits because they all denote multiples of 2, and so they can't make the value odd.
+
+The way you look at that bit is by using the AND operator of your language. In C and many other languages syntactically derived from B (yes, B), that operator is &. In BASICs, it's usually And. You take your integer, AND it with 1 (which is a number with only the lowest-order bit set), and if the result is not equal to 0, the bit was set.
+
+I'm intentionally not actually giving the code here, not only because I don't know what language you're using, but because you marked the question "homework." :-)
+https://stackoverflow.com/questions/5700911/how-do-i-check-if-an-integer-is-even-or-odd-using-bitwise-operators
