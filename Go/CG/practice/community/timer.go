@@ -30,7 +30,7 @@ func secToTs(sec int) string {
 		sec -= 60
 		min++
 	}
-    ts:=fmt.Sprintf("%d:%02d",min,sec)
+	ts := fmt.Sprintf("%d:%02d", min, sec)
 	return ts
 }
 
@@ -50,7 +50,6 @@ func main() {
 		scanner.Scan()
 		timeStamp = scanner.Text()
 		t := tsToSec(timeStamp)
-		//log.Println(calculusToTs(t))
 
 		var timeToStart = tsToSec(secToTs(int(calculus)))
 		if t < timeToStart {
@@ -58,7 +57,6 @@ func main() {
 			break
 		}
 		calculus = float64(t) - 256./(math.Exp2(float64(i)))
-		//log.Println(calculus)
 		log.Println("Timestamp:", timeStamp, "Time to start:", secToTs(int(calculus)))
 	}
 
