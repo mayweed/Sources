@@ -25,6 +25,19 @@ func calculateDist(l []Point, x int) []float64 {
 	return dist
 }
 
+//should yield the index no to match the point?
+func minInASlice(l []float64) int {
+	var max float64
+	var index int
+	for i, d := range l {
+		if d > max {
+			max = d
+			index = i
+		}
+	}
+	return index
+}
+
 func main() {
 	var N int
 	fmt.Scan(&N)
@@ -34,7 +47,9 @@ func main() {
 		fmt.Scan(&X, &Y)
 		c = append(c, Point{X, Y})
 	}
-	log.Println(calculateDist(c, 0))
+	l := calculateDist(c, 0)
+	i := minInASlice(l)
+	log.Println(l, c[i])
 	// fmt.Fprintln(os.Stderr, "Debug messages...")
 	fmt.Println("distance") // Write answer to stdout
 }
