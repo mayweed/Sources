@@ -11,10 +11,36 @@ type Card struct {
 	myHealthChange, opponentHealthChange, cardDraw                    int
 }
 
-//during the draft phase choose the card with max attack.
-//func pickDraftCards
-func main() {
+//first simply pick the one with max attack
+func draftPhase() string {
+	var cardCount int
+	fmt.Scan(&cardCount)
 
+	var cards []Card
+	var myDeck []Card
+
+	var idCardMax int
+	var max int
+
+	for i := 0; i < cardCount; i++ {
+		var cardNumber, instanceId, location, cardType, cost, attack, defense int
+		var abilities string
+		var myHealthChange, opponentHealthChange, cardDraw int
+		fmt.Scan(&cardNumber, &instanceId, &location, &cardType, &cost, &attack, &defense, &abilities, &myHealthChange, &opponentHealthChange, &cardDraw)
+
+		cards = append(cards, Card{cardNumber, instanceId, location, cardType, cost, attack, defense, abilities, myHealthChange, opponentHealthChange, cardDraw})
+		if attack > max {
+			max = attack
+			//0 1 or 2
+			idCardMax = i
+		}
+	}
+	myDeck = append(myDeck, cards[idCardMax])
+	str := fmt.Sprintf("PICK %d\n", idCardMax)
+	return str //should update a state instead of yielding it,myDeck
+}
+
+func main() {
 	var turn int
 	for {
 
@@ -25,38 +51,22 @@ func main() {
 		var opponentHand int
 		fmt.Scan(&opponentHand)
 
-		var cardCount int
-		fmt.Scan(&cardCount)
-
-		var cards []Card
-		var myDeck []Card
-
-		var idCardMax int
-		var max int
-
-		for i := 0; i < cardCount; i++ {
-			var cardNumber, instanceId, location, cardType, cost, attack, defense int
-			var abilities string
-			var myHealthChange, opponentHealthChange, cardDraw int
-			fmt.Scan(&cardNumber, &instanceId, &location, &cardType, &cost, &attack, &defense, &abilities, &myHealthChange, &opponentHealthChange, &cardDraw)
-
-			cards = append(cards, Card{cardNumber, instanceId, location, cardType, cost, attack, defense, abilities, myHealthChange, opponentHealthChange, cardDraw})
-			if attack > max {
-				max = attack
-				//0 1 or 2
-				idCardMax = i
-			}
-		}
-		myDeck = append(myDeck, cards[idCardMax])
-		turn += 1
-		log.Println(idCardMax, turn)
-		// fmt.Fprintln(os.Stderr, "Debug messages...")
 		if turn < 30 {
-			fmt.Println("PICK", idCardMax) // Write action to stdout
+			s := draftPhase()
+			fmt.Printf("%s", s) // Write action to stdout
 		} else {
-			//should devise a proper strat!!
+			var cardCount int
+			fmt.Scan(&cardCount)
+
+			for i := 0; i < cardCount; i++ {
+				var cardNumber, instanceId, location, cardType, cost, attack, defense int
+				var abilities string
+				var myHealthChange, opponentHealthChange, cardDraw int
+				fmt.Scan(&cardNumber, &instanceId, &location, &cardType, &cost, &attack, &defense, &abilities, &myHealthChange, &opponentHealthChange, &cardDraw)
+			}
 			fmt.Println("PASS")
 		}
-
+		turn += 1
+		log.Println(turn)
 	}
 }
