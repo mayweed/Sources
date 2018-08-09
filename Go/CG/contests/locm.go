@@ -6,18 +6,21 @@ import (
 	"strings"
 )
 
+//CARD
 type Card struct {
 	cardNumber, instanceId, location, cardType, cost, attack, defense int
 	abilities                                                         string
 	myHealthChange, opponentHealthChange, cardDraw                    int
 }
 
+//PLAYERS
 // PlayerInfo stores some data about a player
 type PlayerInfo struct {
 	health int
 	mana   int
 	deck   int
 	runes  int
+	decks  []Card
 }
 
 // Players contains info about all players
@@ -41,6 +44,15 @@ func readPlayers() *Players {
 	p.enemy = enemy
 
 	return p
+}
+
+//COMMANDS
+func cmdAttack(myCardID, enemyCardID int) string {
+	return fmt.Sprintf("ATTACK %d %d", myCardID, enemyCardID)
+}
+
+func cmdSummon(cardID int) string {
+	return fmt.Sprintf("SUMMON %d", cardID)
 }
 func sendCommands(commands []string) {
 	cmd := "PASS"
