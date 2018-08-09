@@ -3,12 +3,53 @@ package main
 import (
 	"fmt"
 	"log"
+	"strings"
 )
 
 type Card struct {
 	cardNumber, instanceId, location, cardType, cost, attack, defense int
 	abilities                                                         string
 	myHealthChange, opponentHealthChange, cardDraw                    int
+}
+
+// PlayerInfo stores some data about a player
+type PlayerInfo struct {
+	health int
+	mana   int
+	deck   int
+	runes  int
+}
+
+// Players contains info about all players
+type Players struct {
+	me    PlayerInfo
+	enemy PlayerInfo
+}
+
+func readPlayers() *Players {
+
+	p := &Players{}
+
+	var playerHealth, playerMana, playerDeck, playerRune int
+
+	fmt.Scan(&playerHealth, &playerMana, &playerDeck, &playerRune)
+	me := PlayerInfo{health: playerHealth, mana: playerMana, deck: playerDeck, runes: playerRune}
+	p.me = me
+
+	fmt.Scan(&playerHealth, &playerMana, &playerDeck, &playerRune)
+	enemy := PlayerInfo{health: playerHealth, mana: playerMana, deck: playerDeck, runes: playerRune}
+	p.enemy = enemy
+
+	return p
+}
+func sendCommands(commands []string) {
+	cmd := "PASS"
+	if len(commands) == 0 {
+		log.Println("List of commands is empty, PASS will be sent")
+	} else {
+		cmd = strings.Join(commands, ";")
+	}
+	fmt.Println(cmd)
 }
 
 //first simply pick the one with max attack
@@ -43,11 +84,8 @@ func draftPhase() string {
 func main() {
 	var turn int
 	for {
+		players := readPlayers()
 
-		for i := 0; i < 2; i++ {
-			var playerHealth, playerMana, playerDeck, playerRune int
-			fmt.Scan(&playerHealth, &playerMana, &playerDeck, &playerRune)
-		}
 		var opponentHand int
 		fmt.Scan(&opponentHand)
 
@@ -67,6 +105,6 @@ func main() {
 			fmt.Println("PASS")
 		}
 		turn += 1
-		log.Println(turn)
+		log.Println(players)
 	}
 }
