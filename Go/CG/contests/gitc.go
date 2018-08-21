@@ -6,31 +6,66 @@ import (
 	"strings"
 )
 
+//MAP
 type Factory struct {
 	id         int
+	owner      int
 	cyborgs    int
 	production int
-	owner      int
 }
 type Troop struct {
 	id             int
+	owner          int
 	from           int
 	to             int
 	cyborgs        int
 	remainingTurns int
-	owner          int
 }
 type Link struct {
 	from     int
 	to       int
 	distance int
 }
+
+//STATE
 type gameMap struct {
 	factoryCount int
 	linkCount    int
-	factories    map[int]Factory
-	troops       []Troop
 	links        []Link
+	//factories map[int]Factory
+	myFactories      []Factory
+	oppFactories     []Factory
+	neutralFactories []Factory
+	myTroops         []Troop
+	oppTroops        []Troop
+}
+
+//should g be passed as a pointer here? No need of & thereafter??
+func (g *gameMap) readEntity() {
+	// entityCount: the number of entities (e.g. factories and troops)
+	var entityCount int
+	fmt.Scan(&entityCount)
+
+	for i := 0; i < entityCount; i++ {
+		var entityId int
+		var entityType string
+		var arg1, arg2, arg3, arg4, arg5 int
+		fmt.Scan(&entityId, &entityType, &arg1, &arg2, &arg3, &arg4, &arg5)
+
+		if entityType == "FACTORY" && arg1 == 0 {
+			g.neutralFactories = append(g.neutralFactories, Factory{entityId, arg1, arg2, arg3})
+		} else if entityType == "FACTORY" && arg1 == 1 {
+			g.myFactories = append(g.myFactories, Factory{entityId, arg1, arg2, arg3})
+		} else if entityType == "FACTORY" && arg1 == -1 {
+			g.oppFactories = append(g.oppFactories, Factory{entityId, arg1, arg2, arg3})
+		}
+
+		if entityType == "TROOP" && arg1 == 1 {
+			g.myTroops = append(g.myTroops, Troop{entityId, arg1, arg2, arg3, arg4, arg5})
+		} else if entityType == "TROOP" && arg1 == -1 {
+			g.oppTroops = append(g.oppTroops, Troop{entityId, arg1, arg2, arg3, arg4, arg5})
+		}
+	}
 }
 
 //COMMANDS
@@ -72,30 +107,17 @@ func main() {
 		board.links = append(board.links, Link{factory1, factory2, distance})
 		//et vice versa?
 	}
-	var commands []string
+	//var commands []string
 
 	for {
-		//put in a readEntity func
-		// entityCount: the number of entities (e.g. factories and troops)
-		var entityCount int
-		fmt.Scan(&entityCount)
-
-		for i := 0; i < entityCount; i++ {
-			var entityId int
-			var entityType string
-			var arg1, arg2, arg3, arg4, arg5 int
-			fmt.Scan(&entityId, &entityType, &arg1, &arg2, &arg3, &arg4, &arg5)
-			//switch entityType {
-			//  case "FACTORY":
-			//}
-
-		}
-
-		//LOGS
-		log.Println(board)
+		board.readEntity()
 
 		//ALGO to get out of woods: take each of my fac with troops and move to neutral fac first
 		//and then those of opp with less cyb?
+
+		//LOGS
+		log.Println(board.neutralFactories)
+
 		// Any valid action, such as "WAIT" or "MOVE source destination cyborgs"
 		fmt.Println("WAIT")
 	}
