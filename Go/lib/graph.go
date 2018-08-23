@@ -1,5 +1,6 @@
 // cf https://www.hackerrank.com/challenges/bfsshortreach
 //First post very insightful here: http://stackoverflow.com/questions/1821811/how-to-read-write-from-to-file
+//well...
 package main
 
 import (
