@@ -13,6 +13,7 @@ type Factory struct {
 	cyborgs    int
 	production int
 }
+
 type Troop struct {
 	id             int
 	owner          int
@@ -38,6 +39,26 @@ type gameMap struct {
 	neutralFactories []Factory
 	myTroops         []Troop
 	oppTroops        []Troop
+}
+
+//is there a link between f1 and f2?
+func (g gameMap) linkTo(f1, f2 Factory) bool {
+	for _, l := range g.links {
+		if l.from == f1.id && l.to == f2.id {
+			return true
+		}
+	}
+	return false
+}
+func (g gameMap) facWithMaxCyb() int {
+	var max, id int
+	for _, f := range g.myFactories {
+		if f.cyborgs > max {
+			max = f.cyborgs
+			id = f.id
+		}
+	}
+	return id
 }
 
 //should g be passed as a pointer here? No need of & thereafter??
@@ -114,6 +135,17 @@ func main() {
 
 		//ALGO to get out of woods: take each of my fac with troops and move to neutral fac first
 		//and then those of opp with less cyb?
+		//chooseSource()
+		if len(board.myFactories) == 1 {
+			//  src=board.myFactories[0]
+		} else {
+			//choose the one with max cyborgs (arg2)
+		}
+
+		//choose destination
+		//printMove and queue it!! for one or two sources?
+
+		//send commands
 
 		//LOGS
 		log.Println(board.neutralFactories)
