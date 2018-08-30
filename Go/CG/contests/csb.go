@@ -3,24 +3,19 @@ package main
 import (
 	"fmt"
 	"log"
-	"math"
 )
 
 //POINT
 type Point struct {
-	x, y float64
-}
-
-func (p Point) distance(from_p Point) float64 {
-	return math.Sqrt(((p.x - from_p.x) * (p.x - from_p.x)) + ((p.y - from_p.y) * (p.y - from_p.y)))
+	x, y int
 }
 
 //POD
 type Pod struct {
 	pos                 Point
 	nextCheckpoint      Point
-	nextCheckpointDist  float64
-	nextCheckpointAngle float64
+	nextCheckpointDist  int
+	nextCheckpointAngle int
 }
 
 func main() {
@@ -29,7 +24,7 @@ func main() {
 		// nextCheckpointY: y position of the next check point
 		// nextCheckpointDist: distance to the next checkpoint
 		// nextCheckpointAngle: angle between your pod orientation and the direction of the next checkpoint
-		var x, y, nextCheckpointX, nextCheckpointY, nextCheckpointDist, nextCheckpointAngle float64 //int
+		var x, y, nextCheckpointX, nextCheckpointY, nextCheckpointDist, nextCheckpointAngle int
 		fmt.Scan(&x, &y, &nextCheckpointX, &nextCheckpointY, &nextCheckpointDist, &nextCheckpointAngle)
 		//myPod := Pod{Point{x, y},Point{nextCheckpointX, nextCheckpointY},nextCheckpointDist, nextCheckpointAngle}
 
