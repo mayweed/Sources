@@ -12,7 +12,6 @@ type Factory struct {
 	cyborgs    int
 	production int
 }
-
 type Troop struct {
 	id             int
 	owner          int
@@ -26,29 +25,33 @@ type Link struct {
 	to       int
 	distance int
 }
+
 type Action struct {
 	actionType  string
 	from        int
 	to          int
 	cyborgCount int
 }
+
+//should be append to moves in Turn should add ';'
+func (a Action) printAction() {
+	if a.actionType == "move" {
+		return fmt.Sprintf("MOVE %d %d %d", a.from, a.to, a.cyborgCount)
+	} else {
+		//if no move, just wait?
+		return fmt.Sprintf("WAIT")
+	}
+}
+
 type Turn struct {
 	//encapsulate Action in string (sprintf)
 	moves []string
 }
 
-//Should be printAction()
-func cmdMove(source, destination, cyborgCount int) string {
-	return fmt.Sprintf("MOVE %d %d %d", source, destination, cyborgCount)
-}
-
-func cmdWait(cardID int) string {
-	return fmt.Sprintf("WAIT")
-}
-func sendCommands(commands []string) {
-	cmd := "PASS"
+func (t Turn) sendCommands(commands []string) {
+	cmd := "WAIT"
 	if len(commands) == 0 {
-		log.Println("List of commands is empty, PASS will be sent")
+		log.Println("List of commands is empty, WAIT will be sent")
 	} else {
 		cmd = strings.Join(commands, ";")
 	}
@@ -56,10 +59,9 @@ func sendCommands(commands []string) {
 }
 
 type State struct {
-	factoryCount int
-	linkCount    int
-	links        []Link
-	//factories map[int]Factory
+	factoryCount     int
+	linkCount        int
+	links            []Link
 	myFactories      []Factory
 	oppFactories     []Factory
 	neutralFactories []Factory
@@ -137,6 +139,8 @@ func main() {
 	for {
 		board.readEntity()
 
+		//put that in a func(s State) think(){}, should yield an
+		//Action and/or a turn!!
 		//ALGO to get out of woods: take each of my fac with troops and move to neutral fac first
 		//and then those of opp with less cyb?
 		//chooseSource()
