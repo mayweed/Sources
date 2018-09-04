@@ -34,13 +34,15 @@ type Action struct {
 }
 
 //should be append to moves in Turn should add ';'
-func (a Action) printAction() {
+func (a Action) printAction() string {
+	var s string
 	if a.actionType == "move" {
-		return fmt.Sprintf("MOVE %d %d %d", a.from, a.to, a.cyborgCount)
+		s = fmt.Sprintf("MOVE %d %d %d", a.from, a.to, a.cyborgCount)
 	} else {
 		//if no move, just wait?
-		return fmt.Sprintf("WAIT")
+		s = fmt.Sprintf("WAIT")
 	}
+	return s
 }
 
 type Turn struct {
