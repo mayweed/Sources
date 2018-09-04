@@ -6,7 +6,6 @@ import (
 	"strings"
 )
 
-//MAP
 type Factory struct {
 	id         int
 	owner      int
@@ -27,6 +26,34 @@ type Link struct {
 	to       int
 	distance int
 }
+type Action struct {
+	actionType  string
+	from        int
+	to          int
+	cyborgCount int
+}
+type Turn struct {
+	//encapsulate Action in string (sprintf)
+	moves []string
+}
+
+//Should be printAction()
+func cmdMove(source, destination, cyborgCount int) string {
+	return fmt.Sprintf("MOVE %d %d %d", source, destination, cyborgCount)
+}
+
+func cmdWait(cardID int) string {
+	return fmt.Sprintf("WAIT")
+}
+func sendCommands(commands []string) {
+	cmd := "PASS"
+	if len(commands) == 0 {
+		log.Println("List of commands is empty, PASS will be sent")
+	} else {
+		cmd = strings.Join(commands, ";")
+	}
+	fmt.Println(cmd)
+}
 
 type State struct {
 	factoryCount int
@@ -40,31 +67,23 @@ type State struct {
 	oppTroops        []Troop
 }
 
-type Turn struct {
-	moves []Action
-}
+func (s *State) readMap() {
+	// factoryCount: the number of factories
+	var factoryCount int
+	fmt.Scan(&factoryCount)
+	s.factoryCount = factoryCount
 
-//is there a link between f1 and f2?
-func (s State) linkTo(f1, f2 Factory) bool {
-	for _, l := range s.links {
-		if l.from == f1.id && l.to == f2.id {
-			return true
-		}
-	}
-	return false
-}
-func (s State) facWithMaxCyb() int {
-	var max, id int
-	for _, f := range s.myFactories {
-		if f.cyborgs > max {
-			max = f.cyborgs
-			id = f.id
-		}
-	}
-	return id
-}
+	// linkCount: the number of links between factories
+	var linkCount int
+	fmt.Scan(&linkCount)
+	s.linkCount = linkCount
 
-//should g be passed as a pointer here? No need of & thereafter??
+	for i := 0; i < linkCount; i++ {
+		var factory1, factory2, distance int
+		fmt.Scan(&factory1, &factory2, &distance)
+		s.links = append(s.links, Link{factory1, factory2, distance})
+	}
+}
 func (s *State) readEntity() {
 	// entityCount: the number of entities (e.g. factories and troops)
 	var entityCount int
@@ -92,47 +111,29 @@ func (s *State) readEntity() {
 	}
 }
 
-//COMMANDS
-func cmdMove(source, destination, cyborgCount int) string {
-	return fmt.Sprintf("MOVE %d %d %d", source, destination, cyborgCount)
-}
-
-func cmdWait(cardID int) string {
-	return fmt.Sprintf("WAIT")
-}
-func sendCommands(commands []string) {
-	cmd := "PASS"
-	if len(commands) == 0 {
-		log.Println("List of commands is empty, PASS will be sent")
-	} else {
-		cmd = strings.Join(commands, ";")
+//is there a link between f1 and f2?
+func (s State) linkTo(f1, f2 Factory) bool {
+	for _, l := range s.links {
+		if l.from == f1.id && l.to == f2.id {
+			return true
+		}
 	}
-	fmt.Println(cmd)
+	return false
+}
+func (s State) facWithMaxCyb() int {
+	var max, id int
+	for _, f := range s.myFactories {
+		if f.cyborgs > max {
+			max = f.cyborgs
+			id = f.id
+		}
+	}
+	return id
 }
 
 func main() {
-
 	board := State{}
-
-	//put in a initMap() func
-	// factoryCount: the number of factories
-	var factoryCount int
-	fmt.Scan(&factoryCount)
-	board.factoryCount = factoryCount
-
-	// linkCount: the number of links between factories
-	var linkCount int
-	fmt.Scan(&linkCount)
-	board.linkCount = linkCount
-
-	for i := 0; i < linkCount; i++ {
-		var factory1, factory2, distance int
-		fmt.Scan(&factory1, &factory2, &distance)
-		board.links = append(board.links, Link{factory1, factory2, distance})
-		//et vice versa?
-	}
-	//var commands []string
-
+	board.readMap()
 	for {
 		board.readEntity()
 
@@ -146,9 +147,6 @@ func main() {
 		}
 
 		//choose destination
-		//printMove and queue it!! for one or two sources?
-
-		//send commands
 
 		//LOGS
 		log.Println(board.neutralFactories)
