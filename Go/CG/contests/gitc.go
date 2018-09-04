@@ -28,8 +28,7 @@ type Link struct {
 	distance int
 }
 
-//STATE
-type gameMap struct {
+type State struct {
 	factoryCount int
 	linkCount    int
 	links        []Link
@@ -41,18 +40,22 @@ type gameMap struct {
 	oppTroops        []Troop
 }
 
+type Turn struct {
+	moves []Action
+}
+
 //is there a link between f1 and f2?
-func (g gameMap) linkTo(f1, f2 Factory) bool {
-	for _, l := range g.links {
+func (s State) linkTo(f1, f2 Factory) bool {
+	for _, l := range s.links {
 		if l.from == f1.id && l.to == f2.id {
 			return true
 		}
 	}
 	return false
 }
-func (g gameMap) facWithMaxCyb() int {
+func (s State) facWithMaxCyb() int {
 	var max, id int
-	for _, f := range g.myFactories {
+	for _, f := range s.myFactories {
 		if f.cyborgs > max {
 			max = f.cyborgs
 			id = f.id
@@ -62,7 +65,7 @@ func (g gameMap) facWithMaxCyb() int {
 }
 
 //should g be passed as a pointer here? No need of & thereafter??
-func (g *gameMap) readEntity() {
+func (s *State) readEntity() {
 	// entityCount: the number of entities (e.g. factories and troops)
 	var entityCount int
 	fmt.Scan(&entityCount)
@@ -74,17 +77,17 @@ func (g *gameMap) readEntity() {
 		fmt.Scan(&entityId, &entityType, &arg1, &arg2, &arg3, &arg4, &arg5)
 
 		if entityType == "FACTORY" && arg1 == 0 {
-			g.neutralFactories = append(g.neutralFactories, Factory{entityId, arg1, arg2, arg3})
+			s.neutralFactories = append(s.neutralFactories, Factory{entityId, arg1, arg2, arg3})
 		} else if entityType == "FACTORY" && arg1 == 1 {
-			g.myFactories = append(g.myFactories, Factory{entityId, arg1, arg2, arg3})
+			s.myFactories = append(s.myFactories, Factory{entityId, arg1, arg2, arg3})
 		} else if entityType == "FACTORY" && arg1 == -1 {
-			g.oppFactories = append(g.oppFactories, Factory{entityId, arg1, arg2, arg3})
+			s.oppFactories = append(s.oppFactories, Factory{entityId, arg1, arg2, arg3})
 		}
 
 		if entityType == "TROOP" && arg1 == 1 {
-			g.myTroops = append(g.myTroops, Troop{entityId, arg1, arg2, arg3, arg4, arg5})
+			s.myTroops = append(s.myTroops, Troop{entityId, arg1, arg2, arg3, arg4, arg5})
 		} else if entityType == "TROOP" && arg1 == -1 {
-			g.oppTroops = append(g.oppTroops, Troop{entityId, arg1, arg2, arg3, arg4, arg5})
+			s.oppTroops = append(s.oppTroops, Troop{entityId, arg1, arg2, arg3, arg4, arg5})
 		}
 	}
 }
@@ -109,7 +112,7 @@ func sendCommands(commands []string) {
 
 func main() {
 
-	board := gameMap{}
+	board := State{}
 
 	//put in a initMap() func
 	// factoryCount: the number of factories
