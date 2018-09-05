@@ -26,6 +26,9 @@ type Link struct {
 	distance int
 }
 
+//Action+Turn should be mixed together??
+//Then a func that create a moves slice string
+//and send it. And GET RID of actionType
 type Action struct {
 	actionType  string
 	from        int
@@ -50,25 +53,40 @@ type Turn struct {
 	moves []string
 }
 
-func (t Turn) sendCommands(commands []string) {
+func (t Turn) sendCommands() {
 	cmd := "WAIT"
-	if len(commands) == 0 {
+	if len(t.moves) == 0 {
 		log.Println("List of commands is empty, WAIT will be sent")
 	} else {
-		cmd = strings.Join(commands, ";")
+		cmd = strings.Join(t.moves, ";")
 	}
 	fmt.Println(cmd)
+}
+
+type Player struct {
+	factories []Factory
+	troops    []Troop
+	turn      Turn
+}
+
+func (p Player) facWithMaxCyb() int {
+	var max, id int
+	for _, f := range p.factories {
+		if f.cyborgs > max {
+			max = f.cyborgs
+			id = f.id
+		}
+	}
+	return id
 }
 
 type State struct {
 	factoryCount     int
 	linkCount        int
 	links            []Link
-	myFactories      []Factory
-	oppFactories     []Factory
 	neutralFactories []Factory
-	myTroops         []Troop
-	oppTroops        []Troop
+	me               Player
+	opp              Player
 }
 
 func (s *State) readMap() {
@@ -102,15 +120,15 @@ func (s *State) readEntity() {
 		if entityType == "FACTORY" && arg1 == 0 {
 			s.neutralFactories = append(s.neutralFactories, Factory{entityId, arg1, arg2, arg3})
 		} else if entityType == "FACTORY" && arg1 == 1 {
-			s.myFactories = append(s.myFactories, Factory{entityId, arg1, arg2, arg3})
+			s.me.factories = append(s.me.factories, Factory{entityId, arg1, arg2, arg3})
 		} else if entityType == "FACTORY" && arg1 == -1 {
-			s.oppFactories = append(s.oppFactories, Factory{entityId, arg1, arg2, arg3})
+			s.opp.factories = append(s.opp.factories, Factory{entityId, arg1, arg2, arg3})
 		}
 
 		if entityType == "TROOP" && arg1 == 1 {
-			s.myTroops = append(s.myTroops, Troop{entityId, arg1, arg2, arg3, arg4, arg5})
+			s.me.troops = append(s.me.troops, Troop{entityId, arg1, arg2, arg3, arg4, arg5})
 		} else if entityType == "TROOP" && arg1 == -1 {
-			s.oppTroops = append(s.oppTroops, Troop{entityId, arg1, arg2, arg3, arg4, arg5})
+			s.opp.troops = append(s.opp.troops, Troop{entityId, arg1, arg2, arg3, arg4, arg5})
 		}
 	}
 }
@@ -124,15 +142,21 @@ func (s State) linkTo(f1, f2 Factory) bool {
 	}
 	return false
 }
-func (s State) facWithMaxCyb() int {
-	var max, id int
-	for _, f := range s.myFactories {
-		if f.cyborgs > max {
-			max = f.cyborgs
-			id = f.id
+
+//ALGO to get out of woods: take each of my fac with troops and move to neutral fac first
+//and then those of opp with less cyb?
+//check i owned the fact??
+func (s *State) think() {
+	for _, src := range s.me.factories {
+		for _, dest := range s.neutralFactories {
+			//oki it's nasty
+			if src.id == dest.id {
+				s.me.turn.moves = append(s.me.turn.moves, "WAIT")
+			} else {
+				s.me.turn.moves = append(s.me.turn.moves, Action{"move", src.id, dest.id, 1}.printAction())
+			}
 		}
 	}
-	return id
 }
 
 func main() {
@@ -140,24 +164,11 @@ func main() {
 	board.readMap()
 	for {
 		board.readEntity()
-
-		//put that in a func(s State) think(){}, should yield an
-		//Action and/or a turn!!
-		//ALGO to get out of woods: take each of my fac with troops and move to neutral fac first
-		//and then those of opp with less cyb?
-		//chooseSource()
-		if len(board.myFactories) == 1 {
-			//  src=board.myFactories[0]
-		} else {
-			//choose the one with max cyborgs (arg2)
-		}
-
-		//choose destination
-
+		board.think()
 		//LOGS
-		log.Println(board.neutralFactories)
+		//log.Println(board.neutralFactories)
+		board.me.turn.sendCommands()
 
-		// Any valid action, such as "WAIT" or "MOVE source destination cyborgs"
-		fmt.Println("WAIT")
 	}
+	board.me.turn.moves = []string{}
 }
