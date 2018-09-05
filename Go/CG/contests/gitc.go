@@ -133,6 +133,12 @@ func (s *State) readEntity() {
 	}
 }
 
+func (s *State) clearPlayer() {
+	s.me.factories = []Factory{}
+	s.me.troops = []Troop{}
+	s.me.turn.moves = []string{}
+}
+
 //is there a link between f1 and f2?
 func (s State) linkTo(f1, f2 Factory) bool {
 	for _, l := range s.links {
@@ -165,10 +171,7 @@ func main() {
 	for {
 		board.readEntity()
 		board.think()
-		//LOGS
-		//log.Println(board.neutralFactories)
 		board.me.turn.sendCommands()
-
+		board.clearPlayer()
 	}
-	board.me.turn.moves = []string{}
 }
