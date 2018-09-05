@@ -5,12 +5,8 @@ import (
 	"log"
 )
 
-type graph struct {
-	nodes []int
-	edges map[int][]int
-}
-
-func checkList(c int, d []int) bool {
+//UTILS
+func In(c int, d []int) bool {
 	for _, v := range d {
 		if v == c {
 			return true
@@ -19,20 +15,25 @@ func checkList(c int, d []int) bool {
 	return false
 }
 
+//GRAPH
+type graph struct {
+	nodes []int
+	edges map[int][]int
+}
+
 //count directly here?
-func (g graph) dfs(node int) int {
-	var acc = 1
+func (g graph) maxDepth(node int) int {
+	//var acc=0
+	//This one should stop when g.edges[node] is empty!!
+	//There is no more nodes to visit
 	if len(g.edges[node]) > 0 {
-		visited := make(map[int]bool)
-		visited[node] = true
-		for n := range g.edges[node] {
-			acc += 1
-			if !visited[n] {
-				g.dfs(n)
-			}
+		for _, n := range g.edges[node] {
+			return g.maxDepth(n) + 1
 		}
+	} else {
+		return 1
 	}
-	return acc + 1
+	//return 0
 }
 
 //MAIN
@@ -47,25 +48,26 @@ func main() {
 		var x, y int
 		fmt.Scan(&x, &y)
 		//dont think it's necessary!!take the nodes from map key!!
-		if !checkList(x, g.nodes) {
+		if !In(x, g.nodes) {
 			g.nodes = append(g.nodes, x)
 		}
-		if !checkList(y, g.nodes) {
+		if !In(y, g.nodes) {
 			g.nodes = append(g.nodes, y)
 		}
 		g.edges[x] = append(g.edges[x], y)
 	}
 
+	//I should ( must?) put that in maxDepth no?
 	var max = 0
 	for n, _ := range g.edges {
-		log.Println(g.dfs(n))
-		if g.dfs(n) > max {
-			max = g.dfs(n)
+		log.Println(n, g.maxDepth(n))
+		if g.maxDepth(n) >= max {
+			max = g.maxDepth(n)
 		}
 	}
 
 	//LOGS
-	//log.Println(g.nodes,g.edges)
+	log.Println(g.nodes, g.edges)
 
 	// The number of people involved in the longest succession of influences
 	fmt.Println(max)
