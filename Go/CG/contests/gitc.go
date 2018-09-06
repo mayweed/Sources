@@ -156,6 +156,8 @@ func (s State) linkTo(f1, f2 Factory) bool {
 //could list all possible acttions and choose first those factories with
 //highest prod rate?
 //must define a better cyb count
+//must take the time to build factories. Sending all those cybs wear out
+//factories...
 func (s *State) think() {
 	for _, src := range s.me.factories {
 		if len(s.neutralFactories) != 0 {
