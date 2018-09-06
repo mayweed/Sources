@@ -138,6 +138,7 @@ func (s *State) clearState() {
 	s.me.troops = []Troop{}
 	s.me.turn.moves = []string{}
 	s.neutralFactories = []Factory{}
+	s.opp.factories = []Factory{}
 }
 
 //is there a link between f1 and f2?
@@ -152,15 +153,21 @@ func (s State) linkTo(f1, f2 Factory) bool {
 
 //ALGO to get out of woods: take each of my fac with troops and move to neutral fac first
 //and then those of opp with less cyb?
-//check i owned the fact??
 //could list all possible acttions and choose first those factories with
 //highest prod rate?
 //must define a better cyb count
 func (s *State) think() {
 	for _, src := range s.me.factories {
-		for _, dest := range s.neutralFactories {
-			s.me.turn.moves = append(s.me.turn.moves, Action{"move", src.id, dest.id, 1}.printAction())
+		if len(s.neutralFactories) != 0 {
+			for _, dest := range s.neutralFactories {
+				s.me.turn.moves = append(s.me.turn.moves, Action{"move", src.id, dest.id, 1}.printAction())
+			}
+		} else {
+			for _, dest := range s.opp.factories {
+				s.me.turn.moves = append(s.me.turn.moves, Action{"move", src.id, dest.id, 1}.printAction())
+			}
 		}
+
 	}
 }
 
