@@ -23,17 +23,17 @@ type graph struct {
 
 //count directly here?
 func (g graph) maxDepth(node int) int {
-	//var acc=0
+	var depth int
 	//This one should stop when g.edges[node] is empty!!
 	//There is no more nodes to visit
 	if len(g.edges[node]) > 0 {
 		for _, n := range g.edges[node] {
-			return g.maxDepth(n) + 1
+			depth = g.maxDepth(n) + 1
 		}
 	} else {
-		return 1
+		return depth
 	}
-	//return 0
+	return depth
 }
 
 //MAIN
