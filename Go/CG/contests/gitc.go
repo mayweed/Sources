@@ -160,6 +160,10 @@ func (s State) linkTo(f1, f2 Factory) bool {
 //factories...
 func (s *State) think() {
 	for _, src := range s.me.factories {
+		//lame and does not work
+		if src.cyborgs < 5 {
+			continue
+		}
 		if len(s.neutralFactories) != 0 {
 			for _, dest := range s.neutralFactories {
 				s.me.turn.moves = append(s.me.turn.moves, Action{"move", src.id, dest.id, 1}.printAction())
