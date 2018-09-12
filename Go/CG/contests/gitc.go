@@ -110,6 +110,7 @@ func (s *State) sortFacByProd() {
 	sort.Slice(s.opp.factories, func(i, j int) bool { return s.opp.factories[i].production < s.opp.factories[j].production })
 	sort.Slice(s.me.factories, func(i, j int) bool { return s.me.factories[i].production < s.me.factories[j].production })
 }
+
 func (s *State) readMap() {
 	// factoryCount: the number of factories
 	var factoryCount int
