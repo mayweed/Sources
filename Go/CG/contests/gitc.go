@@ -81,15 +81,15 @@ func (p Player) facWithMaxCyb() int {
 	}
 	return id
 }
-func (p *Player) calcScore(){
-    var total int
-    for _,f := range p.factories{
-        total+=f.cyborgs
-    }
-    for _,t := range p.troops{
-        total+=t.cyborgs
-    }
-    p.score=total
+func (p *Player) calcScore() {
+	var total int
+	for _, f := range p.factories {
+		total += f.cyborgs
+	}
+	for _, t := range p.troops {
+		total += t.cyborgs
+	}
+	p.score = total
 }
 
 type State struct {
@@ -100,14 +100,15 @@ type State struct {
 	me               Player
 	opp              Player
 }
+
 //This is ugly can't i put that in an anon func i pass on?
-func (s *State) sortLinksByDist(){
-    sort.Slice(s.links, func(i, j int) bool { return s.links[i].distance< s.links[j].distance})
+func (s *State) sortLinksByDist() {
+	sort.Slice(s.links, func(i, j int) bool { return s.links[i].distance < s.links[j].distance })
 }
-func (s *State) sortFacByProd(){
-    sort.Slice(s.neutralFactories, func(i, j int) bool { return s.neutralFactories[i].production< s.neutralFactories[j].production})
-    sort.Slice(s.opp.factories, func(i, j int) bool { return s.opp.factories[i].production< s.opp.factories[j].production})
-    sort.Slice(s.me.factories, func(i, j int) bool { return s.me.factories[i].production< s.me.factories[j].production})
+func (s *State) sortFacByProd() {
+	sort.Slice(s.neutralFactories, func(i, j int) bool { return s.neutralFactories[i].production < s.neutralFactories[j].production })
+	sort.Slice(s.opp.factories, func(i, j int) bool { return s.opp.factories[i].production < s.opp.factories[j].production })
+	sort.Slice(s.me.factories, func(i, j int) bool { return s.me.factories[i].production < s.me.factories[j].production })
 }
 func (s *State) readMap() {
 	// factoryCount: the number of factories
@@ -156,7 +157,7 @@ func (s *State) readEntity() {
 	s.me.calcScore()
 	s.opp.calcScore()
 	s.sortFacByProd()
-	
+
 	log.Println(s.me.factories)
 }
 
