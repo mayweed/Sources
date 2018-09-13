@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"log"
-	"strconv"
 	"strings"
 )
 
@@ -12,9 +11,10 @@ const (
 	WIDTH  = 13
 	HEIGHT = 11
 	//entityType
-	PLAYER = 0
-	BOMB   = 1
-	CRATE  = 2
+	EMPTY_CELL = -1
+	PLAYER     = 0
+	BOMB       = 1
+	CRATE      = 2
 )
 
 type Grid [WIDTH][HEIGHT]Cell
@@ -39,25 +39,71 @@ type Player struct {
 	myBombs int
 }
 
-type World struct {
+type State struct {
 	board   Grid
 	crates  []Cell
-	bombs   []Cell
-	players []Cell
+	bombs   []Entity
+	players []Player
 }
 
-func (g Grid) String() string {
+func (s *State) readGrid() {
+	var width, height, myId int
+	fmt.Scan(&width, &height, &myId)
+
+	for y := 0; y < height; y++ {
+		var row string
+		fmt.Scan(&row)
+		inputs := strings.Split(row, "")
+		for x := 0; x < width; x++ {
+			var c int
+			if inputs[x] == "." {
+				c = EMPTY_CELL
+			} else {
+				c = CRATE
+				s.crates = append(s.crates, Cell{x, y, Entity{entityType: CRATE}})
+			}
+			s.board[x][y] = Cell{x: x, y: y, what: Entity{entityType: c}}
+		}
+	}
+}
+func (s *State) readEntities() {
+	var entities int
+	fmt.Scan(&entities)
+
+	s.bombs = []Entity{}
+
+	for i := 0; i < entities; i++ {
+		var entityType, owner, x, y, param1, param2 int
+		fmt.Scan(&entityType, &owner, &x, &y, &param1, &param2)
+		switch entityType {
+		case 0:
+			s.board[x][y].what.entityType = entityType
+			s.board[x][y].what.owner = owner
+			s.board[x][y].what.param1 = param1
+		case 1:
+			s.board[x][y].what.entityType = entityType
+			s.board[x][y].what.owner = owner
+			s.board[x][y].what.param1 = param1
+			s.bombs = append(s.bombs, Entity{entityType, owner, param1, param2})
+		}
+
+	}
+	log.Println(s.bombs)
+}
+func (s State) printBoard() string {
 	var result bytes.Buffer
 	for y := 0; y < HEIGHT; y += 1 {
 		for x := 0; x < WIDTH; x += 1 {
-			if g[x][y].what.entityType == -1 {
+			switch s.board[x][y].what.entityType {
+			case EMPTY_CELL:
 				result.WriteString(".")
-			} else {
-				if g[x][y].what.entityType == 0 {
-					result.WriteString(strconv.Itoa(g[x][y].what.owner))
-				} else {
-					result.WriteString(strconv.Itoa(g[x][y].what.entityType))
-				}
+			case PLAYER:
+				//should differentiate between me and opp?
+				result.WriteString("P")
+			case BOMB:
+				result.WriteString("B")
+			case CRATE:
+				result.WriteString("C")
 			}
 		}
 		result.WriteString("\n")
@@ -66,55 +112,16 @@ func (g Grid) String() string {
 }
 
 func main() {
-	//method readGrid from world?
-	var width, height, myId int
-	fmt.Scan(&width, &height, &myId)
-	var board Grid
+	s := State{}
+
 	for {
-		for y := 0; y < HEIGHT; y++ {
-			var row string
-			fmt.Scan(&row)
-			inputs := strings.Split(row, "")
-			for x := 0; x < WIDTH; x++ {
-				//THAT WORKS BUT THAT SUCKS!!
-				var c int
-				if inputs[x] == "." {
-					c = -1
-				} else {
-					//c,_=strconv.Atoi(inputs[x])
-					c = 2 //crate!!
-				}
-				board[x][y] = Cell{x: x, y: y, what: Entity{entityType: c}}
-			}
-		}
-
-		var entities int
-		fmt.Scan(&entities)
-
-		//method updateEntities from world!!
-		for i := 0; i < entities; i++ {
-			var entityType, owner, x, y, param1, param2 int
-			fmt.Scan(&entityType, &owner, &x, &y, &param1, &param2)
-			//update
-			//example:
-			board[x][y].what.entityType = entityType
-			board[x][y].what.owner = owner
-			board[x][y].what.param1 = param1
-
-			//if entityType == 0 {
-			//	players = append(players, entity{entityType, owner, x, y, param1, param2})
-			//} else if entityType == 1 {
-			//	bombs = append(bombs, entity{entityType, owner, x, y, param1, param2})
-			//}
-
-		}
-
-		//LOGS
-		log.Println(board.String())
+		s.readGrid()
+		s.readEntities()
 
 		//MOVE test
 		//should list possible moves+simulate where to leave bombs to get
 		//more boxes destroy
 		fmt.Println("MOVE 11 13") // Write action to stdout
+
 	}
 }
