@@ -50,6 +50,7 @@ func (a Action) printAction() string {
 }
 
 type Turn struct {
+	possibleActions []Action
 	//encapsulate Action in string (sprintf)
 	moves []string
 }
@@ -188,9 +189,12 @@ func (s State) linkTo(f1, f2 Factory) bool {
 //must take the time to build factories. Sending all those cybs wear out
 //factories...
 func (s *State) think() {
+	var needTroopsFactories []Factory
+	//var bestTurn Turn //will need that
 	for _, src := range s.me.factories {
-		//lame and does not work
+		//I should send troops to the factories!!
 		if src.cyborgs < 5 {
+			needTroopsFactories = append(needTroopsFactories, src)
 			continue
 		}
 		if len(s.neutralFactories) != 0 {
@@ -203,6 +207,15 @@ func (s *State) think() {
 			}
 		}
 		//log.Println(s.me.score)
+	}
+
+	//test to help does not work no? should think strat?
+	for _, dest := range needTroopsFactories {
+		for _, src := range s.me.factories {
+			if src.cyborgs > 5 {
+				s.me.turn.moves = append(s.me.turn.moves, Action{"move", src.id, dest.id, 1}.printAction())
+			}
+		}
 	}
 }
 
