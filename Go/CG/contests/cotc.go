@@ -106,11 +106,15 @@ func main() {
 		fmt.Scan(&myShipCount)
 
 		agent.readEntities()
+
+		//put that in a think() func
 		test := agent.getNearestBarrel()
 		for i := 0; i < myShipCount; i++ {
 			//fmt.Printf("MOVE 11 10\n") // Any valid action, such as "WAIT" or "MOVE x y"
-			fmt.Println("MOVE %d %d", test.x, test.y)
+			fmt.Println("MOVE", test.x, test.y)
 		}
+		//clear state!!
+		agent.barrels = []Barrel{}
 
 	}
 }
