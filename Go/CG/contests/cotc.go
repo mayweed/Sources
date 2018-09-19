@@ -9,15 +9,20 @@ import (
 type actionType string
 
 const (
-	move   actionType = "MOVE"
-	wait   actionType = "WAIT"
-	slower actionType = "SLOWER"
+	MAP_WIDTH             = 23
+	MAP_HEIGHT            = 21
+	move       actionType = "MOVE"
+	wait       actionType = "WAIT"
+	slower     actionType = "SLOWER"
 )
 
 type Point struct {
 	x, y int
 }
 
+func (p Point) isInsideMap() bool {
+	return p.x >= 0 && p.x < MAP_WIDTH && p.y >= 0 && p.y < MAP_HEIGHT
+}
 func distance2(p1 Point, p2 Point) int {
 	x := p2.x - p1.x
 	x = x * x
@@ -31,8 +36,9 @@ func distance(p1 Point, p2 Point) float64 {
 }
 
 type Player struct {
-	id    int
-	ships []Ship
+	id        int
+	shipCount int
+	ships     []Ship
 }
 type Ship struct {
 	pos         Point
@@ -58,6 +64,11 @@ type State struct {
 type Turn struct{}
 
 func (s *State) readEntities() {
+	// myShipCount: the number of remaining ships
+	var myShipCount int
+	fmt.Scan(&myShipCount)
+	s.players[1].shipCount = myShipCount
+
 	var entityCount int
 	fmt.Scan(&entityCount)
 
@@ -98,23 +109,18 @@ func (s *State) getNearestBarrel() Point {
 	return pos
 }
 
+func (s *State) think() {
+	test := s.getNearestBarrel()
+	for i := 0; i < s.players[1].shipCount; i++ {
+		fmt.Println("MOVE", test.x, test.y)
+	}
+	//clear state!!
+	s.barrels = []Barrel{}
+}
 func main() {
 	agent := State{}
 	for {
-		// myShipCount: the number of remaining ships
-		var myShipCount int
-		fmt.Scan(&myShipCount)
-
 		agent.readEntities()
-
-		//put that in a think() func
-		test := agent.getNearestBarrel()
-		for i := 0; i < myShipCount; i++ {
-			//fmt.Printf("MOVE 11 10\n") // Any valid action, such as "WAIT" or "MOVE x y"
-			fmt.Println("MOVE", test.x, test.y)
-		}
-		//clear state!!
-		agent.barrels = []Barrel{}
-
+		agent.think()
 	}
 }
