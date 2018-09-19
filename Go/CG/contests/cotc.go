@@ -1,6 +1,10 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	//	"log"
+	"math"
+)
 
 type actionType string
 
@@ -12,6 +16,18 @@ const (
 
 type Point struct {
 	x, y int
+}
+
+func distance2(p1 Point, p2 Point) int {
+	x := p2.x - p1.x
+	x = x * x
+	y := p2.y - p1.y
+	y = y * y
+	return x + y
+}
+
+func distance(p1 Point, p2 Point) float64 {
+	return (math.Sqrt(float64(distance2(p1, p2))))
 }
 
 type Player struct {
@@ -67,6 +83,21 @@ func (s *State) readEntities() {
 	}
 
 }
+
+//should write test for that!!
+func (s *State) getNearestBarrel() Point {
+	//width+1 as maxDist
+	var maxDist = 24.0
+	var pos Point
+	for _, barrel := range s.barrels {
+		if d := distance(s.players[1].ships[0].pos, barrel.pos); d < maxDist {
+			maxDist = d
+			pos = barrel.pos
+		}
+	}
+	return pos
+}
+
 func main() {
 	agent := State{}
 	for {
@@ -75,8 +106,11 @@ func main() {
 		fmt.Scan(&myShipCount)
 
 		agent.readEntities()
+		test := agent.getNearestBarrel()
 		for i := 0; i < myShipCount; i++ {
-			fmt.Printf("MOVE 11 10\n") // Any valid action, such as "WAIT" or "MOVE x y"
+			//fmt.Printf("MOVE 11 10\n") // Any valid action, such as "WAIT" or "MOVE x y"
+			fmt.Println("MOVE %d %d", test.x, test.y)
 		}
+
 	}
 }
