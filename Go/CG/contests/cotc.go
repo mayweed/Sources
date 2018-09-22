@@ -9,15 +9,36 @@ import (
 type actionType string
 
 const (
-	MAP_WIDTH             = 23
-	MAP_HEIGHT            = 21
-	move       actionType = "MOVE"
-	wait       actionType = "WAIT"
-	slower     actionType = "SLOWER"
+	MAP_WIDTH  = 23
+	MAP_HEIGHT = 21
+	//shouldn't be there action..
+	move   actionType = "MOVE"
+	wait   actionType = "WAIT"
+	slower actionType = "SLOWER"
 )
+
+var DIRECTIONS_EVEN = [6][2]int{{1, 0}, {0, -1}, {-1, -1}, {-1, 0}, {-1, 1}, {0, 1}}
+var DIRECTIONS_ODD = [6][2]int{{1, 0}, {1, -1}, {0, -1}, {-1, 0}, {0, 1}, {1, 1}}
 
 type Point struct {
 	x, y int
+}
+
+func (p Point) neighbour(orientation int) Point {
+	var newY, newX int
+	var neighbour Point
+	if p.y%2 == 1 {
+		newY = p.y + DIRECTIONS_ODD[orientation][1]
+		newX = p.x + DIRECTIONS_ODD[orientation][0]
+	} else {
+		newY = p.y + DIRECTIONS_EVEN[orientation][1]
+		newX = p.x + DIRECTIONS_EVEN[orientation][0]
+	}
+
+	neighbour.x = newX
+	neighbour.y = newY
+
+	return neighbour
 }
 
 func (p Point) isInsideMap() bool {
