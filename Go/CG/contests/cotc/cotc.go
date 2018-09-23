@@ -2,19 +2,21 @@ package main
 
 import (
 	"fmt"
-	//	"log"
+	"log"
 	"math"
 )
-
-type actionType string
 
 const (
 	MAP_WIDTH  = 23
 	MAP_HEIGHT = 21
-	//shouldn't be there action..
-	move   actionType = "MOVE"
-	wait   actionType = "WAIT"
-	slower actionType = "SLOWER"
+)
+
+const (
+	MOVE = iota
+	SLOWER
+	WAIT
+	FIRE
+	MINE
 )
 
 type Point struct {
@@ -61,6 +63,9 @@ func (p Point) toCubeCoordinate() cubeCoord {
 func (p Point) isInsideMap() bool {
 	return p.x >= 0 && p.x < MAP_WIDTH && p.y >= 0 && p.y < MAP_HEIGHT
 }
+func (p Point) equalsTo(p2 Point) bool {
+	return p.x == p2.x && p.y == p2.y
+}
 func (p Point) distanceTo(dst Point) float64 {
 	return p.toCubeCoordinate().distanceTo(dst.toCubeCoordinate())
 }
@@ -85,29 +90,53 @@ func (c cubeCoord) distanceTo(dst cubeCoord) float64 {
 	return (math.Abs(float64(c.x-dst.x)) + math.Abs(float64(c.y-dst.y)) + math.Abs(float64(c.z-dst.z))) / 2.0
 }
 
+type Entity struct {
+	id         int
+	entityType string
+	pos        Point
+}
+
+func (e Entity) getPosition() Point {
+	return e.pos
+}
+func (e Entity) distanceTo(e2 Entity) float64 {
+	return e.pos.distanceTo(e2.getPosition())
+}
+
+type Ship struct {
+	Entity
+	orientation        int
+	speed              int
+	rum                int
+	owner              int
+	hasFiredCannonBall bool
+}
+
+type Barrel struct {
+	Entity
+	rumAmount int
+}
+type Mine struct {
+	Entity
+}
+type cannonBall struct {
+	Entity
+	fromShip          int
+	turnsBeforeImpact int
+}
+
 type Player struct {
 	id        int
 	shipCount int
 	ships     []Ship
 }
-type Ship struct {
-	pos         Point
-	orientation int
-	speed       int
-	rum         int
-	owner       int
-}
-
-type Barrel struct {
-	pos       Point
-	rumAmount int
-}
-
 type State struct {
 	entityCount int
 	players     [2]Player
 	ships       []Ship
 	barrels     []Barrel
+	mines       []Mine
+	cannonBalls []cannonBall
 }
 
 //WIP
@@ -130,15 +159,19 @@ func (s *State) readEntities() {
 		switch entityType {
 		case "SHIP":
 			if arg4 == 1 {
-				s.players[1].ships = append(s.players[1].ships, Ship{pos: Point{x, y}, orientation: arg1, speed: arg2, rum: arg3, owner: arg4})
-				s.ships = append(s.ships, Ship{pos: Point{x, y}, orientation: arg1, speed: arg2, rum: arg3, owner: arg4})
+				s.players[1].ships = append(s.players[1].ships, Ship{Entity: Entity{entityId, entityType, Point{x, y}}, orientation: arg1, speed: arg2, rum: arg3, owner: arg4})
+				s.ships = append(s.ships, Ship{Entity: Entity{entityId, entityType, Point{x, y}}, orientation: arg1, speed: arg2, rum: arg3, owner: arg4})
 			} else if arg4 == 0 {
-				s.players[0].ships = append(s.players[0].ships, Ship{pos: Point{x, y}, orientation: arg1, speed: arg2, rum: arg3, owner: arg4})
-				s.ships = append(s.ships, Ship{pos: Point{x, y}, orientation: arg1, speed: arg2, rum: arg3, owner: arg4})
+				s.players[0].ships = append(s.players[0].ships, Ship{Entity: Entity{entityId, entityType, Point{x, y}}, orientation: arg1, speed: arg2, rum: arg3, owner: arg4})
+				s.ships = append(s.ships, Ship{Entity: Entity{entityId, entityType, Point{x, y}}, orientation: arg1, speed: arg2, rum: arg3, owner: arg4})
 
 			}
 		case "BARREL":
-			s.barrels = append(s.barrels, Barrel{pos: Point{x, y}, rumAmount: arg1})
+			s.barrels = append(s.barrels, Barrel{Entity: Entity{entityId, entityType, Point{x, y}}, rumAmount: arg1})
+		case "MINE":
+			s.mines = append(s.mines, Mine{Entity: Entity{entityId, entityType, Point{x, y}}})
+		case "CANNONBALL":
+			s.cannonBalls = append(s.cannonBalls, cannonBall{Entity: Entity{entityId, entityType, Point{x, y}}, fromShip: arg1, turnsBeforeImpact: arg2})
 		}
 
 	}
@@ -150,8 +183,11 @@ func (s *State) getNearestBarrel() Point {
 	//width+1 as maxDist
 	var maxDist = 24.0
 	var pos Point
+
 	for _, barrel := range s.barrels {
+		log.Println(barrel.distanceTo(s.players[1].ships[0].Entity))
 		if d := s.players[1].ships[0].pos.distanceTo(barrel.pos); d < maxDist {
+			log.Println(d)
 			maxDist = d
 			pos = barrel.pos
 		}
