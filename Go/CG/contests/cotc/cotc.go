@@ -17,14 +17,25 @@ const (
 	slower actionType = "SLOWER"
 )
 
-var DIRECTIONS_EVEN = [6][2]int{{1, 0}, {0, -1}, {-1, -1}, {-1, 0}, {-1, 1}, {0, 1}}
-var DIRECTIONS_ODD = [6][2]int{{1, 0}, {1, -1}, {0, -1}, {-1, 0}, {0, 1}, {1, 1}}
-
 type Point struct {
 	x, y int
 }
 
+func (p Point) angle(targetPosition Point) float64 {
+	var dy = float64(targetPosition.y-p.y) * math.Sqrt(3) / 2
+	var dx = float64(targetPosition.x-p.x) + float64(float64((p.y-targetPosition.y)&1)*0.5)
+	var angle = -math.Atan2(dy, dx) * 3 / math.Pi
+	if angle < 0 {
+		angle += 6
+	} else if angle >= 6 {
+		angle -= 6
+	}
+	return angle
+}
+
 func (p Point) neighbour(orientation int) Point {
+	var DIRECTIONS_EVEN = [6][2]int{{1, 0}, {0, -1}, {-1, -1}, {-1, 0}, {-1, 1}, {0, 1}}
+	var DIRECTIONS_ODD = [6][2]int{{1, 0}, {1, -1}, {0, -1}, {-1, 0}, {0, 1}, {1, 1}}
 	var newY, newX int
 	var neighbour Point
 	if p.y%2 == 1 {
@@ -40,20 +51,38 @@ func (p Point) neighbour(orientation int) Point {
 
 	return neighbour
 }
-
+func (p Point) toCubeCoordinate() cubeCoord {
+	var c cubeCoord
+	c.x = p.x - (p.y-(p.y&1))>>1
+	c.z = p.y
+	c.y = -(c.x + c.z)
+	return c
+}
 func (p Point) isInsideMap() bool {
 	return p.x >= 0 && p.x < MAP_WIDTH && p.y >= 0 && p.y < MAP_HEIGHT
 }
-func distance2(p1 Point, p2 Point) int {
-	x := p2.x - p1.x
-	x = x * x
-	y := p2.y - p1.y
-	y = y * y
-	return x + y
+func (p Point) distanceTo(dst Point) float64 {
+	return p.toCubeCoordinate().distanceTo(dst.toCubeCoordinate())
 }
 
-func distance(p1 Point, p2 Point) float64 {
-	return (math.Sqrt(float64(distance2(p1, p2))))
+type cubeCoord struct {
+	x, y, z int
+}
+
+func (c cubeCoord) toOffsetCoord() Point {
+	x := c.x + (c.z-(c.z&1))>>1
+	y := c.z
+	return Point{x, y}
+}
+func (c cubeCoord) neighbour(orientation int) cubeCoord {
+	var directions = [6][3]int{{1, -1, 0}, {+1, 0, -1}, {0, +1, -1}, {-1, +1, 0}, {-1, 0, +1}, {0, -1, +1}}
+	nx := c.x + directions[orientation][0]
+	ny := c.y + directions[orientation][1]
+	nz := c.z + directions[orientation][2]
+	return cubeCoord{nx, ny, nz}
+}
+func (c cubeCoord) distanceTo(dst cubeCoord) float64 {
+	return (math.Abs(float64(c.x-dst.x)) + math.Abs(float64(c.y-dst.y)) + math.Abs(float64(c.z-dst.z))) / 2.0
 }
 
 type Player struct {
@@ -122,7 +151,7 @@ func (s *State) getNearestBarrel() Point {
 	var maxDist = 24.0
 	var pos Point
 	for _, barrel := range s.barrels {
-		if d := distance(s.players[1].ships[0].pos, barrel.pos); d < maxDist {
+		if d := s.players[1].ships[0].pos.distanceTo(barrel.pos); d < maxDist {
 			maxDist = d
 			pos = barrel.pos
 		}
