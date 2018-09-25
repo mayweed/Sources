@@ -11,12 +11,14 @@ const (
 	MAP_HEIGHT = 21
 )
 
+type actionType int
+
 const (
-	MOVE = iota
-	SLOWER
-	WAIT
-	FIRE
-	MINE
+	MOVE   actionType = 0
+	SLOWER actionType = 1
+	WAIT   actionType = 2
+	FIRE   actionType = 3
+	MINE   actionType = 4
 )
 
 type Point struct {
@@ -140,7 +142,10 @@ type State struct {
 }
 
 //WIP
-type Turn struct{}
+type Turn struct {
+	actionType int
+	move       string
+}
 
 func (s *State) readEntities() {
 	// myShipCount: the number of remaining ships
