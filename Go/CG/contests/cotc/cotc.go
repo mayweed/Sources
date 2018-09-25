@@ -114,6 +114,12 @@ type Ship struct {
 	hasFiredCannonBall bool
 }
 
+func (s Ship) move(target Point) string {
+	log.Println("MOVE", target.x, target.y)
+
+	return fmt.Sprintf("MOVE %d %d\n", target.x, target.y)
+}
+
 type Barrel struct {
 	Entity
 	rumAmount int
@@ -190,9 +196,9 @@ func (s *State) getNearestBarrel() Point {
 	var pos Point
 
 	for _, barrel := range s.barrels {
-		log.Println(barrel.distanceTo(s.players[1].ships[0].Entity))
+		//log.Println(barrel.distanceTo(s.players[1].ships[0].Entity))
 		if d := s.players[1].ships[0].pos.distanceTo(barrel.pos); d < maxDist {
-			log.Println(d)
+			//log.Println(d)
 			maxDist = d
 			pos = barrel.pos
 		}
@@ -200,15 +206,21 @@ func (s *State) getNearestBarrel() Point {
 	return pos
 }
 
-func (s *State) think() {
+//shouldnt that yield a turn? Then parse and display??
+func (s *State) think() string {
 	test := s.getNearestBarrel()
+	//will become a queue string when multiple ships
+	var action string
 	for i := 0; i < s.players[1].shipCount; i++ {
-		fmt.Println("MOVE", test.x, test.y)
+		//fmt.Println("MOVE", test.x, test.y)
+		action = s.players[1].ships[i].move(test)
+
 	}
 	//clear state!!
 	s.barrels = []Barrel{}
 	s.mines = []Mine{}
 	s.cannonBalls = []cannonBall{}
+	return action
 }
 func main() {
 	agent := State{}
