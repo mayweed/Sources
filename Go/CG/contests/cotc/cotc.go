@@ -207,6 +207,8 @@ func (s *State) think() {
 	}
 	//clear state!!
 	s.barrels = []Barrel{}
+	s.mines = []Mine{}
+	s.cannonBalls = []cannonBall{}
 }
 func main() {
 	agent := State{}
