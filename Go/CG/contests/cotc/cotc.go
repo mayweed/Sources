@@ -98,6 +98,8 @@ type Entity struct {
 	pos        Point
 }
 
+func (e *Entity) updateEntity() {
+}
 func (e Entity) getPosition() Point {
 	return e.pos
 }
@@ -112,12 +114,40 @@ type Ship struct {
 	rum                int
 	owner              int
 	hasFiredCannonBall bool
+
+	//Action
+	actionType int
+	target     Entity
+
+	//sim? And what if I go 2 instead of 1 etc...
+	newOrientation int
 }
 
-func (s Ship) move(target Point) string {
-	log.Println("MOVE", target.x, target.y)
-
-	return fmt.Sprintf("MOVE %d %d\n", target.x, target.y)
+func (s Ship) stern() Point {
+	return s.pos.neighbour((s.orientation + 3) % 6)
+}
+func (s Ship) bow() Point {
+	return s.pos.neighbour(s.orientation)
+}
+func (s Ship) newStern() Point {
+	return s.pos.neighbour((s.newOrientation + 3) % 6)
+}
+func (s Ship) newBow() Point {
+	return s.pos.neighbour(s.newOrientation)
+}
+func (s Ship) printAction() {
+	switch s.actionType {
+	case 0:
+		fmt.Println("MOVE", s.target.pos.x, s.target.pos.y)
+	case 1:
+		fmt.Println("SLOWER")
+	case 2:
+		fmt.Println("WAIT")
+	case 3:
+		fmt.Println("FIRE", s.target.pos.x, s.target.pos.y)
+	case 4:
+		fmt.Println("MINE")
+	}
 }
 
 type Barrel struct {
@@ -189,38 +219,60 @@ func (s *State) readEntities() {
 
 }
 
-//should write test for that!!
-func (s *State) getNearestBarrel() Point {
+//should be in think?
+//should pass the ship as arg!!
+func (s *State) getNearestTarget() Entity {
 	//width+1 as maxDist
 	var maxDist = 24.0
-	var pos Point
+	var shipPos = s.players[1].ships[0].bow()
+	var target Entity
 
+	//if nearestBarrel > nearestMine, fire mine instead?
+	//if enemy ship is in range or i collide with must fire!!
 	for _, barrel := range s.barrels {
-		//log.Println(barrel.distanceTo(s.players[1].ships[0].Entity))
-		if d := s.players[1].ships[0].pos.distanceTo(barrel.pos); d < maxDist {
-			//log.Println(d)
+		if d := shipPos.distanceTo(barrel.pos); d < maxDist {
 			maxDist = d
-			pos = barrel.pos
+			//ugly really and i lost info!!
+			target = barrel.Entity
+			s.players[1].ships[0].actionType = 0
 		}
 	}
-	return pos
+	for _, mine := range s.mines {
+		if d := shipPos.distanceTo(mine.pos); d < maxDist {
+			maxDist = d
+			target = mine.Entity
+			s.players[1].ships[0].actionType = 3
+		}
+	}
+	//it stuck my ship!!
+	//if, really, we are closer to enemy ship just fire at it?
+	if s.players[1].ships[0].pos.distanceTo(s.players[0].ships[0].pos) < maxDist {
+		target = s.players[0].ships[0].Entity
+		s.players[1].ships[0].actionType = 3
+	}
+	return target
 }
 
 //shouldnt that yield a turn? Then parse and display??
-func (s *State) think() string {
-	test := s.getNearestBarrel()
+func (s *State) think() {
 	//will become a queue string when multiple ships
-	var action string
+	//var action string
 	for i := 0; i < s.players[1].shipCount; i++ {
-		//fmt.Println("MOVE", test.x, test.y)
-		action = s.players[1].ships[i].move(test)
-
+		//if my rum total < rum adv go to target, else wait?
+		if s.players[1].ships[i].rum < s.players[0].ships[i].rum {
+			s.players[1].ships[i].target = s.getNearestTarget()
+			log.Println(s.players[1].ships[i].target)
+			s.players[1].ships[i].printAction()
+		} else {
+			fmt.Println("WAIT")
+		}
 	}
 	//clear state!!
 	s.barrels = []Barrel{}
 	s.mines = []Mine{}
 	s.cannonBalls = []cannonBall{}
-	return action
+	s.players[0].ships = []Ship{}
+	s.players[1].ships = []Ship{}
 }
 func main() {
 	agent := State{}
