@@ -7,8 +7,10 @@ import (
 )
 
 const (
-	MAP_WIDTH  = 23
-	MAP_HEIGHT = 21
+	MAP_WIDTH           = 23
+	MAP_HEIGHT          = 21
+	INITIAL_SHIP_HEALTH = 100
+	MAX_SHIP_HEALTH     = 100
 )
 
 type actionType int
@@ -65,9 +67,6 @@ func (p Point) toCubeCoordinate() cubeCoord {
 func (p Point) isInsideMap() bool {
 	return p.x >= 0 && p.x < MAP_WIDTH && p.y >= 0 && p.y < MAP_HEIGHT
 }
-func (p Point) equalsTo(p2 Point) bool {
-	return p.x == p2.x && p.y == p2.y
-}
 func (p Point) distanceTo(dst Point) float64 {
 	return p.toCubeCoordinate().distanceTo(dst.toCubeCoordinate())
 }
@@ -111,7 +110,7 @@ type Ship struct {
 	Entity
 	orientation        int
 	speed              int
-	rum                int
+	health             int
 	owner              int
 	hasFiredCannonBall bool
 
@@ -120,7 +119,29 @@ type Ship struct {
 	target     Entity
 
 	//sim? And what if I go 2 instead of 1 etc...
-	newOrientation int
+	newOrientation     int
+	newPosition        Point
+	newBowCoordinate   Point
+	newSternCoordinate Point
+
+	isDead bool
+}
+
+func (s Ship) isAlly() bool {
+	return s.owner == 1
+}
+func (s Ship) heal(amount int) {
+	s.health += amount
+	if s.health > MAX_SHIP_HEALTH {
+		s.health = MAX_SHIP_HEALTH
+	}
+}
+func (s Ship) damage(amount int) {
+	s.health -= amount
+	if s.health <= 0 {
+		s.health = 0
+		s.isDead = true
+	}
 }
 
 func (s Ship) stern() Point {
@@ -134,6 +155,23 @@ func (s Ship) newStern() Point {
 }
 func (s Ship) newBow() Point {
 	return s.pos.neighbour(s.newOrientation)
+}
+
+//first check is problematic: will be initialised to null?? Should init in readEntity
+//to another value? We suppose newBowCoord is not nil!!
+func (s Ship) newBowIntersect(other Ship) bool {
+	return s.newBowCoordinate == other.newBowCoordinate || s.newBowCoordinate == other.newPosition || s.newBowCoordinate == other.newSternCoordinate
+}
+func (s Ship) newBowsIntersect(ships []Ship) bool {
+	for _, otherShip := range ships {
+		if otherShip.isDead {
+			continue
+		}
+		if s != otherShip && s.newBowIntersect(otherShip) {
+			return true
+		}
+	}
+	return false
 }
 func (s Ship) printAction() {
 	switch s.actionType {
@@ -163,14 +201,11 @@ type cannonBall struct {
 	turnsBeforeImpact int
 }
 
-type Player struct {
-	id        int
-	shipCount int
-	ships     []Ship
-}
 type State struct {
 	entityCount int
-	players     [2]Player
+	myShipCount int
+	enemyShips  []Ship
+	allyShips   []Ship
 	ships       []Ship
 	barrels     []Barrel
 	mines       []Mine
@@ -183,11 +218,33 @@ type Turn struct {
 	move       string
 }
 
+/*
+It will apply on a newState==current state
+   void simulateTurn() {
+        this->updateInitialRum();
+        this->moveCannonballs();
+        this->decrementRum();
+        this->applyActions();
+        this->moveShips();
+        this->rotateShips();
+        this->explodeShips();
+        this->explodeMines();
+        this->explodeBarrels();
+        this->createDroppedRum();
+        ++turn;
+    }
+*/
+//pointer?Each turn -1 rum
+func (s State) decrementRum() {
+	for _, ship := range s.ships {
+		ship.damage(1)
+	}
+}
 func (s *State) readEntities() {
 	// myShipCount: the number of remaining ships
 	var myShipCount int
 	fmt.Scan(&myShipCount)
-	s.players[1].shipCount = myShipCount
+	s.myShipCount = myShipCount
 
 	var entityCount int
 	fmt.Scan(&entityCount)
@@ -200,12 +257,11 @@ func (s *State) readEntities() {
 		switch entityType {
 		case "SHIP":
 			if arg4 == 1 {
-				s.players[1].ships = append(s.players[1].ships, Ship{Entity: Entity{entityId, entityType, Point{x, y}}, orientation: arg1, speed: arg2, rum: arg3, owner: arg4})
-				s.ships = append(s.ships, Ship{Entity: Entity{entityId, entityType, Point{x, y}}, orientation: arg1, speed: arg2, rum: arg3, owner: arg4})
+				s.allyShips = append(s.allyShips, Ship{Entity: Entity{entityId, entityType, Point{x, y}}, orientation: arg1, speed: arg2, health: arg3, owner: arg4})
+				s.ships = append(s.ships, s.allyShips...)
 			} else if arg4 == 0 {
-				s.players[0].ships = append(s.players[0].ships, Ship{Entity: Entity{entityId, entityType, Point{x, y}}, orientation: arg1, speed: arg2, rum: arg3, owner: arg4})
-				s.ships = append(s.ships, Ship{Entity: Entity{entityId, entityType, Point{x, y}}, orientation: arg1, speed: arg2, rum: arg3, owner: arg4})
-
+				s.enemyShips = append(s.enemyShips, Ship{Entity: Entity{entityId, entityType, Point{x, y}}, orientation: arg1, speed: arg2, health: arg3, owner: arg4})
+				s.ships = append(s.ships, s.enemyShips...)
 			}
 		case "BARREL":
 			s.barrels = append(s.barrels, Barrel{Entity: Entity{entityId, entityType, Point{x, y}}, rumAmount: arg1})
@@ -214,9 +270,7 @@ func (s *State) readEntities() {
 		case "CANNONBALL":
 			s.cannonBalls = append(s.cannonBalls, cannonBall{Entity: Entity{entityId, entityType, Point{x, y}}, fromShip: arg1, turnsBeforeImpact: arg2})
 		}
-
 	}
-
 }
 
 //should be in think?
@@ -224,7 +278,7 @@ func (s *State) readEntities() {
 func (s *State) getNearestTarget() Entity {
 	//width+1 as maxDist
 	var maxDist = 24.0
-	var shipPos = s.players[1].ships[0].bow()
+	var shipPos = s.allyShips[0].bow()
 	var target Entity
 
 	//if nearestBarrel > nearestMine, fire mine instead?
@@ -234,21 +288,21 @@ func (s *State) getNearestTarget() Entity {
 			maxDist = d
 			//ugly really and i lost info!!
 			target = barrel.Entity
-			s.players[1].ships[0].actionType = 0
+			s.allyShips[0].actionType = 0
 		}
 	}
 	for _, mine := range s.mines {
 		if d := shipPos.distanceTo(mine.pos); d < maxDist {
 			maxDist = d
 			target = mine.Entity
-			s.players[1].ships[0].actionType = 3
+			s.allyShips[0].actionType = 3
 		}
 	}
 	//it stuck my ship!!
 	//if, really, we are closer to enemy ship just fire at it?
-	if s.players[1].ships[0].pos.distanceTo(s.players[0].ships[0].pos) < maxDist {
-		target = s.players[0].ships[0].Entity
-		s.players[1].ships[0].actionType = 3
+	if s.allyShips[0].pos.distanceTo(s.enemyShips[0].pos) < maxDist {
+		target = s.allyShips[0].Entity
+		s.allyShips[0].actionType = 3
 	}
 	return target
 }
@@ -257,12 +311,12 @@ func (s *State) getNearestTarget() Entity {
 func (s *State) think() {
 	//will become a queue string when multiple ships
 	//var action string
-	for i := 0; i < s.players[1].shipCount; i++ {
+	for i := 0; i < s.myShipCount; i++ {
 		//if my rum total < rum adv go to target, else wait?
-		if s.players[1].ships[i].rum < s.players[0].ships[i].rum {
-			s.players[1].ships[i].target = s.getNearestTarget()
-			log.Println(s.players[1].ships[i].target)
-			s.players[1].ships[i].printAction()
+		if s.allyShips[i].health < s.enemyShips[i].health {
+			s.allyShips[i].target = s.getNearestTarget()
+			log.Println(s.allyShips[i].target)
+
 		} else {
 			fmt.Println("WAIT")
 		}
@@ -271,8 +325,8 @@ func (s *State) think() {
 	s.barrels = []Barrel{}
 	s.mines = []Mine{}
 	s.cannonBalls = []cannonBall{}
-	s.players[0].ships = []Ship{}
-	s.players[1].ships = []Ship{}
+	s.enemyShips = []Ship{}
+	s.allyShips = []Ship{}
 }
 func main() {
 	agent := State{}
