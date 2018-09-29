@@ -123,6 +123,8 @@ type Ship struct {
 	newPosition        Point
 	newBowCoordinate   Point
 	newSternCoordinate Point
+	//why? should be able to revert back or what?
+	initialHealth int
 
 	isDead bool
 }
@@ -157,10 +159,13 @@ func (s Ship) newBow() Point {
 	return s.pos.neighbour(s.newOrientation)
 }
 
+// I MUST TEST THOSE!! new* values are supposed correctly init...
 //first check is problematic: will be initialised to null?? Should init in readEntity
 //to another value? We suppose newBowCoord is not nil!!
 func (s Ship) newBowIntersect(other Ship) bool {
-	return s.newBowCoordinate == other.newBowCoordinate || s.newBowCoordinate == other.newPosition || s.newBowCoordinate == other.newSternCoordinate
+	return s.newBowCoordinate == other.newBowCoordinate ||
+		s.newBowCoordinate == other.newPosition ||
+		s.newBowCoordinate == other.newSternCoordinate
 }
 func (s Ship) newBowsIntersect(ships []Ship) bool {
 	for _, otherShip := range ships {
@@ -173,6 +178,26 @@ func (s Ship) newBowsIntersect(ships []Ship) bool {
 	}
 	return false
 }
+
+func (s Ship) newPositionIntersect(other Ship) bool {
+	var sternCollision = s.newSternCoordinate == other.newBowCoordinate ||
+		s.newSternCoordinate == other.newPosition ||
+		s.newSternCoordinate == other.newSternCoordinate
+	var centerCollision = s.newPosition == other.newBowCoordinate ||
+		s.newPosition == other.newPosition ||
+		s.newPosition == other.newSternCoordinate
+	return s.newBowIntersect(other) || sternCollision || centerCollision
+}
+
+func (s Ship) newPositionsIntersect(ships []Ship) bool {
+	for _, otherShip := range ships {
+		if s != otherShip && s.newPositionIntersect(otherShip) {
+			return true
+		}
+	}
+	return false
+}
+
 func (s Ship) printAction() {
 	switch s.actionType {
 	case 0:
@@ -221,9 +246,9 @@ type Turn struct {
 /*
 It will apply on a newState==current state
    void simulateTurn() {
-        this->updateInitialRum();
+DONE!        this->updateInitialRum();
         this->moveCannonballs();
-        this->decrementRum();
+DONE!    this->decrementRum();
         this->applyActions();
         this->moveShips();
         this->rotateShips();
@@ -234,12 +259,17 @@ It will apply on a newState==current state
         ++turn;
     }
 */
-//pointer?Each turn -1 rum
-func (s State) decrementRum() {
+func (s *State) decrementRum() {
 	for _, ship := range s.ships {
 		ship.damage(1)
 	}
 }
+func (s *State) updateInitialRum() {
+	for _, ship := range s.ships {
+		ship.initialHealth = ship.health
+	}
+}
+
 func (s *State) readEntities() {
 	// myShipCount: the number of remaining ships
 	var myShipCount int
@@ -248,6 +278,7 @@ func (s *State) readEntities() {
 
 	var entityCount int
 	fmt.Scan(&entityCount)
+	s.entityCount = entityCount
 
 	for i := 0; i < entityCount; i++ {
 		var entityId int
@@ -271,6 +302,14 @@ func (s *State) readEntities() {
 			s.cannonBalls = append(s.cannonBalls, cannonBall{Entity: Entity{entityId, entityType, Point{x, y}}, fromShip: arg1, turnsBeforeImpact: arg2})
 		}
 	}
+}
+
+func (s *State) clear() {
+	s.barrels = []Barrel{}
+	s.mines = []Mine{}
+	s.cannonBalls = []cannonBall{}
+	s.enemyShips = []Ship{}
+	s.allyShips = []Ship{}
 }
 
 //should be in think?
@@ -323,11 +362,7 @@ func (s *State) think() {
 		}
 	}
 	//clear state!!
-	s.barrels = []Barrel{}
-	s.mines = []Mine{}
-	s.cannonBalls = []cannonBall{}
-	s.enemyShips = []Ship{}
-	s.allyShips = []Ship{}
+	s.clear()
 }
 func main() {
 	agent := State{}
