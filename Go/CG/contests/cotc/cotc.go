@@ -279,6 +279,7 @@ func (s *State) getNearestTarget() Entity {
 	//width+1 as maxDist
 	var maxDist = 24.0
 	var shipPos = s.allyShips[0].bow()
+	//log.Println(s.allyShips[0].bow())
 	var target Entity
 
 	//if nearestBarrel > nearestMine, fire mine instead?
@@ -301,7 +302,8 @@ func (s *State) getNearestTarget() Entity {
 	//it stuck my ship!!
 	//if, really, we are closer to enemy ship just fire at it?
 	if s.allyShips[0].pos.distanceTo(s.enemyShips[0].pos) < maxDist {
-		target = s.allyShips[0].Entity
+		target = s.enemyShips[0].Entity
+		log.Println(target)
 		s.allyShips[0].actionType = 3
 	}
 	return target
@@ -315,8 +317,7 @@ func (s *State) think() {
 		//if my rum total < rum adv go to target, else wait?
 		if s.allyShips[i].health < s.enemyShips[i].health {
 			s.allyShips[i].target = s.getNearestTarget()
-			log.Println(s.allyShips[i].target)
-
+			s.allyShips[i].printAction()
 		} else {
 			fmt.Println("WAIT")
 		}
