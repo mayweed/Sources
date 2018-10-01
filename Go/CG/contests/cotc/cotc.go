@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"math"
 )
 
@@ -11,16 +10,8 @@ const (
 	MAP_HEIGHT          = 21
 	INITIAL_SHIP_HEALTH = 100
 	MAX_SHIP_HEALTH     = 100
-)
-
-type actionType int
-
-const (
-	MOVE   actionType = 0
-	SLOWER actionType = 1
-	WAIT   actionType = 2
-	FIRE   actionType = 3
-	MINE   actionType = 4
+	//within ten cells in front of the ship
+	CANNONBALL_RANGE = 9
 )
 
 type Point struct {
@@ -115,7 +106,7 @@ type Ship struct {
 	hasFiredCannonBall bool
 
 	//Action
-	actionType int
+	actionType string
 	target     Entity
 
 	//sim? And what if I go 2 instead of 1 etc...
@@ -198,32 +189,73 @@ func (s Ship) newPositionsIntersect(ships []Ship) bool {
 	return false
 }
 
+func (s *Ship) fire(pos Point) {
+	s.actionType = "FIRE"
+	s.target.pos.x = pos.x
+	s.target.pos.y = pos.y
+}
+
+func (s *Ship) mine() {
+	s.actionType = "MINE"
+}
+
+//need this one?
+func (s *Ship) wait() {
+	s.actionType = "WAIT"
+}
+func (s *Ship) slower() {
+	s.actionType = "SLOWER"
+}
+
+func (s *Ship) move(pos Point) {
+	s.actionType = "MOVE"
+	s.target.pos.x = pos.x
+	s.target.pos.y = pos.y
+}
+
+/* to be used later, i hope so indeed ;))
+   void faster() {
+       this->action = Action::FASTER;
+   }
+
+   void port() {
+       this->action = Action::PORT;
+   }
+
+   void starboard() {
+       this->action = Action::STARBOARD;
+   }
+
+*/
 func (s Ship) printAction() {
 	switch s.actionType {
-	case 0:
+	case "MOVE":
 		fmt.Println("MOVE", s.target.pos.x, s.target.pos.y)
-	case 1:
+	case "SLOWER":
 		fmt.Println("SLOWER")
-	case 2:
+	case "WAIT":
 		fmt.Println("WAIT")
-	case 3:
+	case "FIRE":
 		fmt.Println("FIRE", s.target.pos.x, s.target.pos.y)
-	case 4:
+	case "MINE":
 		fmt.Println("MINE")
 	}
 }
 
 type Barrel struct {
 	Entity
-	rumAmount int
+	rumAmount  int
+	isTargeted bool
 }
 type Mine struct {
 	Entity
+	isTargeted bool
 }
 type cannonBall struct {
 	Entity
-	fromShip          int
-	turnsBeforeImpact int
+	fromShip       int
+	remainingTurns int
+	explosions     Point
 }
 
 type State struct {
@@ -270,6 +302,20 @@ func (s *State) updateInitialRum() {
 	}
 }
 
+/*
+ func (s *State) moveCannonballs() {
+ var balls []cannonBall
+ for _,ball := range s.cannonBalls{
+            if (ball.remainingTurns == 0) {
+				explosions=append(explosions,ball.Entity.pos);
+                continue
+            } else if (ball.remainingTurns > 0) {
+                ball.remainingTurns--;
+				balls=append(balls,ball)
+            }
+        }
+    }
+*/
 func (s *State) readEntities() {
 	// myShipCount: the number of remaining ships
 	var myShipCount int
@@ -299,68 +345,56 @@ func (s *State) readEntities() {
 		case "MINE":
 			s.mines = append(s.mines, Mine{Entity: Entity{entityId, entityType, Point{x, y}}})
 		case "CANNONBALL":
-			s.cannonBalls = append(s.cannonBalls, cannonBall{Entity: Entity{entityId, entityType, Point{x, y}}, fromShip: arg1, turnsBeforeImpact: arg2})
+			s.cannonBalls = append(s.cannonBalls, cannonBall{Entity: Entity{entityId, entityType, Point{x, y}}, fromShip: arg1, remainingTurns: arg2})
 		}
 	}
 }
 
 func (s *State) clear() {
+	s.enemyShips = []Ship{}
+	s.allyShips = []Ship{}
+	s.ships = []Ship{}
 	s.barrels = []Barrel{}
 	s.mines = []Mine{}
 	s.cannonBalls = []cannonBall{}
-	s.enemyShips = []Ship{}
-	s.allyShips = []Ship{}
-}
 
-//should be in think?
-//should pass the ship as arg!!
-func (s *State) getNearestTarget() Entity {
-	//width+1 as maxDist
-	var maxDist = 24.0
-	var shipPos = s.allyShips[0].bow()
-	//log.Println(s.allyShips[0].bow())
-	var target Entity
-
-	//if nearestBarrel > nearestMine, fire mine instead?
-	//if enemy ship is in range or i collide with must fire!!
-	for _, barrel := range s.barrels {
-		if d := shipPos.distanceTo(barrel.pos); d < maxDist {
-			maxDist = d
-			//ugly really and i lost info!!
-			target = barrel.Entity
-			s.allyShips[0].actionType = 0
-		}
-	}
-	for _, mine := range s.mines {
-		if d := shipPos.distanceTo(mine.pos); d < maxDist {
-			maxDist = d
-			target = mine.Entity
-			s.allyShips[0].actionType = 3
-		}
-	}
-	//it stuck my ship!!
-	//if, really, we are closer to enemy ship just fire at it?
-	if s.allyShips[0].pos.distanceTo(s.enemyShips[0].pos) < maxDist {
-		target = s.enemyShips[0].Entity
-		log.Println(target)
-		s.allyShips[0].actionType = 3
-	}
-	return target
 }
 
 //shouldnt that yield a turn? Then parse and display??
 func (s *State) think() {
-	//will become a queue string when multiple ships
-	//var action string
-	for i := 0; i < s.myShipCount; i++ {
-		//if my rum total < rum adv go to target, else wait?
-		if s.allyShips[i].health < s.enemyShips[i].health {
-			s.allyShips[i].target = s.getNearestTarget()
-			s.allyShips[i].printAction()
-		} else {
-			fmt.Println("WAIT")
+	var maxDist = MAP_WIDTH + 1.0 //24.0
+	var target Entity
+
+	for _, myShip := range s.allyShips {
+		var shipPos = myShip.bow()
+		for _, barrel := range s.barrels {
+			//check if barrel is not already targeted (by another boat later on)
+			if d := shipPos.distanceTo(barrel.pos); d < maxDist {
+				maxDist = d
+				target = barrel.Entity
+				barrel.isTargeted = true
+				myShip.move(target.pos)
+			}
 		}
+		for _, mine := range s.mines {
+			if d := shipPos.distanceTo(mine.pos); d < maxDist {
+				maxDist = d
+				target = mine.Entity
+				mine.isTargeted = true
+				myShip.fire(target.pos)
+			}
+		}
+		//if, really, we are closer to enemy ship just fire at it?
+		for _, enemyShip := range s.enemyShips {
+			if myShip.pos.distanceTo(enemyShip.pos) < CANNONBALL_RANGE {
+				target = enemyShip.Entity
+				myShip.fire(target.pos)
+			}
+		}
+
+		myShip.printAction()
 	}
+
 	//clear state!!
 	s.clear()
 }
