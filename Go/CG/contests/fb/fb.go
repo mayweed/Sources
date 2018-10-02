@@ -3,68 +3,147 @@ package main
 import (
 	"fmt"
 	"math"
-	//"log"
 )
 
-//POINT
-type point struct {
-	x, y float64
+const (
+	WIDTH            = 16001
+	HEIGHT           = 7501
+	MAX_MOVE_THRUST  = 150
+	MAX_THROW_THRUST = 500
+)
+
+type Point struct {
+	x, y int
 }
 
-func newPoint(x, y float64) point {
-	return point{
-		x: x,
-		y: y,
+func dist(x1, y1, x2, y2 int) float64 {
+	return math.Sqrt(float64((x1-x2)*(x1-x2)) + float64((y1-y2)*(y1-y2)))
+}
+
+type Entity struct {
+	id    int
+	etype string
+	vx    int
+	vy    int
+	s     int
+	pos   Point
+}
+
+func distEntity(wiz, snaf Entity) float64 {
+	return dist(wiz.pos.x, wiz.pos.y, snaf.pos.x, snaf.pos.y)
+}
+
+type Wizard struct {
+	Entity
+	action string
+	target Point
+	thrust int
+}
+
+func (w Wizard) isCarryingSnaffle() bool {
+	return w.s == 1
+}
+func (w *Wizard) move(destination Point) {
+	w.action = "MOVE"
+	w.target.x = destination.x
+	w.target.y = destination.y
+	//to begin with
+	w.thrust = MAX_MOVE_THRUST
+}
+func (w *Wizard) throw(destination Point) {
+	w.action = "THROW"
+	w.target.x = destination.x
+	w.target.y = destination.y
+	//to begin with
+	w.thrust = MAX_THROW_THRUST
+}
+func (w Wizard) printAction() {
+	switch w.action {
+	case "MOVE":
+		fmt.Println(w.action, w.target.x, w.target.y, w.thrust)
+	case "THROW":
+		fmt.Println(w.action, w.target.x, w.target.y, w.thrust)
 	}
 }
-func dist(x1, y1, x2, y2 float64) float64 {
-	return math.Sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2))
+
+type State struct {
+	entityCount int
+	//me
+	myTeamId int
+	myGoal   Point
+	myWiz    []Wizard
+	myScore  int
+	myMagic  int
+	//opp
+	oppGoal  Point
+	oppWiz   []Wizard
+	oppScore int
+	oppMagic int
+	//other entities
+	snaffles []Entity
+	bludgers []Entity
 }
 
-func distEntity(wiz, snaf entity) float64 {
-	return dist(wiz.x, wiz.y, snaf.x, snaf.y)
-}
+func (s *State) setGoals() {
+	var myTeamId int
+	fmt.Scan(&myTeamId)
+	s.myTeamId = myTeamId
 
-type entity struct {
-	entityId   int
-	entityType string
-	vx         int
-	vy         int
-	state      int
-	x          float64
-	y          float64
-}
+	switch myTeamId {
+	case 0:
+		s.myGoal = Point{0, 3750}
+		s.oppGoal = Point{16000, 3750}
+	case 1:
+		s.myGoal = Point{16000, 3750}
+		s.oppGoal = Point{0, 3750}
+	}
 
-type playground struct {
-	width    float64
-	height   float64
-	myGoal   point
-	oppGoal  point
-	myWiz    []entity
-	oppWiz   []entity
-	snaffles []entity
-	bludgers []entity
 }
+func (s *State) readEntities() {
+	var myScore, myMagic int
+	fmt.Scan(&myScore, &myMagic)
+	s.myScore = myScore
+	s.myMagic = myMagic
 
-func snaffleCarried(wiz entity, snaffles []entity) entity {
-	//why cant I just return inside if ? got a no return error??
-	var carried entity
-	for _, snaf := range snaffles {
-		if (snaf.x == wiz.x) && (snaf.y == wiz.y) {
-			carried = snaf
-			break
+	var opponentScore, opponentMagic int
+	fmt.Scan(&opponentScore, &opponentMagic)
+	s.oppScore = opponentScore
+	s.oppMagic = opponentMagic
+
+	// entities: number of entities still in game
+	var entities int
+	fmt.Scan(&entities)
+	s.entityCount = entities
+
+	for i := 0; i < entities; i++ {
+		var entityId int
+		var entityType string
+		var x, y, vx, vy, state int
+		fmt.Scan(&entityId, &entityType, &x, &y, &vx, &vy, &state)
+		if entityType == "WIZARD" {
+			s.myWiz = append(s.myWiz, Wizard{Entity: Entity{id: entityId, etype: entityType, vx: vx, vy: vy, s: state, pos: Point{x: x, y: y}}})
+		} else if entityType == "OPPONENT_WIZARD" {
+			s.oppWiz = append(s.oppWiz, Wizard{Entity: Entity{id: entityId, etype: entityType, vx: vx, vy: vy, s: state, pos: Point{x: x, y: y}}})
+		} else if entityType == "SNAFFLE" {
+			s.snaffles = append(s.snaffles, Entity{id: entityId, etype: entityType, vx: vx, vy: vy, s: state, pos: Point{x: x, y: y}})
+		} else if entityType == "BLUDGER" {
+			s.bludgers = append(s.bludgers, Entity{id: entityId, etype: entityType, vx: vx, vy: vy, s: state, pos: Point{x: x, y: y}})
 		}
 	}
-	return carried
-}
 
-//check for the nearest snaffle?
-func (p playground) pickNearestSnaffle(wiz entity, snaffles []entity) entity {
-	var best = p.width
-	var nearestSnaffle entity
-	for _, snaffle := range snaffles {
-		distance := distEntity(wiz, snaffle)
-		//log.Println("Snaffle: ",snaffle.entityId,"Distance: ",distance)
+}
+func (s *State) clear() {
+	s.myWiz = []Wizard{}
+	s.oppWiz = []Wizard{}
+	s.bludgers = []Entity{}
+	s.snaffles = []Entity{}
+
+}
+func (s State) pickNearestSnaffle(wiz Wizard) Entity {
+	var best = WIDTH + 1.0
+	var nearestSnaffle Entity
+	for _, snaffle := range s.snaffles {
+		distance := distEntity(wiz.Entity, snaffle)
 		if distance < best {
 			best = distance
 			nearestSnaffle = snaffle
@@ -72,95 +151,26 @@ func (p playground) pickNearestSnaffle(wiz entity, snaffles []entity) entity {
 	}
 	return nearestSnaffle
 }
-
-//check for closest snaffle from oppGoal if dist to closest is < to
-//nearest go for it!!
-func (p playground) pickClosestSnaffle(oppGoal point, snaffles []entity) entity {
-	var best = p.width
-	var closestSnaffle entity
-	for _, snaffle := range snaffles {
-		distance := dist(oppGoal.x, snaffle.x, oppGoal.y, snaffle.y)
-		if distance < best {
-			best = distance
-			closestSnaffle = snaffle
+func (s State) think() {
+	//pick the nearest, go for it...the dumbest of strat...
+	var bestSnaffle Entity
+	for _, wiz := range s.myWiz {
+		if wiz.isCarryingSnaffle() {
+			wiz.throw(s.oppGoal)
+		} else {
+			bestSnaffle = s.pickNearestSnaffle(wiz)
+			wiz.move(bestSnaffle.pos)
 		}
-	}
-	return closestSnaffle
-}
-
-//move to somewhere not right:(0 <= thrust <= 150, 0 <= power <= 500)
-//should I use sprintf and yield a string?
-func command(arg string, dest point, thrust int) {
-	if arg == "move" {
-		fmt.Printf("MOVE %d %d %d\n", int(dest.x), int(dest.y), thrust)
-	} else if arg == "throw" {
-		fmt.Printf("THROW %d %d %d\n", int(dest.x), int(dest.y), thrust)
+		wiz.printAction()
 	}
 }
 
-//MAIN
 func main() {
-	//playground
-	pg := playground{
-		width:  16001.,
-		height: 7501.,
-	}
-	// myTeamId: if 0 you need to score on the right of the map, if 1 you need to score on the left
-	var myTeamId int
-	fmt.Scan(&myTeamId)
-
-	switch myTeamId {
-	case 0:
-		pg.myGoal = newPoint(0., 3750.)
-		pg.oppGoal = newPoint(16000., 3750.)
-	case 1:
-		pg.myGoal = newPoint(16000., 3750.)
-		pg.oppGoal = newPoint(0., 3750.)
-	}
-
+	s := State{}
+	s.setGoals()
 	for {
-		var myScore, myMagic int
-		fmt.Scan(&myScore, &myMagic)
-
-		var opponentScore, opponentMagic int
-		fmt.Scan(&opponentScore, &opponentMagic)
-
-		// entities: number of entities still in game
-		var entities int
-		fmt.Scan(&entities)
-
-		for i := 0; i < entities; i++ {
-			// entityType: "WIZARD", "OPPONENT_WIZARD" or "SNAFFLE" (or "BLUDGER" after first league)
-			// state: 1 if the wizard is holding a Snaffle, 0 otherwise
-			var entityId int
-			var entityType string
-			var x, y, vx, vy, state int
-			fmt.Scan(&entityId, &entityType, &x, &y, &vx, &vy, &state)
-			if entityType == "WIZARD" {
-				pg.myWiz = append(pg.myWiz, entity{entityId, entityType, vx, vy, state, float64(x), float64(y)})
-			} else if entityType == "OPPONENT_WIZARD" {
-				pg.oppWiz = append(pg.oppWiz, entity{entityId, entityType, vx, vy, state, float64(x), float64(y)})
-			} else if entityType == "SNAFFLE" {
-				pg.snaffles = append(pg.snaffles, entity{entityId, entityType, vx, vy, state, float64(x), float64(y)})
-			} else if entityType == "BLUDGER" {
-				pg.bludgers = append(pg.bludgers, entity{entityId, entityType, vx, vy, state, float64(x), float64(y)})
-			}
-		}
-
-		//pick the nearest, go for it...
-		var bestSnaffle entity
-		for _, wiz := range pg.myWiz {
-			if wiz.state == 1 {
-				fmt.Printf("THROW %d %d 500\n", int(pg.oppGoal.x), int(pg.oppGoal.y))
-			} else {
-				bestSnaffle = pg.pickNearestSnaffle(wiz, pg.snaffles)
-				//log.Println(wiz.entityId, int(wiz.x), int(wiz.y), bestSnaffle.entityId)
-				fmt.Printf("MOVE %d %d 150\n", int(bestSnaffle.x), int(bestSnaffle.y))
-			}
-
-		}
-		pg.myWiz = []entity{}
-		pg.oppWiz = []entity{}
-		pg.bludgers = []entity{}
+		s.readEntities()
+		s.think()
+		s.clear()
 	}
 }
