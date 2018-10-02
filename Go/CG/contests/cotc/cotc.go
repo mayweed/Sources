@@ -360,13 +360,21 @@ func (s *State) clear() {
 
 }
 
-//shouldnt that yield a turn? Then parse and display??
+func computeScore(ships []Ship) int {
+	var score int
+	for _, ship := range ships {
+		score += ship.health
+	}
+	return score
+}
+
 func (s *State) think() {
 	var maxDist = MAP_WIDTH + 1.0 //24.0
 	var target Entity
 
 	for _, myShip := range s.allyShips {
 		var shipPos = myShip.bow()
+		//		if computeScore(s.allyShips) < computeScore(s.enemyShips) {
 		for _, barrel := range s.barrels {
 			//check if barrel is not already targeted (by another boat later on)
 			if d := shipPos.distanceTo(barrel.pos); d < maxDist {
@@ -376,6 +384,7 @@ func (s *State) think() {
 				myShip.move(target.pos)
 			}
 		}
+		//		} else {
 		for _, mine := range s.mines {
 			if d := shipPos.distanceTo(mine.pos); d < maxDist {
 				maxDist = d
@@ -391,7 +400,7 @@ func (s *State) think() {
 				myShip.fire(target.pos)
 			}
 		}
-
+		//		}
 		myShip.printAction()
 	}
 
