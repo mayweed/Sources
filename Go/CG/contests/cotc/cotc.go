@@ -1,6 +1,7 @@
 package main
 
 import (
+	"container/list"
 	"fmt"
 	"log"
 	"math"
@@ -267,7 +268,8 @@ type State struct {
 	ships       []Ship
 	barrels     []Barrel
 	mines       []Mine
-	cannonBalls []cannonBall
+	//test
+	cannonBalls *list.List //[]cannonBall
 }
 
 //WIP
@@ -303,19 +305,21 @@ func (s *State) updateInitialRum() {
 	}
 }
 
-/*
- func (s *State) moveCannonballs() {
- var balls []cannonBall
- for _,ball := range s.cannonBalls{
-            if (ball.remainingTurns == 0) {
-				explosions=append(explosions,ball.Entity.pos);
-                continue
-            } else if (ball.remainingTurns > 0) {
-                ball.remainingTurns--;
-				balls=append(balls,ball)
-            }
-        }
-    }
+/*might be a bit overcomplicated no?
+only to be able to use a remove func...
+//test container/list!!
+func (s *State) movecannonBalls() {
+	for ball := s.cannonBalls.Front(); ball != nil; ball = ball.Next() {
+		if ball.Value.(cannonBall).remainingTurns == 0 {
+			s.cannonBalls.Remove(ball)
+			continue
+		} else if ball.Value.(cannonBall).remainingTurns > 0 {
+			//cannot assign??
+			//ball.Value.(cannonBall).remainingTurns--
+			log.Println(ball.Value)
+		}
+	}
+}
 */
 func (s *State) readEntities() {
 	// myShipCount: the number of remaining ships
@@ -346,7 +350,9 @@ func (s *State) readEntities() {
 		case "MINE":
 			s.mines = append(s.mines, Mine{Entity: Entity{entityId, entityType, Point{x, y}}})
 		case "CANNONBALL":
-			s.cannonBalls = append(s.cannonBalls, cannonBall{Entity: Entity{entityId, entityType, Point{x, y}}, fromShip: arg1, remainingTurns: arg2})
+			//s.cannonBalls = append(s.cannonBalls, cannonBall{Entity: Entity{entityId, entityType, Point{x, y}}, fromShip: arg1, remainingTurns: arg2})
+			s.cannonBalls = list.New()
+			s.cannonBalls.PushBack(cannonBall{Entity: Entity{entityId, entityType, Point{x, y}}, fromShip: arg1, remainingTurns: arg2})
 		}
 	}
 }
@@ -357,7 +363,7 @@ func (s *State) clear() {
 	s.ships = []Ship{}
 	s.barrels = []Barrel{}
 	s.mines = []Mine{}
-	s.cannonBalls = []cannonBall{}
+	s.cannonBalls = list.New() // = []cannonBall{}
 
 }
 
@@ -368,14 +374,15 @@ func computeScore(ships []Ship) int {
 	}
 	return score
 }
+
 //to fire where the ship will be
-func (s Ship) nextPosShip (inTurns int) Point{
-var nextPos = s.pos
-for t:=0; t < inTurns ;t++{
-    nextPos=nextPos.neighbour(s.orientation)
-}
-log.Println(s.pos,nextPos)
-return nextPos
+func (s Ship) nextPosShip(inTurns int) Point {
+	var nextPos = s.pos
+	for t := 0; t < inTurns; t++ {
+		nextPos = nextPos.neighbour(s.orientation)
+	}
+	log.Println(s.pos, nextPos)
+	return nextPos
 }
 
 func (s *State) think() {
@@ -406,14 +413,19 @@ func (s *State) think() {
 		//if, really, we are closer to enemy ship just fire at it?
 		for _, enemyShip := range s.enemyShips {
 			if myShip.pos.distanceTo(enemyShip.pos) < CANNONBALL_RANGE {
-				targetShip := enemyShip//.Entity
-				numTurns := int(1+targetShip.Entity.pos.distanceTo(myShip.pos)/3)
+				targetShip := enemyShip //.Entity
+				numTurns := int(1 + targetShip.Entity.pos.distanceTo(myShip.pos)/3)
 				myShip.fire(targetShip.nextPosShip(numTurns))
-				
-				log.Println("current target pso:",target.pos, "next Pos in 3",enemyShip.nextPosShip(3))
+
+				log.Println("current target pos:", target.pos, "next Pos in 3", enemyShip.nextPosShip(3))
 			}
 		}
 		//		}
+		//TEST really not conclusive...
+		//if s.cannonBalls.Len() > 0 {
+		//s.movecannonBalls()
+		//}
+
 		myShip.printAction()
 	}
 
