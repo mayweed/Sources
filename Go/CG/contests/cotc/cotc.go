@@ -1,19 +1,17 @@
 package main
 
 import (
-	"container/list"
 	"fmt"
-	"log"
 	"math"
 )
 
 const (
-	MAP_WIDTH           = 23
-	MAP_HEIGHT          = 21
-	INITIAL_SHIP_HEALTH = 100
-	MAX_SHIP_HEALTH     = 100
-	//within ten cells in front of the ship
-	CANNONBALL_RANGE = 9
+	MAP_WIDTH             = 23
+	MAP_HEIGHT            = 21
+	INITIAL_SHIP_HEALTH   = 100
+	MAX_SHIP_HEALTH       = 100
+	MINE_VISIBILITY_RANGE = 5
+	FIRE_DISTANCE_MAX     = 10
 )
 
 type Point struct {
@@ -269,7 +267,17 @@ type State struct {
 	barrels     []Barrel
 	mines       []Mine
 	//test
-	cannonBalls *list.List //[]cannonBall
+	cannonBalls []cannonBall
+	//cannonBalls *list.List
+}
+
+func (s State) isaMine(dest Point) bool {
+	for _, mine := range s.mines {
+		if mine.Entity.pos == dest {
+			return true
+		}
+	}
+	return false
 }
 
 //WIP
@@ -350,9 +358,9 @@ func (s *State) readEntities() {
 		case "MINE":
 			s.mines = append(s.mines, Mine{Entity: Entity{entityId, entityType, Point{x, y}}})
 		case "CANNONBALL":
-			//s.cannonBalls = append(s.cannonBalls, cannonBall{Entity: Entity{entityId, entityType, Point{x, y}}, fromShip: arg1, remainingTurns: arg2})
-			s.cannonBalls = list.New()
-			s.cannonBalls.PushBack(cannonBall{Entity: Entity{entityId, entityType, Point{x, y}}, fromShip: arg1, remainingTurns: arg2})
+			s.cannonBalls = append(s.cannonBalls, cannonBall{Entity: Entity{entityId, entityType, Point{x, y}}, fromShip: arg1, remainingTurns: arg2})
+			//s.cannonBalls = list.New()
+			//s.cannonBalls.PushBack(cannonBall{Entity: Entity{entityId, entityType, Point{x, y}}, fromShip: arg1, remainingTurns: arg2})
 		}
 	}
 }
@@ -363,7 +371,7 @@ func (s *State) clear() {
 	s.ships = []Ship{}
 	s.barrels = []Barrel{}
 	s.mines = []Mine{}
-	s.cannonBalls = list.New() // = []cannonBall{}
+	s.cannonBalls = []cannonBall{}
 
 }
 
@@ -381,52 +389,68 @@ func (s Ship) nextPosShip(inTurns int) Point {
 	for t := 0; t < inTurns; t++ {
 		nextPos = nextPos.neighbour(s.orientation)
 	}
-	log.Println(s.pos, nextPos)
 	return nextPos
 }
-
+func (s State) isCannonballComing(sp Ship) bool {
+	for _, enemyShip := range s.enemyShips {
+		for _, cannonball := range s.cannonBalls {
+			if cannonball.fromShip == enemyShip.id && cannonball.Entity.pos == sp.pos {
+				return true
+			}
+		}
+	}
+	return false
+}
 func (s *State) think() {
 	var maxDist = MAP_WIDTH + 1.0 //24.0
 	var target Entity
 
 	for _, myShip := range s.allyShips {
 		var shipPos = myShip.bow()
-		//		if computeScore(s.allyShips) < computeScore(s.enemyShips) {
-		for _, barrel := range s.barrels {
-			//check if barrel is not already targeted (by another boat later on)
-			if d := shipPos.distanceTo(barrel.pos); d < maxDist {
-				maxDist = d
-				target = barrel.Entity
-				barrel.isTargeted = true
-				myShip.move(target.pos)
-			}
-		}
-		//		} else {
-		for _, mine := range s.mines {
-			if d := shipPos.distanceTo(mine.pos); d < maxDist {
-				maxDist = d
-				target = mine.Entity
-				mine.isTargeted = true
-				myShip.fire(target.pos)
-			}
-		}
-		//if, really, we are closer to enemy ship just fire at it?
-		for _, enemyShip := range s.enemyShips {
-			if myShip.pos.distanceTo(enemyShip.pos) < CANNONBALL_RANGE {
-				targetShip := enemyShip //.Entity
-				numTurns := int(1 + targetShip.Entity.pos.distanceTo(myShip.pos)/3)
-				myShip.fire(targetShip.nextPosShip(numTurns))
+		//iif x y de cannon enn == my pos move your ass
 
-				log.Println("current target pos:", target.pos, "next Pos in 3", enemyShip.nextPosShip(3))
+		if s.isCannonballComing(myShip) {
+			//fuckin move!!
+			myShip.move(Point{myShip.pos.x + 3, myShip.pos.y + 3})
+		} else if computeScore(s.allyShips) < computeScore(s.enemyShips) {
+			for _, barrel := range s.barrels {
+				//check if barrel is not already targeted (by another boat later on)
+				if d := shipPos.distanceTo(barrel.pos); d < maxDist {
+					maxDist = d
+					target = barrel.Entity
+					barrel.isTargeted = true
+					myShip.move(target.pos)
+				}
+			}
+		} else {
+			//if, really, we are closer to enemy ship just fire at it?
+			for _, enemyShip := range s.enemyShips {
+				//idem : si dans 5 cases (tours?) c'est une mine soit je dodge
+				//soit je fire!!
+				var targetShip = enemyShip //.Entity
+				var numTurns = int(1 + targetShip.Entity.pos.distanceTo(myShip.pos)/3)
+				if myShip.pos.distanceTo(enemyShip.pos) < FIRE_DISTANCE_MAX {
+					myShip.fire(targetShip.nextPosShip(numTurns))
+				} else if s.isaMine(myShip.nextPosShip(2)) {
+					myShip.fire(myShip.nextPosShip(numTurns))
+				} else {
+					//go in range!!
+					myShip.move(enemyShip.pos)
+				}
 			}
 		}
-		//		}
 		//TEST really not conclusive...
 		//if s.cannonBalls.Len() > 0 {
 		//s.movecannonBalls()
 		//}
 
-		myShip.printAction()
+		//in the end if ship.Action is empty, just wait?
+		//gosh ugly!!
+		if myShip.actionType == "" {
+			fmt.Println("WAIT")
+		} else {
+			myShip.printAction()
+		}
 	}
 
 	//clear state!!
