@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"math"
 )
 
@@ -367,6 +368,15 @@ func computeScore(ships []Ship) int {
 	}
 	return score
 }
+//to fire where the ship will be
+func (s Ship) nextPosShip (inTurns int) Point{
+var nextPos = s.pos
+for t:=0; t < inTurns ;t++{
+    nextPos=nextPos.neighbour(s.orientation)
+}
+log.Println(s.pos,nextPos)
+return nextPos
+}
 
 func (s *State) think() {
 	var maxDist = MAP_WIDTH + 1.0 //24.0
@@ -396,8 +406,11 @@ func (s *State) think() {
 		//if, really, we are closer to enemy ship just fire at it?
 		for _, enemyShip := range s.enemyShips {
 			if myShip.pos.distanceTo(enemyShip.pos) < CANNONBALL_RANGE {
-				target = enemyShip.Entity
-				myShip.fire(target.pos)
+				targetShip := enemyShip//.Entity
+				numTurns := int(1+targetShip.Entity.pos.distanceTo(myShip.pos)/3)
+				myShip.fire(targetShip.nextPosShip(numTurns))
+				
+				log.Println("current target pso:",target.pos, "next Pos in 3",enemyShip.nextPosShip(3))
 			}
 		}
 		//		}

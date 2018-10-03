@@ -2,9 +2,7 @@ package main
 
 import (
 	"fmt"
-	"math"
 	"math/rand"
-	"os"
 )
 
 type Point struct {
