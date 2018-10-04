@@ -49,6 +49,9 @@ let g:go_highlight_operators = 1
 let g:go_highlight_build_constraints = 1
 let g:go_highlight_extra_types = 1
 
+"mappings
+map <C-n> :cnext<CR>
+map <C-m> :cprevious<CR>
 "-----------------------------
 "General stuff
 "------------------------------
@@ -74,4 +77,4 @@ set shiftwidth=4               " number of spaces for auto-indent
 set softtabstop=4              " let backspace delete indent
 set textwidth=85
 set smartindent
-set foldmethod=indent
+"set foldmethod=indent
