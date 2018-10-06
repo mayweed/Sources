@@ -1,7 +1,9 @@
 package main
 
 import (
+	"container/list"
 	"fmt"
+	"log"
 	"math"
 )
 
@@ -10,7 +12,10 @@ const (
 	MAP_HEIGHT            = 21
 	INITIAL_SHIP_HEALTH   = 100
 	MAX_SHIP_HEALTH       = 100
+	MAX_SHIP_SPEED        = 2
 	MINE_VISIBILITY_RANGE = 5
+	MINE_DAMAGE           = 25
+	NEAR_MINE_DAMAGE      = 10
 	FIRE_DISTANCE_MAX     = 10
 )
 
@@ -194,39 +199,29 @@ func (s *Ship) fire(pos Point) {
 	s.target.pos.x = pos.x
 	s.target.pos.y = pos.y
 }
-
 func (s *Ship) mine() {
 	s.actionType = "MINE"
 }
-
-//need this one?
 func (s *Ship) wait() {
 	s.actionType = "WAIT"
 }
 func (s *Ship) slower() {
 	s.actionType = "SLOWER"
 }
-
 func (s *Ship) move(pos Point) {
 	s.actionType = "MOVE"
 	s.target.pos.x = pos.x
 	s.target.pos.y = pos.y
 }
-
-/* to be used later, i hope so indeed ;))
-   void faster() {
-       this->action = Action::FASTER;
-   }
-
-   void port() {
-       this->action = Action::PORT;
-   }
-
-   void starboard() {
-       this->action = Action::STARBOARD;
-   }
-
-*/
+func (s *Ship) faster() {
+	s.actionType = "FASTER"
+}
+func (s *Ship) port() {
+	s.actionType = "PORT"
+}
+func (s *Ship) starboard() {
+	s.actionType = "STARBOARD"
+}
 func (s Ship) printAction() {
 	switch s.actionType {
 	case "MOVE":
@@ -244,14 +239,14 @@ func (s Ship) printAction() {
 
 type Barrel struct {
 	Entity
-	rumAmount  int
+	health     int
 	isTargeted bool
 }
 type Mine struct {
 	Entity
 	isTargeted bool
 }
-type cannonBall struct {
+type cannonball struct {
 	Entity
 	fromShip       int
 	remainingTurns int
@@ -266,9 +261,7 @@ type State struct {
 	ships       []Ship
 	barrels     []Barrel
 	mines       []Mine
-	//test
-	cannonBalls []cannonBall
-	//cannonBalls *list.List
+	cannonballs *list.List
 }
 
 func (s State) isaMine(dest Point) bool {
@@ -278,6 +271,101 @@ func (s State) isaMine(dest Point) bool {
 		}
 	}
 	return false
+}
+func (s *State) moveShips() {
+	for i := 1; i <= MAX_SHIP_SPEED; i++ {
+		for _, ship := range s.ships {
+			if ship.isDead || i > ship.speed {
+				continue
+			}
+			ship.newPosition = ship.Entity.pos
+			ship.newBowCoordinate = ship.bow()
+			ship.newSternCoordinate = ship.stern()
+			var newCoordinate = ship.Entity.pos.neighbour(ship.orientation)
+			if newCoordinate.isInsideMap() {
+				ship.newPosition = newCoordinate
+				ship.newBowCoordinate = newCoordinate.neighbour(ship.orientation)
+				ship.newSternCoordinate = newCoordinate.neighbour((ship.orientation + 3) % 6)
+			} else {
+				//"If a ship attempts to leave the map, it is stopped and its speed is set to 0."
+				ship.speed = 0
+			}
+		}
+		//check for collisions
+		var collisions []Ship
+		var collisionDetected = true
+		for collisionDetected {
+			collisionDetected = false
+			for _, ship := range s.ships {
+				if ship.isDead {
+					continue
+				}
+				if ship.newBowsIntersect(s.ships) {
+					collisions = append(collisions, ship)
+				}
+			}
+			for _, ship := range collisions {
+				//Revert last move coz you collide cant move fw
+				ship.newPosition = ship.Entity.pos
+				ship.newBowCoordinate = ship.bow()
+				ship.newSternCoordinate = ship.stern()
+				ship.speed = 0
+				collisionDetected = true
+			}
+			//just clear it before exit from loop
+			collisions = []Ship{}
+		}
+		for _, ship := range s.ships {
+			if ship.isDead {
+				continue
+			}
+			ship.Entity.pos = ship.newPosition
+		}
+		//checkCollisions()
+	}
+}
+
+func (s *State) checkCollisions() {
+	var funcRumBarrels []Barrel
+	//var funcMines []Mine
+	for _, ship := range s.ships {
+		if ship.isDead {
+			continue
+		}
+		var bow = ship.bow()
+		var stern = ship.stern()
+		var center = ship.Entity.pos
+		for _, barrel := range s.barrels {
+			if barrel.Entity.pos == bow || barrel.Entity.pos == stern || barrel.Entity.pos == center {
+				ship.heal(barrel.health)
+				//Any other way to remove that which will be less costly and easy to work with that container/list?
+				for _, b := range s.barrels {
+					if b != barrel {
+						funcRumBarrels = append(funcRumBarrels, b)
+					}
+				}
+				s.barrels = funcRumBarrels
+			}
+		}
+		for _, mine := range s.mines {
+			if mine.Entity.pos == bow || mine.Entity.pos == stern || mine.Entity.pos == center {
+				ship.damage(MINE_DAMAGE)
+				for _, otherShip := range s.ships {
+					if otherShip.isDead || otherShip == ship {
+						continue
+					}
+					if mine.Entity.pos.distanceTo(otherShip.Entity.pos) == 1 ||
+						mine.Entity.pos.distanceTo(otherShip.stern()) == 1 ||
+						mine.Entity.pos.distanceTo(otherShip.bow()) == 1 {
+						otherShip.damage(NEAR_MINE_DAMAGE)
+					}
+				}
+				//here stuff to remove mine from s.mines...
+			}
+
+		}
+
+	}
 }
 
 //WIP
@@ -290,10 +378,10 @@ type Turn struct {
 It will apply on a newState==current state
    void simulateTurn() {
 DONE!        this->updateInitialRum();
-        this->moveCannonballs();
+PARTIAL        this->moveCannonballs();
 DONE!    this->decrementRum();
         this->applyActions();
-        this->moveShips();
+PARTIAL        this->moveShips();
         this->rotateShips();
         this->explodeShips();
         this->explodeMines();
@@ -313,22 +401,19 @@ func (s *State) updateInitialRum() {
 	}
 }
 
-/*might be a bit overcomplicated no?
-only to be able to use a remove func...
 //test container/list!!
-func (s *State) movecannonBalls() {
-	for ball := s.cannonBalls.Front(); ball != nil; ball = ball.Next() {
-		if ball.Value.(cannonBall).remainingTurns == 0 {
-			s.cannonBalls.Remove(ball)
+func (s *State) movecannonballs() {
+	for ball := s.cannonballs.Front(); ball != nil; ball = ball.Next() {
+		if ball.Value.(cannonball).remainingTurns == 0 {
+			s.cannonballs.Remove(ball)
 			continue
-		} else if ball.Value.(cannonBall).remainingTurns > 0 {
+		} else if ball.Value.(cannonball).remainingTurns > 0 {
 			//cannot assign??
-			//ball.Value.(cannonBall).remainingTurns--
+			//ball.Value.(cannonball).remainingTurns--
 			log.Println(ball.Value)
 		}
 	}
 }
-*/
 func (s *State) readEntities() {
 	// myShipCount: the number of remaining ships
 	var myShipCount int
@@ -354,13 +439,14 @@ func (s *State) readEntities() {
 				s.ships = append(s.ships, s.enemyShips...)
 			}
 		case "BARREL":
-			s.barrels = append(s.barrels, Barrel{Entity: Entity{entityId, entityType, Point{x, y}}, rumAmount: arg1})
+			s.barrels = append(s.barrels, Barrel{Entity: Entity{entityId, entityType, Point{x, y}}, health: arg1})
 		case "MINE":
 			s.mines = append(s.mines, Mine{Entity: Entity{entityId, entityType, Point{x, y}}})
 		case "CANNONBALL":
-			s.cannonBalls = append(s.cannonBalls, cannonBall{Entity: Entity{entityId, entityType, Point{x, y}}, fromShip: arg1, remainingTurns: arg2})
-			//s.cannonBalls = list.New()
-			//s.cannonBalls.PushBack(cannonBall{Entity: Entity{entityId, entityType, Point{x, y}}, fromShip: arg1, remainingTurns: arg2})
+			//s.cannonballs = append(s.cannonballs, cannonBall{Entity: Entity{entityId, entityType, Point{x, y}}, fromShip: arg1, remainingTurns: arg2})
+			s.cannonballs = list.New()
+			//pass pointer to modify struct
+			s.cannonballs.PushBack(&cannonball{Entity: Entity{entityId, entityType, Point{x, y}}, fromShip: arg1, remainingTurns: arg2})
 		}
 	}
 }
@@ -371,7 +457,8 @@ func (s *State) clear() {
 	s.ships = []Ship{}
 	s.barrels = []Barrel{}
 	s.mines = []Mine{}
-	s.cannonBalls = []cannonBall{}
+	//list.New() yields a pointer on list?
+	//s.cannonballs = []cannonball{}
 
 }
 
@@ -391,16 +478,22 @@ func (s Ship) nextPosShip(inTurns int) Point {
 	}
 	return nextPos
 }
+
+//read https://github.com/gyuho/learn/tree/master/doc/go_function_method_pointer_nil_map_slice
 func (s State) isCannonballComing(sp Ship) bool {
 	for _, enemyShip := range s.enemyShips {
-		for _, cannonball := range s.cannonBalls {
-			if cannonball.fromShip == enemyShip.id && cannonball.Entity.pos == sp.pos {
+		//for _, cannonball := range s.cannonballs {
+		//"panic: runtime error: invalid memory address or nil pointer dereference" :''(
+		//this is a pointer on a list of pointers...
+		for ball := *s.cannonballs.Front(); &ball != nil; ball.Next() {
+			if ball.Value.(cannonball).fromShip == enemyShip.id && ball.Value.(cannonball).Entity.pos == sp.pos {
 				return true
 			}
 		}
 	}
 	return false
 }
+
 func (s *State) think() {
 	var maxDist = MAP_WIDTH + 1.0 //24.0
 	var target Entity
@@ -440,8 +533,8 @@ func (s *State) think() {
 			}
 		}
 		//TEST really not conclusive...
-		//if s.cannonBalls.Len() > 0 {
-		//s.movecannonBalls()
+		//if s.cannonballs.Len() > 0 {
+		//s.movecannonballs()
 		//}
 
 		//in the end if ship.Action is empty, just wait?
