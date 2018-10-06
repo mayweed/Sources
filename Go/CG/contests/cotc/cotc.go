@@ -1,9 +1,7 @@
 package main
 
 import (
-	"container/list"
 	"fmt"
-	"log"
 	"math"
 )
 
@@ -14,6 +12,8 @@ const (
 	MAX_SHIP_HEALTH       = 100
 	MAX_SHIP_SPEED        = 2
 	MINE_VISIBILITY_RANGE = 5
+	LOW_DAMAGE            = 25
+	HIGH_DAMAGE           = 50
 	MINE_DAMAGE           = 25
 	NEAR_MINE_DAMAGE      = 10
 	FIRE_DISTANCE_MAX     = 10
@@ -254,24 +254,56 @@ type cannonball struct {
 }
 
 type State struct {
-	entityCount int
-	myShipCount int
-	enemyShips  []Ship
-	allyShips   []Ship
-	ships       []Ship
-	barrels     []Barrel
-	mines       []Mine
-	cannonballs *list.List
+	entityCount           int
+	myShipCount           int
+	enemyShips            []Ship
+	allyShips             []Ship
+	ships                 []Ship
+	barrels               []Barrel
+	mines                 []Mine
+	cannonballs           []cannonball
+	cannonballsExplosions []Point
 }
 
-func (s State) isaMine(dest Point) bool {
-	for _, mine := range s.mines {
-		if mine.Entity.pos == dest {
-			return true
+/*
+It will apply on a newState==current state
+   void simulateTurn() {
+DONE!        this->updateInitialRum();
+DONE! this->moveCannonballs();
+DONE!    this->decrementRum();
+        this->applyActions();
+DONE! this->moveShips();
+DONE!        this->rotateShips();
+DONE!        this->explodeShips();
+        this->explodeMines();
+        this->explodeBarrels();
+        this->createDroppedRum();
+        ++turn;
+    }
+*/
+func (s *State) decrementRum() {
+	for _, ship := range s.ships {
+		ship.damage(1)
+	}
+}
+func (s *State) updateInitialRum() {
+	for _, ship := range s.ships {
+		ship.initialHealth = ship.health
+	}
+}
+
+func (s *State) movecannonballs() {
+	for index, cannonball := range s.cannonballs {
+		if cannonball.remainingTurns == 0 {
+			s.cannonballs = append(s.cannonballs[:index], s.cannonballs[index+1:]...)
+			s.cannonballsExplosions = append(s.cannonballsExplosions, cannonball.Entity.pos)
+			continue
+		} else if cannonball.remainingTurns > 0 {
+			cannonball.remainingTurns--
 		}
 	}
-	return false
 }
+
 func (s *State) moveShips() {
 	for i := 1; i <= MAX_SHIP_SPEED; i++ {
 		for _, ship := range s.ships {
@@ -321,13 +353,11 @@ func (s *State) moveShips() {
 			}
 			ship.Entity.pos = ship.newPosition
 		}
-		//checkCollisions()
+		s.checkCollisions()
 	}
 }
 
 func (s *State) checkCollisions() {
-	var funcRumBarrels []Barrel
-	//var funcMines []Mine
 	for _, ship := range s.ships {
 		if ship.isDead {
 			continue
@@ -335,19 +365,13 @@ func (s *State) checkCollisions() {
 		var bow = ship.bow()
 		var stern = ship.stern()
 		var center = ship.Entity.pos
-		for _, barrel := range s.barrels {
+		for index, barrel := range s.barrels {
 			if barrel.Entity.pos == bow || barrel.Entity.pos == stern || barrel.Entity.pos == center {
 				ship.heal(barrel.health)
-				//Any other way to remove that which will be less costly and easy to work with that container/list?
-				for _, b := range s.barrels {
-					if b != barrel {
-						funcRumBarrels = append(funcRumBarrels, b)
-					}
-				}
-				s.barrels = funcRumBarrels
+				s.barrels = append(s.barrels[:index], s.barrels[index+1:]...)
 			}
 		}
-		for _, mine := range s.mines {
+		for index, mine := range s.mines {
 			if mine.Entity.pos == bow || mine.Entity.pos == stern || mine.Entity.pos == center {
 				ship.damage(MINE_DAMAGE)
 				for _, otherShip := range s.ships {
@@ -360,57 +384,74 @@ func (s *State) checkCollisions() {
 						otherShip.damage(NEAR_MINE_DAMAGE)
 					}
 				}
-				//here stuff to remove mine from s.mines...
+				//i do think it's way easier than container/list no?
+				s.mines = append(s.mines[:index], s.mines[index+1:]...)
 			}
 
 		}
 
 	}
 }
-
-//WIP
-type Turn struct {
-	actionType int
-	move       string
-}
-
-/*
-It will apply on a newState==current state
-   void simulateTurn() {
-DONE!        this->updateInitialRum();
-PARTIAL        this->moveCannonballs();
-DONE!    this->decrementRum();
-        this->applyActions();
-PARTIAL        this->moveShips();
-        this->rotateShips();
-        this->explodeShips();
-        this->explodeMines();
-        this->explodeBarrels();
-        this->createDroppedRum();
-        ++turn;
-    }
-*/
-func (s *State) decrementRum() {
+func (s *State) rotateShips() {
 	for _, ship := range s.ships {
-		ship.damage(1)
-	}
-}
-func (s *State) updateInitialRum() {
-	for _, ship := range s.ships {
-		ship.initialHealth = ship.health
-	}
-}
-
-//test container/list!!
-func (s *State) movecannonballs() {
-	for ball := s.cannonballs.Front(); ball != nil; ball = ball.Next() {
-		if ball.Value.(cannonball).remainingTurns == 0 {
-			s.cannonballs.Remove(ball)
+		if ship.isDead {
 			continue
-		} else if ball.Value.(cannonball).remainingTurns > 0 {
-			//cannot assign??
-			//ball.Value.(cannonball).remainingTurns--
-			log.Println(ball.Value)
+		}
+		ship.newPosition = ship.Entity.pos
+		ship.newBowCoordinate = ship.newBow()
+		ship.newSternCoordinate = ship.newStern()
+	}
+	//check collisions
+	var collisionsDetected = true
+	var collisions []Ship
+	for collisionsDetected {
+		collisionsDetected = false
+		for _, ship := range s.ships {
+			if ship.isDead {
+				continue
+			}
+			if ship.newPositionsIntersect(s.ships) {
+				collisions = append(collisions, ship)
+			}
+		}
+		for _, ship := range collisions {
+			ship.newOrientation = ship.orientation
+			ship.newBowCoordinate = ship.newBow()
+			ship.newSternCoordinate = ship.newStern()
+			ship.speed = 0
+			collisionsDetected = true
+		}
+		collisions = []Ship{}
+	}
+	// Apply rotation
+	for _, ship := range s.ships {
+		if ship.isDead {
+			continue
+		}
+		ship.orientation = ship.newOrientation
+
+	}
+	s.checkCollisions()
+}
+
+func (s *State) explodeShips() {
+	for index, explosion := range s.cannonballsExplosions {
+		var position = explosion
+
+		for _, ship := range s.ships {
+			if ship.isDead {
+				continue
+			}
+
+			if position == ship.bow() || position == ship.stern() {
+				ship.damage(LOW_DAMAGE)
+				s.cannonballsExplosions = append(s.cannonballsExplosions[:index], s.cannonballsExplosions[index+1:]...)
+				break
+			} else if position == ship.Entity.pos {
+				ship.damage(HIGH_DAMAGE)
+				s.cannonballsExplosions = append(s.cannonballsExplosions[:index], s.cannonballsExplosions[index+1:]...)
+				break
+			}
 		}
 	}
 }
@@ -443,10 +484,7 @@ func (s *State) readEntities() {
 		case "MINE":
 			s.mines = append(s.mines, Mine{Entity: Entity{entityId, entityType, Point{x, y}}})
 		case "CANNONBALL":
-			//s.cannonballs = append(s.cannonballs, cannonBall{Entity: Entity{entityId, entityType, Point{x, y}}, fromShip: arg1, remainingTurns: arg2})
-			s.cannonballs = list.New()
-			//pass pointer to modify struct
-			s.cannonballs.PushBack(&cannonball{Entity: Entity{entityId, entityType, Point{x, y}}, fromShip: arg1, remainingTurns: arg2})
+			s.cannonballs = append(s.cannonballs, cannonball{Entity: Entity{entityId, entityType, Point{x, y}}, fromShip: arg1, remainingTurns: arg2})
 		}
 	}
 }
@@ -457,9 +495,7 @@ func (s *State) clear() {
 	s.ships = []Ship{}
 	s.barrels = []Barrel{}
 	s.mines = []Mine{}
-	//list.New() yields a pointer on list?
-	//s.cannonballs = []cannonball{}
-
+	s.cannonballs = []cannonball{}
 }
 
 func computeScore(ships []Ship) int {
@@ -478,15 +514,19 @@ func (s Ship) nextPosShip(inTurns int) Point {
 	}
 	return nextPos
 }
+func (s State) isaMine(dest Point) bool {
+	for _, mine := range s.mines {
+		if mine.Entity.pos == dest {
+			return true
+		}
+	}
+	return false
+}
 
-//read https://github.com/gyuho/learn/tree/master/doc/go_function_method_pointer_nil_map_slice
 func (s State) isCannonballComing(sp Ship) bool {
 	for _, enemyShip := range s.enemyShips {
-		//for _, cannonball := range s.cannonballs {
-		//"panic: runtime error: invalid memory address or nil pointer dereference" :''(
-		//this is a pointer on a list of pointers...
-		for ball := *s.cannonballs.Front(); &ball != nil; ball.Next() {
-			if ball.Value.(cannonball).fromShip == enemyShip.id && ball.Value.(cannonball).Entity.pos == sp.pos {
+		for _, cannonball := range s.cannonballs {
+			if cannonball.fromShip == enemyShip.id && cannonball.pos == sp.pos {
 				return true
 			}
 		}
@@ -500,8 +540,6 @@ func (s *State) think() {
 
 	for _, myShip := range s.allyShips {
 		var shipPos = myShip.bow()
-		//iif x y de cannon enn == my pos move your ass
-
 		if s.isCannonballComing(myShip) {
 			//fuckin move!!
 			myShip.move(Point{myShip.pos.x + 3, myShip.pos.y + 3})
@@ -518,8 +556,6 @@ func (s *State) think() {
 		} else {
 			//if, really, we are closer to enemy ship just fire at it?
 			for _, enemyShip := range s.enemyShips {
-				//idem : si dans 5 cases (tours?) c'est une mine soit je dodge
-				//soit je fire!!
 				var targetShip = enemyShip //.Entity
 				var numTurns = int(1 + targetShip.Entity.pos.distanceTo(myShip.pos)/3)
 				if myShip.pos.distanceTo(enemyShip.pos) < FIRE_DISTANCE_MAX {
@@ -532,10 +568,6 @@ func (s *State) think() {
 				}
 			}
 		}
-		//TEST really not conclusive...
-		//if s.cannonballs.Len() > 0 {
-		//s.movecannonballs()
-		//}
 
 		//in the end if ship.Action is empty, just wait?
 		//gosh ugly!!
