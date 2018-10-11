@@ -17,6 +17,7 @@ const (
 	MINE_DAMAGE           = 25
 	NEAR_MINE_DAMAGE      = 10
 	FIRE_DISTANCE_MAX     = 10
+	COOLDOWN_CANNON       = 2
 )
 
 type Point struct {
@@ -109,6 +110,7 @@ type Ship struct {
 	health             int
 	owner              int
 	hasFiredCannonBall bool
+	cannonballCooldown int
 
 	//Action
 	actionType string
@@ -142,6 +144,9 @@ func (s Ship) damage(amount int) {
 	}
 }
 
+func (s Ship) isCannonballOnCd() bool {
+	return s.cannonballCooldown > 0
+}
 func (s Ship) stern() Point {
 	return s.pos.neighbour((s.orientation + 3) % 6)
 }
@@ -222,7 +227,7 @@ func (s *Ship) port() {
 func (s *Ship) starboard() {
 	s.actionType = "STARBOARD"
 }
-func (s Ship) printAction() {
+func (s *Ship) printAction() {
 	switch s.actionType {
 	case "MOVE":
 		fmt.Println("MOVE", s.target.pos.x, s.target.pos.y)
@@ -232,6 +237,7 @@ func (s Ship) printAction() {
 		fmt.Println("WAIT")
 	case "FIRE":
 		fmt.Println("FIRE", s.target.pos.x, s.target.pos.y)
+		s.cannonballCooldown = 2
 	case "MINE":
 		fmt.Println("MINE")
 	}
@@ -543,22 +549,23 @@ func (s *State) think() {
 		if s.isCannonballComing(myShip) {
 			//fuckin move!!
 			myShip.move(Point{myShip.pos.x + 3, myShip.pos.y + 3})
-		} else if computeScore(s.allyShips) < computeScore(s.enemyShips) {
-			for _, barrel := range s.barrels {
-				//check if barrel is not already targeted (by another boat later on)
-				if d := shipPos.distanceTo(barrel.pos); d < maxDist {
-					maxDist = d
-					target = barrel.Entity
-					barrel.isTargeted = true
-					myShip.move(target.pos)
-				}
-			}
 		} else {
-			//if, really, we are closer to enemy ship just fire at it?
 			for _, enemyShip := range s.enemyShips {
-				var targetShip = enemyShip //.Entity
+				var targetShip = enemyShip
 				var numTurns = int(1 + targetShip.Entity.pos.distanceTo(myShip.pos)/3)
-				if myShip.pos.distanceTo(enemyShip.pos) < FIRE_DISTANCE_MAX {
+
+				if myShip.health < enemyShip.health {
+					for _, barrel := range s.barrels {
+						//check if barrel is not already targeted (by another boat later on)
+						if d := shipPos.distanceTo(barrel.pos); d < maxDist {
+							maxDist = d
+							target = barrel.Entity
+							barrel.isTargeted = true
+							myShip.move(target.pos)
+						}
+					}
+				}
+				if myShip.pos.distanceTo(enemyShip.pos) < FIRE_DISTANCE_MAX && !myShip.isCannonballOnCd() {
 					myShip.fire(targetShip.nextPosShip(numTurns))
 				} else if s.isaMine(myShip.nextPosShip(2)) {
 					myShip.fire(myShip.nextPosShip(numTurns))
@@ -568,7 +575,6 @@ func (s *State) think() {
 				}
 			}
 		}
-
 		//in the end if ship.Action is empty, just wait?
 		//gosh ugly!!
 		if myShip.actionType == "" {
