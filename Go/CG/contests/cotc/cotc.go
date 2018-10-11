@@ -94,8 +94,6 @@ type Entity struct {
 	pos        Point
 }
 
-func (e *Entity) updateEntity() {
-}
 func (e Entity) getPosition() Point {
 	return e.pos
 }
@@ -110,7 +108,7 @@ type Ship struct {
 	health             int
 	owner              int
 	hasFiredCannonBall bool
-	cannonballCooldown int
+	cannonCooldown     int
 
 	//Action
 	actionType string
@@ -145,7 +143,7 @@ func (s Ship) damage(amount int) {
 }
 
 func (s Ship) isCannonballOnCd() bool {
-	return s.cannonballCooldown > 0
+	return s.cannonCooldown > 0
 }
 func (s Ship) stern() Point {
 	return s.pos.neighbour((s.orientation + 3) % 6)
@@ -237,7 +235,7 @@ func (s *Ship) printAction() {
 		fmt.Println("WAIT")
 	case "FIRE":
 		fmt.Println("FIRE", s.target.pos.x, s.target.pos.y)
-		s.cannonballCooldown = 2
+		s.cannonCooldown = 2
 	case "MINE":
 		fmt.Println("MINE")
 	}
@@ -253,7 +251,7 @@ type Mine struct {
 	isTargeted bool
 }
 type cannonball struct {
-	Entity
+	target         Point
 	fromShip       int
 	remainingTurns int
 	explosions     Point
@@ -287,11 +285,6 @@ DONE!        this->explodeShips();
         ++turn;
     }
 */
-func (s *State) decrementRum() {
-	for _, ship := range s.ships {
-		ship.damage(1)
-	}
-}
 func (s *State) updateInitialRum() {
 	for _, ship := range s.ships {
 		ship.initialHealth = ship.health
@@ -302,14 +295,82 @@ func (s *State) movecannonballs() {
 	for index, cannonball := range s.cannonballs {
 		if cannonball.remainingTurns == 0 {
 			s.cannonballs = append(s.cannonballs[:index], s.cannonballs[index+1:]...)
-			s.cannonballsExplosions = append(s.cannonballsExplosions, cannonball.Entity.pos)
+			s.cannonballsExplosions = append(s.cannonballsExplosions, cannonball.target)
 			continue
 		} else if cannonball.remainingTurns > 0 {
 			cannonball.remainingTurns--
 		}
 	}
 }
+func (s *State) decrementRum() {
+	for _, ship := range s.ships {
+		ship.damage(1)
+	}
+}
+func (s *State) applyActions() {
+	for _, ship := range s.ships {
+		//if (ship.mineCooldown > 0) {
+		//    ship.mineCooldown--;
+		//}
+		if ship.cannonCooldown > 0 {
+			ship.cannonCooldown--
+		}
 
+		ship.newOrientation = ship.orientation
+
+		if ship.actionType != "" {
+			switch ship.actionType {
+			case "FASTER":
+				if ship.speed < MAX_SHIP_SPEED {
+					ship.speed++
+				}
+				break
+			case "SLOWER":
+				if ship.speed > 0 {
+					ship.speed--
+				}
+				break
+				/* to be used later hopefully...
+				   case PORT:
+				       ship.newOrientation = (ship.orientation + 1) % 6;
+				       break;
+				   case STARBOARD:
+				       ship.newOrientation = (ship.orientation + 5) % 6;
+				       break;
+				   case MINE:
+				       if (ship.mineCooldown == 0) {
+				           Coord target = ship.stern().neighbor((ship.orientation + 3) % 6);
+
+				     if (target.isInsideMap()) {
+				     boolean cellIsFreeOfBarrels = barrels.stream().noneMatch(barrel -> barrel.position.equals(target));
+				     boolean cellIsFreeOfMines = mines.stream().noneMatch(mine -> mine.position.equals(target));
+				    boolean cellIsFreeOfShips = ships.stream().filter(b -> b != ship).noneMatch(b -> b.at(target));
+
+				               if (cellIsFreeOfBarrels && cellIsFreeOfShips && cellIsFreeOfMines) {
+				                   ship.mineCooldown = COOLDOWN_MINE;
+				                   Mine mine = new Mine(target.x, target.y);
+				                   mines.add(mine);
+				               }
+				           }
+
+				       }
+				       break;
+				*/
+			case "FIRE":
+				var distance = ship.bow().distanceTo(ship.target.pos)
+				if ship.target.pos.isInsideMap() && distance <= FIRE_DISTANCE_MAX && ship.cannonCooldown == 0 {
+					var travelTime = (int)(1 + math.Round(ship.bow().distanceTo(ship.target.pos)/3.0))
+					s.cannonballs = append(s.cannonballs, cannonball{target: Point{ship.target.pos.x, ship.target.pos.y}, fromShip: ship.Entity.id, remainingTurns: travelTime})
+
+					ship.cannonCooldown = COOLDOWN_CANNON
+				}
+				break
+			default:
+				break
+			}
+		}
+	}
+}
 func (s *State) moveShips() {
 	for i := 1; i <= MAX_SHIP_SPEED; i++ {
 		for _, ship := range s.ships {
@@ -490,7 +551,7 @@ func (s *State) readEntities() {
 		case "MINE":
 			s.mines = append(s.mines, Mine{Entity: Entity{entityId, entityType, Point{x, y}}})
 		case "CANNONBALL":
-			s.cannonballs = append(s.cannonballs, cannonball{Entity: Entity{entityId, entityType, Point{x, y}}, fromShip: arg1, remainingTurns: arg2})
+			s.cannonballs = append(s.cannonballs, cannonball{target: Point{x, y}, fromShip: arg1, remainingTurns: arg2})
 		}
 	}
 }
@@ -532,7 +593,9 @@ func (s State) isaMine(dest Point) bool {
 func (s State) isCannonballComing(sp Ship) bool {
 	for _, enemyShip := range s.enemyShips {
 		for _, cannonball := range s.cannonballs {
-			if cannonball.fromShip == enemyShip.id && cannonball.pos == sp.pos {
+			//wrong!! the second one is wrong, it explodes if == !!
+			//should be next cell in the same dir no? Eventually next cell in X turns??
+			if cannonball.fromShip == enemyShip.id && cannonball.target == sp.pos.neighbour(sp.orientation) {
 				return true
 			}
 		}
@@ -543,6 +606,8 @@ func (s State) isCannonballComing(sp Ship) bool {
 func (s *State) think() {
 	var maxDist = MAP_WIDTH + 1.0 //24.0
 	var target Entity
+	//check for enemyShip waiting to fire at it?
+	//var lastEnemyShipPos Point
 
 	for _, myShip := range s.allyShips {
 		var shipPos = myShip.bow()
@@ -551,10 +616,13 @@ func (s *State) think() {
 			myShip.move(Point{myShip.pos.x + 3, myShip.pos.y + 3})
 		} else {
 			for _, enemyShip := range s.enemyShips {
-				var targetShip = enemyShip
-				var numTurns = int(1 + targetShip.Entity.pos.distanceTo(myShip.pos)/3)
+				//this is wrong, what would be right here?
+				var numTurns = int(1 + enemyShip.Entity.pos.distanceTo(myShip.pos)/3)
 
-				if myShip.health < enemyShip.health {
+				if myShip.pos.distanceTo(enemyShip.pos) < FIRE_DISTANCE_MAX && !myShip.isCannonballOnCd() {
+					myShip.fire(enemyShip.nextPosShip(numTurns))
+				} else {
+					//grab barrels
 					for _, barrel := range s.barrels {
 						//check if barrel is not already targeted (by another boat later on)
 						if d := shipPos.distanceTo(barrel.pos); d < maxDist {
@@ -564,14 +632,8 @@ func (s *State) think() {
 							myShip.move(target.pos)
 						}
 					}
-				}
-				if myShip.pos.distanceTo(enemyShip.pos) < FIRE_DISTANCE_MAX && !myShip.isCannonballOnCd() {
-					myShip.fire(targetShip.nextPosShip(numTurns))
-				} else if s.isaMine(myShip.nextPosShip(2)) {
-					myShip.fire(myShip.nextPosShip(numTurns))
-				} else {
 					//go in range!!
-					myShip.move(enemyShip.pos)
+					//myShip.move(enemyShip.pos)
 				}
 			}
 		}
