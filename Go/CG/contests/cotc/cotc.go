@@ -103,12 +103,12 @@ func (e Entity) distanceTo(e2 Entity) float64 {
 
 type Ship struct {
 	Entity
-	orientation        int
-	speed              int
-	health             int
-	owner              int
-	hasFiredCannonBall bool
-	cannonCooldown     int
+	orientation    int
+	speed          int
+	health         int
+	owner          int
+	cannonCooldown int
+	mineCooldown   int
 
 	//Action
 	actionType string
@@ -309,9 +309,9 @@ func (s *State) decrementRum() {
 }
 func (s *State) applyActions() {
 	for _, ship := range s.ships {
-		//if (ship.mineCooldown > 0) {
-		//    ship.mineCooldown--;
-		//}
+		if ship.mineCooldown > 0 {
+			ship.mineCooldown--
+		}
 		if ship.cannonCooldown > 0 {
 			ship.cannonCooldown--
 		}
@@ -330,31 +330,26 @@ func (s *State) applyActions() {
 					ship.speed--
 				}
 				break
-				/* to be used later hopefully...
-				   case PORT:
-				       ship.newOrientation = (ship.orientation + 1) % 6;
-				       break;
-				   case STARBOARD:
-				       ship.newOrientation = (ship.orientation + 5) % 6;
-				       break;
-				   case MINE:
-				       if (ship.mineCooldown == 0) {
-				           Coord target = ship.stern().neighbor((ship.orientation + 3) % 6);
-
-				     if (target.isInsideMap()) {
-				     boolean cellIsFreeOfBarrels = barrels.stream().noneMatch(barrel -> barrel.position.equals(target));
-				     boolean cellIsFreeOfMines = mines.stream().noneMatch(mine -> mine.position.equals(target));
-				    boolean cellIsFreeOfShips = ships.stream().filter(b -> b != ship).noneMatch(b -> b.at(target));
-
-				               if (cellIsFreeOfBarrels && cellIsFreeOfShips && cellIsFreeOfMines) {
-				                   ship.mineCooldown = COOLDOWN_MINE;
-				                   Mine mine = new Mine(target.x, target.y);
-				                   mines.add(mine);
-				               }
-				           }
-
-				       }
-				       break;
+			case "PORT":
+				ship.newOrientation = (ship.orientation + 1) % 6
+				break
+			case "STARBOARD":
+				ship.newOrientation = (ship.orientation + 5) % 6
+				break
+				/*
+					   case "MINE":
+					       if (ship.mineCooldown == 0) {
+					         Coord target = ship.stern().neighbor((ship.orientation + 3) % 6);
+						   if (target.isInsideMap()) {
+					boolean cellIsFreeOfBarrels = barrels.stream().noneMatch(barrel -> barrel.position.equals(target));
+						     boolean cellIsFreeOfMines = mines.stream().noneMatch(mine -> mine.position.equals(target));
+					     boolean cellIsFreeOfShips = ships.stream().filter(b -> b != ship).noneMatch(b -> b.at(target));
+					       if (cellIsFreeOfBarrels && cellIsFreeOfShips && cellIsFreeOfMines) {
+							 ship.mineCooldown = COOLDOWN_MINE;
+							  Mine mine = new Mine(target.x, target.y);
+							  mines.add(mine);
+							 } } }
+							       break;
 				*/
 			case "FIRE":
 				var distance = ship.bow().distanceTo(ship.target.pos)
@@ -593,8 +588,6 @@ func (s State) isaMine(dest Point) bool {
 func (s State) isTargeted(sp Ship) bool {
 	for _, enemyShip := range s.enemyShips {
 		for _, cannonball := range s.cannonballs {
-			//wrong!! the second one is wrong, it explodes if == !!
-			//should be next cell in the same dir no? Eventually next cell in X turns??
 			if cannonball.fromShip == enemyShip.id && cannonball.target == sp.pos {
 				return true
 			}
@@ -650,7 +643,6 @@ func (s *State) think() {
 			}
 		}
 		//in the end if ship.Action is empty, just wait?
-		//gosh ugly!!
 		if myShip.actionType == "" {
 			fmt.Println("WAIT")
 		} else {
