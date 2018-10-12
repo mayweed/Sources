@@ -590,51 +590,63 @@ func (s State) isaMine(dest Point) bool {
 	return false
 }
 
-func (s State) isCannonballComing(sp Ship) bool {
+func (s State) isTargeted(sp Ship) bool {
 	for _, enemyShip := range s.enemyShips {
 		for _, cannonball := range s.cannonballs {
 			//wrong!! the second one is wrong, it explodes if == !!
 			//should be next cell in the same dir no? Eventually next cell in X turns??
-			if cannonball.fromShip == enemyShip.id && cannonball.target == sp.pos.neighbour(sp.orientation) {
+			if cannonball.fromShip == enemyShip.id && cannonball.target == sp.pos {
 				return true
 			}
 		}
 	}
 	return false
 }
+func (s State) getClosestEnemyShip(sp Ship) Ship {
+	var closestShip Ship
+	var maxDist = 24.0
+	for _, eship := range s.enemyShips {
+		if d := sp.pos.distanceTo(eship.pos); d < maxDist {
+			closestShip = eship
+			maxDist = d
+		}
+	}
+	return closestShip
+}
+func (s State) getClosestBarrel(sp Ship) Barrel {
+	var closestBarrel Barrel
 
-func (s *State) think() {
 	var maxDist = MAP_WIDTH + 1.0 //24.0
-	var target Entity
+	for _, barrel := range s.barrels {
+		//check if barrel is not already targeted (by another boat later on)
+		if d := sp.bow().distanceTo(barrel.pos); d < maxDist {
+			maxDist = d
+			closestBarrel = barrel
+			barrel.isTargeted = true
+		}
+	}
+	return closestBarrel
+}
+func (s *State) think() {
+	var target Barrel
 	//check for enemyShip waiting to fire at it?
 	//var lastEnemyShipPos Point
 
 	for _, myShip := range s.allyShips {
-		var shipPos = myShip.bow()
-		if s.isCannonballComing(myShip) {
-			//fuckin move!!
-			myShip.move(Point{myShip.pos.x + 3, myShip.pos.y + 3})
-		} else {
-			for _, enemyShip := range s.enemyShips {
-				//this is wrong, what would be right here?
-				var numTurns = int(1 + enemyShip.Entity.pos.distanceTo(myShip.pos)/3)
+		var closest = s.getClosestEnemyShip(myShip)
 
-				if myShip.pos.distanceTo(enemyShip.pos) < FIRE_DISTANCE_MAX && !myShip.isCannonballOnCd() {
-					myShip.fire(enemyShip.nextPosShip(numTurns))
-				} else {
-					//grab barrels
-					for _, barrel := range s.barrels {
-						//check if barrel is not already targeted (by another boat later on)
-						if d := shipPos.distanceTo(barrel.pos); d < maxDist {
-							maxDist = d
-							target = barrel.Entity
-							barrel.isTargeted = true
-							myShip.move(target.pos)
-						}
-					}
-					//go in range!!
-					//myShip.move(enemyShip.pos)
-				}
+		if s.isTargeted(myShip) { //|| s.isaMine(myShip.pos.neighbour(myShip.orientation)) {
+			//fuckin move!!Should be inside map!!
+			//myShip.move(Point{myShip.pos.x - 3, myShip.pos.y + 3})
+			myShip.move(closest.pos)
+		} else {
+			if myShip.bow().distanceTo(closest.pos) < FIRE_DISTANCE_MAX && !myShip.isCannonballOnCd() {
+				var travelTime = int(1 + closest.pos.distanceTo(myShip.pos)/3)
+				myShip.fire(closest.nextPosShip(travelTime))
+			} else {
+				//grab barrels
+				target = s.getClosestBarrel(myShip)
+				myShip.move(target.pos)
 			}
 		}
 		//in the end if ship.Action is empty, just wait?
