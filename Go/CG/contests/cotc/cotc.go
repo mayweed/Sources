@@ -243,8 +243,7 @@ func (s *Ship) printAction() {
 
 type Barrel struct {
 	Entity
-	health     int
-	isTargeted bool
+	health int
 }
 type Mine struct {
 	Entity
@@ -275,7 +274,7 @@ It will apply on a newState==current state
 DONE!        this->updateInitialRum();
 DONE! this->moveCannonballs();
 DONE!    this->decrementRum();
-        this->applyActions();
+DONE!        this->applyActions();
 DONE! this->moveShips();
 DONE!        this->rotateShips();
 DONE!        this->explodeShips();
@@ -560,7 +559,7 @@ func (s *State) clear() {
 	s.cannonballs = []cannonball{}
 }
 
-func computeScore(ships []Ship) int {
+func getScore(ships []Ship) int {
 	var score int
 	for _, ship := range ships {
 		score += ship.health
@@ -568,6 +567,8 @@ func computeScore(ships []Ship) int {
 	return score
 }
 
+//HEURISTICS
+//bot might be a bit aggressive...should i spare rum more?
 //to fire where the ship will be
 func (s Ship) nextPosShip(inTurns int) Point {
 	var nextPos = s.pos
@@ -584,7 +585,6 @@ func (s State) isaMine(dest Point) bool {
 	}
 	return false
 }
-
 func (s State) isTargeted(sp Ship) bool {
 	for _, enemyShip := range s.enemyShips {
 		for _, cannonball := range s.cannonballs {
@@ -608,31 +608,26 @@ func (s State) getClosestEnemyShip(sp Ship) Ship {
 }
 func (s State) getClosestBarrel(sp Ship) Barrel {
 	var closestBarrel Barrel
-
 	var maxDist = MAP_WIDTH + 1.0 //24.0
 	for _, barrel := range s.barrels {
-		//check if barrel is not already targeted (by another boat later on)
 		if d := sp.bow().distanceTo(barrel.pos); d < maxDist {
 			maxDist = d
 			closestBarrel = barrel
-			barrel.isTargeted = true
 		}
 	}
 	return closestBarrel
 }
 func (s *State) think() {
 	var target Barrel
-	//check for enemyShip waiting to fire at it?
-	//var lastEnemyShipPos Point
-
 	for _, myShip := range s.allyShips {
 		var closest = s.getClosestEnemyShip(myShip)
 
-		if s.isTargeted(myShip) { //|| s.isaMine(myShip.pos.neighbour(myShip.orientation)) {
-			//fuckin move!!Should be inside map!!
-			//myShip.move(Point{myShip.pos.x - 3, myShip.pos.y + 3})
+		if s.isTargeted(myShip) {
 			myShip.move(closest.pos)
 		} else {
+			//makes me lost 200 places!!
+			//if s.isaMine(myShip.pos.neighbour(myShip.orientation)) {
+			//	myShip.starboard()
 			if myShip.bow().distanceTo(closest.pos) < FIRE_DISTANCE_MAX && !myShip.isCannonballOnCd() {
 				var travelTime = int(1 + closest.pos.distanceTo(myShip.pos)/3)
 				myShip.fire(closest.nextPosShip(travelTime))
@@ -649,8 +644,6 @@ func (s *State) think() {
 			myShip.printAction()
 		}
 	}
-
-	//clear state!!
 	s.clear()
 }
 func main() {
