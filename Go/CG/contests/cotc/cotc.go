@@ -516,6 +516,36 @@ func (s *State) explodeShips() {
 		}
 	}
 }
+
+/*
+   func (s *State) explodeMines() {
+		   for _,ball := range s.cannonballsExplosions{
+			   for _,mine := range s.mines{
+               if (mine.position.equals(position)) {
+                   damage.addAll(mine.explode(ships, true));
+                   it.remove();
+                   itBall.remove();
+                   break;
+               }
+           }
+       }
+   }
+
+   void explodeBarrels() {
+       for (Iterator<Coord> itBall = cannonBallExplosions.iterator(); itBall.hasNext();) {
+           Coord position = itBall.next();
+           for (Iterator<RumBarrel> it = barrels.iterator(); it.hasNext();) {
+               RumBarrel barrel = it.next();
+               if (barrel.position.equals(position)) {
+                   damage.add(new Damage(position, 0, true));
+                   it.remove();
+                   itBall.remove();
+                   break;
+               }
+           }
+       }
+   }
+*/
 func (s *State) readEntities() {
 	// myShipCount: the number of remaining ships
 	var myShipCount int
