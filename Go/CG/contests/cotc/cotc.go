@@ -6,18 +6,19 @@ import (
 )
 
 const (
-	MAP_WIDTH             = 23
-	MAP_HEIGHT            = 21
-	INITIAL_SHIP_HEALTH   = 100
-	MAX_SHIP_HEALTH       = 100
-	MAX_SHIP_SPEED        = 2
-	MINE_VISIBILITY_RANGE = 5
-	LOW_DAMAGE            = 25
-	HIGH_DAMAGE           = 50
-	MINE_DAMAGE           = 25
-	NEAR_MINE_DAMAGE      = 10
-	FIRE_DISTANCE_MAX     = 10
-	COOLDOWN_CANNON       = 2
+	MAP_WIDTH               = 23
+	MAP_HEIGHT              = 21
+	INITIAL_SHIP_HEALTH     = 100
+	MAX_SHIP_HEALTH         = 100
+	MAX_SHIP_SPEED          = 2
+	MINE_VISIBILITY_RANGE   = 5
+	LOW_DAMAGE              = 25
+	HIGH_DAMAGE             = 50
+	MINE_DAMAGE             = 25
+	NEAR_MINE_DAMAGE        = 10
+	FIRE_DISTANCE_MAX       = 10
+	COOLDOWN_CANNON         = 2
+	REWARD_RUM_BARREL_VALUE = 30
 )
 
 type Point struct {
@@ -268,22 +269,6 @@ type State struct {
 	cannonballsExplosions []Point
 }
 
-/*
-It will apply on a newState==current state
-   void simulateTurn() {
-DONE!        this->updateInitialRum();
-DONE! this->moveCannonballs();
-DONE!    this->decrementRum();
-DONE!        this->applyActions();
-DONE! this->moveShips();
-DONE!        this->rotateShips();
-DONE!        this->explodeShips();
-        this->explodeMines();
-        this->explodeBarrels();
-        this->createDroppedRum();
-        ++turn;
-    }
-*/
 func (s *State) updateInitialRum() {
 	for _, ship := range s.ships {
 		ship.initialHealth = ship.health
@@ -517,35 +502,63 @@ func (s *State) explodeShips() {
 	}
 }
 
-/*
-   func (s *State) explodeMines() {
-		   for _,ball := range s.cannonballsExplosions{
-			   for _,mine := range s.mines{
-               if (mine.position.equals(position)) {
-                   damage.addAll(mine.explode(ships, true));
-                   it.remove();
-                   itBall.remove();
-                   break;
-               }
-           }
-       }
-   }
+func (s *State) explodeMines() {
+	for i1, ball := range s.cannonballsExplosions {
+		for i2, mine := range s.mines {
+			if mine.pos == ball {
+				s.mines = append(s.mines[:i2], s.mines[i2+1:]...)
+				s.cannonballs = append(s.cannonballs[:i1], s.cannonballs[i1+1:]...)
+				//damage.addAll(mine.explode(ships, true));
+				break
+			}
+		}
+	}
+}
 
-   void explodeBarrels() {
-       for (Iterator<Coord> itBall = cannonBallExplosions.iterator(); itBall.hasNext();) {
-           Coord position = itBall.next();
-           for (Iterator<RumBarrel> it = barrels.iterator(); it.hasNext();) {
-               RumBarrel barrel = it.next();
-               if (barrel.position.equals(position)) {
-                   damage.add(new Damage(position, 0, true));
-                   it.remove();
-                   itBall.remove();
-                   break;
-               }
-           }
-       }
-   }
-*/
+func (s *State) explodeBarrels() {
+	for i1, ball := range s.cannonballsExplosions {
+		for i2, barrel := range s.barrels {
+
+			if barrel.pos == ball {
+				//damage 0?
+				// damage.add(new Damage(position, 0, true));
+				s.barrels = append(s.barrels[:i2], s.barrels[i2+1:]...)
+				s.cannonballs = append(s.cannonballs[:i1], s.cannonballs[i1+1:]...)
+				break
+			}
+		}
+	}
+}
+
+func (s *State) sinkShipMakeRum() {
+	// For each sunk ship, create a new rum barrel with the amount of rum the ship had at the begin of the turn (up to 30)
+	for _, ship := range s.ships {
+		if ship.health <= 0 {
+			var reward = int(math.Min(REWARD_RUM_BARREL_VALUE, float64(ship.initialHealth)))
+			if reward > 0 {
+				s.barrels = append(s.barrels, Barrel{Entity: Entity{pos: Point{ship.pos.x, ship.pos.y}}, health: reward})
+			}
+		}
+	}
+}
+
+//take a state as arg and simulate (try to!)
+func simulateTurn(s *State) {
+	//It will apply on a newState==current state
+	s.updateInitialRum()
+	s.movecannonballs()
+	s.decrementRum()
+	s.applyActions()
+	s.moveShips()
+	s.rotateShips()
+	s.explodeShips()
+	s.explodeMines()
+	s.explodeBarrels()
+	s.sinkShipMakeRum()
+	//should keep track of turn!!
+	//++turn;
+}
+
 func (s *State) readEntities() {
 	// myShipCount: the number of remaining ships
 	var myShipCount int
@@ -655,14 +668,10 @@ func (s *State) think() {
 		if s.isTargeted(myShip) {
 			myShip.move(closest.pos)
 		} else {
-			//makes me lost 200 places!!
-			//if s.isaMine(myShip.pos.neighbour(myShip.orientation)) {
-			//	myShip.starboard()
 			if myShip.bow().distanceTo(closest.pos) < FIRE_DISTANCE_MAX && !myShip.isCannonballOnCd() {
 				var travelTime = int(1 + closest.pos.distanceTo(myShip.pos)/3)
 				myShip.fire(closest.nextPosShip(travelTime))
 			} else {
-				//grab barrels
 				target = s.getClosestBarrel(myShip)
 				myShip.move(target.pos)
 			}
