@@ -260,6 +260,7 @@ type cannonball struct {
 type State struct {
 	entityCount           int
 	myShipCount           int
+	turn                  int
 	enemyShips            []Ship
 	allyShips             []Ship
 	ships                 []Ship
@@ -268,6 +269,8 @@ type State struct {
 	cannonballs           []cannonball
 	cannonballsExplosions []Point
 }
+
+//func (s State) String(){}
 
 func (s *State) updateInitialRum() {
 	for _, ship := range s.ships {
@@ -556,7 +559,7 @@ func simulateTurn(s *State) {
 	s.explodeBarrels()
 	s.sinkShipMakeRum()
 	//should keep track of turn!!
-	//++turn;
+	s.turn += 1
 }
 
 func (s *State) readEntities() {
@@ -690,5 +693,6 @@ func main() {
 	for {
 		agent.readEntities()
 		agent.think()
+		simulateTurn(&agent)
 	}
 }
