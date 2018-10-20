@@ -6,6 +6,10 @@ import (
 	"strings"
 )
 
+const (
+	DAMAGE_DURATION = 5
+)
+
 type Link struct {
 	from     int
 	to       int
@@ -17,6 +21,7 @@ type Factory struct {
 	owner          int
 	unitCount      int
 	productionRate int
+	disabled       int
 }
 type Troop struct {
 	id             int
