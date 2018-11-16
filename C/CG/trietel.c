@@ -25,7 +25,7 @@ int main()
     for (int i=0;i<MAX_LENGTH-1;i++)
     {
         node *num = malloc(sizeof(int));   
-        num->value=atoi(telephone[i]);
+        num->value=atoi(&telephone[i]);
     }
 
     //fprintf(stderr, "Debug messages...\n");
