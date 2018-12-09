@@ -38,71 +38,62 @@ type State struct {
 }
 
 func main() {
-	//scanner := bufio.NewScanner(os.Stdin)
-	//scanner.Buffer(make([]byte, 1000000), 1000000)
 
 	for {
 		//clean state to begin with
 		s := State{}
 
 		var turnType int
-		//scanner.Scan()
-		//fmt.Sscan(scanner.Text(), &turnType)
 		fmt.Scan(&turnType)
 
-		//BOARD: first tile dir then item
-		for i := 0; i < 7; i++ {
-			//scanner.Scan()
-			var row string
-			fmt.Scan(&row)
-			//inputs := strings.Split(scanner.Text(), " ")
-			//inputs := strings.Split(row, " ")
-			for j := 0; j < 7; j++ {
-				//tile := inputs[j]
-				//s.grid[i][j].direction = inputs[j]
-				s.grid[i][j].direction = row
-				log.Println(s.grid[i][j], i, j)
+		//cf GameBoard => sendMapToPlayer()
+		for y := 0; y < 7; y++ {
+			for x := 0; x < 7; x++ {
+				var col string
+				fmt.Scan(&col)
+				log.Println(col, y, x)
+				s.grid[y][x].direction = col
 			}
 		}
+		log.Println(s.grid[5][4])
+
+		for i := 0; i < 2; i++ {
+			// numPlayerCards: the total number of quests for a player (hidden and revealed)
+			var numPlayerCards, playerX, playerY int
+			var playerTile string
+			fmt.Scan(&numPlayerCards, &playerX, &playerY, &playerTile)
+			log.Println("PlayerTile:", playerTile)
+		}
+
 		// numItems: the total number of items available on board and on player tiles
 		var numItems int
-		//scanner.Scan()
-		//fmt.Sscan(scanner.Text(), &numItems)
 		fmt.Scan(&numItems)
 		s.numItems = numItems
 
 		for i := 0; i < numItems; i++ {
 			var itemName string
 			var itemX, itemY, itemPlayerId int
-			//scanner.Scan()
-			//fmt.Sscan(scanner.Text(), &itemName, &itemX, &itemY, &itemPlayerId)
 			fmt.Scan(&itemName, &itemX, &itemY, &itemPlayerId)
-			//s.grid[itemX][itemY].itemName = itemName
-			//s.grid[itemX][itemY].itemPlayerId = itemPlayerId
+			log.Println("name", itemName, "x", itemX, "y", itemY)
+			s.grid[itemY][itemX].itemName = itemName
+			s.grid[itemY][itemX].itemPlayerId = itemPlayerId
 		}
 
-		//PLAYER: first pos tile num quest
-		for i := 0; i < 2; i++ {
-			// numPlayerCards: the total number of quests for a player (hidden and revealed)
-			var numPlayerCards, playerX, playerY int
-			var playerTile string
-			//scanner.Scan()
-			//fmt.Sscan(scanner.Text(), &numPlayerCards, &playerX, &playerY, &playerTile)
-			fmt.Scan(&numPlayerCards, &playerX, &playerY, &playerTile)
-		}
 		// numQuests: the total number of revealed quests for both players
 		var numQuests int
-		//scanner.Scan()
-		//fmt.Sscan(scanner.Text(), &numQuests)
 		fmt.Scan(&numQuests)
 
 		for i := 0; i < numQuests; i++ {
 			var questItemName string
 			var questPlayerId int
-			//scanner.Scan()
-			//fmt.Sscan(scanner.Text(), &questItemName, &questPlayerId)
 			fmt.Scan(&questItemName, &questPlayerId)
 		}
-		fmt.Println("PUSH 3 RIGHT") // PUSH <id> <direction> | MOVE <direction> | PASS
+
+		//ternary op would be great here, to test only
+		if turnType == 0 {
+			fmt.Println("PUSH 3 RIGHT") // PUSH <id> <direction> | MOVE <direction> | PASS
+		} else {
+			fmt.Println("MOVE RIGHT")
+		}
 	}
 }
