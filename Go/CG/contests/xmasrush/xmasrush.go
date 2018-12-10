@@ -5,6 +5,14 @@ import (
 	"log"
 )
 
+/* not good
+const (
+	UP    = Point{0, -1}
+	RIGHT = Point{+1, 0}
+	DOWN  = Point{0, +1}
+	LEFT  = Point{-1, 0}
+)
+*/
 type Point struct {
 	x, y int
 }
@@ -13,6 +21,7 @@ type Grid [7][7]Tile
 
 type Tile struct {
 	direction    string
+	position     Point
 	hasItem      bool
 	itemName     string
 	itemPlayerId int
@@ -37,6 +46,25 @@ type State struct {
 	turn     Turn
 }
 
+func (s State) getNeighbours(t Tile) []Tile {
+	var neighbours []Tile
+	//check borders!!
+	if t.direction[0] == 1 {
+		neighbours = append(neighbours, s.grid[t.position.y-1][t.position.x])
+	}
+	if t.direction[1] == 1 {
+		neighbours = append(neighbours, s.grid[t.position.y][t.position.x+1])
+	}
+	if t.direction[2] == 1 {
+		neighbours = append(neighbours, s.grid[t.position.y+1][t.position.x])
+	}
+	if t.direction[3] == 1 {
+		neighbours = append(neighbours, s.grid[t.position.y][t.position.x-1])
+	}
+	log.Println(neighbours)
+	return neighbours
+}
+
 func (s *State) read() {
 	var turnType int
 	fmt.Scan(&turnType)
@@ -48,6 +76,8 @@ func (s *State) read() {
 			var row string
 			fmt.Scan(&row)
 			s.grid[y][x].direction = row
+			s.grid[y][x].position.x = x
+			s.grid[y][x].position.y = y
 		}
 	}
 
@@ -107,6 +137,10 @@ func main() {
 		s := State{}
 		s.read()
 		log.Println(s.players[0].quests)
+		for _, t := range s.getNeighbours(s.grid[3][3]) {
+			log.Println(t.direction)
+		}
+		log.Println(s.grid[3][3].direction)
 
 		//ternary op would be great here, to test only
 		if s.turn.turnType == 0 {
