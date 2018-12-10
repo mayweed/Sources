@@ -46,22 +46,23 @@ type State struct {
 	turn     Turn
 }
 
+//golang yields the ascii code not the num...it's a quickfix...
+//see first answer here: https://stackoverflow.com/questions/15018545/how-to-index-characters-in-a-golang-string
 func (s State) getNeighbours(t Tile) []Tile {
 	var neighbours []Tile
 	//check borders!!
-	if t.direction[0] == 1 {
+	if t.direction[0] == 49 {
 		neighbours = append(neighbours, s.grid[t.position.y-1][t.position.x])
 	}
-	if t.direction[1] == 1 {
+	if t.direction[1] == 49 {
 		neighbours = append(neighbours, s.grid[t.position.y][t.position.x+1])
 	}
-	if t.direction[2] == 1 {
+	if t.direction[2] == 49 {
 		neighbours = append(neighbours, s.grid[t.position.y+1][t.position.x])
 	}
-	if t.direction[3] == 1 {
+	if t.direction[3] == 49 {
 		neighbours = append(neighbours, s.grid[t.position.y][t.position.x-1])
 	}
-	log.Println(neighbours)
 	return neighbours
 }
 
@@ -136,11 +137,9 @@ func main() {
 		//clean state to begin with
 		s := State{}
 		s.read()
-		log.Println(s.players[0].quests)
-		for _, t := range s.getNeighbours(s.grid[3][3]) {
-			log.Println(t.direction)
-		}
-		log.Println(s.grid[3][3].direction)
+		//log.Println(s.players[0].quests)
+		t := s.getNeighbours(s.grid[3][3])
+		log.Println(s.grid[3][3].direction, t)
 
 		//ternary op would be great here, to test only
 		if s.turn.turnType == 0 {
