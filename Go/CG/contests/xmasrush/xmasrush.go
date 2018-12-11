@@ -131,6 +131,46 @@ func (s *State) read() {
 	}
 }
 
+//a bfs?
+//Should yse a Tile!!or write Point -> tile
+func (s *State) bfsPath(playerPos, questPos Point) []Point {
+	var visited = make(map[Point]bool)
+	visited[playerPos] = true
+
+	var startTile = []Point{playerPos}
+	var queue = [][]Point{startTile}
+
+	for 0 < len(queue) {
+		//pop the first element
+		path := queue[0]
+		queue = queue[1:]
+
+		lastTile := path[len(path)-1]
+		if lastTile == questPos {
+			return path
+		}
+
+		for _, tile := range s.getNeighbours(lastTile) {
+			var newPath = path
+			if !visited[tile] {
+				visited[tile] = true
+				newPath = append(newPath, tile)
+				queue = append(queue, newPath)
+			}
+		}
+	}
+	return []Tile{}
+}
+func (s *State) think() {
+	//ternary op would be great here, to test only
+	if s.turn.turnType == 0 {
+		fmt.Println("PUSH 3 RIGHT") // PUSH <id> <direction> | MOVE <direction> | PASS
+	} else {
+		//s.bfsPath()
+		fmt.Println("MOVE RIGHT")
+	}
+
+}
 func main() {
 
 	for {
@@ -141,11 +181,7 @@ func main() {
 		t := s.getNeighbours(s.grid[3][3])
 		log.Println(s.grid[3][3].direction, t)
 
-		//ternary op would be great here, to test only
-		if s.turn.turnType == 0 {
-			fmt.Println("PUSH 3 RIGHT") // PUSH <id> <direction> | MOVE <direction> | PASS
-		} else {
-			fmt.Println("MOVE RIGHT")
-		}
+		s.think()
+		//s.printTurn()
 	}
 }
