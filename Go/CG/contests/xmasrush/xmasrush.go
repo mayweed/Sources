@@ -48,11 +48,63 @@ type Tile struct {
 	itemPlayerId int
 }
 
+func (g Grid) getTile(x int, y int) Tile {
+	var t Tile
+	if isValidPos(Point{x, y}) {
+		t = g[x][y]
+	}
+	return t
+}
+func (g *Grid) setTile(x int, y int, t Tile) {
+	g[x][y] = t
+}
+
+//wip...return the playerTile
+func (g *Grid) pushRight(pushedTile Tile, row int) Tile {
+	var maxCol = MAP_WIDTH - 1
+	var poppedTile = g.getTile(row, maxCol)
+
+	for i := maxCol; i > 0; i-- {
+		g.setTile(i, row, g.getTile(i-1, row))
+		//getTile(i, row).move(Constants.Direction.RIGHT);
+	}
+	//setTile(0, row, pushedTile);
+	//getTile(0, row).move(new Vector2(0, row));
+	return poppedTile
+}
+
+/*
+//To simulate you take the grid
+//Parse the action,
+// apply it
+// give back the future grid
+//better : you pass a turn!!
+func (s State) simulateGrid(t Turn){
+	g:=s.grid
+	if t.turntype == "PUSH"{
+		switch a.pushDirection{
+			case "RIGHT": pushRight(grid)
+			//if it's right/left you offset x
+
+			//up/down you offset y
+			...
+		}
+	}
+}
+
+
+
+//should have printGrid to test..
+*/
 type Player struct {
 	totalOfQuests int
-	quests        []string
-	tile          Tile
-	position      Point
+	//At most one is revealed
+	questItemName string
+	//the item tile for a given player
+	itemTile Tile
+	//the tile in hand
+	playerTile Tile
+	position   Point
 }
 
 type Turn struct {
@@ -67,21 +119,6 @@ type State struct {
 	numItems  int
 	itemTiles []Tile
 	turn      Turn
-}
-
-//this works in wood 2 I suppose, should refine by calculating which one is the
-//nearest from current pos...in this case the quest is passed in argument!!
-//should definitely REWRITE it!!
-func (s *State) getItemTilesPos(p Player) Tile {
-	var quest = s.players[0].quests[0]
-	var tile Tile
-	for _, tile = range s.itemTiles {
-		//dont forget the player id
-		if tile.itemName == quest && tile.itemPlayerId == 0 {
-			break
-		}
-	}
-	return tile
 }
 
 //golang yields the ascii code not the num...it's a quickfix...
@@ -143,9 +180,8 @@ func (s *State) read() {
 		var playerTile string
 		fmt.Scan(&numPlayerCards, &playerX, &playerY, &playerTile)
 		s.players[i].totalOfQuests = numPlayerCards
-		s.players[i].position.x = playerX
-		s.players[i].position.y = playerY
-		s.players[i].tile.direction = playerTile
+		s.players[i].position = Point{x: playerX, y: playerY}
+		s.players[i].playerTile.direction = playerTile
 	}
 
 	// numItems: the total number of items available on board and on player tiles
@@ -158,14 +194,22 @@ func (s *State) read() {
 		var itemX, itemY, itemPlayerId int
 		fmt.Scan(&itemName, &itemX, &itemY, &itemPlayerId)
 		switch itemX {
+		//special case
 		case -1:
-			s.players[0].tile.hasItem = true
+			s.players[0].playerTile.hasItem = true
 		case -2:
-			s.players[1].tile.hasItem = true
+			s.players[1].playerTile.hasItem = true
 		default:
 			s.grid[itemY][itemX].hasItem = true
 			s.grid[itemY][itemX].itemName = itemName
 			s.grid[itemY][itemX].itemPlayerId = itemPlayerId
+			//simply save the item tile
+			switch itemPlayerId {
+			case 0:
+				s.players[0].itemTile = s.grid[itemY][itemX]
+			case 1:
+				s.players[1].itemTile = s.grid[itemY][itemX]
+			}
 			s.itemTiles = append(s.itemTiles, s.grid[itemY][itemX])
 		}
 	}
@@ -180,15 +224,14 @@ func (s *State) read() {
 		fmt.Scan(&questItemName, &questPlayerId)
 		switch questPlayerId {
 		case 0:
-			s.players[0].quests = append(s.players[0].quests, questItemName)
+			s.players[0].questItemName = questItemName
 		case 1:
-			s.players[1].quests = append(s.players[1].quests, questItemName)
+			s.players[1].questItemName = questItemName
 		}
 	}
 }
 
 //a bfs?
-//Should yse a Tile!!or write Point -> tile
 func (s *State) bfsPath(playerTile, questTile Tile) []Tile {
 	var visited = make(map[Tile]bool)
 	visited[playerTile] = true
@@ -217,10 +260,30 @@ func (s *State) bfsPath(playerTile, questTile Tile) []Tile {
 	}
 	return []Tile{}
 }
+
+// BUG: after i grab a quest if turn is push i got invalid input!!
+// it seems like next quest is revealed in move mode not in push one ?? cf src to
+// check...
+// Should simulate map no? What happens if i push here? is it good or not?
 func (s *State) printTurn() string {
 	var command string
 	if s.turn.turnType == 0 {
-		command = "PUSH 3 RIGHT" // PUSH <id> <direction> | MOVE <direction> | PASS
+		if s.players[0].itemTile.position.y < s.players[0].position.y {
+			command = fmt.Sprintf("PUSH %d %s", s.players[0].position.y, "RIGHT")
+		} else if s.players[0].itemTile.position.y > s.players[0].position.y {
+			command = fmt.Sprintf("PUSH %d %s", s.players[0].position.y, "LEFT")
+			//got invalid input? see item init in turn??
+		} else {
+			command = fmt.Sprintf("PUSH %d %s", s.players[1].position.y, "RIGHT")
+		}
+
+		if s.players[0].itemTile.position.x < s.players[0].position.x {
+			command = fmt.Sprintf("PUSH %d %s", s.players[0].position.x, "UP")
+		} else if s.players[0].itemTile.position.x > s.players[0].position.x {
+			command = fmt.Sprintf("PUSH %d %s", s.players[0].position.x, "DOWN")
+		} else {
+			command = fmt.Sprintf("PUSH %d %s", s.players[1].position.x, "DOWN")
+		}
 	} else {
 		if len(s.turn.directions) == 0 {
 			//to begin with then should go for half path near the quest?
@@ -236,9 +299,10 @@ func (s *State) think() {
 	//push strat
 	// first i could simple bfsPath the first player, if there is a direct route to
 	// his quest, move the tile..
-
+	var oppPath = s.bfsPath(s.grid[s.players[1].position.y][s.players[1].position.x], s.players[1].itemTile)
+	log.Println("oppPath:", oppPath)
 	//move strat
-	var path = s.bfsPath(s.grid[s.players[0].position.y][s.players[0].position.x], s.getItemTilesPos(s.players[0]))
+	var path = s.bfsPath(s.grid[s.players[0].position.y][s.players[0].position.x], s.players[0].itemTile)
 	if len(path) != 0 {
 		//go for it directly!! Indeed, try to...
 		for x, p := range path {
@@ -263,11 +327,10 @@ func main() {
 		fmt.Println(comm)
 
 		//TEST LOGS
-		//log.Println(s.players[0].quests)
-		//log.Println(s.getItemTilesPos(s.players[0]))
-		//log.Println(s.getNeighbours(s.grid[s.players[0].position.y][s.players[0].position.x]))
-		log.Println(s.turn.turnType)
-		log.Println(s.bfsPath(s.grid[s.players[0].position.y][s.players[0].position.x], s.getItemTilesPos(s.players[0])))
+		log.Println(s.grid.getTile(3, 4))
+		log.Println("MY quest: ", s.players[0].questItemName, "located", s.players[0].itemTile)
+		log.Println("OPP quest: ", s.players[1].questItemName, "located", s.players[1].itemTile)
+		log.Println(s.bfsPath(s.grid[s.players[0].position.y][s.players[0].position.x], s.players[0].itemTile))
 		log.Println(s.turn.directions)
 
 	}
