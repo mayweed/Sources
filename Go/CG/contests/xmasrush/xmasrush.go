@@ -3,10 +3,12 @@ package main
 import (
 	"fmt"
 	"log"
+	"strings"
 )
 
 const (
-	MAP_WIDTH = 7
+	MAP_WIDTH  = 7
+	MAP_HEIGHT = 7
 )
 
 type Point struct {
@@ -30,6 +32,10 @@ func (p Point) printDirection(p2 Point) string {
 		dir = "DOWN"
 	}
 	return dir
+}
+func isValidPos(p Point) bool {
+	return p.x >= 0 && p.y >= 0 &&
+		p.x < MAP_WIDTH && p.y < MAP_HEIGHT
 }
 
 type Grid [7][7]Tile
@@ -88,6 +94,8 @@ func (s State) getNeighbours(t Tile) []Tile {
 	//if UP is 1 on my tile, the upper tile is a neighbour if and only if down is
 	//open!!
 	if t.position.y-1 > 0 && t.position.y-1 < 7 {
+		//if isValidPos(t.position.y - 1) { ==> look at that later, that func needs an
+		//overhaul
 		if t.direction[0] == 49 && s.grid[t.position.y-1][t.position.x].direction[2] == 49 {
 			neighbours = append(neighbours, s.grid[t.position.y-1][t.position.x])
 		}
@@ -209,24 +217,35 @@ func (s *State) bfsPath(playerTile, questTile Tile) []Tile {
 	}
 	return []Tile{}
 }
-func (s *State) think() {
-	//ternary op would be great here, to test only
+func (s *State) printTurn() string {
+	var command string
 	if s.turn.turnType == 0 {
-		fmt.Println("PUSH 3 RIGHT") // PUSH <id> <direction> | MOVE <direction> | PASS
+		command = "PUSH 3 RIGHT" // PUSH <id> <direction> | MOVE <direction> | PASS
 	} else {
-		//s.bfsPath()
-		var path = s.bfsPath(s.grid[s.players[0].position.y][s.players[0].position.x], s.getItemTilesPos(s.players[0]))
-		if len(path) == 0 {
-			//=> move in the direction if possible or pass
-			fmt.Println("MOVE RIGHT")
-		} else { //test purpose if len(path) < 20 {
-			//go for it directly!! Indeed, try to...
-			for x, p := range path {
-				//that or a queue...or an index??
-				if x+1 < len(path) {
-					dir := p.position.printDirection(path[x+1].position)
-					s.turn.directions = append(s.turn.directions, dir)
-				}
+		if len(s.turn.directions) == 0 {
+			//to begin with then should go for half path near the quest?
+			command = "PASS"
+		} else {
+			s := strings.Join(s.turn.directions, " ")
+			command = fmt.Sprintf("MOVE %s", s)
+		}
+	}
+	return command
+}
+func (s *State) think() {
+	//push strat
+	// first i could simple bfsPath the first player, if there is a direct route to
+	// his quest, move the tile..
+
+	//move strat
+	var path = s.bfsPath(s.grid[s.players[0].position.y][s.players[0].position.x], s.getItemTilesPos(s.players[0]))
+	if len(path) != 0 {
+		//go for it directly!! Indeed, try to...
+		for x, p := range path {
+			//that or a queue...or an index??
+			if x+1 < len(path) {
+				dir := p.position.printDirection(path[x+1].position)
+				s.turn.directions = append(s.turn.directions, dir)
 			}
 		}
 	}
@@ -239,12 +258,15 @@ func main() {
 		s := State{}
 		s.read()
 		s.think()
-		//s.printTurn()
+		//should improve that!!
+		comm := s.printTurn()
+		fmt.Println(comm)
 
 		//TEST LOGS
 		//log.Println(s.players[0].quests)
-		log.Println(s.getItemTilesPos(s.players[0]))
-		log.Println(s.getNeighbours(s.grid[s.players[0].position.y][s.players[0].position.x]))
+		//log.Println(s.getItemTilesPos(s.players[0]))
+		//log.Println(s.getNeighbours(s.grid[s.players[0].position.y][s.players[0].position.x]))
+		log.Println(s.turn.turnType)
 		log.Println(s.bfsPath(s.grid[s.players[0].position.y][s.players[0].position.x], s.getItemTilesPos(s.players[0])))
 		log.Println(s.turn.directions)
 
