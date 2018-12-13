@@ -230,12 +230,13 @@ func (s *State) read() {
 		fmt.Scan(&itemName, &itemX, &itemY, &itemPlayerId)
 		switch itemX {
 		//special case
+		//BUG in think when i update position here!!
 		case -1:
 			s.players[0].playerTile.hasItem = true
-			s.players[0].position = Point{-1, -1}
+			//s.players[0].position = Point{-1, -1}
 		case -2:
 			s.players[1].playerTile.hasItem = true
-			s.players[1].position = Point{-2, -2}
+			//s.players[1].position = Point{-2, -2}
 		default:
 			s.grid[itemY][itemX].hasItem = true
 			s.grid[itemY][itemX].itemName = itemName
@@ -345,16 +346,23 @@ func (s *State) printTurn() string {
 	}
 	return command
 }
+
+//THIS CODE BUGS WHEN ITEMTILE IS PLAYERTILE!!
+//i've got a panic out of range
 func (s *State) think() {
 	//push strat
 	// first i could simple bfsPath the first player, if there is a direct route to
 	// his quest, move the tile..
-	var oppPath = s.bfsPath(s.grid[s.players[1].position.y][s.players[1].position.x], s.players[1].itemTile)
-	log.Println("oppPath:", oppPath)
+	if s.players[1].itemTile != s.players[1].playerTile {
+		var oppPath = s.bfsPath(s.grid[s.players[1].position.y][s.players[1].position.x], s.players[1].itemTile)
+		log.Println("oppPath:", oppPath)
+	}
 	//if len(s.players[1].turn.directions)
 	//move strat
-	var path = s.bfsPath(s.grid[s.players[0].position.y][s.players[0].position.x], s.players[0].itemTile)
-	log.Println("path:", path)
+	if s.players[0].itemTile != s.players[0].playerTile {
+		var path = s.bfsPath(s.grid[s.players[0].position.y][s.players[0].position.x], s.players[0].itemTile)
+		log.Println("path:", path)
+	}
 }
 
 func main() {
@@ -369,7 +377,7 @@ func main() {
 		fmt.Println(comm)
 
 		//TEST LOGS
-		//s.grid.printGrid()
+		s.grid.printGrid()
 		testGrid := s.grid
 		testGrid.pushRight(s.players[0].playerTile, 3)
 		testGrid.printGrid()
