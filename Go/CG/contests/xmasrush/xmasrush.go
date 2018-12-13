@@ -74,6 +74,44 @@ func (g *Grid) pushRight(pushedTile Tile, row int) Tile {
 }
 
 /*
+Grid Example/Debug purpose
+1110 0101 1001 1010 1101 0101 0111
+1101 1010 1111 1010 1001 1010 1011
+0110 1001 1001 0011 0111 0111 1001
+0110 0110 1101 1011 1101 1110 1111
+0111 1101 1101 1100 0110 0110 0111
+1110 1010 0110 1010 1111 1010 1001
+1001 0101 0111 1010 0110 0101 1001
+*/
+
+//shouldn't i use a buffer instead of sprintf??
+func (g *Grid) printGrid() {
+	var row string
+	//http://xahlee.info/golang/golang_rune.html
+	//was of great help to print rune
+	var printDir = make(map[string]rune)
+	printDir["0101"] = '═'
+	printDir["1010"] = '║'
+	printDir["0110"] = '╔'
+	printDir["0011"] = '╗'
+	printDir["1100"] = '╚'
+	printDir["1001"] = '╝'
+	printDir["1110"] = '╠'
+	printDir["1011"] = '╣'
+	printDir["0111"] = '╦'
+	printDir["1101"] = '╩'
+	printDir["1111"] = '╬'
+	for y := 0; y < MAP_HEIGHT; y++ {
+		for x := 0; x < MAP_WIDTH; x++ {
+			//%c → the character represented by the corresponding Unicode code point
+			row += fmt.Sprintf("%c ", printDir[g[y][x].direction])
+		}
+		row += fmt.Sprintf("\n")
+	}
+	log.Println(row)
+}
+
+/*
 //To simulate you take the grid
 //Parse the action,
 // apply it
@@ -91,10 +129,6 @@ func (s State) simulateGrid(t Turn){
 		}
 	}
 }
-
-
-
-//should have printGrid to test..
 */
 type Player struct {
 	totalOfQuests int
@@ -261,6 +295,19 @@ func (s *State) bfsPath(playerTile, questTile Tile) []Tile {
 	return []Tile{}
 }
 
+func (s *State) getDirectionsFromPath(path []Tile) {
+	if len(path) != 0 {
+		//TODO:count steps
+		for x, p := range path {
+			if x+1 < len(path) {
+				dir := p.position.printDirection(path[x+1].position)
+				s.turn.directions = append(s.turn.directions, dir)
+			}
+		}
+	}
+
+}
+
 // BUG: after i grab a quest if turn is push i got invalid input!!
 // it seems like next quest is revealed in move mode not in push one ?? cf src to
 // check...
@@ -301,18 +348,10 @@ func (s *State) think() {
 	// his quest, move the tile..
 	var oppPath = s.bfsPath(s.grid[s.players[1].position.y][s.players[1].position.x], s.players[1].itemTile)
 	log.Println("oppPath:", oppPath)
+	//if len(s.players[1].turn.directions)
 	//move strat
 	var path = s.bfsPath(s.grid[s.players[0].position.y][s.players[0].position.x], s.players[0].itemTile)
-	if len(path) != 0 {
-		//go for it directly!! Indeed, try to...
-		for x, p := range path {
-			//that or a queue...or an index??
-			if x+1 < len(path) {
-				dir := p.position.printDirection(path[x+1].position)
-				s.turn.directions = append(s.turn.directions, dir)
-			}
-		}
-	}
+	log.Println("path:", path)
 }
 
 func main() {
@@ -327,7 +366,7 @@ func main() {
 		fmt.Println(comm)
 
 		//TEST LOGS
-		log.Println(s.grid.getTile(3, 4))
+		s.grid.printGrid()
 		log.Println("MY quest: ", s.players[0].questItemName, "located", s.players[0].itemTile)
 		log.Println("OPP quest: ", s.players[1].questItemName, "located", s.players[1].itemTile)
 		log.Println(s.bfsPath(s.grid[s.players[0].position.y][s.players[0].position.x], s.players[0].itemTile))
