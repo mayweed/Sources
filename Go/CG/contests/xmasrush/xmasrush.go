@@ -232,8 +232,10 @@ func (s *State) read() {
 		//special case
 		case -1:
 			s.players[0].playerTile.hasItem = true
+			s.players[0].position = Point{-1, -1}
 		case -2:
 			s.players[1].playerTile.hasItem = true
+			s.players[1].position = Point{-2, -2}
 		default:
 			s.grid[itemY][itemX].hasItem = true
 			s.grid[itemY][itemX].itemName = itemName
