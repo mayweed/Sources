@@ -51,12 +51,12 @@ type Tile struct {
 func (g Grid) getTile(x int, y int) Tile {
 	var t Tile
 	if isValidPos(Point{x, y}) {
-		t = g[x][y]
+		t = g[y][x]
 	}
 	return t
 }
 func (g *Grid) setTile(x int, y int, t Tile) {
-	g[x][y] = t
+	g[y][x] = t
 }
 
 //wip...return the playerTile
@@ -68,7 +68,8 @@ func (g *Grid) pushRight(pushedTile Tile, row int) Tile {
 		g.setTile(i, row, g.getTile(i-1, row))
 		//getTile(i, row).move(Constants.Direction.RIGHT);
 	}
-	//setTile(0, row, pushedTile);
+	//you set the tile to push at the beginning left (push right
+	g.setTile(0, row, pushedTile)
 	//getTile(0, row).move(new Vector2(0, row));
 	return poppedTile
 }
@@ -366,11 +367,15 @@ func main() {
 		fmt.Println(comm)
 
 		//TEST LOGS
-		s.grid.printGrid()
-		log.Println("MY quest: ", s.players[0].questItemName, "located", s.players[0].itemTile)
-		log.Println("OPP quest: ", s.players[1].questItemName, "located", s.players[1].itemTile)
-		log.Println(s.bfsPath(s.grid[s.players[0].position.y][s.players[0].position.x], s.players[0].itemTile))
-		log.Println(s.turn.directions)
+		//s.grid.printGrid()
+		testGrid := s.grid
+		testGrid.pushRight(s.players[0].playerTile, 3)
+		testGrid.printGrid()
+		log.Println(s.players[0].playerTile)
+		//log.Println("MY quest: ", s.players[0].questItemName, "located", s.players[0].itemTile)
+		//log.Println("OPP quest: ", s.players[1].questItemName, "located", s.players[1].itemTile)
+		//log.Println(s.bfsPath(s.grid[s.players[0].position.y][s.players[0].position.x], s.players[0].itemTile))
+		//log.Println(s.turn.directions)
 
 	}
 }
