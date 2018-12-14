@@ -170,6 +170,8 @@ type Player struct {
 	//the tile in hand
 	playerTile Tile
 	position   Point
+	//path if avail to quest item directly
+	path []Tile
 }
 
 func (p *Player) getQuestTile() {
@@ -193,9 +195,10 @@ type Action struct {
 	actionType string
 	id         int
 	directions []string //better to pass them in arg?
+	steps      int
 }
 type Turn struct {
-	turnType int
+	turnType string
 	action   Action
 	command  string
 }
@@ -226,23 +229,19 @@ type State struct {
 
 //golang yields the ascii code not the num...it's a quickfix...
 //see first answer here: https://stackoverflow.com/questions/15018545/how-to-index-characters-in-a-golang-string
-//UGLY CODE, will be non understandable in 6 weeks from now
 func (s State) getNeighbours(t Tile) []Tile {
 	var neighbours []Tile
-	//check borders!!
 	//to be qualified as neighbour one must be able to communicate
 	//if UP is 1 on my tile, the upper tile is a neighbour if and only if down is
 	//open!! Take one as a rune '1' ?
 	if t.position.y-1 > 0 && t.position.y-1 < 7 {
-		//if isValidPos(t.position.y - 1) { ==> look at that later, that func needs an
-		//overhaul
-		if t.direction[0] == 49 && s.grid[t.position.y-1][t.position.x].direction[2] == 49 {
+		if t.direction[0] == '1' && s.grid[t.position.y-1][t.position.x].direction[2] == '1' {
 			neighbours = append(neighbours, s.grid[t.position.y-1][t.position.x])
 		}
 	}
 	//if RIGHT (direction 1) is ok, check left (dir 3) on the neighbouring cell
 	if t.position.x+1 > 0 && t.position.x+1 < 7 {
-		if t.direction[1] == 49 && s.grid[t.position.y][t.position.x+1].direction[3] == 49 {
+		if t.direction[1] == '1' && s.grid[t.position.y][t.position.x+1].direction[3] == 49 {
 			neighbours = append(neighbours, s.grid[t.position.y][t.position.x+1])
 		}
 	}
@@ -264,7 +263,11 @@ func (s State) getNeighbours(t Tile) []Tile {
 func (s *State) read() {
 	var turnType int
 	fmt.Scan(&turnType)
-	s.turn.turnType = turnType
+	if turnType == 0 {
+		s.turn.turnType = "PUSH"
+	} else {
+		s.turn.turnType = "MOVE"
+	}
 
 	//cf GameBoard => sendMapToPlayer()
 	for y := 0; y < 7; y++ {
@@ -283,7 +286,6 @@ func (s *State) read() {
 		var playerTile string
 		fmt.Scan(&numPlayerCards, &playerX, &playerY, &playerTile)
 
-		log.Println(playerTile)
 		s.players[i].totalOfQuests = numPlayerCards
 		s.players[i].position = Point{x: playerX, y: playerY}
 		s.players[i].playerTile.direction = playerTile
@@ -293,13 +295,11 @@ func (s *State) read() {
 	var numItems int
 	fmt.Scan(&numItems)
 	s.numItems = numItems
-	log.Println(numItems)
 
 	for i := 0; i < numItems; i++ {
 		var itemName string
 		var itemX, itemY, itemPlayerId int
 		fmt.Scan(&itemName, &itemX, &itemY, &itemPlayerId)
-		log.Println(itemName, itemX, itemY, itemPlayerId)
 		//special case
 		switch itemX {
 		case -1:
@@ -378,7 +378,7 @@ func (s *State) bfsPath(playerTile, questTile Tile) []Tile {
 
 func (s *State) getDirectionsFromPath(path []Tile) {
 	if len(path) != 0 {
-		//TODO:count steps
+		s.turn.action.steps = len(path)
 		for x, p := range path {
 			if x+1 < len(path) {
 				dir := p.position.printDirection(path[x+1].position)
@@ -389,54 +389,39 @@ func (s *State) getDirectionsFromPath(path []Tile) {
 
 }
 
-// BUG: after i grab a quest if turn is push i got invalid input!!
-// it seems like next quest is revealed in move mode not in push one ?? cf src to
-// check...
 // Should simulate map no? What happens if i push here? is it good or not?
 func (s *State) printTurn() { // string {
-	//var command string
-	if s.turn.turnType == 0 {
+	if s.turn.turnType == "PUSH" {
 		if s.players[0].questTile.position.y < s.players[0].position.y {
 			s.turn.push(s.players[0].position.y, "RIGHT")
 		} else if s.players[0].questTile.position.y > s.players[0].position.y {
 			s.turn.push(s.players[0].position.y, "LEFT")
 			//got invalid input? see item init in turn??
-		} else {
-			s.turn.push(s.players[1].position.y, "RIGHT")
 		}
-
 		if s.players[0].questTile.position.x < s.players[0].position.x {
 			s.turn.push(s.players[0].position.x, "UP")
 		} else if s.players[0].questTile.position.x > s.players[0].position.x {
 			s.turn.push(s.players[0].position.x, "DOWN")
-		} else {
-			s.turn.push(s.players[1].position.x, "DOWN")
 		}
 	} else {
 		if len(s.turn.action.directions) == 0 {
 			//to begin with then should go for half path near the quest?
 			s.turn.pass()
 		} else {
-			//s := strings.Join(s.turn.directions, " ")
-			//command = fmt.Sprintf("MOVE %s", s)
 			s.turn.move()
 		}
 	}
-	//return command
-
 	fmt.Println(s.turn.command)
 }
 
-//THIS CODE BUGS WHEN ITEMTILE IS PLAYERTILE!!
-//i've got a panic out of range
 func (s *State) think() {
-	// first i could simple bfsPath the first player, if there is a direct route to
-	// his quest, move the tile..
-	//if !s.players[1].playerTile.hasItem {
-	var oppPath = s.bfsPath(s.grid[s.players[1].position.y][s.players[1].position.x], s.players[1].questTile)
-	log.Println("oppPath:", oppPath)
-	var path = s.bfsPath(s.grid[s.players[0].position.y][s.players[0].position.x], s.players[0].questTile)
-	log.Println("path:", path)
+	if !s.players[0].isPlayerTileQuestTile() {
+		s.players[0].path = s.bfsPath(s.grid[s.players[0].position.y][s.players[0].position.x], s.players[0].questTile)
+	}
+
+	if !s.players[1].isPlayerTileQuestTile() {
+		s.players[1].path = s.bfsPath(s.grid[s.players[1].position.y][s.players[1].position.x], s.players[1].questTile)
+	}
 }
 
 func main() {
@@ -448,16 +433,17 @@ func main() {
 		s.printTurn()
 
 		//TEST LOGS
-		//s.grid.printGrid()
-		//testGrid := s.grid
-		//testGrid.pushUp(s.players[0].playerTile, 3)
-		//testGrid.printGrid()
-		//log.Println(s.players[0].playerTile)
 		log.Println(s.turn.turnType)
 		log.Println(s.players[0].questItemName, "in", s.players[0].questTile)
-		//log.Println("OPP quest: ", s.players[1].questItemName, "located", s.players[1].questTile)
-		//log.Println(s.bfsPath(s.grid[s.players[0].position.y][s.players[0].position.x], s.players[0].questTile))
-		//log.Println(s.turn.directions)
+		//a problem in my push
+		log.Println(s.players[0].position)
 
+		//only print them when needed
+		//should go elsewhere...stringer??
+		for id, p := range s.players {
+			if len(p.path) > 0 {
+				log.Println(id, p.path)
+			}
+		}
 	}
 }
