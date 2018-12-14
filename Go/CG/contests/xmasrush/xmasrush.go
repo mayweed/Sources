@@ -39,8 +39,9 @@ func isValidPos(p Point) bool {
 }
 
 type Tile struct {
-	direction    string
-	position     Point
+	direction string
+	position  Point
+	//either me or the opp!!
 	hasItem      bool
 	itemName     string
 	itemPlayerId int
@@ -191,6 +192,10 @@ func (p Player) isPlayerTileQuestTile() bool {
 	}
 }
 
+func (p *Player) initQuestTile() {
+
+}
+
 type Action struct {
 	actionType string
 	id         int
@@ -225,6 +230,7 @@ type State struct {
 	grid     Grid
 	numItems int
 	turn     Turn
+	gameTurn int
 }
 
 //golang yields the ascii code not the num...it's a quickfix...
@@ -241,19 +247,19 @@ func (s State) getNeighbours(t Tile) []Tile {
 	}
 	//if RIGHT (direction 1) is ok, check left (dir 3) on the neighbouring cell
 	if t.position.x+1 > 0 && t.position.x+1 < 7 {
-		if t.direction[1] == '1' && s.grid[t.position.y][t.position.x+1].direction[3] == 49 {
+		if t.direction[1] == '1' && s.grid[t.position.y][t.position.x+1].direction[3] == '1' {
 			neighbours = append(neighbours, s.grid[t.position.y][t.position.x+1])
 		}
 	}
 	//if DOWN is oki, the neighbouring must have up oki
 	if t.position.y+1 > 0 && t.position.y+1 < 7 {
-		if t.direction[2] == 49 && s.grid[t.position.y+1][t.position.x].direction[0] == 49 {
+		if t.direction[2] == '1' && s.grid[t.position.y+1][t.position.x].direction[0] == '1' {
 			neighbours = append(neighbours, s.grid[t.position.y+1][t.position.x])
 		}
 	}
 	//if LEFT is oki neighbour must have right!!
 	if t.position.x-1 > 0 && t.position.x-1 < 7 {
-		if t.direction[3] == 49 && s.grid[t.position.y][t.position.x-1].direction[1] == 49 {
+		if t.direction[3] == '1' && s.grid[t.position.y][t.position.x-1].direction[1] == '1' {
 			neighbours = append(neighbours, s.grid[t.position.y][t.position.x-1])
 		}
 	}
@@ -270,8 +276,8 @@ func (s *State) read() {
 	}
 
 	//cf GameBoard => sendMapToPlayer()
-	for y := 0; y < 7; y++ {
-		for x := 0; x < 7; x++ {
+	for y := 0; y < MAP_HEIGHT; y++ {
+		for x := 0; x < MAP_WIDTH; x++ {
 			var row string
 			fmt.Scan(&row)
 			s.grid[y][x].direction = row
@@ -341,9 +347,6 @@ func (s *State) read() {
 			s.players[1].questItemName = questItemName
 		}
 	}
-	//init quest tile
-	s.players[0].getQuestTile()
-	s.players[1].getQuestTile()
 }
 
 //a bfs?
@@ -359,10 +362,12 @@ func (s *State) bfsPath(playerTile, questTile Tile) []Tile {
 		path := queue[0]
 		queue = queue[1:]
 
+		//goal: return all possibles paths to choose from!!
 		lastTile := path[len(path)-1]
 		if lastTile == questTile {
 			return path
-		}
+			//if i do that, will it ever return when goal reached??
+		} //else if lastTile.
 
 		for _, tile := range s.getNeighbours(lastTile) {
 			var newPath = path
@@ -390,20 +395,53 @@ func (s *State) getDirectionsFromPath(path []Tile) {
 }
 
 // Should simulate map no? What happens if i push here? is it good or not?
+//handle the case where i got the itemTile as player tile
+//This is useless heuristics should use pushUP etc test all the possibilités and eval
+//the best!!
 func (s *State) printTurn() { // string {
 	if s.turn.turnType == "PUSH" {
-		if s.players[0].questTile.position.y < s.players[0].position.y {
-			s.turn.push(s.players[0].position.y, "RIGHT")
-		} else if s.players[0].questTile.position.y > s.players[0].position.y {
-			s.turn.push(s.players[0].position.y, "LEFT")
-			//got invalid input? see item init in turn??
+		//tile IS playerTile, bug if i tried to push?
+		if s.players[0].questTile.position.x == -1 || s.players[0].questTile.position.x == -2 {
+			//push at the beginning or end to grab item next turn!!
+			if s.players[0].position.x == 0 {
+				s.turn.push(s.players[0].position.y, "LEFT")
+			} else if s.players[0].position.x == MAP_WIDTH-1 {
+				s.turn.push(s.players[0].position.y, "RIGHT")
+			} else {
+				//cas général
+				s.turn.push(s.players[1].position.y, "LEFT")
+			}
+		} else if s.players[0].questTile.position.y == -1 || s.players[0].questTile.position.y == -2 {
+			if s.players[0].position.y == 0 {
+				s.turn.push(s.players[0].position.x, "UP")
+			} else if s.players[0].position.y == MAP_HEIGHT-1 {
+				s.turn.push(s.players[0].position.x, "DOWN")
+			} else {
+				//ET pour ce que n'est pas aux 2 bouts???
+				s.turn.push(s.players[0].position.x, "UP")
+			}
+		} else {
+
+			if s.players[0].questTile.position.y != s.players[0].position.y {
+				if s.players[0].questTile.position.y < s.players[0].position.y {
+					s.turn.push(s.players[0].questTile.position.y, "RIGHT")
+				}
+				if s.players[0].questTile.position.y > s.players[0].position.y {
+					s.turn.push(s.players[0].questTile.position.y, "LEFT")
+					//got invalid input? see item init in turn??
+				}
+			} else if s.players[0].questTile.position.x != s.players[0].position.x {
+				if s.players[0].questTile.position.x < s.players[0].position.x {
+					s.turn.push(s.players[0].questTile.position.x, "UP")
+				}
+				if s.players[0].questTile.position.x > s.players[0].position.x {
+					s.turn.push(s.players[0].questTile.position.x, "DOWN")
+				}
+			}
 		}
-		if s.players[0].questTile.position.x < s.players[0].position.x {
-			s.turn.push(s.players[0].position.x, "UP")
-		} else if s.players[0].questTile.position.x > s.players[0].position.x {
-			s.turn.push(s.players[0].position.x, "DOWN")
-		}
-	} else {
+	}
+
+	if s.turn.turnType == "MOVE" {
 		if len(s.turn.action.directions) == 0 {
 			//to begin with then should go for half path near the quest?
 			s.turn.pass()
@@ -415,6 +453,14 @@ func (s *State) printTurn() { // string {
 }
 
 func (s *State) think() {
+	if s.players[0].isPlayerTileQuestTile() {
+		s.players[0].questTile = s.players[0].playerTile
+	} else {
+		//init quest tile
+		s.players[0].getQuestTile()
+		s.players[1].getQuestTile()
+	}
+
 	if !s.players[0].isPlayerTileQuestTile() {
 		s.players[0].path = s.bfsPath(s.grid[s.players[0].position.y][s.players[0].position.x], s.players[0].questTile)
 	}
@@ -432,8 +478,9 @@ func main() {
 		s.think()
 		s.printTurn()
 
+		log.Println(s.turn.command)
+		log.Println(s.players[0].itemTiles)
 		//TEST LOGS
-		log.Println(s.turn.turnType)
 		log.Println(s.players[0].questItemName, "in", s.players[0].questTile)
 		//a problem in my push
 		log.Println(s.players[0].position)
