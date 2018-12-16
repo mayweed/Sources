@@ -39,9 +39,8 @@ func isValidPos(p Point) bool {
 }
 
 type Tile struct {
-	direction string
-	position  Point
-	//either me or the opp!!
+	direction    string
+	position     Point
 	hasItem      bool
 	itemName     string
 	itemPlayerId int
@@ -74,8 +73,6 @@ func (g *Grid) pushUp(pushedTile Tile, col int) Tile {
 	return poppedTile
 }
 
-//wip...return the playerTile
-//seems to sorta work
 func (g *Grid) pushRight(pushedTile Tile, row int) Tile {
 	var maxCol = MAP_WIDTH - 1
 	var poppedTile = g.getTile(row, maxCol)
@@ -139,7 +136,6 @@ func (g *Grid) printGrid() {
 		}
 		row += fmt.Sprintf("\n")
 	}
-	log.Println(row)
 }
 
 /*
@@ -148,58 +144,70 @@ func (g *Grid) printGrid() {
 // apply it
 // give back the future grid
 //better : you pass a turn!!
+// between each turn you must reset the state!! you push right on the original grid
+// not on the test one!! and for EACH row
 func (s State) simulateGrid(t Turn){
 	g:=s.grid
-	if t.turntype == "PUSH"{
-		switch a.pushDirection{
-			case "RIGHT": pushRight(grid)
+	if t.turn.actionType == "PUSH"{
+	for c,p := range s.players{
+	for row:=0;row < MAP_WIDTH;row++{
+		switch a.directions[0]{
+			case "RIGHT":
+			g.pushRight(s.players[c].playerTile,row)
+			s.reset()
 			//if it's right/left you offset x
 
 			//up/down you offset y
 			...
 		}
 	}
+	}
 }
 */
 type Player struct {
 	totalOfQuests int
 	//At most one is revealed
-	questItemName string
+	quests []string
 	//the tile where the item to quest is
-	questTile Tile
-	itemTiles []Tile
+	questTiles []Tile
+	itemTiles  []Tile
 	//the tile in hand
-	playerTile Tile
-	position   Point
+	playerTile        Tile
+	playerTileisQuest bool
+	position          Point
 	//path if avail to quest item directly
-	path []Tile
+	path      [][]Tile
+	otherPath [][]Tile
 }
 
 func (p *Player) getQuestTile() {
-	if !p.isPlayerTileQuestTile() {
-		for _, tile := range p.itemTiles {
-			if tile.itemName == p.questItemName {
-				p.questTile = tile
+	for _, tile := range p.itemTiles {
+		for _, quest := range p.quests {
+			if tile.position.x == -1 || tile.position.x == -2 {
+				p.playerTileisQuest = true
+				//continue //do not add a playerTile to quest!!
+			}
+			if tile.itemName == quest {
+				p.questTiles = append(p.questTiles, tile)
 			}
 		}
 	}
 }
-func (p Player) isPlayerTileQuestTile() bool {
-	if p.playerTile.itemName == p.questItemName {
-		return true
-	} else {
-		return false
+
+/*
+func (p Player) isPlayerTileQuestTile() (bool, int) {
+	for index, quest := range p.quests {
+		if p.playerTile.itemName == quest {
+			return true, index
+		}
 	}
+	return false, -1
 }
-
-func (p *Player) initQuestTile() {
-
-}
-
+*/
 type Action struct {
 	actionType string
 	id         int
-	directions []string //better to pass them in arg?
+	directions [][]string //better to pass them in arg?
 	steps      int
 }
 type Turn struct {
@@ -211,10 +219,8 @@ type Turn struct {
 //helpers func
 func (t *Turn) move() {
 	var c string
-	if len(t.action.directions) > 1 {
-		c = strings.Join(t.action.directions, " ")
-	} else {
-		c = t.action.directions[0]
+	for index := range t.action.directions {
+		c = strings.Join(t.action.directions[index], " ")
 	}
 	t.command = fmt.Sprintf("MOVE %s", c)
 }
@@ -233,8 +239,6 @@ type State struct {
 	gameTurn int
 }
 
-//golang yields the ascii code not the num...it's a quickfix...
-//see first answer here: https://stackoverflow.com/questions/15018545/how-to-index-characters-in-a-golang-string
 func (s State) getNeighbours(t Tile) []Tile {
 	var neighbours []Tile
 	//to be qualified as neighbour one must be able to communicate
@@ -275,7 +279,6 @@ func (s *State) read() {
 		s.turn.turnType = "MOVE"
 	}
 
-	//cf GameBoard => sendMapToPlayer()
 	for y := 0; y < MAP_HEIGHT; y++ {
 		for x := 0; x < MAP_WIDTH; x++ {
 			var row string
@@ -342,11 +345,14 @@ func (s *State) read() {
 		fmt.Scan(&questItemName, &questPlayerId)
 		switch questPlayerId {
 		case 0:
-			s.players[0].questItemName = questItemName
+			s.players[0].quests = append(s.players[0].quests, questItemName)
 		case 1:
-			s.players[1].questItemName = questItemName
+			s.players[1].quests = append(s.players[0].quests, questItemName)
 		}
 	}
+	s.players[0].getQuestTile()
+	//s.players[1].getQuestTile()
+
 }
 
 //a bfs?
@@ -363,11 +369,11 @@ func (s *State) bfsPath(playerTile, questTile Tile) []Tile {
 		queue = queue[1:]
 
 		//goal: return all possibles paths to choose from!!
+		//all the tile of the map?
 		lastTile := path[len(path)-1]
 		if lastTile == questTile {
 			return path
-			//if i do that, will it ever return when goal reached??
-		} //else if lastTile.
+		}
 
 		for _, tile := range s.getNeighbours(lastTile) {
 			var newPath = path
@@ -381,16 +387,22 @@ func (s *State) bfsPath(playerTile, questTile Tile) []Tile {
 	return []Tile{}
 }
 
-func (s *State) getDirectionsFromPath(path []Tile) {
+func (s *State) getDirectionsFromPath(path [][]Tile) []string {
+	var dirs []string
 	if len(path) != 0 {
-		s.turn.action.steps = len(path)
-		for x, p := range path {
-			if x+1 < len(path) {
-				dir := p.position.printDirection(path[x+1].position)
-				s.turn.action.directions = append(s.turn.action.directions, dir)
+		for index, _ := range path {
+			if len(path[index]) > 0 {
+				s.turn.action.steps = len(path[index])
+				for x, _ := range path[index] {
+					if x+1 < len(path[index]) {
+						dir := path[index][x].position.printDirection(path[index][x+1].position)
+						dirs = append(dirs, dir)
+					}
+				}
 			}
 		}
 	}
+	return dirs
 
 }
 
@@ -400,8 +412,10 @@ func (s *State) getDirectionsFromPath(path []Tile) {
 //the best!!
 func (s *State) printTurn() { // string {
 	if s.turn.turnType == "PUSH" {
-		//tile IS playerTile, bug if i tried to push?
-		if s.players[0].questTile.position.x == -1 || s.players[0].questTile.position.x == -2 {
+		//it should be one of the quest tiles, not necessarily the first!!
+		//if s.players[0].questTiles[0].position.x == -1 || s.players[0].questTiles[0].position.x == -2 {
+		//i write pushUp etc..to simu and i end up with spaghetti code!!
+		if s.players[0].playerTileisQuest {
 			//push at the beginning or end to grab item next turn!!
 			if s.players[0].position.x == 0 {
 				s.turn.push(s.players[0].position.y, "LEFT")
@@ -411,7 +425,7 @@ func (s *State) printTurn() { // string {
 				//cas général
 				s.turn.push(s.players[1].position.y, "LEFT")
 			}
-		} else if s.players[0].questTile.position.y == -1 || s.players[0].questTile.position.y == -2 {
+		} else if s.players[0].questTiles[0].position.y == -1 || s.players[0].questTiles[0].position.y == -2 {
 			if s.players[0].position.y == 0 {
 				s.turn.push(s.players[0].position.x, "UP")
 			} else if s.players[0].position.y == MAP_HEIGHT-1 {
@@ -422,52 +436,85 @@ func (s *State) printTurn() { // string {
 			}
 		} else {
 
-			if s.players[0].questTile.position.y != s.players[0].position.y {
-				if s.players[0].questTile.position.y < s.players[0].position.y {
-					s.turn.push(s.players[0].questTile.position.y, "RIGHT")
+			if s.players[0].questTiles[0].position.y != s.players[0].position.y {
+				if s.players[0].questTiles[0].position.y < s.players[0].position.y {
+					s.turn.push(s.players[0].questTiles[0].position.y, "RIGHT")
 				}
-				if s.players[0].questTile.position.y > s.players[0].position.y {
-					s.turn.push(s.players[0].questTile.position.y, "LEFT")
+				if s.players[0].questTiles[0].position.y > s.players[0].position.y {
+					s.turn.push(s.players[0].questTiles[0].position.y, "LEFT")
 					//got invalid input? see item init in turn??
 				}
-			} else if s.players[0].questTile.position.x != s.players[0].position.x {
-				if s.players[0].questTile.position.x < s.players[0].position.x {
-					s.turn.push(s.players[0].questTile.position.x, "UP")
+			} else if s.players[0].questTiles[0].position.x != s.players[0].position.x {
+				if s.players[0].questTiles[0].position.x < s.players[0].position.x {
+					s.turn.push(s.players[0].questTiles[0].position.x, "UP")
 				}
-				if s.players[0].questTile.position.x > s.players[0].position.x {
-					s.turn.push(s.players[0].questTile.position.x, "DOWN")
+				if s.players[0].questTiles[0].position.x > s.players[0].position.x {
+					s.turn.push(s.players[0].questTiles[0].position.x, "DOWN")
 				}
 			}
 		}
 	}
 
 	if s.turn.turnType == "MOVE" {
-		if len(s.turn.action.directions) == 0 {
-			//to begin with then should go for half path near the quest?
-			s.turn.pass()
-		} else {
-			s.turn.move()
+		//should be player path here, not directions!!
+		// MUST handle the case with multiple path to choose from!!
+		var nonEmptyPath bool
+		for index := range s.players[0].path {
+			if len(s.players[0].path[index]) > 0 {
+				s.turn.action.directions = append(s.turn.action.directions, s.getDirectionsFromPath(s.players[0].path))
+				nonEmptyPath = true
+			}
 		}
+		/*
+			//try to make it move..
+			//use only if I have nothing, really not accurate (distance? Voronoi?)
+			//not that good at first (like going out without compass!!)
+			if !nonEmptyPath {
+				for y := 0; y < MAP_HEIGHT; y++ {
+					for x := 0; x < MAP_WIDTH; x++ {
+						if x == s.players[0].position.x && y == s.players[0].position.y {
+							continue
+						} else {
+							p := s.bfsPath(s.grid[s.players[0].position.y][s.players[0].position.x], s.grid[y][x])
+							if len(p) > 0 && len(p) < 20 {
+								s.players[0].otherPath = append(s.players[0].otherPath, p)
+							}
+						}
+					}
+					//s.players[0].otherPath = [][]Tile{}
+				}
+				for i := range s.players[0].otherPath {
+					//should compare the quest!!should have a voronoi of the quest here!!
+					if s.players[0].otherPath[i][len(s.players[0].otherPath[i])-1].position.y > s.players[0].position.y {
+						s.turn.action.directions = append(s.turn.action.directions, s.getDirectionsFromPath(s.players[0].otherPath))
+						nonEmptyPath = true
+					}
+				}
+			}
+		*/
+		if nonEmptyPath {
+			s.turn.move()
+		} else {
+			s.turn.pass()
+		}
+
 	}
 	fmt.Println(s.turn.command)
 }
 
 func (s *State) think() {
-	if s.players[0].isPlayerTileQuestTile() {
-		s.players[0].questTile = s.players[0].playerTile
-	} else {
-		//init quest tile
-		s.players[0].getQuestTile()
-		s.players[1].getQuestTile()
+	for _, t := range s.players[0].questTiles {
+		if t.position.x == -1 || t.position.y == -2 {
+			continue
+		} else {
+			//they can be multiple paths to evaluate!! Would have to work on that!!
+			s.players[0].path = append(s.players[0].path, s.bfsPath(s.grid[s.players[0].position.y][s.players[0].position.x], t))
+		}
 	}
 
-	if !s.players[0].isPlayerTileQuestTile() {
-		s.players[0].path = s.bfsPath(s.grid[s.players[0].position.y][s.players[0].position.x], s.players[0].questTile)
-	}
-
-	if !s.players[1].isPlayerTileQuestTile() {
-		s.players[1].path = s.bfsPath(s.grid[s.players[1].position.y][s.players[1].position.x], s.players[1].questTile)
-	}
+	//if !s.players[1].isPlayerTileQuestTile() {
+	//s.players[1].path = s.bfsPath(s.grid[s.players[1].position.y][s.players[1].position.x], s.players[1].questTile)
+	//}
 }
 
 func main() {
@@ -478,19 +525,15 @@ func main() {
 		s.think()
 		s.printTurn()
 
-		log.Println(s.turn.command)
-		log.Println(s.players[0].itemTiles)
+		log.Println(s.turn.turnType)
+		//log.Println(s.players[0].questTiles)
+		//log.Println(s.players[0].playerTile)
+		log.Println(s.players[0].otherPath)
+		//log.Println(s.players[0].questTiles)
 		//TEST LOGS
-		log.Println(s.players[0].questItemName, "in", s.players[0].questTile)
+		//log.Println(s.players[0].quests)
 		//a problem in my push
-		log.Println(s.players[0].position)
+		//log.Println(s.players[0].position)
 
-		//only print them when needed
-		//should go elsewhere...stringer??
-		for id, p := range s.players {
-			if len(p.path) > 0 {
-				log.Println(id, p.path)
-			}
-		}
 	}
 }
