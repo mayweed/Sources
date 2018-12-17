@@ -194,16 +194,6 @@ func (p *Player) getQuestTile() {
 	}
 }
 
-/*
-func (p Player) isPlayerTileQuestTile() (bool, int) {
-	for index, quest := range p.quests {
-		if p.playerTile.itemName == quest {
-			return true, index
-		}
-	}
-	return false, -1
-}
-*/
 type Action struct {
 	actionType string
 	id         int
@@ -239,34 +229,38 @@ type State struct {
 	gameTurn int
 }
 
+//connected components??
 func (s State) getNeighbours(t Tile) []Tile {
 	var neighbours []Tile
 	//to be qualified as neighbour one must be able to communicate
 	//if UP is 1 on my tile, the upper tile is a neighbour if and only if down is
 	//open!! Take one as a rune '1' ?
+	//for index, dir := range t.direction {
 	if t.position.y-1 > 0 && t.position.y-1 < 7 {
-		if t.direction[0] == '1' && s.grid[t.position.y-1][t.position.x].direction[2] == '1' {
+		if t.direction[0] == 49 && s.grid[t.position.y-1][t.position.x].direction[2] == 49 {
 			neighbours = append(neighbours, s.grid[t.position.y-1][t.position.x])
+			log.Println("did i go here??")
 		}
 	}
 	//if RIGHT (direction 1) is ok, check left (dir 3) on the neighbouring cell
 	if t.position.x+1 > 0 && t.position.x+1 < 7 {
-		if t.direction[1] == '1' && s.grid[t.position.y][t.position.x+1].direction[3] == '1' {
+		if t.direction[1] == 49 && s.grid[t.position.y][t.position.x+1].direction[3] == 49 {
 			neighbours = append(neighbours, s.grid[t.position.y][t.position.x+1])
 		}
 	}
 	//if DOWN is oki, the neighbouring must have up oki
 	if t.position.y+1 > 0 && t.position.y+1 < 7 {
-		if t.direction[2] == '1' && s.grid[t.position.y+1][t.position.x].direction[0] == '1' {
+		if t.direction[2] == 49 && s.grid[t.position.y+1][t.position.x].direction[0] == 49 {
 			neighbours = append(neighbours, s.grid[t.position.y+1][t.position.x])
 		}
 	}
 	//if LEFT is oki neighbour must have right!!
 	if t.position.x-1 > 0 && t.position.x-1 < 7 {
-		if t.direction[3] == '1' && s.grid[t.position.y][t.position.x-1].direction[1] == '1' {
+		if t.direction[3] == 49 && s.grid[t.position.y][t.position.x-1].direction[1] == 49 {
 			neighbours = append(neighbours, s.grid[t.position.y][t.position.x-1])
 		}
 	}
+	//}
 	return neighbours
 }
 
@@ -356,11 +350,11 @@ func (s *State) read() {
 }
 
 //a bfs?
-func (s *State) bfsPath(playerTile, questTile Tile) []Tile {
+func (s *State) bfsPath(playerTilePos, questTile Tile) []Tile {
 	var visited = make(map[Tile]bool)
-	visited[playerTile] = true
+	visited[playerTilePos] = true
 
-	var startTile = []Tile{playerTile}
+	var startTile = []Tile{playerTilePos}
 	var queue = [][]Tile{startTile}
 
 	for 0 < len(queue) {
@@ -368,14 +362,13 @@ func (s *State) bfsPath(playerTile, questTile Tile) []Tile {
 		path := queue[0]
 		queue = queue[1:]
 
-		//goal: return all possibles paths to choose from!!
-		//all the tile of the map?
 		lastTile := path[len(path)-1]
 		if lastTile == questTile {
 			return path
 		}
 
 		for _, tile := range s.getNeighbours(lastTile) {
+			log.Println(lastTile, s.getNeighbours(lastTile))
 			var newPath = path
 			if !visited[tile] {
 				visited[tile] = true
@@ -411,9 +404,8 @@ func (s *State) getDirectionsFromPath(path [][]Tile) []string {
 //This is useless heuristics should use pushUP etc test all the possibilités and eval
 //the best!!
 func (s *State) printTurn() { // string {
+	var nonEmptyPath bool
 	if s.turn.turnType == "PUSH" {
-		//it should be one of the quest tiles, not necessarily the first!!
-		//if s.players[0].questTiles[0].position.x == -1 || s.players[0].questTiles[0].position.x == -2 {
 		//i write pushUp etc..to simu and i end up with spaghetti code!!
 		if s.players[0].playerTileisQuest {
 			//push at the beginning or end to grab item next turn!!
@@ -421,21 +413,15 @@ func (s *State) printTurn() { // string {
 				s.turn.push(s.players[0].position.y, "LEFT")
 			} else if s.players[0].position.x == MAP_WIDTH-1 {
 				s.turn.push(s.players[0].position.y, "RIGHT")
-			} else {
-				//cas général
-				s.turn.push(s.players[1].position.y, "LEFT")
-			}
-		} else if s.players[0].questTiles[0].position.y == -1 || s.players[0].questTiles[0].position.y == -2 {
-			if s.players[0].position.y == 0 {
+			} else if s.players[0].position.y == 0 {
 				s.turn.push(s.players[0].position.x, "UP")
 			} else if s.players[0].position.y == MAP_HEIGHT-1 {
 				s.turn.push(s.players[0].position.x, "DOWN")
 			} else {
 				//ET pour ce que n'est pas aux 2 bouts???
-				s.turn.push(s.players[0].position.x, "UP")
+				s.turn.push(s.players[1].position.x, "UP")
 			}
 		} else {
-
 			if s.players[0].questTiles[0].position.y != s.players[0].position.y {
 				if s.players[0].questTiles[0].position.y < s.players[0].position.y {
 					s.turn.push(s.players[0].questTiles[0].position.y, "RIGHT")
@@ -456,9 +442,18 @@ func (s *State) printTurn() { // string {
 	}
 
 	if s.turn.turnType == "MOVE" {
+		for _, t := range s.players[0].questTiles {
+			//ignore pathsearch if tile is playerTile
+			if t.position.x == -1 || t.position.y == -2 {
+				continue
+			} else {
+				//it bugs!! cant find some paths!!
+				s.players[0].path = append(s.players[0].path, s.bfsPath(s.grid[s.players[0].position.y][s.players[0].position.x], t))
+			}
+		}
+
 		//should be player path here, not directions!!
 		// MUST handle the case with multiple path to choose from!!
-		var nonEmptyPath bool
 		for index := range s.players[0].path {
 			if len(s.players[0].path[index]) > 0 {
 				s.turn.action.directions = append(s.turn.action.directions, s.getDirectionsFromPath(s.players[0].path))
@@ -492,6 +487,7 @@ func (s *State) printTurn() { // string {
 				}
 			}
 		*/
+		log.Println(nonEmptyPath)
 		if nonEmptyPath {
 			s.turn.move()
 		} else {
@@ -503,14 +499,6 @@ func (s *State) printTurn() { // string {
 }
 
 func (s *State) think() {
-	for _, t := range s.players[0].questTiles {
-		if t.position.x == -1 || t.position.y == -2 {
-			continue
-		} else {
-			//they can be multiple paths to evaluate!! Would have to work on that!!
-			s.players[0].path = append(s.players[0].path, s.bfsPath(s.grid[s.players[0].position.y][s.players[0].position.x], t))
-		}
-	}
 
 	//if !s.players[1].isPlayerTileQuestTile() {
 	//s.players[1].path = s.bfsPath(s.grid[s.players[1].position.y][s.players[1].position.x], s.players[1].questTile)
@@ -522,12 +510,13 @@ func main() {
 		//clean state to begin with
 		s := State{}
 		s.read()
-		s.think()
+		//s.think()
 		s.printTurn()
 
 		log.Println(s.turn.turnType)
 		//log.Println(s.players[0].questTiles)
 		//log.Println(s.players[0].playerTile)
+		log.Println(s.players[0].path)
 		log.Println(s.players[0].otherPath)
 		//log.Println(s.players[0].questTiles)
 		//TEST LOGS
