@@ -10,16 +10,6 @@ use std::collections::{VecDeque};
 // if any pieces got the same color and there is space left in col
 // put the stones here!!
 
-//use eprint or eprintln!!
-macro_rules! print_err {
-    ($($arg:tt)*) => (
-        {
-            use std::io::Write;
-            writeln!(&mut ::std::io::stderr(), $($arg)*).ok();
-        }
-    )
-}
-
 macro_rules! parse_input {
     ($x:expr, $t:ident) => ($x.trim().parse::<$t>().unwrap())
 }
@@ -35,8 +25,9 @@ struct Stone{
     color_a:i32,
     color_b:i32,
 }
-
+/*
 //Eveniing Rust !!! Thx!!
+//what about new things like https://github.com/jfredett/bitboard/blob/master/src/lib.rs
 #[derive(Debug,Clone)]
 struct Matrix<T>{
     cells: Vec<T>,
@@ -67,7 +58,7 @@ impl<T> Matrix<T>{
         self.cells[(y*self.width+x)as usize]=v;
     }   
 }
-
+*/
 //wont accept Copy??
 #[derive(Clone,Debug)]
 struct Board{
@@ -107,6 +98,7 @@ fn is_empty(colrow:&Vec<i32>) -> bool{
     true
 }
 // I DONT NEED THAT: should mem last color and last column in gamestate wtf!!            
+// shhould have a column to check non?
 fn check_color(self,color_stone:i32) -> i32{
     let mut col:i32=0;
     for num in 0..6{
@@ -163,7 +155,7 @@ fn main() {
     let mut my_board:Board=Board::new();
     
     let mut new_board=vec![vec![FREE;WIDTH as usize];HEIGHT as usize];
-    print_err!("{:?}",new_board);
+    eprintln!("{:?}",new_board);
     
     let mut last_col:u32=0;
     
@@ -209,12 +201,12 @@ fn main() {
         }
             
         //TESTS
-        print_err!("{:?}",&my_board.get_column(0));
+        eprintln!("{:?}",&my_board.get_column(0));
         //should work on test!!
-        print_err!("{:?}",Board::is_empty(&my_board.get_row(11)));
+        eprintln!("{:?}",Board::is_empty(&my_board.get_row(11)));
         //it works?? no need of indexMut???
-        print_err!("{:?}",&my_board.grid[11-1][1]);//(11));
-        print_err!("{} {}",n,last_col);
+        eprintln!("{:?}",&my_board.grid[11-1][1]);//(11));
+        eprintln!("{} {}",n,last_col);
         
         my_board.grid.clear();
         pieces.pop_front();
