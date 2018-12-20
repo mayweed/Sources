@@ -10,6 +10,7 @@ use std::collections::{VecDeque};
 // if any pieces got the same color and there is space left in col
 // put the stones here!!
 
+//use eprint or eprintln!!
 macro_rules! print_err {
     ($($arg:tt)*) => (
         {
@@ -33,6 +34,38 @@ const FREE:i32=-1;
 struct Stone{
     color_a:i32,
     color_b:i32,
+}
+
+//Eveniing Rust !!! Thx!!
+#[derive(Debug,Clone)]
+struct Matrix<T>{
+    cells: Vec<T>,
+    width:i32,
+    height:i32,
+    }
+    
+impl<T> Matrix<T>{
+    fn new(x:i32,y:i32) -> Matrix<T>{
+        Matrix{
+            cells:Vec::new(),
+            width:x,
+            height:y,
+        }
+    }
+    fn fill(&mut self, v:T) {
+        self.cells.clear();
+        self.cells.extend((0..(self.width*self.height)).map(|_| v));
+    }
+    fn push(&mut self, v:T){
+        self.cells.push(v);
+    }
+    //that calculus!!!
+    fn get(&self,x:i32,y:i32) -> T{
+        self.cells[(y*self.width+x)as usize]
+    }
+    fn set(&mut self,x:i32,y:i32,v:T) {
+        self.cells[(y*self.width+x)as usize]=v;
+    }   
 }
 
 //wont accept Copy??
