@@ -4,18 +4,10 @@
 use std::io;
 use std::f64::consts::PI;
 
-macro_rules! print_err {
-    ($($arg:tt)*) => (
-        {
-            use std::io::Write;
-            writeln!(&mut ::std::io::stderr(), $($arg)*).ok();
-        }
-    )
-}
-
 macro_rules! parse_input {
     ($x:expr, $t:ident) => ($x.trim().parse::<$t>().unwrap())
 }
+
 //CONSTANTS
 const GRAVITY:f64=-3.711;
 const MAX_LAND_VSPEED:f64 = 40.0;
@@ -111,7 +103,7 @@ impl flat_ground{
             old_x=land_x;
             old_y=land_y;
         }
-        print_err!("{:?}",landing_zone);
+        eprintln!("{:?}",landing_zone);
         //cant get that type of thing to work in rust!!
         //mismatched types: expected (); found reference
         //diff iter() into_iter() ter(), which iterates over &T.
@@ -214,7 +206,7 @@ fn main() {
         
         let mut position:Point=Point{x:x, y:y };
         turn+=1;
-        print_err!("hspeed:{}, vspeed:{}, fuel:{}, rotate:{}, power:{},turn:{},x:{},prev_x:{}",h_speed,v_speed,fuel,rotate,power,turn,x,prev_x);
+        eprintln!("hspeed:{}, vspeed:{}, fuel:{}, rotate:{}, power:{},turn:{},x:{},prev_x:{}",h_speed,v_speed,fuel,rotate,power,turn,x,prev_x);
         prev_x=x;
         prev_y=y;
         // rotate power. rotate is the desired rotation angle. power is the desired thrust power.
@@ -228,7 +220,7 @@ fn main() {
                // println!("-20 4");
                // }
             }
-        print_err!("{}",position.distance(&landing_ground.point0));
+        eprintln!("{}",position.distance(&landing_ground.point0));
     }
     
 }

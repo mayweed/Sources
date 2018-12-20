@@ -1,18 +1,10 @@
 use std::io;
 use std::collections::HashMap;
 
-macro_rules! print_err {
-    ($($arg:tt)*) => (
-        {
-            use std::io::Write;
-            writeln!(&mut ::std::io::stderr(), $($arg)*).ok();
-        }
-    )
-}
-
 macro_rules! parse_input {
     ($x:expr, $t:ident) => ($x.trim().parse::<$t>().unwrap())
 }
+
 //yield max num of diff in a list
 fn num_diff(cigars:&Vec<i32>) -> Vec<Vec<i32>>{
     let mut idx=0;
@@ -58,9 +50,9 @@ fn main() {
         }
             
     for (k,v) in count{
-        print_err!("{} {}",k,v);
+        eprintln!("{} {}",k,v);
         }
-    print_err!("{:?} {:?}",&cigars,num_diff(&cigars));
+    eprintln!("{:?} {:?}",&cigars,num_diff(&cigars));
 
     println!("2");
 }

@@ -45,7 +45,7 @@ fn main() {
     }
 
     // Write an action using println!("message...");
-    // To debug: print_err!("Debug message...");
+    // To debug: eprintln!("Debug message...");
 
     println!("PAT");
 }

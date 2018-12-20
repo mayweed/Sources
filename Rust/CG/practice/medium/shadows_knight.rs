@@ -1,14 +1,5 @@
 use std::io;
 
-macro_rules! print_err {
-    ($($arg:tt)*) => (
-        {
-            use std::io::Write;
-            writeln!(&mut ::std::io::stderr(), $($arg)*).ok();
-        }
-    )
-}
-
 macro_rules! parse_input {
     ($x:expr, $t:ident) => ($x.trim().parse::<$t>().unwrap())
 }
@@ -67,9 +58,6 @@ fn main() {
             left=batPos.x;
         }
         
-        // Write an action using println!("message...");
-        //print_err!("{}",bomb_dir);
-
         //Calculate the future coordinates
         let mut x=(left+right)/2;
         let mut y=(top+bottom)/2;
