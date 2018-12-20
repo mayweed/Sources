@@ -1,15 +1,6 @@
 use std::io;
 use std::collections::VecDeque;
 
-macro_rules! print_err {
-    ($($arg:tt)*) => (
-        {
-            use std::io::Write;
-            writeln!(&mut ::std::io::stderr(), $($arg)*).ok();
-        }
-    )
-}
-
 macro_rules! parse_input {
     ($x:expr, $t:ident) => ($x.trim().parse::<$t>().unwrap())
 }
@@ -131,7 +122,7 @@ fn main() {
         }
 
         // Write an action using println!("message...");
-        print_err!("{:?}",sample_queue);
+        eprintln!("{:?}",sample_queue);
 
         println!("GOTO DIAGNOSIS");
     }
