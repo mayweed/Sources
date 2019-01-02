@@ -1,5 +1,6 @@
 use std::io;
 use std::collections::HashMap;
+use std::time::{Duration,Instant};
 
 macro_rules! parse_input {
     ($x:expr, $t:ident) => ($x.trim().parse::<$t>().unwrap())
@@ -61,7 +62,11 @@ fn main() {
             }
             
         }
+        let now= Instant::now();
         cash_earned+=dirhams_ride;
+        let new_now= Instant::now();
+        //now.elapsed().as_millis() not yet avail on CG
+        eprintln!("{:?}",new_now.duration_since(now));
     }
     eprintln!("{:?}",cache);
 
