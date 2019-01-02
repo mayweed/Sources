@@ -10,49 +10,49 @@ fn main() {
     let mut input_line = String::new();
     io::stdin().read_line(&mut input_line).unwrap();
     let inputs = input_line.split(" ").collect::<Vec<_>>();
-    let l = parse_input!(inputs[0], i32);
-    let c = parse_input!(inputs[1], i32);
-    let n = parse_input!(inputs[2], i32);
-    eprintln!("l {}, c {}, n {}",l,c,n);
+    let places = parse_input!(inputs[0], i32);
+    let numOfTime = parse_input!(inputs[1], i32);
+    let nbGroups = parse_input!(inputs[2], i32);
     
-    let mut queue:Vec<i64>=Vec::new();
-    let mut remaining_places=&l;
+    let mut groups:Vec<i64>=Vec::new();
+    let mut remaining_places=&places;
     
     //the first i64 == num of ppl in group, the second == dirhams per ride
     let mut cache:HashMap<i64, i64> = HashMap::new();
     
-    for i in 0..n as usize {
+    for i in 0..nbGroups as usize {
         let mut input_line = String::new();
         io::stdin().read_line(&mut input_line).unwrap();
         let pi = parse_input!(input_line, i64);
-        queue.push(pi);
+        groups.push(pi);
     }
     //vec types are indexed on usize
     let mut index:usize=0;
     //can't be i32, does not work (5th test overflow i32!)
     let mut cash_earned:i64=0;
     
-    eprintln!("Num of places {}, num of times per day {}, num of groups {}",l,c,n);    
+    eprintln!("Num of places {}, num of times per day {}, num of groups {}",places,numOfTime,nbGroups);    
     
-    for run in 0..c{
+    let now= Instant::now();
+    for run in 0..numOfTime{
         let mut dirhams_ride:i64=0;
-        let mut remaining_places:i64=l as i64;
+        let mut remaining_places:i64=places as i64;
         let mut num_groups=0;
         let mut num_ppl_groups=0;
         
         loop{
-            if index as i32 >= n{index=0};
+            if index as i32 >= nbGroups{index=0};
             //test 4 come on!!
-            if l > n && num_groups==n{break};
-            if remaining_places-queue[index] < 0{
+            if remaining_places > nbGroups.into() && num_groups==nbGroups{break};
+            if remaining_places-groups[index] < 0{
                 break
             }else{
-                remaining_places -= queue[index];
+                remaining_places -= groups[index];
                 //tu regardes si on a déjà cette valeur et tu l'ajoutes direct
                 // match cache.get(remaining_places){
                 //Some(remaining_places) => cash_earned + dirhams ride
                 //else valeur classique
-                dirhams_ride+=queue[index];
+                dirhams_ride+=groups[index];
                 index+=1;
                 num_groups+=1;
                 num_ppl_groups=remaining_places;
@@ -62,13 +62,12 @@ fn main() {
             }
             
         }
-        let now= Instant::now();
         cash_earned+=dirhams_ride;
-        let new_now= Instant::now();
-        //now.elapsed().as_millis() not yet avail on CG
-        eprintln!("{:?}",new_now.duration_since(now));
     }
-    eprintln!("{:?}",cache);
 
+    let new_now= Instant::now();
+    eprintln!("{:?}",new_now.duration_since(now));
+    //eprintln!("{:?}",cache);
+    
     println!("{}",cash_earned);
 }
