@@ -2,6 +2,10 @@ use std::io;
 use std::collections::HashMap;
 use std::time::{Duration,Instant};
 
+//i think i got the algo: first you take the groups and establish a gain maps of group index ->
+//gain
+//THEN you apply it numOfTime times
+//this way gains are pre-calculated...
 macro_rules! parse_input {
     ($x:expr, $t:ident) => ($x.trim().parse::<$t>().unwrap())
 }
