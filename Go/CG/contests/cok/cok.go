@@ -1,10 +1,8 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
 	"log"
-	"os"
 	"strings"
 )
 
@@ -13,6 +11,11 @@ type Cell struct {
 	x, y int
 	what string
 }
+
+func (c Cell) findWhat() string {
+	return c.what
+}
+
 type Entity struct {
 	id     int
 	pos    Cell
@@ -27,55 +30,65 @@ type State struct {
 	emptyCells []Cell
 }
 
-func (c Cell) findWhat() string {
-	return c.what
-}
-
-func main() {
-	scanner := bufio.NewScanner(os.Stdin)
-	scanner.Buffer(make([]byte, 1000000), 1000000)
-
+//should test linear+create a file map reusable!!
+func (s *State) initBoard() {
 	var width int
-	scanner.Scan()
-	fmt.Sscan(scanner.Text(), &width)
+	fmt.Scan(&width)
 
 	var height int
-	scanner.Scan()
-	fmt.Sscan(scanner.Text(), &height)
+	fmt.Scan(&height)
 
-	gState := State{}
-	gState.board = make([][]Cell, height)
+	s.board = make([][]Cell, height)
 
 	for y := 0; y < height; y++ {
-		scanner.Scan()
-		inputs := strings.Split(scanner.Text(), "")
-		gState.board[y] = make([]Cell, width)
-		for x := range gState.board[y] {
-			gState.board[y][x] = Cell{x: x, y: y, what: inputs[x]}
-			if inputs[x] == "." {
-				gState.emptyCells = append(gState.emptyCells, Cell{x: x, y: y, what: inputs[x]})
+		s.board[y] = make([]Cell, width)
+		var row string
+		fmt.Scan(&row)
+		for x := range s.board[y] {
+			item := strings.Split(row, "")
+			s.board[y][x] = Cell{x: x, y: y, what: item[x]}
+			if item[x] == "." {
+				s.emptyCells = append(s.emptyCells, Cell{x: x, y: y, what: item[x]})
 			}
 		}
 	}
+
+}
+
+//quick and dirty to check
+func (s State) printBoard() {
+	var row string
+	for y, _ := range s.board {
+		for _, it := range s.board[y] {
+			//fmt.Sprintf(row, it.what)
+			row += it.what
+		}
+		row += "\n"
+	}
+	log.Println(row)
+}
+
+func main() {
+	gState := State{}
+	gState.initBoard()
+	gState.printBoard()
+
 	// sanityLossLonely: how much sanity you lose every turn when alone, always 3 until wood 1
 	// sanityLossGroup: how much sanity you lose every turn when near another player, always 1 until wood 1
 	// wandererSpawnTime: how many turns the wanderer take to spawn, always 3 until wood 1
 	// wandererLifeTime: how many turns the wanderer is on map after spawning, always 40 until wood 1
 	var sanityLossLonely, sanityLossGroup, wandererSpawnTime, wandererLifeTime int
-	scanner.Scan()
-	fmt.Sscan(scanner.Text(), &sanityLossLonely, &sanityLossGroup, &wandererSpawnTime, &wandererLifeTime)
+	fmt.Scan(&sanityLossLonely, &sanityLossGroup, &wandererSpawnTime, &wandererLifeTime)
 
 	for {
 		// entityCount: the first given entity corresponds to your explorer
 		var entityCount int
-		scanner.Scan()
-		fmt.Sscan(scanner.Text(), &entityCount)
+		fmt.Scan(&entityCount)
 
 		for i := 0; i < entityCount; i++ {
 			var entityType string
 			var id, x, y, param0, param1, param2 int
-			scanner.Scan()
-			fmt.Sscan(scanner.Text(), &entityType, &id, &x, &y, &param0, &param1, &param2)
+			fmt.Scan(&entityType, &id, &x, &y, &param0, &param1, &param2)
 			switch entityType {
 			case "EXPLORER":
 				gState.explorers = append(gState.explorers, Entity{id: id, pos: Cell{x: x, y: y, what: entityType}, param1: param1, param2: param2})
