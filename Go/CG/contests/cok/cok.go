@@ -6,9 +6,13 @@ import (
 	"strings"
 )
 
+type Point struct {
+	x, y int
+}
+
 //A cell is a pair of coordinate + what's on it!!
 type Cell struct {
-	x, y int
+	Point
 	what string
 }
 
@@ -62,9 +66,9 @@ func (s *State) initBoard() {
 		fmt.Scan(&row)
 		for x := range s.board[y] {
 			item := strings.Split(row, "")
-			s.board[y][x] = Cell{x: x, y: y, what: item[x]}
+			s.board[y][x] = Cell{Point{x, y}, item[x]}
 			if item[x] == "w" {
-				s.wandererSpawns = append(s.wandererSpawns, Cell{x: x, y: y, what: item[x]})
+				s.wandererSpawns = append(s.wandererSpawns, Cell{Point{x, y}, item[x]})
 			}
 		}
 	}
@@ -161,11 +165,11 @@ func main() {
 			switch entityType {
 			case "EXPLORER":
 				if i == 0 {
-					s.me = Entity{id: id, pos: Cell{x: x, y: y, what: entityType}, param1: param1, param2: param2}
+					s.me = Entity{id: id, pos: Cell{Point{x, y}, entityType}, param1: param1, param2: param2}
 				}
-				s.explorers = append(s.explorers, Entity{id: id, pos: Cell{x: x, y: y, what: entityType}, param1: param1, param2: param2})
+				s.explorers = append(s.explorers, Entity{id: id, pos: Cell{Point{x, y}, entityType}, param1: param1, param2: param2})
 			case "WANDERER":
-				s.wanderers = append(s.wanderers, Entity{id: id, pos: Cell{x: x, y: y, what: entityType}, param1: param1, param2: param2})
+				s.wanderers = append(s.wanderers, Entity{id: id, pos: Cell{Point{x, y}, entityType}, param1: param1, param2: param2})
 			}
 		}
 		log.Println(s.visited)
