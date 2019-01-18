@@ -6,25 +6,47 @@ import (
 	"strings"
 )
 
-type Point struct {
-	x, y int
-}
+type (
+	Point struct {
+		x, y int
+	}
 
-//A cell is a pair of coordinate + what's on it!!
-type Cell struct {
-	Point
-	what string
-}
+	//A cell is a pair of coordinate + what's on it!!
+	Cell struct {
+		Point
+		what string
+	}
+	Explorer struct {
+		id     int
+		pos    Cell
+		sanity int
+		param1 int
+		param2 int
+	}
+
+	Wanderer struct {
+		id   int
+		pos  Cell
+		time int
+		//0 == spawning | 1 == wandering
+		state  int
+		target int
+	}
+	State struct {
+		mapHeight      int
+		mapWidth       int
+		turn           int
+		board          [][]Cell
+		visited        map[Cell]bool
+		wandererSpawns []Cell
+		me             Explorer
+		wanderers      []Wanderer
+		explorers      []Explorer
+	}
+)
 
 func (c Cell) findWhat() string {
 	return c.what
-}
-
-type Entity struct {
-	id     int
-	pos    Cell
-	param1 int
-	param2 int
 }
 
 //quick
@@ -34,18 +56,6 @@ func turnWait() string {
 func turnMove(c Cell) string {
 	s := fmt.Sprintf("MOVE %d %d", c.x, c.y)
 	return s
-}
-
-type State struct {
-	mapHeight      int
-	mapWidth       int
-	board          [][]Cell
-	visited        map[Cell]bool
-	me             Entity
-	wanderers      []Entity
-	explorers      []Entity
-	wandererSpawns []Cell
-	turn           int
 }
 
 //should test linear+create a file map reusable!!
@@ -70,6 +80,28 @@ func (s *State) initBoard() {
 			if item[x] == "w" {
 				s.wandererSpawns = append(s.wandererSpawns, Cell{Point{x, y}, item[x]})
 			}
+		}
+	}
+
+}
+
+func (s *State) readEntities() {
+	// entityCount: the first given entity corresponds to your explorer
+	var entityCount int
+	fmt.Scan(&entityCount)
+
+	for i := 0; i < entityCount; i++ {
+		var entityType string
+		var id, x, y, param0, param1, param2 int
+		fmt.Scan(&entityType, &id, &x, &y, &param0, &param1, &param2)
+		switch entityType {
+		case "EXPLORER":
+			if i == 0 {
+				s.me = Explorer{id: id, pos: Cell{Point{x, y}, entityType}, sanity: param0, param1: param1, param2: param2}
+			}
+			s.explorers = append(s.explorers, Explorer{id: id, pos: Cell{Point{x, y}, entityType}, sanity: param0, param1: param1, param2: param2})
+		case "WANDERER":
+			s.wanderers = append(s.wanderers, Wanderer{id: id, pos: Cell{Point{x, y}, entityType}, time: param0, state: param1, target: param2})
 		}
 	}
 
@@ -142,9 +174,7 @@ func main() {
 	s := State{}
 	//is this really a good idea in the end??
 	s.visited = make(map[Cell]bool)
-
 	s.initBoard()
-	s.printBoard()
 
 	// sanityLossLonely: how much sanity you lose every turn when alone, always 3 until wood 1
 	// sanityLossGroup: how much sanity you lose every turn when near another player, always 1 until wood 1
@@ -154,31 +184,14 @@ func main() {
 	fmt.Scan(&sanityLossLonely, &sanityLossGroup, &wandererSpawnTime, &wandererLifeTime)
 
 	for {
-		// entityCount: the first given entity corresponds to your explorer
-		var entityCount int
-		fmt.Scan(&entityCount)
-
-		for i := 0; i < entityCount; i++ {
-			var entityType string
-			var id, x, y, param0, param1, param2 int
-			fmt.Scan(&entityType, &id, &x, &y, &param0, &param1, &param2)
-			switch entityType {
-			case "EXPLORER":
-				if i == 0 {
-					s.me = Entity{id: id, pos: Cell{Point{x, y}, entityType}, param1: param1, param2: param2}
-				}
-				s.explorers = append(s.explorers, Entity{id: id, pos: Cell{Point{x, y}, entityType}, param1: param1, param2: param2})
-			case "WANDERER":
-				s.wanderers = append(s.wanderers, Entity{id: id, pos: Cell{Point{x, y}, entityType}, param1: param1, param2: param2})
-			}
-		}
+		s.readEntities()
 		log.Println(s.visited)
 		log.Println(s.getNeighbours(s.me.pos))
 		output := s.think()
 		fmt.Println(output)
 
-		s.explorers = []Entity{}
-		s.wanderers = []Entity{}
+		s.explorers = []Explorer{}
+		s.wanderers = []Wanderer{}
 		s.turn += 1
 	}
 }
