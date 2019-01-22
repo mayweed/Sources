@@ -24,24 +24,37 @@ fn main() {
     //the first i64 == num of ppl in group, the second == dirhams per ride
     let mut cache:HashMap<i64, i64> = HashMap::new();
     
+    //fill the seats on demand here
+    let mut dirhams_ride:i64=0;
+    let mut remaining_places:i64=places as i64;
+
     for i in 0..nbGroups as usize {
         let mut input_line = String::new();
         io::stdin().read_line(&mut input_line).unwrap();
         let pi = parse_input!(input_line, i64);
         groups.push(pi);
+        /*
+        if remaining_places - pi < 0{
+            break;
+        }else{
+            remaining_places -= pi;
+            dirhams_ride+=pi;
+            //cache[&(i as i64]=dirhams_ride;
+            cache.insert(i as i64,dirhams_ride);
+        }
+        */
     }
+    eprintln!("{:?}",cache);
     //vec types are indexed on usize
     let mut index:usize=0;
     //can't be i32, does not work (5th test overflow i32!)
     let mut cash_earned:i64=0;
     
-    eprintln!("Num of places {}, num of times per day {}, num of groups {}",places,numOfTime,nbGroups);    
+    eprintln!("Num of places {}, num of times per day {}, groups {:?}",places,numOfTime,groups);    
     
     let now= Instant::now();
     for run in 0..numOfTime{
-        let mut dirhams_ride:i64=0;
-        let mut remaining_places:i64=places as i64;
-        let mut num_groups=0;
+                let mut num_groups=0;
         let mut num_ppl_groups=0;
         
         loop{
@@ -52,10 +65,6 @@ fn main() {
                 break
             }else{
                 remaining_places -= groups[index];
-                //tu regardes si on a déjà cette valeur et tu l'ajoutes direct
-                // match cache.get(remaining_places){
-                //Some(remaining_places) => cash_earned + dirhams ride
-                //else valeur classique
                 dirhams_ride+=groups[index];
                 index+=1;
                 num_groups+=1;
