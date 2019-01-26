@@ -27,7 +27,13 @@ func main() {
 	var r2 int
 	fmt.Scan(&r2)
 
-	//log.Println(r1,r2)
-	fmt.Println(river(32))
-	fmt.Println(42)
+	var x = r1
+	var y = r2
+	for {
+		x = river(x)
+		if x == y {
+			break
+		}
+	}
+	fmt.Println(x)
 }
