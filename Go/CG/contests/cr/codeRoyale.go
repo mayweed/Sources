@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"strconv"
 )
 
 //constants
@@ -20,18 +21,14 @@ type (
 	}
 
 	Cell struct {
-		pos  Point
-		what int //siteID or unitType
+		pos    Point
+		what   int //siteID or unitType
+		radius int //if cell is a building site
 	}
 )
 
 //SITES
 type (
-	buildingSites struct {
-		siteId int
-		pos    Point
-		radius int
-	}
 	Goldmine struct {
 		siteId        int
 		pos           Point
@@ -86,6 +83,19 @@ type Player struct {
 type State struct {
 	players [2]Player
 	grid    [MAP_HEIGHT][MAP_WIDTH]Cell
+}
+
+//quick and dirty to check
+func (s State) printBoard() {
+	var row string
+	for y, _ := range s.grid {
+		for _, it := range s.grid[y] {
+			row += fmt.Sprintf(row, strconv.Itoa(it.what))
+			//row += it.what
+		}
+		row += "\n"
+	}
+	log.Println(row)
 }
 
 /* OLD contest code
@@ -211,9 +221,9 @@ func (p Player) coverYourAss() (int, int, int) {
 //MAIN
 func main() {
 
-	board := State{}
-	me := board.players[0]
-	opp := board.players[1]
+	s := State{}
+	me := s.players[0]
+	opp := s.players[1]
 
 	//should init my grid
 	//then setSites, units etc...
@@ -225,20 +235,22 @@ func main() {
 		var x, y int
 		var siteId, radius int
 		fmt.Scan(&siteId, &x, &y, &radius)
-		board.sites[siteId] = &Site{siteId: siteId, x: x, y: y, radius: radius}
-		grid[y][x] = Cell{}
+		//board.sites[siteId] = &Site{siteId: siteId, x: x, y: y, radius: radius}
+		s.grid[y][x] = Cell{Point{x, y}, siteId, radius}
 	}
 
 	for {
 		// touchedSite: -1 if none
 		var gold, touchedSite int
 		fmt.Scan(&gold, &touchedSite)
-		me.queen.gold = gold
-		if touchedSite != -1 {
-			if !In(me.queen.hasTouched, touchedSite) {
-				me.queen.hasTouched = append(me.queen.hasTouched, touchedSite)
+		/*
+			me.queen.gold = gold
+			if touchedSite != -1 {
+				if !In(me.queen.hasTouched, touchedSite) {
+					me.queen.hasTouched = append(me.queen.hasTouched, touchedSite)
+				}
 			}
-		}
+		*/
 
 		for i := 0; i < numSites; i++ {
 			// ignore1: used in future leagues
@@ -247,30 +259,33 @@ func main() {
 			// owner: -1 = No structure, 0 = Friendly, 1 = Enemy
 			var siteId, ignore1, ignore2, structureType, owner, param1, param2 int
 			fmt.Scan(&siteId, &ignore1, &ignore2, &structureType, &owner, &param1, &param2)
-			if owner == 0 {
-				switch structureType {
-				case 0:
-					me.goldmine = append(me.goldmine, Site{siteId: siteId, structureType: structureType, owner: owner, param1: param1, param2: param2})
-				case 1:
-					me.towers = append(me.towers, Site{siteId: siteId, structureType: structureType, owner: owner, param1: param1, param2: param2})
-				case 2:
-					me.barracks = append(me.barracks, Site{siteId: siteId, structureType: structureType, owner: owner, param1: param1, param2: param2})
+			/*
+					if owner == 0 {
+						switch structureType {
+						case 0:
+							me.goldmine = append(me.goldmine, Site{siteId: siteId, structureType: structureType, owner: owner, param1: param1, param2: param2})
+						case 1:
+							me.towers = append(me.towers, Site{siteId: siteId, structureType: structureType, owner: owner, param1: param1, param2: param2})
+						case 2:
+							me.barracks = append(me.barracks, Site{siteId: siteId, structureType: structureType, owner: owner, param1: param1, param2: param2})
+						}
+						board.sites[siteId].updateSite(Site{structureType: structureType, owner: owner, param1: param1, param2: param2})
+					} else if owner == 1 {
+						switch structureType {
+						case 0:
+							opp.goldmine = append(opp.goldmine, Site{siteId: siteId, structureType: structureType, owner: owner, param1: param1, param2: param2})
+						case 1:
+							opp.towers = append(opp.towers, Site{siteId: siteId, structureType: structureType, owner: owner, param1: param1, param2: param2})
+						case 2:
+							opp.barracks = append(opp.barracks, Site{siteId: siteId, structureType: structureType, owner: owner, param1: param1, param2: param2})
+						}
+						board.sites[siteId].updateSite(Site{structureType: structureType, owner: owner, param1: param1, param2: param2})
+					} else {
+						//no structure, no owner...
+						board.sites[siteId].updateSite(Site{structureType: structureType, owner: owner, param1: param1, param2: param2})
+					}
 				}
-				board.sites[siteId].updateSite(Site{structureType: structureType, owner: owner, param1: param1, param2: param2})
-			} else if owner == 1 {
-				switch structureType {
-				case 0:
-					opp.goldmine = append(opp.goldmine, Site{siteId: siteId, structureType: structureType, owner: owner, param1: param1, param2: param2})
-				case 1:
-					opp.towers = append(opp.towers, Site{siteId: siteId, structureType: structureType, owner: owner, param1: param1, param2: param2})
-				case 2:
-					opp.barracks = append(opp.barracks, Site{siteId: siteId, structureType: structureType, owner: owner, param1: param1, param2: param2})
-				}
-				board.sites[siteId].updateSite(Site{structureType: structureType, owner: owner, param1: param1, param2: param2})
-			} else {
-				//no structure, no owner...
-				board.sites[siteId].updateSite(Site{structureType: structureType, owner: owner, param1: param1, param2: param2})
-			}
+			*/
 		}
 		var numUnits int
 		fmt.Scan(&numUnits)
@@ -280,97 +295,102 @@ func main() {
 			var x, y float64
 			var owner, unitType, health int
 			fmt.Scan(&x, &y, &owner, &unitType, &health)
-			if unitType == -1 {
-				if owner == 0 {
-					me.queen = Unit{x: x, y: y, owner: owner, unitType: unitType, health: health}
-				} else {
-					opp.queen = Unit{x: x, y: y, owner: owner, unitType: unitType, health: health}
+			/*
+					if unitType == -1 {
+						if owner == 0 {
+							me.queen = Unit{x: x, y: y, owner: owner, unitType: unitType, health: health}
+						} else {
+							opp.queen = Unit{x: x, y: y, owner: owner, unitType: unitType, health: health}
+						}
+					} else if unitType == 0 {
+						if owner == 0 {
+							me.knights = append(me.knights, Unit{x: x, y: y, owner: owner, unitType: unitType, health: health})
+						} else {
+							opp.knights = append(opp.knights, Unit{x: x, y: y, owner: owner, unitType: unitType, health: health})
+						}
+					} else if unitType == 1 {
+						if owner == 0 {
+							me.archers = append(me.archers, Unit{x: x, y: y, owner: owner, unitType: unitType, health: health})
+						} else {
+							opp.archers = append(opp.archers, Unit{x: x, y: y, owner: owner, unitType: unitType, health: health})
+						}
+					} else if unitType == 2 {
+						if owner == 0 {
+							me.giants = append(me.giants, Unit{x: x, y: y, owner: owner, unitType: unitType, health: health})
+						} else {
+							opp.giants = append(opp.giants, Unit{x: x, y: y, owner: owner, unitType: unitType, health: health})
+						}
+					}
 				}
-			} else if unitType == 0 {
-				if owner == 0 {
-					me.knights = append(me.knights, Unit{x: x, y: y, owner: owner, unitType: unitType, health: health})
+				//LOGS
+				//log.Println(board.filterListSites(board.sites))
+				//log.Println(me.knightsInRange(opp.knights))
+				log.Println(me.coverYourAss())
+				log.Println(me.queenInTowerAttackRadius(opp.towers))
+
+				// First line: A valid queen action
+				//FLAW: I dont take into account opp moves in knighted and towered!!
+				//filter the target list, could refine that I think (taking into account the opp for ex?)
+				//IDEA: check queen range from radius to see if there is units/sites int it
+				//in that case tower!!
+				//IDEA: use WAIT to hide queen behind towers and spare health
+				//IF enemy tower is in range of queen (radiius) just keep it at distance
+				//IDEA: use giant in sites center of the map!!
+				//IF creeps in range queen, build tower!!
+				var target = me.pickNextSite(board.filterListSites(board.sites))
+				//there is a structure so move on!!
+
+				if len(me.towers) > len(opp.towers) && (!me.knightsInRange(opp.knights)) { //&& board.sites[touchedSite].structureType==1{
+					fmt.Println("WAIT")
+				} else if touchedSite == -1 || board.sites[touchedSite].structureType != -1 {
+					s := mv(int(board.sites[target].x), int(board.sites[target].y))
+					fmt.Println(s)
 				} else {
-					opp.knights = append(opp.knights, Unit{x: x, y: y, owner: owner, unitType: unitType, health: health})
+					if gold < 30 {
+						sc := fmt.Sprintf("BUILD %d MINE", touchedSite)
+						fmt.Println(sc)
+					} else if len(opp.towers) >= 2 || len(me.knights) >= 3 || me.knightsInRange(opp.knights) {
+						sb := fmt.Sprintf("BUILD %d TOWER", touchedSite)
+						fmt.Println(sb)
+						//idea: you got a defensive wall of tower, stay behind
+					} else {
+						sd := fmt.Sprintf("BUILD %d BARRACKS-KNIGHT", touchedSite)
+						me.knighted = append(me.knighted, touchedSite)
+						fmt.Println(sd)
+					}
 				}
-			} else if unitType == 1 {
-				if owner == 0 {
-					me.archers = append(me.archers, Unit{x: x, y: y, owner: owner, unitType: unitType, health: health})
-				} else {
-					opp.archers = append(opp.archers, Unit{x: x, y: y, owner: owner, unitType: unitType, health: health})
+
+				// Second line: A set of training instructions
+				//bugged func here: Gold is not accounted for!!
+				//my func is a BLOB mixing formatting and calculs so...
+				sum := 0
+				var sl []int
+				for _, id := range me.knighted {
+					if sum += 80; sum < gold {
+						sl = append(sl, id)
+					} else {
+						break
+					}
 				}
-			} else if unitType == 2 {
-				if owner == 0 {
-					me.giants = append(me.giants, Unit{x: x, y: y, owner: owner, unitType: unitType, health: health})
-				} else {
-					opp.giants = append(opp.giants, Unit{x: x, y: y, owner: owner, unitType: unitType, health: health})
-				}
-			}
+				t := formatTrainComm(sl)
+				fmt.Println(t)
+
+				//clear at the end of each turn to avoid false num of sites etc..
+				me.goldmine = []Site{}
+				opp.goldmine = []Site{}
+				me.towers = []Site{}
+				opp.towers = []Site{}
+				me.barracks = []Site{}
+				opp.barracks = []Site{}
+				me.knights = []Unit{}
+				me.archers = []Unit{}
+				me.giants = []Unit{}
+				opp.knights = []Unit{}
+				opp.archers = []Unit{}
+				opp.giants = []Unit{}
+			*/
 		}
-		//LOGS
-		//log.Println(board.filterListSites(board.sites))
-		//log.Println(me.knightsInRange(opp.knights))
-		log.Println(me.coverYourAss())
-		log.Println(me.queenInTowerAttackRadius(opp.towers))
-
-		// First line: A valid queen action
-		//FLAW: I dont take into account opp moves in knighted and towered!!
-		//filter the target list, could refine that I think (taking into account the opp for ex?)
-		//IDEA: check queen range from radius to see if there is units/sites int it
-		//in that case tower!!
-		//IDEA: use WAIT to hide queen behind towers and spare health
-		//IF enemy tower is in range of queen (radiius) just keep it at distance
-		//IDEA: use giant in sites center of the map!!
-		//IF creeps in range queen, build tower!!
-		var target = me.pickNextSite(board.filterListSites(board.sites))
-		//there is a structure so move on!!
-
-		if len(me.towers) > len(opp.towers) && (!me.knightsInRange(opp.knights)) { //&& board.sites[touchedSite].structureType==1{
-			fmt.Println("WAIT")
-		} else if touchedSite == -1 || board.sites[touchedSite].structureType != -1 {
-			s := mv(int(board.sites[target].x), int(board.sites[target].y))
-			fmt.Println(s)
-		} else {
-			if gold < 30 {
-				sc := fmt.Sprintf("BUILD %d MINE", touchedSite)
-				fmt.Println(sc)
-			} else if len(opp.towers) >= 2 || len(me.knights) >= 3 || me.knightsInRange(opp.knights) {
-				sb := fmt.Sprintf("BUILD %d TOWER", touchedSite)
-				fmt.Println(sb)
-				//idea: you got a defensive wall of tower, stay behind
-			} else {
-				sd := fmt.Sprintf("BUILD %d BARRACKS-KNIGHT", touchedSite)
-				me.knighted = append(me.knighted, touchedSite)
-				fmt.Println(sd)
-			}
-		}
-
-		// Second line: A set of training instructions
-		//bugged func here: Gold is not accounted for!!
-		//my func is a BLOB mixing formatting and calculs so...
-		sum := 0
-		var sl []int
-		for _, id := range me.knighted {
-			if sum += 80; sum < gold {
-				sl = append(sl, id)
-			} else {
-				break
-			}
-		}
-		t := formatTrainComm(sl)
-		fmt.Println(t)
-
-		//clear at the end of each turn to avoid false num of sites etc..
-		me.goldmine = []Site{}
-		opp.goldmine = []Site{}
-		me.towers = []Site{}
-		opp.towers = []Site{}
-		me.barracks = []Site{}
-		opp.barracks = []Site{}
-		me.knights = []Unit{}
-		me.archers = []Unit{}
-		me.giants = []Unit{}
-		opp.knights = []Unit{}
-		opp.archers = []Unit{}
-		opp.giants = []Unit{}
+		fmt.Println("WAIT")
+		fmt.Println("TRAIN")
 	}
 }
