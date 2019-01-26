@@ -27,6 +27,7 @@ func main() {
 	var r2 int
 	fmt.Scan(&r2)
 
+	//no sets in golang...
 	var x = r1
 	var y = r2
 	for {
