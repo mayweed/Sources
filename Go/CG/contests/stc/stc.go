@@ -23,47 +23,85 @@ type Block struct {
 
 type Grid [HEIGHT][WIDTH]Block
 
-func main() {
-	var g Grid
-	var queueBlock []Block
-	for {
-		for i := 0; i < 8; i++ {
-			// colorA: color of the first block
-			// colorB: color of the attached block
-			var colorA, colorB int
-			fmt.Scan(&colorA, &colorB)
-			queueBlock = append(queueBlock, Block{Point: Point{}, ColorFirstBlock: colorA, ColorSecondBlock: colorB})
-		}
-		var score1 int
-		fmt.Scan(&score1)
+type State struct {
+	Turn       int
+	myGrid     Grid
+	oppGrid    Grid
+	myScore    int
+	oppScore   int
+	queueBlock []Block
+}
 
-		for y := 0; y < 12; y++ {
-			// row: One line of the map ('.' = empty, '0' = skull block, '1' to '5' = colored block)
-			var row string
-			fmt.Scan(&row)
+func (s *State) initQueueBlock() {
+	for i := 0; i < 8; i++ {
+		// colorA: color of the first block
+		// colorB: color of the attached block
+		var colorA, colorB int
+		fmt.Scan(&colorA, &colorB)
+		s.queueBlock = append(s.queueBlock, Block{Point: Point{}, ColorFirstBlock: colorA, ColorSecondBlock: colorB})
+	}
 
-			r := strings.Split(row, "")
-			for x, c := range r {
-				g[y][x] = Block{Point{x, y}, -1, -1}
-				switch c {
-				case ".":
-					g[y][x].ColorFirstBlock = -1
-					g[y][x].ColorSecondBlock = -1
-				default:
-					g[y][x].ColorFirstBlock, _ = strconv.Atoi(c)
-					g[y][x].ColorSecondBlock, _ = strconv.Atoi(c)
-				}
+}
+func (s *State) initPlayer1() {
+	var score1 int
+	fmt.Scan(&score1)
+	s.myScore = score1
+
+	for y := 0; y < 12; y++ {
+		// row: One line of the map ('.' = empty, '0' = skull block, '1' to '5' = colored block)
+		var row string
+		fmt.Scan(&row)
+
+		r := strings.Split(row, "")
+		for x, c := range r {
+			s.myGrid[y][x] = Block{Point{x, y}, -1, -1}
+			switch c {
+			case ".":
+				s.myGrid[y][x].ColorFirstBlock = -1
+				s.myGrid[y][x].ColorSecondBlock = -1
+			default:
+				s.myGrid[y][x].ColorFirstBlock, _ = strconv.Atoi(c)
+				s.myGrid[y][x].ColorSecondBlock, _ = strconv.Atoi(c)
 			}
 		}
-		var score2 int
-		fmt.Scan(&score2)
+	}
 
-		for i := 0; i < 12; i++ {
-			var row string
-			fmt.Scan(&row)
+}
+func (s *State) initPlayer2() {
+	var score2 int
+	fmt.Scan(&score2)
+	s.oppScore = score2
+
+	for y := 0; y < 12; y++ {
+		// row: One line of the map ('.' = empty, '0' = skull block, '1' to '5' = colored block)
+		var row string
+		fmt.Scan(&row)
+
+		r := strings.Split(row, "")
+		for x, c := range r {
+			s.oppGrid[y][x] = Block{Point{x, y}, -1, -1}
+			switch c {
+			case ".":
+				s.oppGrid[y][x].ColorFirstBlock = -1
+				s.oppGrid[y][x].ColorSecondBlock = -1
+			default:
+				s.oppGrid[y][x].ColorFirstBlock, _ = strconv.Atoi(c)
+				s.oppGrid[y][x].ColorSecondBlock, _ = strconv.Atoi(c)
+			}
 		}
-		log.Println(g)
+	}
 
+}
+
+func main() {
+	s := State{}
+	for {
+		s.initQueueBlock()
+		s.initPlayer1()
+		s.initPlayer2()
 		fmt.Printf("0\n") // "x": the column in which to drop your blocks
+		s.Turn += 1
+		//must clear state at one moment...
+		log.Println(s.myGrid)
 	}
 }
