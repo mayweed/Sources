@@ -93,6 +93,10 @@ func (s *State) initPlayer2() {
 
 }
 
+func (s *State) think() {
+	nextBlock := s.queueBlock[0]
+}
+
 func main() {
 	s := State{}
 	for {
