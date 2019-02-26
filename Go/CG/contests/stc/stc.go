@@ -110,6 +110,7 @@ func main() {
 		fmt.Printf("0\n") // "x": the column in which to drop your blocks
 		s.Turn += 1
 		//must clear state at one moment...
+		//welle
 		log.Println(s.myGrid)
 	}
 }
