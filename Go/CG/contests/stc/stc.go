@@ -13,7 +13,8 @@ const (
 )
 
 type Point struct {
-	X, Y int
+	X, Y  int
+	Color int
 }
 type Block struct {
 	Point
@@ -21,7 +22,7 @@ type Block struct {
 	ColorSecondBlock int
 }
 
-type Grid [HEIGHT][WIDTH]Block
+type Grid [HEIGHT][WIDTH]Point
 
 type State struct {
 	Turn       int
@@ -57,11 +58,11 @@ func (s *State) initPlayer1() {
 			s.myGrid[y][x] = Block{Point{x, y}, -1, -1}
 			switch c {
 			case ".":
-				s.myGrid[y][x].ColorFirstBlock = -1
-				s.myGrid[y][x].ColorSecondBlock = -1
+				s.myGrid[y][x].Color = -1
+				//			s.myGrid[y][x].ColorSecondBlock = -1
 			default:
-				s.myGrid[y][x].ColorFirstBlock, _ = strconv.Atoi(c)
-				s.myGrid[y][x].ColorSecondBlock, _ = strconv.Atoi(c)
+				s.myGrid[y][x].Color, _ = strconv.Atoi(c)
+				//			s.myGrid[y][x].ColorSecondBlock, _ = strconv.Atoi(c)
 			}
 		}
 	}
@@ -82,11 +83,11 @@ func (s *State) initPlayer2() {
 			s.oppGrid[y][x] = Block{Point{x, y}, -1, -1}
 			switch c {
 			case ".":
-				s.oppGrid[y][x].ColorFirstBlock = -1
-				s.oppGrid[y][x].ColorSecondBlock = -1
+				s.oppGrid[y][x].Color = -1
+				//			s.oppGrid[y][x].ColorSecondBlock = -1
 			default:
-				s.oppGrid[y][x].ColorFirstBlock, _ = strconv.Atoi(c)
-				s.oppGrid[y][x].ColorSecondBlock, _ = strconv.Atoi(c)
+				s.oppGrid[y][x].Color, _ = strconv.Atoi(c)
+				//			s.oppGrid[y][x].ColorSecondBlock, _ = strconv.Atoi(c)
 			}
 		}
 	}
@@ -94,7 +95,10 @@ func (s *State) initPlayer2() {
 }
 
 func (s *State) think() {
-	nextBlock := s.queueBlock[0]
+	//nextBlock := s.queueBlock[0]
+	for _, col := range s.myGrid {
+		log.Println(col)
+	}
 }
 
 func main() {
