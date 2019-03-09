@@ -16,12 +16,19 @@ type Cell struct {
 	//what string
 }
 
+type Table struct {
+	pos  Cell
+	item string
+}
 type Kitchen struct {
 	grid           [HEIGHT][WIDTH]Cell
 	blueCrates     []Cell
 	iceCrates      []Cell
 	customerWindow Cell
 	dishwasher     Cell
+	dishTable      []Table
+	bbTable        []Table
+	icTable        []Table
 }
 
 type State struct {
@@ -88,6 +95,15 @@ func main() {
 			var tableX, tableY int
 			var item string
 			fmt.Scan(&tableX, &tableY, &item)
+			t := Table{Cell{tableX, tableY}, item}
+			switch item {
+			case "DISH":
+				s.k.dishTable = append(s.k.dishTable, t)
+			case "BLUEBERRIES":
+				s.k.bbTable = append(s.k.bbTable, t)
+			case "ICE_CREAM":
+				s.k.icTable = append(s.k.icTable, t)
+			}
 		}
 		// ovenContents: ignore until wood 1 league
 		var ovenContents string
