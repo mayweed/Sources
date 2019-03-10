@@ -30,9 +30,18 @@ type Kitchen struct {
 	bbTable        []Table
 	icTable        []Table
 }
-
+type Customer struct {
+	customerItem  string
+	customerAward int
+}
+type Chef struct {
+	pos   Cell
+	items []string
+}
 type State struct {
-	k Kitchen
+	k            Kitchen
+	numCustomers int
+	c            []Customer
 }
 
 func (s *State) parseKitchen() {
@@ -58,11 +67,39 @@ func (s *State) parseKitchen() {
 	}
 
 }
+func (s *State) parseTables() {
+	// numTablesWithItems: the number of tables in the kitchen that currently hold an item
+	var numTablesWithItems int
+	fmt.Scan(&numTablesWithItems)
+
+	for i := 0; i < numTablesWithItems; i++ {
+		var tableX, tableY int
+		var item string
+		fmt.Scan(&tableX, &tableY, &item)
+		t := Table{Cell{tableX, tableY}, item}
+		switch item {
+		case "DISH":
+			s.k.dishTable = append(s.k.dishTable, t)
+		case "BLUEBERRIES":
+			s.k.bbTable = append(s.k.bbTable, t)
+		case "ICE_CREAM":
+			s.k.icTable = append(s.k.icTable, t)
+		}
+	}
+}
+
+//first action func
+func use(c Cell) string {
+	s := fmt.Sprintf("USE %d %d", c.x, c.y)
+	return s
+}
+
 func main() {
 	var s State
 
 	var numAllCustomers int
 	fmt.Scan(&numAllCustomers)
+	s.numCustomers = numAllCustomers
 
 	for i := 0; i < numAllCustomers; i++ {
 		// customerItem: the food the customer is waiting for
@@ -76,6 +113,7 @@ func main() {
 	log.Println(s.k.iceCrates)
 
 	for {
+		//should write a parseTurn() maybe a turn?
 		var turnsRemaining int
 		fmt.Scan(&turnsRemaining)
 
@@ -87,24 +125,8 @@ func main() {
 		var partnerItem string
 		fmt.Scan(&partnerX, &partnerY, &partnerItem)
 
-		// numTablesWithItems: the number of tables in the kitchen that currently hold an item
-		var numTablesWithItems int
-		fmt.Scan(&numTablesWithItems)
+		s.parseTables()
 
-		for i := 0; i < numTablesWithItems; i++ {
-			var tableX, tableY int
-			var item string
-			fmt.Scan(&tableX, &tableY, &item)
-			t := Table{Cell{tableX, tableY}, item}
-			switch item {
-			case "DISH":
-				s.k.dishTable = append(s.k.dishTable, t)
-			case "BLUEBERRIES":
-				s.k.bbTable = append(s.k.bbTable, t)
-			case "ICE_CREAM":
-				s.k.icTable = append(s.k.icTable, t)
-			}
-		}
 		// ovenContents: ignore until wood 1 league
 		var ovenContents string
 		var ovenTimer int
@@ -118,8 +140,24 @@ func main() {
 			var customerItem string
 			var customerAward int
 			fmt.Scan(&customerItem, &customerAward)
+			customer := Customer{customerItem, customerAward}
+			s.c = append(s.c, customer)
 		}
 
-		fmt.Println("WAIT")
+		//first get a dish
+		//should split item to know what i got in hand
+		var res string
+		if playerItem == "NONE" {
+			res = use(s.k.dishwasher)
+		} else if playerItem == "DISH" {
+			//no pos here?
+			res = use(s.k.grid[s.k.blueCrates[0].y][s.k.blueCrates[0].x])
+		}
+		fmt.Println(res)
+
+		//flush state between turns
+		s.c = []Customer{}
+
+		log.Println(s.k.bbTable)
 	}
 }
