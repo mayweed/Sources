@@ -152,12 +152,22 @@ func main() {
 		} else if playerItem == "DISH" {
 			//no pos here?
 			res = use(s.k.grid[s.k.blueCrates[0].y][s.k.blueCrates[0].x])
+		} else if strings.Contains(playerItem, "BLUEBERRIES") {
+			res = use(s.k.grid[s.k.iceCrates[0].y][s.k.iceCrates[0].x])
 		}
+		//validate the plate
+		if strings.Contains(playerItem, "DISH") &&
+			strings.Contains(playerItem, "ICE_CREAM") &&
+			strings.Contains(playerItem, "BLUEBERRIES") {
+			res = use(s.k.customerWindow)
+		}
+
 		fmt.Println(res)
 
 		//flush state between turns
 		s.c = []Customer{}
 
-		log.Println(s.k.bbTable)
+		//LOGS
+		//log.Println(s.k.bbTable)
 	}
 }
