@@ -48,6 +48,7 @@ type State struct {
 	k            Kitchen
 	numCustomers int
 	c            []Customer
+	players      [2]Chef
 }
 
 func (s *State) parseKitchen() {
@@ -75,6 +76,18 @@ func (s *State) parseKitchen() {
 			}
 		}
 	}
+
+}
+func (s *State) parseChefs() {
+	var playerX, playerY int
+	var playerItem string
+	fmt.Scan(&playerX, &playerY, &playerItem)
+	s.players[0] = Chef{Cell{playerX, playerY}, playerItem}
+
+	var partnerX, partnerY int
+	var partnerItem string
+	fmt.Scan(&partnerX, &partnerY, &partnerItem)
+	s.players[1] = Chef{Cell{playerX, playerY}, playerItem}
 
 }
 func (s *State) parseTables() {
@@ -127,14 +140,7 @@ func main() {
 		var turnsRemaining int
 		fmt.Scan(&turnsRemaining)
 
-		var playerX, playerY int
-		var playerItem string
-		fmt.Scan(&playerX, &playerY, &playerItem)
-
-		var partnerX, partnerY int
-		var partnerItem string
-		fmt.Scan(&partnerX, &partnerY, &partnerItem)
-
+		s.parseChefs()
 		s.parseTables()
 
 		// ovenContents: ignore until wood 1 league
@@ -154,22 +160,34 @@ func main() {
 			s.c = append(s.c, customer)
 		}
 
-		//first get a dish
-		//should split item to know what i got in hand
-		//parsePlayerItem??
+		//should serve the customer with most award first
+		//pick an order!! By default the first..
+		//here i can simulate move to see what is the best crate to go first
+		//take all the order and serve them, and score the best one (biggest award?)
+		//write an func (s *State)executeOrder(order string){} which yields a turn
+		order := s.c[0].customerItem
+		myItems := s.players[0].items
+
+		//then get a dish
 		var res string
-		if playerItem == "NONE" {
+		//if myItems == "NONE" {
+		//			//you must take straws and cut them BEFORE taking a dish
+		if strings.Contains(order, "CHOPPED_STRAWBERRIES") && !strings.Contains(myItems, "STRAWBERRIES") {
+			res = use(s.k.grid[s.k.strawCrates[0].y][s.k.strawCrates[0].x])
+		} else if strings.Contains(order, "CHOPPED_STRAWBERRIES") && !strings.Contains(myItems, "CHOPPED_STRAWBERRIES") {
+			//i already picked straws, go chopping instead
+			res = use(s.k.choppingBoard)
+		} else if !strings.Contains(myItems, "DISH") {
 			res = use(s.k.dishwasher)
-		} else if playerItem == "DISH" {
-			//no pos here?
+		} else if strings.Contains(order, "BLUEBERRIES") && !strings.Contains(myItems, "BLUEBERRIES") {
 			res = use(s.k.grid[s.k.blueCrates[0].y][s.k.blueCrates[0].x])
-		} else if strings.Contains(playerItem, "BLUEBERRIES") {
+		} else if strings.Contains(order, "ICE_CREAM") && !strings.Contains(myItems, "ICE_CREAM") {
 			res = use(s.k.grid[s.k.iceCrates[0].y][s.k.iceCrates[0].x])
-		}
-		//validate the plate
-		if strings.Contains(playerItem, "DISH") &&
-			strings.Contains(playerItem, "ICE_CREAM") &&
-			strings.Contains(playerItem, "BLUEBERRIES") {
+		} else { //if myItems == order {
+			//nothing left to do just go to customer?
+			//validate the plate
+			// !! DISH-CHOPPED_STRAWBERRIES-BLUEBERRIES-ICE_CREAM ORD DISH-CHOPPED_STRAWBERRIES-ICE_CREAM-BLUEBERRIES
+			//not the same even if everything is there!!
 			res = use(s.k.customerWindow)
 		}
 
@@ -179,6 +197,6 @@ func main() {
 		s.c = []Customer{}
 
 		//LOGS
-		//log.Println(s.k.bbTable)
+		log.Println(s.players[1].items, "ORD", order, "myItems", myItems)
 	}
 }
