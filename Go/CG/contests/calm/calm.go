@@ -21,22 +21,28 @@ type Table struct {
 	item string
 }
 type Kitchen struct {
-	grid           [HEIGHT][WIDTH]Cell
-	blueCrates     []Cell
-	iceCrates      []Cell
+	grid [HEIGHT][WIDTH]Cell
+	//crates
+	blueCrates  []Cell
+	iceCrates   []Cell
+	strawCrates []Cell
+	//tools
 	customerWindow Cell
 	dishwasher     Cell
-	dishTable      []Table
-	bbTable        []Table
-	icTable        []Table
+	choppingBoard  Cell
+	//tables
+	dishTable []Table
+	bbTable   []Table
+	icTable   []Table
 }
 type Customer struct {
 	customerItem  string
 	customerAward int
 }
 type Chef struct {
-	pos   Cell
-	items []string
+	pos Cell
+	//playeritem?
+	items string
 }
 type State struct {
 	k            Kitchen
@@ -58,10 +64,14 @@ func (s *State) parseKitchen() {
 				s.k.blueCrates = append(s.k.blueCrates, s.k.grid[y][x])
 			case "I":
 				s.k.iceCrates = append(s.k.iceCrates, s.k.grid[y][x])
+			case "S":
+				s.k.strawCrates = append(s.k.strawCrates, s.k.grid[y][x])
 			case "W":
 				s.k.customerWindow = s.k.grid[y][x]
 			case "D":
 				s.k.dishwasher = s.k.grid[y][x]
+			case "C":
+				s.k.choppingBoard = s.k.grid[y][x]
 			}
 		}
 	}
@@ -146,6 +156,7 @@ func main() {
 
 		//first get a dish
 		//should split item to know what i got in hand
+		//parsePlayerItem??
 		var res string
 		if playerItem == "NONE" {
 			res = use(s.k.dishwasher)
