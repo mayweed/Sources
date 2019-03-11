@@ -198,6 +198,7 @@ func main() {
 		//here i can simulate move to see what is the best crate to go first
 		//take all the order and serve them, and score the best one (biggest award?)
 		//write an func (s *State)executeOrder(order string){} which yields a turn
+		//TODO:should select first the order with the biggest award!!
 		order := s.c[0].customerItem
 		myItems := s.players[0].items
 
@@ -220,7 +221,7 @@ func main() {
 		} else if strings.Contains(myItems, "CROISSANT") && !strings.Contains(myItems, "DISH") {
 			res = use(s.k.dishwasher)
 		} else if strings.Contains(order, "CHOPPED_STRAWBERRIES") && !strings.Contains(myItems, "STRAWBERRIES") {
-			//WARNING!! when you put your dish with a croissant on a table, myItem is
+			//TODO:WARNING!! when you put your dish with a croissant on a table, myItem is
 			//reseted to NONE. So should keep my own track of what i collected!!
 			if strings.Contains(myItems, "DISH") {
 				et := s.findEmptyTable(s.players[0].pos)
