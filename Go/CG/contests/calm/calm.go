@@ -220,6 +220,8 @@ func main() {
 		} else if strings.Contains(myItems, "CROISSANT") && !strings.Contains(myItems, "DISH") {
 			res = use(s.k.dishwasher)
 		} else if strings.Contains(order, "CHOPPED_STRAWBERRIES") && !strings.Contains(myItems, "STRAWBERRIES") {
+			//WARNING!! when you put your dish with a croissant on a table, myItem is
+			//reseted to NONE. So should keep my own track of what i collected!!
 			if strings.Contains(myItems, "DISH") {
 				et := s.findEmptyTable(s.players[0].pos)
 				res = use(et)
