@@ -26,10 +26,12 @@ type Kitchen struct {
 	blueCrates  []Cell
 	iceCrates   []Cell
 	strawCrates []Cell
+	doughCrates []Cell
 	//tools
 	customerWindow Cell
 	dishwasher     Cell
 	choppingBoard  Cell
+	oven           Cell
 	//tables
 	dishTable []Table
 	bbTable   []Table
@@ -67,12 +69,16 @@ func (s *State) parseKitchen() {
 				s.k.iceCrates = append(s.k.iceCrates, s.k.grid[y][x])
 			case "S":
 				s.k.strawCrates = append(s.k.strawCrates, s.k.grid[y][x])
+			case "H":
+				s.k.doughCrates = append(s.k.doughCrates, s.k.grid[y][x])
 			case "W":
 				s.k.customerWindow = s.k.grid[y][x]
 			case "D":
 				s.k.dishwasher = s.k.grid[y][x]
 			case "C":
 				s.k.choppingBoard = s.k.grid[y][x]
+			case "O":
+				s.k.oven = s.k.grid[y][x]
 			}
 		}
 	}
@@ -183,11 +189,8 @@ func main() {
 			res = use(s.k.grid[s.k.blueCrates[0].y][s.k.blueCrates[0].x])
 		} else if strings.Contains(order, "ICE_CREAM") && !strings.Contains(myItems, "ICE_CREAM") {
 			res = use(s.k.grid[s.k.iceCrates[0].y][s.k.iceCrates[0].x])
-		} else { //if myItems == order {
+		} else {
 			//nothing left to do just go to customer?
-			//validate the plate
-			// !! DISH-CHOPPED_STRAWBERRIES-BLUEBERRIES-ICE_CREAM ORD DISH-CHOPPED_STRAWBERRIES-ICE_CREAM-BLUEBERRIES
-			//not the same even if everything is there!!
 			res = use(s.k.customerWindow)
 		}
 
@@ -197,6 +200,6 @@ func main() {
 		s.c = []Customer{}
 
 		//LOGS
-		log.Println(s.players[1].items, "ORD", order, "myItems", myItems)
+		log.Println("ORDER", order, "myItems", myItems)
 	}
 }
