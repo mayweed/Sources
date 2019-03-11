@@ -174,11 +174,25 @@ func main() {
 		order := s.c[0].customerItem
 		myItems := s.players[0].items
 
-		//then get a dish
 		var res string
-		//if myItems == "NONE" {
-		//			//you must take straws and cut them BEFORE taking a dish
-		if strings.Contains(order, "CHOPPED_STRAWBERRIES") && !strings.Contains(myItems, "STRAWBERRIES") {
+		//logic is wrong...i am neverending going for a dough...and the boss steals
+		//my croissant!!
+		if strings.Contains(order, "CROISSANT") &&
+			!strings.Contains(myItems, "DOUGH") &&
+			ovenContents == "NONE" {
+			res = use(s.k.grid[s.k.doughCrates[0].y][s.k.doughCrates[0].x])
+		} else if strings.Contains(order, "CROISSANT") && strings.Contains(myItems, "DOUGH") {
+			if ovenContents == "NONE" {
+				res = use(s.k.oven)
+			} else if ovenContents != "CROISSANT" {
+				//sth is cooking
+				res = "WAIT"
+				//should i make this if out? if there is any croissant in the oven
+				//run for it!!
+			} else {
+				res = use(s.k.oven) //use it to pick up food?
+			}
+		} else if strings.Contains(order, "CHOPPED_STRAWBERRIES") && !strings.Contains(myItems, "STRAWBERRIES") {
 			res = use(s.k.grid[s.k.strawCrates[0].y][s.k.strawCrates[0].x])
 		} else if strings.Contains(order, "CHOPPED_STRAWBERRIES") && !strings.Contains(myItems, "CHOPPED_STRAWBERRIES") {
 			//i already picked straws, go chopping instead
@@ -200,6 +214,6 @@ func main() {
 		s.c = []Customer{}
 
 		//LOGS
-		log.Println("ORDER", order, "myItems", myItems)
+		log.Println(ovenContents, ovenTimer, "ORDER", order, "myItems", myItems)
 	}
 }
