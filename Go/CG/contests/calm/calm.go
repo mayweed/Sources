@@ -247,10 +247,10 @@ func main() {
 
 		fmt.Println(res)
 
-		//flush state between turns
-		s.c = []Customer{}
-
 		//LOGS
 		log.Println(s.c, ovenContents, ovenTimer, "ORDER", order, "myItems", myItems)
+
+		//flush state between turns
+		s.c = []Customer{}
 	}
 }
