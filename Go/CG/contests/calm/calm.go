@@ -199,33 +199,51 @@ func main() {
 		//take all the order and serve them, and score the best one (biggest award?)
 		//write an func (s *State)executeOrder(order string){} which yields a turn
 		//TODO:should select first the order with the biggest award!!
-		order := s.c[0].customerItem
+		//should be a func of State
+		var order string
+		var max = 0
+		for _, client := range s.c {
+			if client.customerAward > max {
+				max = client.customerAward
+				order = client.customerItem
+			}
+		}
+
 		myItems := s.players[0].items
+		var myBucket map[string]bool
 
 		//i need to factor this code
 		var res string
+
+		//CROISSANT + DISH
 		if strings.Contains(order, "CROISSANT") &&
-			!strings.Contains(myItems, "DOUGH") &&
-			!strings.Contains(myItems, "CROISSANT") &&
+			!myBucket["DOUGH"] &&
+			!myBucket["CROISSANT"] &&
 			ovenContents == "NONE" {
 			res = use(s.k.grid[s.k.doughCrates[0].y][s.k.doughCrates[0].x])
+			myBucket["DOUGH"] = true
 		} else if strings.Contains(myItems, "DOUGH") &&
 			ovenContents == "NONE" {
 			res = use(s.k.oven)
 		} else if ovenContents == "DOUGH" {
-			//sth is cooking
+			//sth is cooking just wait
 			res = "WAIT"
 		} else if ovenContents == "CROISSANT" {
 			res = use(s.k.oven)
-			//	}
-		} else if strings.Contains(myItems, "CROISSANT") && !strings.Contains(myItems, "DISH") {
+			myBucket["CROISSANT"] = true
+		} else if !myBucket["DISH"] {
 			res = use(s.k.dishwasher)
-		} else if strings.Contains(order, "CHOPPED_STRAWBERRIES") && !strings.Contains(myItems, "STRAWBERRIES") {
+			myBucket["DISH"] = true
+		}
+
+		if strings.Contains(order, "CHOPPED_STRAWBERRIES") && !myBucket["STRAWBERRIES"] {
 			//TODO:WARNING!! when you put your dish with a croissant on a table, myItem is
 			//reseted to NONE. So should keep my own track of what i collected!!
-			if strings.Contains(myItems, "DISH") {
+			if myBucket["DISH"] { // already got a dish put it asside to go strawberries
+				//put the dish on a table
 				et := s.findEmptyTable(s.players[0].pos)
 				res = use(et)
+				s.k.myDish = et
 			} else {
 				res = use(s.k.grid[s.k.strawCrates[0].y][s.k.strawCrates[0].x])
 			}
@@ -234,9 +252,9 @@ func main() {
 			res = use(s.k.choppingBoard)
 			//should i add a || with strawberries?
 			//should pick my dish after if i got one
-		} else if !strings.Contains(myItems, "DISH") { // &&
-			//	(strings.Contains(myItems, "CROISSANT") || strings.Contains(myItems, "CHOPPED_STRAWBERRIES")) {
-			res = use(s.k.dishwasher)
+		} else if !strings.Contains(myCollectedItems, "DISH") {
+			//res = use(s.k.dishwasher)
+			res = use(s.k.myDish)
 		} else if strings.Contains(order, "BLUEBERRIES") && !strings.Contains(myItems, "BLUEBERRIES") {
 			res = use(s.k.grid[s.k.blueCrates[0].y][s.k.blueCrates[0].x])
 		} else if strings.Contains(order, "ICE_CREAM") && !strings.Contains(myItems, "ICE_CREAM") {
