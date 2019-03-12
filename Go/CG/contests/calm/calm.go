@@ -37,23 +37,36 @@ type Kitchen struct {
 	dishTable   []Table
 	bbTable     []Table
 	icTable     []Table
-	//perso
-	myDish Cell
 }
 type Customer struct {
 	customerItem  string
 	customerAward int
 }
 type Chef struct {
-	pos Cell
-	//playeritem?
-	items string
+	pos          Cell
+	carriedItems string
+	bucket       map[string]bool
+	//you leave items on a table
+	onTable Cell
 }
+
 type State struct {
 	k            Kitchen
 	numCustomers int
 	c            []Customer
 	players      [2]Chef
+	//the current order I  chose to service
+	order string
+}
+
+func (s *State) getOrder() { // string {
+	var max = 0
+	for _, client := range s.c {
+		if client.customerAward > max {
+			max = client.customerAward
+			s.order = client.customerItem
+		}
+	}
 }
 
 func (s *State) parseKitchen() {
@@ -168,6 +181,8 @@ func main() {
 	s.parseKitchen()
 	log.Println(s.k.iceCrates)
 
+	var myBucket = make(map[string]bool)
+
 	for {
 		//should write a parseTurn() maybe a turn?
 		var turnsRemaining int
@@ -193,71 +208,57 @@ func main() {
 			s.c = append(s.c, customer)
 		}
 
-		//should serve the customer with most award first
-		//pick an order!! By default the first..
 		//here i can simulate move to see what is the best crate to go first
 		//take all the order and serve them, and score the best one (biggest award?)
 		//write an func (s *State)executeOrder(order string){} which yields a turn
-		//TODO:should select first the order with the biggest award!!
-		//should be a func of State
-		var order string
-		var max = 0
-		for _, client := range s.c {
-			if client.customerAward > max {
-				max = client.customerAward
-				order = client.customerItem
-			}
-		}
+		s.getOrder()
 
 		myItems := s.players[0].items
-		var myBucket map[string]bool
 
 		//i need to factor this code
 		var res string
 
-		//CROISSANT + DISH
-		if strings.Contains(order, "CROISSANT") &&
-			!myBucket["DOUGH"] &&
-			!myBucket["CROISSANT"] &&
-			ovenContents == "NONE" {
-			res = use(s.k.grid[s.k.doughCrates[0].y][s.k.doughCrates[0].x])
-			myBucket["DOUGH"] = true
-		} else if strings.Contains(myItems, "DOUGH") &&
-			ovenContents == "NONE" {
-			res = use(s.k.oven)
-		} else if ovenContents == "DOUGH" {
-			//sth is cooking just wait
-			res = "WAIT"
-		} else if ovenContents == "CROISSANT" {
-			res = use(s.k.oven)
-			myBucket["CROISSANT"] = true
-		} else if !myBucket["DISH"] {
-			res = use(s.k.dishwasher)
-			myBucket["DISH"] = true
-		}
-
-		if strings.Contains(order, "CHOPPED_STRAWBERRIES") && !myBucket["STRAWBERRIES"] {
-			//TODO:WARNING!! when you put your dish with a croissant on a table, myItem is
-			//reseted to NONE. So should keep my own track of what i collected!!
-			if myBucket["DISH"] { // already got a dish put it asside to go strawberries
-				//put the dish on a table
-				et := s.findEmptyTable(s.players[0].pos)
-				res = use(et)
-				s.k.myDish = et
-			} else {
-				res = use(s.k.grid[s.k.strawCrates[0].y][s.k.strawCrates[0].x])
+		//I need CROISSANT and i have not
+		if strings.Contains(s.order, "CROISSANT") && !myBucket["CROISSANT"] {
+			if !strings.Contains(myItems, "DOUGH") &&
+				ovenContents == "NONE" {
+				res = use(s.k.grid[s.k.doughCrates[0].y][s.k.doughCrates[0].x])
+				myBucket["DOUGH"] = true
+			} else if strings.Contains(myItems, "DOUGH") &&
+				ovenContents == "NONE" {
+				res = use(s.k.oven)
+			} else if ovenContents == "DOUGH" {
+				//sth is cooking just wait
+				res = "WAIT"
+			} else if ovenContents == "CROISSANT" {
+				myBucket["CROISSANT"] = true
+				res = use(s.k.oven)
 			}
-		} else if strings.Contains(order, "CHOPPED_STRAWBERRIES") && !strings.Contains(myItems, "CHOPPED_STRAWBERRIES") {
+			//wont go there if bucket updated correctly
+			//else if !myBucket["DISH"] {
+			//res = use(s.k.dishwasher)
+			//myBucket["DISH"] = true
+			//}
+		} else if strings.Contains(s.order, "CHOPPED_STRAWBERRIES") &&
+			!myBucket["STRAWBERRIES"] &&
+			myItems != "NONE" {
+
+			et := s.findEmptyTable(s.players[0].pos)
+			res = use(et)
+			s.k.myDish = et
+			res = use(s.k.grid[s.k.strawCrates[0].y][s.k.strawCrates[0].x])
+			myBucket["STRAWBERRIES"] = true
+		} else if strings.Contains(s.order, "CHOPPED_STRAWBERRIES") && myBucket["STRAWBERRIES"] {
 			//i already picked straws, go chopping instead
 			res = use(s.k.choppingBoard)
-			//should i add a || with strawberries?
-			//should pick my dish after if i got one
-		} else if !strings.Contains(myCollectedItems, "DISH") {
-			//res = use(s.k.dishwasher)
-			res = use(s.k.myDish)
-		} else if strings.Contains(order, "BLUEBERRIES") && !strings.Contains(myItems, "BLUEBERRIES") {
+			myBucket["CHOPPED_STRAWBERRIES"] = true
+		} else if !myBucket["DISH"] {
+			//should pick up my dish and add the strawberries
+			//res = use(s.k.myDish)
+			res = use(s.k.dishwasher)
+		} else if strings.Contains(s.order, "BLUEBERRIES") && !strings.Contains(myItems, "BLUEBERRIES") {
 			res = use(s.k.grid[s.k.blueCrates[0].y][s.k.blueCrates[0].x])
-		} else if strings.Contains(order, "ICE_CREAM") && !strings.Contains(myItems, "ICE_CREAM") {
+		} else if strings.Contains(s.order, "ICE_CREAM") && !strings.Contains(myItems, "ICE_CREAM") {
 			res = use(s.k.grid[s.k.iceCrates[0].y][s.k.iceCrates[0].x])
 		} else {
 			//nothing left to do just go to customer?
@@ -267,7 +268,7 @@ func main() {
 		fmt.Println(res)
 
 		//LOGS
-		log.Println(s.c, ovenContents, ovenTimer, "ORDER", order, "myItems", myItems)
+		log.Println("ORDER", s.order, "myItems", myItems, "BUCKET", myBucket)
 
 		//flush state between turns
 		s.c = []Customer{}
