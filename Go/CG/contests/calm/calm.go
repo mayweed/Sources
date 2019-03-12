@@ -33,28 +33,32 @@ type Kitchen struct {
 	choppingBoard  Cell
 	oven           Cell
 	//tables
-	emptyTables []Cell
-	dishTable   []Table
-	bbTable     []Table
-	icTable     []Table
+	emptyTables    []Cell
+	dishTable      []Table
+	bbTable        []Table
+	icTable        []Table
+	croissantTable []Table
+	strawTable     []Table
 }
 type Customer struct {
 	customerItem  string
 	customerAward int
 }
 type Chef struct {
-	pos          Cell
-	carriedItems string
-	bucket       map[string]bool
+	pos    Cell
+	items  string
+	bucket map[string]bool
 	//you leave items on a table
-	onTable Cell
+	dishWaiting Cell
 }
 
 type State struct {
 	k            Kitchen
 	numCustomers int
 	c            []Customer
-	players      [2]Chef
+	me           Chef
+	myBucket     map[string]bool
+	partner      Chef
 	//the current order I  chose to service
 	order string
 }
@@ -106,12 +110,12 @@ func (s *State) parseChefs() {
 	var playerX, playerY int
 	var playerItem string
 	fmt.Scan(&playerX, &playerY, &playerItem)
-	s.players[0] = Chef{Cell{playerX, playerY, ""}, playerItem}
+	s.me = Chef{pos: Cell{playerX, playerY, "0"}, items: playerItem}
 
 	var partnerX, partnerY int
 	var partnerItem string
 	fmt.Scan(&partnerX, &partnerY, &partnerItem)
-	s.players[1] = Chef{Cell{playerX, playerY, ""}, playerItem}
+	s.partner = Chef{pos: Cell{partnerX, partnerY, "1"}, items: partnerItem}
 
 }
 func (s *State) parseTables() {
@@ -123,7 +127,7 @@ func (s *State) parseTables() {
 		var tableX, tableY int
 		var item string
 		fmt.Scan(&tableX, &tableY, &item)
-		t := Table{Cell{tableX, tableY, ""}, item}
+		t := Table{Cell{tableX, tableY, "item"}, item}
 		switch item {
 		case "DISH":
 			s.k.dishTable = append(s.k.dishTable, t)
@@ -131,6 +135,10 @@ func (s *State) parseTables() {
 			s.k.bbTable = append(s.k.bbTable, t)
 		case "ICE_CREAM":
 			s.k.icTable = append(s.k.icTable, t)
+		case "CROISSANT":
+			s.k.croissantTable = append(s.k.croissantTable, t)
+		case "STRAWBERRIES":
+			s.k.strawTable = append(s.k.strawTable, t)
 		}
 	}
 }
@@ -142,16 +150,16 @@ func (s *State) findEmptyTable(c Cell) Cell {
 		//this is not optimal: you should go to the straw crate, you got
 		//a dish you put it on a nearby table then you do your chopping
 		//things and take the dish
-		s.k.myDish = s.k.grid[c.y][c.x-1]
+		s.me.dishWaiting = s.k.grid[c.y][c.x-1]
 		t = s.k.grid[c.y][c.x-1]
 	} else if s.k.grid[c.y][c.x+1].what == "#" && c.x+1 < WIDTH {
-		s.k.myDish = s.k.grid[c.y][c.x+1]
+		s.me.dishWaiting = s.k.grid[c.y][c.x+1]
 		t = s.k.grid[c.y][c.x+1]
 	} else if s.k.grid[c.y-1][c.x].what == "#" && c.y-1 > 0 {
-		s.k.myDish = s.k.grid[c.y-1][c.x]
+		s.me.dishWaiting = s.k.grid[c.y-1][c.x]
 		t = s.k.grid[c.y-1][c.x]
 	} else if s.k.grid[c.y+1][c.x].what == "#" && c.y+1 < HEIGHT {
-		s.k.myDish = s.k.grid[c.y+1][c.x]
+		s.me.dishWaiting = s.k.grid[c.y+1][c.x]
 		t = s.k.grid[c.y+1][c.x]
 	}
 	return t
@@ -163,8 +171,13 @@ func use(c Cell) string {
 	return s
 }
 
+func (s *State) recipeCroissant() {
+
+}
 func main() {
 	var s State
+
+	s.myBucket = make(map[string]bool)
 
 	var numAllCustomers int
 	fmt.Scan(&numAllCustomers)
@@ -179,9 +192,6 @@ func main() {
 	}
 
 	s.parseKitchen()
-	log.Println(s.k.iceCrates)
-
-	var myBucket = make(map[string]bool)
 
 	for {
 		//should write a parseTurn() maybe a turn?
@@ -213,52 +223,57 @@ func main() {
 		//write an func (s *State)executeOrder(order string){} which yields a turn
 		s.getOrder()
 
-		myItems := s.players[0].items
-
 		//i need to factor this code
 		var res string
 
+		//IDEA: you prepare croissant, straw, take a dish, pick up croissant straw
+		//etc...as needed
 		//I need CROISSANT and i have not
-		if strings.Contains(s.order, "CROISSANT") && !myBucket["CROISSANT"] {
-			if !strings.Contains(myItems, "DOUGH") &&
+		if strings.Contains(s.order, "CROISSANT") && !s.myBucket["CROISSANT"] {
+			if !strings.Contains(s.me.items, "DOUGH") &&
 				ovenContents == "NONE" {
 				res = use(s.k.grid[s.k.doughCrates[0].y][s.k.doughCrates[0].x])
-				myBucket["DOUGH"] = true
-			} else if strings.Contains(myItems, "DOUGH") &&
+				s.myBucket["DOUGH"] = true
+			} else if strings.Contains(s.me.items, "DOUGH") &&
 				ovenContents == "NONE" {
 				res = use(s.k.oven)
 			} else if ovenContents == "DOUGH" {
 				//sth is cooking just wait
 				res = "WAIT"
 			} else if ovenContents == "CROISSANT" {
-				myBucket["CROISSANT"] = true
+				s.myBucket["CROISSANT"] = true
 				res = use(s.k.oven)
 			}
-			//wont go there if bucket updated correctly
-			//else if !myBucket["DISH"] {
-			//res = use(s.k.dishwasher)
-			//myBucket["DISH"] = true
-			//}
-		} else if strings.Contains(s.order, "CHOPPED_STRAWBERRIES") &&
-			!myBucket["STRAWBERRIES"] &&
-			myItems != "NONE" {
 
-			et := s.findEmptyTable(s.players[0].pos)
+			//put croissant on wait to go straw if necessary
+		} else if strings.Contains(s.order, "CHOPPED_STRAWBERRIES") &&
+			s.me.items == "CROISSANT" || s.me.items == "DISH" {
+			et := s.findEmptyTable(s.me.pos)
 			res = use(et)
-			s.k.myDish = et
+			s.me.dishWaiting = et
+		} else if strings.Contains(s.order, "CHOPPED_STRAWBERRIES") &&
+			s.me.items != "STRAWBERRIES" {
 			res = use(s.k.grid[s.k.strawCrates[0].y][s.k.strawCrates[0].x])
-			myBucket["STRAWBERRIES"] = true
-		} else if strings.Contains(s.order, "CHOPPED_STRAWBERRIES") && myBucket["STRAWBERRIES"] {
+			s.myBucket["STRAWBERRIES"] = true
+		} else if strings.Contains(s.order, "CHOPPED_STRAWBERRIES") && s.myBucket["STRAWBERRIES"] {
 			//i already picked straws, go chopping instead
 			res = use(s.k.choppingBoard)
-			myBucket["CHOPPED_STRAWBERRIES"] = true
-		} else if !myBucket["DISH"] {
-			//should pick up my dish and add the strawberries
-			//res = use(s.k.myDish)
+			s.myBucket["CHOPPED_STRAWBERRIES"] = true
+		} else if s.myBucket["CHOPPED_STRAWBERRIES"] {
 			res = use(s.k.dishwasher)
-		} else if strings.Contains(s.order, "BLUEBERRIES") && !strings.Contains(myItems, "BLUEBERRIES") {
+			//HERE I got a croissant in waiting and straw +dish
+		} else if strings.Contains(s.order, "CROISSANT") &&
+			strings.Contains(s.order, "CHOPPED_STRAWBERRIES") {
+			//should pick up my dish and add the strawberries
+			res = use(s.me.dishWaiting)
+
+		} else if strings.Contains(s.order, "CROISSANT") &&
+			!strings.Contains(s.order, "CHOPPED_STRAWBERRIES") {
+			//should pick up my dish and add the strawberries
+			res = use(s.k.dishwasher)
+		} else if strings.Contains(s.order, "BLUEBERRIES") && !strings.Contains(s.me.items, "BLUEBERRIES") {
 			res = use(s.k.grid[s.k.blueCrates[0].y][s.k.blueCrates[0].x])
-		} else if strings.Contains(s.order, "ICE_CREAM") && !strings.Contains(myItems, "ICE_CREAM") {
+		} else if strings.Contains(s.order, "ICE_CREAM") && !strings.Contains(s.me.items, "ICE_CREAM") {
 			res = use(s.k.grid[s.k.iceCrates[0].y][s.k.iceCrates[0].x])
 		} else {
 			//nothing left to do just go to customer?
@@ -268,7 +283,7 @@ func main() {
 		fmt.Println(res)
 
 		//LOGS
-		log.Println("ORDER", s.order, "myItems", myItems, "BUCKET", myBucket)
+		log.Println("ORDER", s.order, "s.me.items", s.me.items, "BUCKET", s.myBucket)
 
 		//flush state between turns
 		s.c = []Customer{}
