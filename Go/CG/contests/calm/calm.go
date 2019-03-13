@@ -45,11 +45,15 @@ type Customer struct {
 	customerAward int
 }
 type Chef struct {
-	pos    Cell
-	items  string
-	bucket map[string]bool
+	pos   Cell
+	items string
+	//	bucket map[string]bool
 	//you leave items on a table
 	dishWaiting Cell
+	isHolding   bool
+	hasDish     bool
+	hasBb       bool
+	hasIc       bool
 }
 
 type State struct {
@@ -229,61 +233,79 @@ func main() {
 		//IDEA: you prepare croissant, straw, take a dish, pick up croissant straw
 		//etc...as needed
 		//I need CROISSANT and i have not
-		if strings.Contains(s.order, "CROISSANT") && !s.myBucket["CROISSANT"] {
-			if !strings.Contains(s.me.items, "DOUGH") &&
-				ovenContents == "NONE" {
-				res = use(s.k.grid[s.k.doughCrates[0].y][s.k.doughCrates[0].x])
-				s.myBucket["DOUGH"] = true
-			} else if strings.Contains(s.me.items, "DOUGH") &&
-				ovenContents == "NONE" {
-				res = use(s.k.oven)
-			} else if ovenContents == "DOUGH" {
-				//sth is cooking just wait
-				res = "WAIT"
-			} else if ovenContents == "CROISSANT" {
-				s.myBucket["CROISSANT"] = true
-				res = use(s.k.oven)
-			}
-
-			//put croissant on wait to go straw if necessary
-		} else if strings.Contains(s.order, "CHOPPED_STRAWBERRIES") &&
-			s.me.items == "CROISSANT" || s.me.items == "DISH" {
-			et := s.findEmptyTable(s.me.pos)
-			res = use(et)
-			s.me.dishWaiting = et
-		} else if strings.Contains(s.order, "CHOPPED_STRAWBERRIES") &&
-			s.me.items != "STRAWBERRIES" {
-			res = use(s.k.grid[s.k.strawCrates[0].y][s.k.strawCrates[0].x])
-			s.myBucket["STRAWBERRIES"] = true
-		} else if strings.Contains(s.order, "CHOPPED_STRAWBERRIES") && s.myBucket["STRAWBERRIES"] {
-			//i already picked straws, go chopping instead
-			res = use(s.k.choppingBoard)
-			s.myBucket["CHOPPED_STRAWBERRIES"] = true
-		} else if s.myBucket["CHOPPED_STRAWBERRIES"] {
+		//I need steps :
+		// - first dish
+		// - then parse do the simple first (bb/ic)
+		//- then store the dish do the more complex (straw/croissant)
+		//- store the complex
+		//- pick up the dish and pick up the complex to finish dish?
+		if !s.me.hasDish {
 			res = use(s.k.dishwasher)
-			//HERE I got a croissant in waiting and straw +dish
-		} else if strings.Contains(s.order, "CROISSANT") &&
-			strings.Contains(s.order, "CHOPPED_STRAWBERRIES") {
-			//should pick up my dish and add the strawberries
-			res = use(s.me.dishWaiting)
-
-		} else if strings.Contains(s.order, "CROISSANT") &&
-			!strings.Contains(s.order, "CHOPPED_STRAWBERRIES") {
-			//should pick up my dish and add the strawberries
-			res = use(s.k.dishwasher)
-		} else if strings.Contains(s.order, "BLUEBERRIES") && !strings.Contains(s.me.items, "BLUEBERRIES") {
-			res = use(s.k.grid[s.k.blueCrates[0].y][s.k.blueCrates[0].x])
-		} else if strings.Contains(s.order, "ICE_CREAM") && !strings.Contains(s.me.items, "ICE_CREAM") {
-			res = use(s.k.grid[s.k.iceCrates[0].y][s.k.iceCrates[0].x])
-		} else {
-			//nothing left to do just go to customer?
-			res = use(s.k.customerWindow)
+			s.me.hasDish = true
 		}
+
+		if strings.Contains(s.order, "BLUEBERRIES") && !s.me.hasBb {
+			res = use(s.k.grid[s.k.blueCrates[0].y][s.k.blueCrates[0].x])
+			s.me.hasBb = true //myBucket["BLUEBERRIES"] = true
+		}
+		if strings.Contains(s.order, "ICE_CREAM") && !s.me.hasIc {
+			res = use(s.k.grid[s.k.iceCrates[0].y][s.k.iceCrates[0].x])
+			s.me.hasIc = true
+		}
+		/*
+			if strings.Contains(s.order, "CROISSANT") && !s.myBucket["CROISSANT"] {
+				if !strings.Contains(s.me.items, "DOUGH") &&
+					ovenContents == "NONE" {
+					res = use(s.k.grid[s.k.doughCrates[0].y][s.k.doughCrates[0].x])
+					s.myBucket["DOUGH"] = true
+				} else if strings.Contains(s.me.items, "DOUGH") &&
+					ovenContents == "NONE" {
+					res = use(s.k.oven)
+				} else if ovenContents == "DOUGH" {
+					//sth is cooking just wait
+					res = "WAIT"
+				} else if ovenContents == "CROISSANT" {
+					s.myBucket["CROISSANT"] = true
+					res = use(s.k.oven)
+				}
+
+				//put croissant on wait to go straw if necessary
+			}
+			if strings.Contains(s.order, "CHOPPED_STRAWBERRIES") &&
+				s.me.items == "CROISSANT" || s.me.items == "DISH" {
+				et := s.findEmptyTable(s.me.pos)
+				res = use(et)
+				s.me.dishWaiting = et
+			} else if strings.Contains(s.order, "CHOPPED_STRAWBERRIES") &&
+				s.me.items != "STRAWBERRIES" {
+				res = use(s.k.grid[s.k.strawCrates[0].y][s.k.strawCrates[0].x])
+				//s.myBucket["STRAWBERRIES"] = true
+			} else if strings.Contains(s.order, "CHOPPED_STRAWBERRIES") && s.myBucket["STRAWBERRIES"] {
+				//i already picked straws, go chopping instead
+				res = use(s.k.choppingBoard)
+				s.myBucket["CHOPPED_STRAWBERRIES"] = true
+			} else if s.myBucket["CHOPPED_STRAWBERRIES"] {
+				res = use(s.k.dishwasher)
+				//HERE I got a croissant in waiting and straw +dish
+			} else if strings.Contains(s.order, "CROISSANT") &&
+				strings.Contains(s.order, "CHOPPED_STRAWBERRIES") {
+				//should pick up my dish and add the strawberries
+				res = use(s.me.dishWaiting)
+
+			} else if strings.Contains(s.order, "CROISSANT") &&
+				!strings.Contains(s.order, "CHOPPED_STRAWBERRIES") {
+				//should pick up my dish and add the strawberries
+				res = use(s.k.dishwasher)
+			} else {
+				//nothing left to do just go to customer?
+				res = use(s.k.customerWindow)
+			}
+		*/
 
 		fmt.Println(res)
 
 		//LOGS
-		log.Println("ORDER", s.order, "s.me.items", s.me.items, "BUCKET", s.myBucket)
+		log.Println("ORDER", s.order, "s.me.items", s.me.items, "BUCKET", s.me.hasDish, s.me.hasIc, s.me.hasBb)
 
 		//flush state between turns
 		s.c = []Customer{}
