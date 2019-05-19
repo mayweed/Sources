@@ -2,7 +2,27 @@ package main
 
 import (
 	"fmt"
+	"strings"
 )
+
+type Point struct {
+	x, y int
+}
+type Player struct {
+	gold   int
+	income int
+	units  int
+}
+type Building struct {
+	location Point
+	owner    int
+	btype    int
+}
+type Map struct {
+	location  Point
+	state     string
+	buildings Building
+}
 
 func main() {
 	var numberMineSpots int
@@ -28,6 +48,7 @@ func main() {
 		for i := 0; i < 12; i++ {
 			var line string
 			fmt.Scan(&line)
+			strings.Split(line, "")
 		}
 		var buildingCount int
 		fmt.Scan(&buildingCount)
