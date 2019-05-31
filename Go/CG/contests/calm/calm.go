@@ -174,6 +174,9 @@ func main() {
 		order := s.c[0].customerItem
 		myItems := s.players[0].items
 
+		//must change the order wrt the items i already own...my string order will
+		//always contains a dish, so if i keep searching for that in an order that
+		//contains dish while i already got one, i got stuck..
 		var res string
 		if strings.Contains(order, "CROISSANT") &&
 			!strings.Contains(myItems, "DOUGH") &&
