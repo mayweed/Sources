@@ -12,16 +12,12 @@ const (
 	HEIGHT = 12
 )
 
-type Point struct {
-	x, y  int
-	Color int
-}
 type Block struct {
 	ColorFirstBlock  int
 	ColorSecondBlock int
 }
 
-type Grid [HEIGHT][WIDTH]Point
+type Grid [HEIGHT][WIDTH]int
 
 type State struct {
 	Turn       int
@@ -56,10 +52,10 @@ func (s *State) initPlayer1() {
 		for x, c := range r {
 			switch c {
 			case ".":
-				s.myGrid[y][x] = Point{y, x, -1}
+				s.myGrid[y][x] = -1
 			default:
-				d, _ := strconv.Atoi(c)
-				s.myGrid[y][x] = Point{y, x, d}
+				s.myGrid[y][x], _ = strconv.Atoi(c)
+
 			}
 		}
 	}
@@ -79,32 +75,38 @@ func (s *State) initPlayer2() {
 		for x, c := range r {
 			switch c {
 			case ".":
-				s.oppGrid[y][x] = Point{y, x, -1}
+				s.oppGrid[y][x] = -1
 			default:
-				d, _ := strconv.Atoi(c)
-				s.oppGrid[y][x] = Point{y, x, d}
+				s.oppGrid[y][x], _ = strconv.Atoi(c)
 			}
 		}
 	}
 
 }
 
+/*
+//better write a sim func, to output what the grid looks like in different cases
+func (s *State) simu() {
+	//a copy of the grid
+	cpGrid := s.myGrid
+	//take the blocks
+	//only one at first to see how it goes
+	block := s.queueBlocks[0]
+	for y := 0; y < HEIGHT; y++ {
+		for x := 0; x < WIDTH; x++ {
+		}
+	}
+}
+*/
 func (s *State) think() {
 	nextBlock := s.queueBlock[0]
 	var result int
-	//better
-	cpGrid := s.myGrid
-	//then you make the block falling *time and evaluate...
-	for _, col := range s.myGrid {
-		//BEURK
-		for _, p := range col {
-			if p.Color == nextBlock.ColorFirstBlock {
-				if p.y+1 == -1 && p.y+1 < WIDTH {
-					result = p.y + 1
-				}
-			}
+	for y := 0; y < HEIGHT; y++ {
+		for x := 0; x < WIDTH; x++ {
+			//if s.myGrid[y][x]==
 		}
 	}
+
 	log.Println(result)
 }
 
