@@ -13,11 +13,10 @@ const (
 )
 
 type Point struct {
-	X, Y  int
+	x, y  int
 	Color int
 }
 type Block struct {
-	Point
 	ColorFirstBlock  int
 	ColorSecondBlock int
 }
@@ -39,7 +38,7 @@ func (s *State) initQueueBlock() {
 		// colorB: color of the attached block
 		var colorA, colorB int
 		fmt.Scan(&colorA, &colorB)
-		s.queueBlock = append(s.queueBlock, Block{Point: Point{}, ColorFirstBlock: colorA, ColorSecondBlock: colorB})
+		s.queueBlock = append(s.queueBlock, Block{ColorFirstBlock: colorA, ColorSecondBlock: colorB})
 	}
 
 }
@@ -55,19 +54,17 @@ func (s *State) initPlayer1() {
 
 		r := strings.Split(row, "")
 		for x, c := range r {
-			s.myGrid[y][x] = Block{Point{x, y}, -1, -1}
 			switch c {
 			case ".":
-				s.myGrid[y][x].Color = -1
-				//			s.myGrid[y][x].ColorSecondBlock = -1
+				s.myGrid[y][x] = Point{y, x, -1}
 			default:
-				s.myGrid[y][x].Color, _ = strconv.Atoi(c)
-				//			s.myGrid[y][x].ColorSecondBlock, _ = strconv.Atoi(c)
+				d, _ := strconv.Atoi(c)
+				s.myGrid[y][x] = Point{y, x, d}
 			}
 		}
 	}
-
 }
+
 func (s *State) initPlayer2() {
 	var score2 int
 	fmt.Scan(&score2)
@@ -80,14 +77,12 @@ func (s *State) initPlayer2() {
 
 		r := strings.Split(row, "")
 		for x, c := range r {
-			s.oppGrid[y][x] = Block{Point{x, y}, -1, -1}
 			switch c {
 			case ".":
-				s.oppGrid[y][x].Color = -1
-				//			s.oppGrid[y][x].ColorSecondBlock = -1
+				s.oppGrid[y][x] = Point{y, x, -1}
 			default:
-				s.oppGrid[y][x].Color, _ = strconv.Atoi(c)
-				//			s.oppGrid[y][x].ColorSecondBlock, _ = strconv.Atoi(c)
+				d, _ := strconv.Atoi(c)
+				s.oppGrid[y][x] = Point{y, x, d}
 			}
 		}
 	}
@@ -95,10 +90,19 @@ func (s *State) initPlayer2() {
 }
 
 func (s *State) think() {
-	//nextBlock := s.queueBlock[0]
+	nextBlock := s.queueBlock[0]
+	var result int
 	for _, col := range s.myGrid {
-		log.Println(col)
+		//BEURK
+		for _, p := range col {
+			if p.Color == nextBlock.ColorFirstBlock {
+				if p.y+1 == -1 && p.y+1 < WIDTH {
+					result = p.y + 1
+				}
+			}
+		}
 	}
+	log.Println(result)
 }
 
 func main() {
@@ -107,10 +111,11 @@ func main() {
 		s.initQueueBlock()
 		s.initPlayer1()
 		s.initPlayer2()
+		s.think()
 		fmt.Printf("0\n") // "x": the column in which to drop your blocks
 		s.Turn += 1
 		//must clear state at one moment...
-		//welle
-		log.Println(s.myGrid)
+		//write a proper func to print grid
+		//log.Println(s.myGrid)
 	}
 }
