@@ -92,6 +92,9 @@ func (s *State) initPlayer2() {
 func (s *State) think() {
 	nextBlock := s.queueBlock[0]
 	var result int
+	//better
+	cpGrid := s.myGrid
+	//then you make the block falling *time and evaluate...
 	for _, col := range s.myGrid {
 		//BEURK
 		for _, p := range col {
