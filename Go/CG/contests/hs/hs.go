@@ -14,9 +14,13 @@ const (
 	PLAYER     = 0
 	BOMB       = 1
 	CRATE      = 2
+	//actionType
+	m actionType = 3
+	b actionType = 4
 )
 
 type Grid [WIDTH][HEIGHT]Cell
+type actionType int
 
 //A cell is a pair of coordinate + what's on it!!
 type Cell struct {
@@ -40,25 +44,37 @@ type Entity struct {
 	param2     int
 }
 
-type Player struct {
-	//my position should i use anon struct position here?
-	Entity
-	//my num of bombs left
-	myBombs int
-	//can only place one bomb here
-	bombsPlaced Cell
+//a turn is an action + a destination
+type Turn struct {
+	actionType int
+	c          Cell
+	//evalScore float64
 }
-
 type State struct {
+	myId    int //who i am?
 	board   Grid
 	crates  []Cell
 	bombs   []Entity
-	players []Player
+	players []Entity
 }
 
+//should make it generic, so that it works for every player
+func (s *State) applyTurn(t Turn) {
+	//copy of the state of the current board
+	cpBoard := s.board
+
+	switch t.actionType {
+	case 3:
+	case 4:
+		//place a bomb
+		cpBoard[t.c.x][t.c.y] = Cell{x: t.c.x, y: t.c.y, what: Entity{entityType: BOMB}}
+	}
+}
 func (s *State) readGrid() {
 	var width, height, myId int
 	fmt.Scan(&width, &height, &myId)
+
+	s.myId = myId
 
 	for y := 0; y < height; y++ {
 		var row string
@@ -81,6 +97,7 @@ func (s *State) readEntities() {
 	fmt.Scan(&entities)
 
 	s.bombs = []Entity{}
+	s.players = []Entity{}
 
 	for i := 0; i < entities; i++ {
 		var entityType, owner, x, y, param1, param2 int
@@ -90,15 +107,17 @@ func (s *State) readEntities() {
 			s.board[x][y].what.entityType = entityType
 			s.board[x][y].what.owner = owner
 			s.board[x][y].what.param1 = param1
+			s.board[x][y].what.param2 = param2
+			s.players = append(s.players, Entity{entityType, owner, param1, param2})
 		case 1:
 			s.board[x][y].what.entityType = entityType
 			s.board[x][y].what.owner = owner
 			s.board[x][y].what.param1 = param1
+			s.board[x][y].what.param2 = param2
 			s.bombs = append(s.bombs, Entity{entityType, owner, param1, param2})
 		}
 
 	}
-	//log.Println(s.bombs)
 }
 func (s State) printBoard() string {
 	var result bytes.Buffer
@@ -109,7 +128,11 @@ func (s State) printBoard() string {
 				result.WriteString(".")
 			case PLAYER:
 				//should differentiate between me and opp?
-				result.WriteString("P")
+				if s.board[x][y].what.owner == s.myId {
+					result.WriteString("Me")
+				} else {
+					result.WriteString("P")
+				}
 			case BOMB:
 				result.WriteString("B")
 			case CRATE:
