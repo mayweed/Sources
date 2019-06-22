@@ -34,12 +34,15 @@ type Cell struct {
 	what Entity
 }
 
+func (c *Cell) isEmpty() bool {
+	return c.what.entityType == -1
+}
 func move(c Cell) string {
-	s := fmt.Sprintf("MOVE %d %d\n", c.x, c.y)
+	s := fmt.Sprintf("MOVE %d %d", c.x, c.y)
 	return s
 }
 func bomb(c Cell) string {
-	s := fmt.Sprintf("BOMB %d %d\n", c.x, c.y)
+	s := fmt.Sprintf("BOMB %d %d", c.x, c.y)
 	return s
 }
 
@@ -167,7 +170,7 @@ func (s State) printBoard() string {
 	return result.String()
 }
 
-func (s *State) think() {
+func (s *State) think() string {
 	//first select a batch of random possible move
 	//evaluate them: is this enough far from any given bomb? is this close to
 	// a foe (bombs will become lethal)? AND is there any crates around?
@@ -179,17 +182,32 @@ func (s *State) think() {
 	for i := 0; i < 10; i++ {
 		x := rand.Intn(12)
 		y := rand.Intn(10)
-		cells = append(cells, s.board[x][y])
+		if s.board[x][y].isEmpty() {
+			cells = append(cells, s.board[x][y])
+		}
 	}
 
-	log.Println(cells)
-	//then pose a bomb
-
-	//then get out of bomb range
+	//very light eval, should take into account the range of others players bomb (and
+	//mine too, watch out not be killed by my own bombs!!)
+	var max int
+	var cell Cell
+	for _, c := range cells {
+		num := s.cratesAround(c)
+		if num > max {
+			max = num
+			cell = c
+		}
+	}
+	var res string
+	//attempt to understand
+	if s.me.what.param1 == 1 {
+		res = bomb(cell)
+	} else {
+		res = move(cell)
+	}
 
 	//wait til param1 of bombPlaced == 0
-
-	//and loop til no bombs left on map?
+	return res
 }
 func main() {
 	rand.Seed(time.Now().Unix())
@@ -198,15 +216,16 @@ func main() {
 		s.readGrid()
 		s.readEntities()
 
-		s.think()
+		res := s.think()
+		fmt.Println(res)
 		//MOVE test
 		//should list possible moves+simulate where to leave bombs to get
 		//more boxes destroy
-		fmt.Println("MOVE 10 10") // Write action to stdout
+		//fmt.Println("MOVE 10 10") // Write action to stdout
 
 		//LOGS
 		//num := s.cratesAround(s.board[x][y])
-		//log.Println("param1:", s.me.what.param1) //, "x:", x, "y:", y, "num", num)
+		log.Println("param1:", s.me.what.param1) //, "x:", x, "y:", y, "num", num)
 
 	}
 }
