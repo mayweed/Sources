@@ -20,6 +20,9 @@ for ($i = 0; $i < $N; $i++)
             "v" =>$V,
             "e" => $E
             );
+    //if ($i >= 1)
+    //calculate dist between $t[$i] and $t[$i-1]
+    //$dist = distance($t[$i]["v"],$t[$i]["e"],$t[$i-1]["v"],$t[$i-1]["e"])
 }
 
 // Write an action using echo(). DON'T FORGET THE TRAILING \n
