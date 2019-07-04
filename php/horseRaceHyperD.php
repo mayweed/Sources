@@ -24,20 +24,29 @@ for ($i = 0; $i < $N; $i++)
             "e" => $E
             );
             
-    
+   foreach ($t as $x){
+       foreach($t as $y){
+           //avoid computing dist between same points
+           if ($x == $y) continue;
+           
+           //you calculate the distance between each
+           $d=distance ($x["v"],$x["e"],$y["v"],$y["e"]);
+           //echo ("$d\n");
+           
+           if ($d < $min) $min=$d;
+       }
+   }
     
     //algo wrong: you must compare each element: $t[0] to $t[1] -> $t[9]
     //$t[1] to all elements above and the one below etc...
     //this is not so simple...
-    if ($i >= 1){
+    //if ($i >= 1){
         //calculate dist between $t[$i] and $t[$i-1]   
-        $dist =  distance($t[$i]["v"],$t[$i]["e"],$t[$i-1]["v"],$t[$i-1]["e"]);
-        if ($dist < $min){
-            $min=$dist;
-        }
-        echo("$dist\n");
-        echo("$min\n");
-    }
+     //   $dist =  distance($t[$i]["v"],$t[$i]["e"],$t[$i-1]["v"],$t[$i-1]["e"]);
+        
+        //echo("$dist\n");
+        //echo("$min\n");
+    //}
         
     //put dist in an array and sort the array in ascending order (arr[0]= answer)
     
@@ -49,6 +58,6 @@ for ($i = 0; $i < $N; $i++)
 //var_dump($t);
 //echo("42\n");
 
-    echo("$min\n");
-echo ($t[2]["v"]);
+echo("$min\n");
+//echo ($t[2]["v"]);
 ?>
