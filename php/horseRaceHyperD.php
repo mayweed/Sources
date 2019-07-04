@@ -24,6 +24,9 @@ for ($i = 0; $i < $N; $i++)
             "e" => $E
             );
             
+    //naive solution
+   //try to compare the min velocity/eleg with the 2d min one
+   //you sort them in ascending order...
    foreach ($t as $x){
        foreach($t as $y){
            //avoid computing dist between same points
