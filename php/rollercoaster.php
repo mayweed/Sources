@@ -8,24 +8,22 @@ $places = $L;
 $times = $C;
 $numGroups = $N;
 
-for ($i = 0; $i < $N; $i++)
-{
-        fscanf(STDIN, "%d", $pi);
-        $groups[$i] = $pi;
+for ($i = 0; $i < $N; $i++) {
+    fscanf(STDIN, "%d", $pi);
+    $groups[$i] = $pi;
 }
 
 $cash = 0;
 
 foreach ($groups as $index => $group) {
-    if ($group - $places < 0) { 
+    if ($group - $places < 0) {
         $gain[$index]=$cash;
         //next group = index+1;?
         $places=$L;
-    }else{
+    } else {
         $cash+=$group;
         $places -= $group;
     }
 }
 
 echo("$cash\n");
-?>
