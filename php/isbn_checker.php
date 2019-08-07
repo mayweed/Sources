@@ -1,38 +1,74 @@
 <?php
 fscanf(STDIN, "%d", $N);
 
+$invalid=0;
 for ($i = 0; $i < $N; $i++)
 {
     $ISBN = stream_get_line(STDIN, 20 + 1, "\n");
+    if (strlen($ISBN) == 10 || strlen($ISBN) ==13){
+        $invalid +=1;
+        if (strlen($ISBN)==10){
+            checkIsbn10($ISBN);
+        }
+        if (strlen($ISBN)==13){
+            checkIsbn13($ISBN);
+        }
+    }
+
 }
-var_dump($ISBN);
 
 function checkIsbn10($isbn){
-    $checkDigit = $isbn%10;
-    $checkNum = $isbn/10;
+    //first extract the checkDigit
+    $checkDigit = $isbn[strlen($isbn)-1];
+    if ($checkDigit == "X") { $checkDigit = 10;}
+
+    //sum the isbn
+    $sum = 0;
+    $index=2;
+    for ($i=strlen($isbn)-2;$i>=0;$i--){
+        $sum+=$isbn[$i]*$index;
+        $index+=1;
+    }
+
+    //check it
+    if (($sum%11 + $checkDigit)%11){
+        //there is a remainder!!
+        echo("INVALID $isbn\n");
+    }else{
+        //no remainder
+        echo("VALID $isbn\n");
+    }
+
 }
 
 function checkIsbn13($isbn){
-    $checkDigit = $isbn%10;
-    //$checkNum = $isbn/10;
-    echo("$checkDigit\n");
+    //first extract the checkDigit
+    $checkDigit = $isbn[strlen($isbn)-1];
+    if ($checkDigit == "X") { $checkDigit = 10;}
+
+    //sum the isbn
+    $sum = 0;
+    for ($i=strlen($isbn)-2;$i>=0;$i--){
+        if ($i % 2){
+            $index=1;
+        }else{
+            $index=3;
+        }
+        $sum+=$isbn[$i]*$index;
+    }
+
+    //check it
+    if (($sum%10 + $checkDigit)%10){
+        //there is a remainder!!
+        echo("INVALID $isbn\n");
+    }else{
+        //no remainder
+        echo("VALID $isbn\n");
+    }
 }
 
-
-//check length and content
-//if length incorrect or content not digit => increment invalid add the isbn to the
-//output list
-if (strlen($ISBN) == 10 || strlen($ISBN) ==13){// || is_numeric((int)$ISBN)){
-    $invalid +=1;
-    if (strlen($ISBN)==10){
-        checkIsbn10($ISBN);
-    }
-    if (strlen($ISBN)==13){
-        checkIsbn13($ISBN);
-    }
+function printOutput(){
 }
-
 // Write an action using echo(). DON'T FORGET THE TRAILING \n
-// To debug (equivalent to var_dump): error_log(var_export($var, true));
 echo("answer\n");
 ?>
