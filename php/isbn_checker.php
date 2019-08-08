@@ -2,19 +2,32 @@
 fscanf(STDIN, "%d", $N);
 
 $invalid=0;
+
 for ($i = 0; $i < $N; $i++)
 {
     $ISBN = stream_get_line(STDIN, 20 + 1, "\n");
     if (strlen($ISBN) == 10 || strlen($ISBN) ==13){
-        $invalid +=1;
         if (strlen($ISBN)==10){
-            checkIsbn10($ISBN);
+            if (checkIsbn10($ISBN)){
+                $invalid+=1;
+                $invalids[]=$ISBN;
+            }
         }
         if (strlen($ISBN)==13){
-            checkIsbn13($ISBN);
+            if(checkIsbn13($ISBN)){
+                $invalid+=1;
+                $invalids[]=$ISBN;
+            }
         }
+    }else{
+        $invalid+=1;
+        $invalids[]=$ISBN;
     }
 
+}
+echo("$invalid invalid:\n");
+foreach ($invalids as $elt){
+    echo("$elt\n");
 }
 
 function checkIsbn10($isbn){
@@ -33,11 +46,13 @@ function checkIsbn10($isbn){
     //check it
     if (($sum%11 + $checkDigit)%11){
         //there is a remainder!!
-        echo("INVALID $isbn\n");
-    }else{
+        //echo("INVALID $isbn\n");
+        return true;
+    }//else{
         //no remainder
-        echo("VALID $isbn\n");
-    }
+        //echo("VALID $isbn\n");
+      //  return false;
+    //}
 
 }
 
@@ -60,15 +75,14 @@ function checkIsbn13($isbn){
     //check it
     if (($sum%10 + $checkDigit)%10){
         //there is a remainder!!
-        echo("INVALID $isbn\n");
-    }else{
+        //echo("INVALID $isbn\n");
+        return true;
+    }//else{
         //no remainder
-        echo("VALID $isbn\n");
-    }
+        //echo("VALID $isbn\n");
+    //}
 }
 
 function printOutput(){
 }
-// Write an action using echo(). DON'T FORGET THE TRAILING \n
-echo("answer\n");
 ?>
