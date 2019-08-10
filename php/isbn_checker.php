@@ -26,9 +26,8 @@ for ($i = 0; $i < $N; $i++)
 
 }
 echo("$invalid invalid:\n");
-//foreach ($invalids as $elt){
-for($i=0;$i<len($invalids);$i++){
-    echo("$elt\n");
+foreach ($invalids as $elt){
+    echo("$elt\n"); //HERE pb: Found: 978043551907XEnd of line (\n) | Expected: 978043551907XNothing
 }
 
 function checkIsbn10($isbn){
