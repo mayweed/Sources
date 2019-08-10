@@ -26,7 +26,8 @@ for ($i = 0; $i < $N; $i++)
 
 }
 echo("$invalid invalid:\n");
-foreach ($invalids as $elt){
+//foreach ($invalids as $elt){
+for($i=0;$i<len($invalids);$i++){
     echo("$elt\n");
 }
 
@@ -39,21 +40,24 @@ function checkIsbn10($isbn){
     $sum = 0;
     $index=2;
     for ($i=strlen($isbn)-2;$i>=0;$i--){
+        if ($isbn[$i]=="X"){
+            $invalids[]=$isbn;
+            break;
+        }
+
         $sum+=$isbn[$i]*$index;
         $index+=1;
     }
 
     //check it
+    if (($sum%11 == 0) && $checkDigit !=0 ){
+        return true;
+    }
+
     if (($sum%11 + $checkDigit)%11){
         //there is a remainder!!
-        //echo("INVALID $isbn\n");
         return true;
-    }//else{
-        //no remainder
-        //echo("VALID $isbn\n");
-      //  return false;
-    //}
-
+    }
 }
 
 function checkIsbn13($isbn){
@@ -64,25 +68,26 @@ function checkIsbn13($isbn){
     //sum the isbn
     $sum = 0;
     for ($i=strlen($isbn)-2;$i>=0;$i--){
+        //check for false char...really not good...but pff...
+        if ($isbn[$i]=="X"){
+            $invalids[]=$isbn;
+            break;
+        }
         if ($i % 2){
-            $index=1;
-        }else{
             $index=3;
+        }else{
+            $index=1;
         }
         $sum+=$isbn[$i]*$index;
     }
 
     //check it
-    if (($sum%10 + $checkDigit)%10){
-        //there is a remainder!!
-        //echo("INVALID $isbn\n");
+    if (($sum%10 == 0) && $checkDigit !=0 ){
         return true;
-    }//else{
-        //no remainder
-        //echo("VALID $isbn\n");
-    //}
-}
-
-function printOutput(){
+    }
+    if (($sum%10 + $checkDigit)%10 != 0){
+        //there is a remainder!!
+        return true;
+    }
 }
 ?>
