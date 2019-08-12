@@ -26,9 +26,14 @@ for ($i = 0; $i < $N; $i++)
 
 }
 echo("$invalid invalid:\n");
+$s="";
 foreach ($invalids as $elt){
-    echo("$elt\n"); //HERE pb: Found: 978043551907XEnd of line (\n) | Expected: 978043551907XNothing
+    $s.= "$elt";
+    $s.= "\n";
 }
+$s=trim($s,"\n");
+echo("$s"); //HERE pb: Found: 978043551907XEnd of line (\n) | Expected: 978043551907XNothing
+
 
 function checkIsbn10($isbn){
     //first extract the checkDigit
