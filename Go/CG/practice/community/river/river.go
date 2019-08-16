@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	//"log"
+	"log"
 )
 
 func countNum(num int) int {
@@ -30,11 +30,17 @@ func main() {
 	//no sets in golang...
 	var x = r1
 	var y = r2
+	var riverX []int
+	var riverY []int
 	for {
-		x = river(x)
-		if x == y {
-			break
-		}
+		riverX = append(riverX, river(x))
+		riverY = append(riverY, river(y))
+		//if x == y {
+		//break
+		//}
+		x = riverX[len(riverX)-1]
+		y = riverY[len(riverY)-1]
+		log.Println(riverX, y)
 	}
 	fmt.Println(x)
 }
