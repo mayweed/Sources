@@ -98,11 +98,11 @@ func (s *State) readGrid() {
 
 	s.myId = myId
 
-	for y := 0; y < height; y++ {
+	for y := 0; y <= height-1; y++ {
 		var row string
 		fmt.Scan(&row)
 		inputs := strings.Split(row, "")
-		for x := 0; x < width; x++ {
+		for x := 0; x <= width-1; x++ {
 			var c int
 			if inputs[x] == "." {
 				c = EMPTY_CELL
