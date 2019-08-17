@@ -54,6 +54,9 @@ func main() {
 		if ok := In(riverX[len(riverX)-1], riverY); ok != 0 {
 			res = ok
 			break
+		} else if ok := In(riverY[len(riverY)-1], riverX); ok != 0 {
+			res = ok
+			break
 		}
 		x = riverX[len(riverX)-1]
 		y = riverY[len(riverY)-1]
