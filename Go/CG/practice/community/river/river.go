@@ -4,7 +4,6 @@ import (
 	"fmt"
 )
 
-/*
 func countNum(num int) int {
 	//base case
 	if num < 10 {
@@ -13,8 +12,12 @@ func countNum(num int) int {
 		return num%10 + countNum(num/10)
 	}
 }
-*/
 
+func river(num int) int {
+	return num + countNum(num)
+}
+
+/*
 func river(num int) int {
 	var sum int
 	var n = num
@@ -28,7 +31,7 @@ func river(num int) int {
 	num += sum
 	return num
 }
-
+*/
 /*
 //is the last elt of list 2 in list 1?
 func In(n int, l []int) int {
