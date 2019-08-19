@@ -2,9 +2,11 @@ package main
 
 import (
 	"fmt"
+	"log"
 	//"log"
 )
 
+/*
 func countNum(num int) int {
 	//base case
 	if num < 10 {
@@ -13,11 +15,21 @@ func countNum(num int) int {
 		return num%10 + countNum(num/10)
 	}
 }
-
+*/
 //for a num give the next one in line
 //create an anonymous func?? to got river?
 func river(num int) int {
-	return num + countNum(num)
+	var sum int
+	var n = num
+	for n > 0 {
+		sum += n % 10
+		n = n / 10
+		if n == 0 {
+			break
+		}
+	}
+	num += sum
+	return num
 }
 
 //is the last elt of list 2 in list 1?
@@ -50,6 +62,8 @@ func main() {
 	for {
 		riverX = append(riverX, river(x))
 		riverY = append(riverY, river(y))
+
+		log.Println(riverX)
 
 		if ok := In(riverX[len(riverX)-1], riverY); ok != 0 {
 			res = ok
