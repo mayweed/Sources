@@ -8,6 +8,17 @@ import (
 	"strings"
 )
 
+const (
+	HEIGHT = 15
+	WIDTH  = 30
+)
+
+type Cell struct {
+	x, y    int
+	ore     int
+	hasHole bool //1 has, 0 hasnt
+}
+
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Buffer(make([]byte, 1000000), 1000000)
@@ -16,6 +27,8 @@ func main() {
 	var width, height int
 	scanner.Scan()
 	fmt.Sscan(scanner.Text(), &width, &height)
+
+	var b [HEIGHT][WIDTH]Cell
 
 	for {
 		// myScore: Amount of ore delivered
@@ -30,9 +43,19 @@ func main() {
 				// ore: amount of ore or "?" if unknown
 				// hole: 1 if cell has a hole
 				ore := inputs[2*j]
+				if ore == "?" {
+					b[i][j].ore = -1
+				} else {
+					b[i][j].ore, _ = strconv.Atoi(ore)
+				}
 				hole, _ := strconv.ParseInt(inputs[2*j+1], 10, 32)
-				_ = hole
+				if hole == 1 {
+					b[i][j].hasHole = true
+				} else {
+					b[i][j].hasHole = false
+				}
 			}
+
 		}
 		// entityCount: number of entities visible to you
 		// radarCooldown: turns left until a new radar can be requested
