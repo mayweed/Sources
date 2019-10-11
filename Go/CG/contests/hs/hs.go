@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
 	"log"
 	"math"
@@ -74,6 +73,7 @@ func (s *State) cratesAround(c Cell) int {
 func (s *State) applyTurn(t Turn) {
 }
 
+/*
 func (s State) printBoard() string {
 	var result bytes.Buffer
 	for y := 0; y < 11; y += 1 {
@@ -98,7 +98,7 @@ func (s State) printBoard() string {
 	}
 	return result.String()
 }
-
+*/
 /*
 func (s *State) think() string {
 	//first select a batch of random possible move
@@ -168,8 +168,7 @@ func main() {
 			}
 		}
 
-		s.printBoard()
-
+		//log.Println(s.board[0][5])
 		//read Entities
 		var entities int
 		fmt.Scan(&entities)
