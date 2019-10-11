@@ -6,13 +6,10 @@ import (
 	"log"
 	"math"
 	"math/rand"
-	"strings"
 	"time"
 )
 
 const (
-	WIDTH  = 13
-	HEIGHT = 11
 	//entityType
 	EMPTY_CELL = -1
 	PLAYER     = 0
@@ -20,13 +17,7 @@ const (
 	CRATE      = 2
 	//wood league
 	BOMB_RANGE = 3
-	//actionType
-	m actionType = 3
-	b actionType = 4
 )
-
-type Grid [WIDTH][HEIGHT]Cell
-type actionType int
 
 //A cell is a pair of coordinate + what's on it!!
 type Cell struct {
@@ -55,14 +46,13 @@ type Entity struct {
 
 //a turn is an action + a destination
 type Turn struct {
-	actionType int
-	c          Cell
+	c Cell
 	//evalScore float64
 }
 type State struct {
 	myId    int  //who i am?
 	me      Cell //where i am
-	board   Grid
+	board   [][]Cell
 	crates  []Cell
 	bombs   []Cell
 	players []Cell
@@ -82,86 +72,18 @@ func (s *State) cratesAround(c Cell) int {
 
 //should make it generic, so that it works for every player
 func (s *State) applyTurn(t Turn) {
-	//copy of the state of the current board
-	cpBoard := s.board
-
-	switch t.actionType {
-	case 3:
-	case 4:
-		//place a bomb
-		cpBoard[t.c.x][t.c.y] = Cell{x: t.c.x, y: t.c.y, what: Entity{entityType: BOMB}}
-	}
 }
-func (s *State) readGrid() {
-	var width, height, myId int
-	fmt.Scan(&width, &height, &myId)
 
-	s.myId = myId
-
-	for y := 0; y <= HEIGHT; y++ {
-		var row string
-		fmt.Scan(&row)
-
-		//var inputs []string = make([]string, WIDTH)
-		inputs := strings.Split(row, "")
-		//log.Println(len(inputs), len(row))
-
-		for x := 0; x <= WIDTH; x++ {
-			//	log.Println(x, inputs[x])
-			var c int
-			if inputs[x] == "." {
-				//	log.Println("here", x, inputs[x])
-				c = EMPTY_CELL
-			} else {
-				//	log.Println("there", x, inputs[x])
-				c = CRATE
-				s.crates = append(s.crates, Cell{x, y, Entity{entityType: CRATE}})
-			}
-			s.board[x][y] = Cell{x: x, y: y, what: Entity{entityType: c}}
-		}
-	}
-}
-func (s *State) readEntities() {
-	var entities int
-	fmt.Scan(&entities)
-
-	s.bombs = []Cell{}
-	s.players = []Cell{}
-
-	for i := 0; i < entities; i++ {
-		var entityType, owner, x, y, param1, param2 int
-		fmt.Scan(&entityType, &owner, &x, &y, &param1, &param2)
-		if owner == s.myId {
-			s.me = Cell{x: x, y: y, what: Entity{entityType, owner, param1, param2}}
-		} else {
-			switch entityType {
-			case 0:
-				s.board[x][y].what.entityType = entityType
-				s.board[x][y].what.owner = owner
-				s.board[x][y].what.param1 = param1
-				s.board[x][y].what.param2 = param2
-				s.players = append(s.players, Cell{x: x, y: y, what: Entity{entityType, owner, param1, param2}})
-			case 1:
-				s.board[x][y].what.entityType = entityType
-				s.board[x][y].what.owner = owner
-				s.board[x][y].what.param1 = param1
-				s.board[x][y].what.param2 = param2
-				s.bombs = append(s.bombs, Cell{x: x, y: y, what: Entity{entityType, owner, param1, param2}})
-			}
-		}
-
-	}
-}
 func (s State) printBoard() string {
 	var result bytes.Buffer
-	for y := 0; y < HEIGHT; y += 1 {
-		for x := 0; x < WIDTH; x += 1 {
-			switch s.board[x][y].what.entityType {
+	for y := 0; y < 11; y += 1 {
+		for x := 0; x < 13; x += 1 {
+			switch s.board[y][x].what.entityType {
 			case EMPTY_CELL:
 				result.WriteString(".")
 			case PLAYER:
 				//should differentiate between me and opp?
-				if s.board[x][y].what.owner == s.myId {
+				if s.board[y][x].what.owner == s.myId {
 					result.WriteString("Me")
 				} else {
 					result.WriteString("P")
@@ -177,21 +99,21 @@ func (s State) printBoard() string {
 	return result.String()
 }
 
+/*
 func (s *State) think() string {
 	//first select a batch of random possible move
 	//evaluate them: is this enough far from any given bomb? is this close to
 	// a foe (bombs will become lethal)? AND is there any crates around?
 
 	var cells []Cell
-
 	//so first move to a random cell
 	//select 10 cells check cratesAround
 	for i := 0; i < 10; i++ {
-		x := rand.Intn(12)
-		y := rand.Intn(10)
-		if s.board[x][y].isEmpty() {
-			cells = append(cells, s.board[x][y])
-		}
+		//x := rand.Intn(12)
+		//y := rand.Intn(10)
+		//if s.board[y][x].isEmpty() {
+		//		cells = append(cells, s.board[y][x])
+		//	}
 	}
 
 	//very light eval, should take into account the range of others players bomb (and
@@ -216,23 +138,81 @@ func (s *State) think() string {
 	//wait til param1 of bombPlaced == 0
 	return res
 }
+*/
+
 func main() {
 	rand.Seed(time.Now().Unix())
-	s := State{}
+	var s State
 	for {
-		s.readGrid()
-		s.readEntities()
 
-		res := s.think()
-		fmt.Println(res)
+		//read Grid
+		var width, height, myId int
+		fmt.Scan(&width, &height, &myId)
+		s.myId = myId
+
+		s.board = make([][]Cell, height)
+		for y := 0; y < height; y++ {
+			var row string
+			fmt.Scan(&row)
+			s.board[y] = make([]Cell, width)
+			for x := range s.board[y] {
+				var c int
+				if row[x] == '.' {
+					c = EMPTY_CELL
+					//and so what??
+				} else {
+					c = CRATE
+					s.crates = append(s.crates, Cell{x, y, Entity{entityType: CRATE}})
+				}
+				s.board[y][x] = Cell{x: x, y: y, what: Entity{entityType: c}}
+			}
+		}
+
+		s.printBoard()
+
+		//read Entities
+		var entities int
+		fmt.Scan(&entities)
+
+		s.bombs = []Cell{}
+		s.players = []Cell{}
+
+		for i := 0; i < entities; i++ {
+			var entityType, owner, x, y, param1, param2 int
+			fmt.Scan(&entityType, &owner, &x, &y, &param1, &param2)
+
+			log.Println("x", x, "y", y)
+
+			if owner == s.myId {
+				s.me = Cell{x: x, y: y, what: Entity{entityType, owner, param1, param2}}
+			} else {
+				switch entityType {
+				case 0:
+					s.board[y][x].what.entityType = entityType
+					s.board[y][x].what.owner = owner
+					s.board[y][x].what.param1 = param1
+					s.board[y][x].what.param2 = param2
+					s.players = append(s.players, Cell{x: x, y: y, what: Entity{entityType, owner, param1, param2}})
+				case 1:
+					s.board[y][x].what.entityType = entityType
+					s.board[y][x].what.owner = owner
+					s.board[y][x].what.param1 = param1
+					s.board[y][x].what.param2 = param2
+					s.bombs = append(s.bombs, Cell{x: x, y: y, what: Entity{entityType, owner, param1, param2}})
+				}
+			}
+
+		}
+
+		//res := s.think()
+		//fmt.Println(res)
 		//MOVE test
 		//should list possible moves+simulate where to leave bombs to get
 		//more boxes destroy
-		//fmt.Println("MOVE 10 10") // Write action to stdout
+		fmt.Println("MOVE 10 10") // Write action to stdout
 
 		//LOGS
 		//num := s.cratesAround(s.board[x][y])
-		log.Println("param1:", s.me.what.param1) //, "x:", x, "y:", y, "num", num)
-
+		//log.Println("param1:", s.me.what.param1) //, "x:", x, "y:", y, "num", num)
 	}
 }
