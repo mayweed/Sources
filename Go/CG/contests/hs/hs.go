@@ -98,15 +98,22 @@ func (s *State) readGrid() {
 
 	s.myId = myId
 
-	for y := 0; y <= height-1; y++ {
+	for y := 0; y <= HEIGHT; y++ {
 		var row string
 		fmt.Scan(&row)
+
+		//var inputs []string = make([]string, WIDTH)
 		inputs := strings.Split(row, "")
-		for x := 0; x <= width-1; x++ {
+		//log.Println(len(inputs), len(row))
+
+		for x := 0; x <= WIDTH; x++ {
+			//	log.Println(x, inputs[x])
 			var c int
 			if inputs[x] == "." {
+				//	log.Println("here", x, inputs[x])
 				c = EMPTY_CELL
 			} else {
+				//	log.Println("there", x, inputs[x])
 				c = CRATE
 				s.crates = append(s.crates, Cell{x, y, Entity{entityType: CRATE}})
 			}
@@ -200,7 +207,7 @@ func (s *State) think() string {
 	}
 	var res string
 	//attempt to understand
-	if s.me.what.param1 == 1 {
+	if s.me.what.param1 > 0 {
 		res = bomb(cell)
 	} else {
 		res = move(cell)
