@@ -79,7 +79,7 @@ func (s *State) cratesAround(c Cell) int {
 //should make it generic, so that it works for every player
 //idea: simulate bomb explosion
 func (s *State) applyTurn(t Turn) {
-	simBoard := s.board
+	//simBoard := s.board
 }
 
 /*
@@ -108,7 +108,6 @@ func (s State) printBoard() string {
 	return result.String()
 }
 */
-/*
 func (s *State) think() string {
 	//first select a batch of random possible move
 	//evaluate them: is this enough far from any given bomb? is this close to
@@ -118,11 +117,11 @@ func (s *State) think() string {
 	//so first move to a random cell
 	//select 10 cells check cratesAround
 	for i := 0; i < 10; i++ {
-		//x := rand.Intn(12)
-		//y := rand.Intn(10)
-		//if s.board[y][x].isEmpty() {
-		//		cells = append(cells, s.board[y][x])
-		//	}
+		x := rand.Intn(12)
+		y := rand.Intn(10)
+		if s.board[y][x].isEmpty() {
+			cells = append(cells, s.board[y][x])
+		}
 	}
 
 	//very light eval, should take into account the range of others players bomb (and
@@ -147,7 +146,6 @@ func (s *State) think() string {
 	//wait til param1 of bombPlaced == 0
 	return res
 }
-*/
 
 func main() {
 	rand.Seed(time.Now().Unix())
@@ -209,12 +207,12 @@ func main() {
 
 		}
 
-		//res := s.think()
-		//fmt.Println(res)
+		res := s.think()
+		fmt.Println(res)
 		//MOVE test
 		//should list possible moves+simulate where to leave bombs to get
 		//more boxes destroy
-		fmt.Println("MOVE 10 10") // Write action to stdout
+		//fmt.Println("MOVE 10 10") // Write action to stdout
 
 		//LOGS
 		//num := s.cratesAround(s.board[x][y])
