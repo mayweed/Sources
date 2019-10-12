@@ -2,13 +2,14 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"math"
 	"math/rand"
 	"time"
 )
 
 const (
+	WIDTH  = 13
+	HEIGHT = 11
 	//entityType
 	EMPTY_CELL = -1
 	PLAYER     = 0
@@ -21,7 +22,13 @@ const (
 //A cell is a pair of coordinate + what's on it!!
 type Cell struct {
 	x, y int
+	//should be bools
 	what Entity
+	/*
+		hasPlayer bool
+		hasCrate bool
+		hasBomb bool
+	*/
 }
 
 func (c *Cell) isEmpty() bool {
@@ -51,7 +58,7 @@ type Turn struct {
 type State struct {
 	myId    int  //who i am?
 	me      Cell //where i am
-	board   [][]Cell
+	board   [HEIGHT][WIDTH]Cell
 	crates  []Cell
 	bombs   []Cell
 	players []Cell
@@ -70,7 +77,9 @@ func (s *State) cratesAround(c Cell) int {
 }
 
 //should make it generic, so that it works for every player
+//idea: simulate bomb explosion
 func (s *State) applyTurn(t Turn) {
+	simBoard := s.board
 }
 
 /*
@@ -150,12 +159,10 @@ func main() {
 		fmt.Scan(&width, &height, &myId)
 		s.myId = myId
 
-		s.board = make([][]Cell, height)
 		for y := 0; y < height; y++ {
 			var row string
 			fmt.Scan(&row)
-			s.board[y] = make([]Cell, width)
-			for x := range s.board[y] {
+			for x := 0; x < width; x++ {
 				var c int
 				if row[x] == '.' {
 					c = EMPTY_CELL
@@ -168,7 +175,6 @@ func main() {
 			}
 		}
 
-		//log.Println(s.board[0][5])
 		//read Entities
 		var entities int
 		fmt.Scan(&entities)
@@ -180,7 +186,7 @@ func main() {
 			var entityType, owner, x, y, param1, param2 int
 			fmt.Scan(&entityType, &owner, &x, &y, &param1, &param2)
 
-			log.Println("x", x, "y", y)
+			//log.Println("x", x, "y", y)
 
 			if owner == s.myId {
 				s.me = Cell{x: x, y: y, what: Entity{entityType, owner, param1, param2}}
