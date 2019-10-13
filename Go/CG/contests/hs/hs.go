@@ -9,106 +9,82 @@ import (
 )
 
 const (
-	WIDTH  = 13
-	HEIGHT = 11
-	//entityType
-	EMPTY_CELL = -1
-	PLAYER     = 0
-	BOMB       = 1
-	CRATE      = 2
-	//wood league
+	WIDTH      = 13
+	HEIGHT     = 11
 	BOMB_RANGE = 3
 )
 
+//STATE:description of the state of the game at the turn T
+type Point struct {
+	x, y int
+}
+
 //A cell is a pair of coordinate + what's on it!!
 type Cell struct {
-	x, y int
-	//should be bools
-	what Entity
-	/*
-		hasPlayer bool
-		hasCrate bool
-		hasBomb bool
-	*/
+	position  Point
+	hasMe     bool
+	hasPlayer bool
+	hasCrate  bool
+	hasBomb   bool
+	isEmpty   bool
 }
 
-func (c *Cell) isEmpty() bool {
-	return c.what.entityType == -1
-}
-func move(c Cell) string {
-	s := fmt.Sprintf("MOVE %d %d", c.x, c.y)
-	return s
-}
-func bomb(c Cell) string {
-	s := fmt.Sprintf("BOMB %d %d", c.x, c.y)
-	return s
+type Player struct {
+	position       Point
+	id             int
+	numOfBombsLeft int
+	rangeOfBombs   int
 }
 
-type Entity struct {
-	entityType int
-	owner      int //id of the player or id of the one who sets the bomb
-	param1     int //for bomb, bomb ticker
-	param2     int
+type Bomb struct {
+	position  Point
+	ownerId   int
+	countdown int
+	expRange  int
 }
 
-//a turn is an action + a destination
-type Turn struct {
-	c Cell
-	//evalScore float64
-}
 type State struct {
-	myId    int  //who i am?
-	me      Cell //where i am
+	me      Player
 	board   [HEIGHT][WIDTH]Cell
-	crates  []Cell
-	bombs   []Cell
-	players []Cell
+	players []Player
+	bombs   []Bomb
+	crates  []Point
 }
 
 func (s *State) cratesAround(c Cell) int {
 	var numCrates int
 	//for any given free cell let's see how many crates are in range
 	for _, crate := range s.crates {
-		if c.x == crate.x && math.Round(math.Abs(float64(c.y-crate.y))) <= BOMB_RANGE ||
-			c.y == crate.y && math.Round(math.Abs(float64(c.x-crate.x))) <= BOMB_RANGE {
+		if c.position.x == crate.x && math.Round(math.Abs(float64(c.position.y-crate.y))) <= BOMB_RANGE ||
+			c.position.y == crate.y && math.Round(math.Abs(float64(c.position.x-crate.x))) <= BOMB_RANGE {
 			numCrates += 1
 		}
 	}
 	return numCrates
 }
 
+//TURN and Action
+//a turn is an action + a destination
+type Turn struct {
+	c Cell
+	//evalScore float64
+}
+
 //should make it generic, so that it works for every player
 //idea: simulate bomb explosion
 func (s *State) applyTurn(t Turn) {
-	//simBoard := s.board
 }
 
-/*
-func (s State) printBoard() string {
-	var result bytes.Buffer
-	for y := 0; y < 11; y += 1 {
-		for x := 0; x < 13; x += 1 {
-			switch s.board[y][x].what.entityType {
-			case EMPTY_CELL:
-				result.WriteString(".")
-			case PLAYER:
-				//should differentiate between me and opp?
-				if s.board[y][x].what.owner == s.myId {
-					result.WriteString("Me")
-				} else {
-					result.WriteString("P")
-				}
-			case BOMB:
-				result.WriteString("B")
-			case CRATE:
-				result.WriteString("C")
-			}
-		}
-		result.WriteString("\n")
-	}
-	return result.String()
+//should be in action type
+func move(c Cell) string {
+	s := fmt.Sprintf("MOVE %d %d", c.position.x, c.position.y)
+	return s
 }
-*/
+func bomb(c Cell) string {
+	s := fmt.Sprintf("BOMB %d %d", c.position.x, c.position.y)
+	return s
+}
+
 func (s *State) think() string {
 	//first select a batch of random possible move
 	//evaluate them: is this enough far from any given bomb? is this close to
@@ -120,25 +96,28 @@ func (s *State) think() string {
 	for i := 0; i < 10; i++ {
 		x := rand.Intn(12)
 		y := rand.Intn(10)
-		if s.board[y][x].isEmpty() {
+		if s.board[y][x].isEmpty {
 			cells = append(cells, s.board[y][x])
 		}
 	}
-
 	//very light eval, should take into account the range of others players bomb (and
 	//mine too, watch out not be killed by my own bombs!!)
 	var max int
 	var cell Cell
 	for _, c := range cells {
 		num := s.cratesAround(c)
+		//log.Println(num, c.position)
 		if num > max {
 			max = num
 			cell = c
 		}
 	}
+	//log.Println(cell)
 	var res string
 	//attempt to understand
-	if s.me.what.param1 > 0 {
+	//OOPS you go first and bomb then!!
+	//so calculate a path with most crates and bomb at a given time?
+	if s.me.numOfBombsLeft > 0 {
 		res = bomb(cell)
 	} else {
 		res = move(cell)
@@ -156,22 +135,25 @@ func main() {
 		//read Grid
 		var width, height, myId int
 		fmt.Scan(&width, &height, &myId)
-		s.myId = myId
 
 		for y := 0; y < height; y++ {
 			var row string
 			fmt.Scan(&row)
 			for x := 0; x < width; x++ {
-				log.Println(x, row[x])
-				var c int
+				//dont know why got randomly "index out of range"???
+				log.Println(x, len(row))
+				//if x == len(row) {
+				//	break
+				//}
 				if row[x] == '.' {
-					c = EMPTY_CELL
-					//and so what??
+					s.board[y][x].position = Point{x, y}
+					s.board[y][x].isEmpty = true
 				} else {
-					c = CRATE
-					s.crates = append(s.crates, Cell{x, y, Entity{entityType: CRATE}})
+					s.board[y][x].position = Point{x, y}
+					s.board[y][x].hasCrate = true
+					//just need their positions on the grid, no more no less
+					s.crates = append(s.crates, Point{x, y})
 				}
-				s.board[y][x] = Cell{x: x, y: y, what: Entity{entityType: c}}
 			}
 		}
 
@@ -179,31 +161,27 @@ func main() {
 		var entities int
 		fmt.Scan(&entities)
 
-		s.bombs = []Cell{}
-		s.players = []Cell{}
-
 		for i := 0; i < entities; i++ {
 			var entityType, owner, x, y, param1, param2 int
 			fmt.Scan(&entityType, &owner, &x, &y, &param1, &param2)
 
-			//log.Println("x", x, "y", y)
-
-			if owner == s.myId {
-				s.me = Cell{x: x, y: y, what: Entity{entityType, owner, param1, param2}}
+			if owner == myId {
+				s.me.position = Point{x, y}
+				s.me.id = owner
+				s.me.numOfBombsLeft = param1
+				s.me.rangeOfBombs = param2
+				s.board[y][x].hasMe = true
+				s.board[y][x].isEmpty = false
 			} else {
 				switch entityType {
 				case 0:
-					s.board[y][x].what.entityType = entityType
-					s.board[y][x].what.owner = owner
-					s.board[y][x].what.param1 = param1
-					s.board[y][x].what.param2 = param2
-					s.players = append(s.players, Cell{x: x, y: y, what: Entity{entityType, owner, param1, param2}})
+					s.board[y][x].hasPlayer = true
+					s.board[y][x].isEmpty = false
+					s.players = append(s.players, Player{position: Point{x, y}, id: owner, numOfBombsLeft: param1, rangeOfBombs: param2})
 				case 1:
-					s.board[y][x].what.entityType = entityType
-					s.board[y][x].what.owner = owner
-					s.board[y][x].what.param1 = param1
-					s.board[y][x].what.param2 = param2
-					s.bombs = append(s.bombs, Cell{x: x, y: y, what: Entity{entityType, owner, param1, param2}})
+					s.board[y][x].hasBomb = true
+					s.board[y][x].isEmpty = false
+					s.bombs = append(s.bombs, Bomb{position: Point{x, y}, ownerId: owner, countdown: param1, expRange: param2})
 				}
 			}
 
@@ -217,7 +195,6 @@ func main() {
 		//fmt.Println("MOVE 10 10") // Write action to stdout
 
 		//LOGS
-		//num := s.cratesAround(s.board[x][y])
-		//log.Println("param1:", s.me.what.param1) //, "x:", x, "y:", y, "num", num)
+		//log.Println(s.me.numOfBombsLeft)
 	}
 }
