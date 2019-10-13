@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"math"
 	"math/rand"
 	"time"
@@ -161,6 +162,7 @@ func main() {
 			var row string
 			fmt.Scan(&row)
 			for x := 0; x < width; x++ {
+				log.Println(x, row[x])
 				var c int
 				if row[x] == '.' {
 					c = EMPTY_CELL
