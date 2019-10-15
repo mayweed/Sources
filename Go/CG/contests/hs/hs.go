@@ -19,6 +19,13 @@ type Point struct {
 	x, y int
 }
 
+//distance in a grid idea voronoi
+func (p Point) manhattanDist(p2 Point) float64 {
+	var dx = p2.x - p.x
+	var dy = p2.y - p.y
+	return math.Abs(float64(dx)) + math.Abs(float64(dy))
+}
+
 //A cell is a pair of coordinate + what's on it!!
 type Cell struct {
 	position  Point
@@ -44,13 +51,21 @@ type Bomb struct {
 }
 
 type State struct {
-	me      Player
-	board   [HEIGHT][WIDTH]Cell
+	me    Player
+	board [HEIGHT][WIDTH]Cell
+	//should convert grid into a bitfield...but what about players?
+	grid    string
 	players []Player
 	bombs   []Bomb
 	crates  []Point
 }
 
+func (s *State) getCellFromXY(x, y int) byte {
+	return s.grid[y*WIDTH+x]
+}
+func (s *State) getCellFromPoint(p Point) byte {
+	return s.grid[p.y*WIDTH+p.x]
+}
 func (s *State) cratesAround(c Cell) int {
 	var numCrates int
 	//for any given free cell let's see how many crates are in range
@@ -130,6 +145,7 @@ func (s *State) think() string {
 func main() {
 	rand.Seed(time.Now().Unix())
 	var s State
+
 	for {
 
 		//read Grid
@@ -139,9 +155,11 @@ func main() {
 		for y := 0; y < height; y++ {
 			var row string
 			fmt.Scan(&row)
+			s.grid += row
+			//here you write a parseGrid linear fashion
 			for x := 0; x < width; x++ {
 				//dont know why got randomly "index out of range"???
-				log.Println(x, len(row))
+				//log.Println(x, len(row))
 				//if x == len(row) {
 				//	break
 				//}
@@ -157,6 +175,7 @@ func main() {
 			}
 		}
 
+		log.Println(s.getCellFromXY(5, 7))
 		//read Entities
 		var entities int
 		fmt.Scan(&entities)
@@ -196,5 +215,6 @@ func main() {
 
 		//LOGS
 		//log.Println(s.me.numOfBombsLeft)
+		//s.grid = "" //reset state
 	}
 }
