@@ -160,9 +160,9 @@ func main() {
 			for x := 0; x < width; x++ {
 				//dont know why got randomly "index out of range"???
 				//log.Println(x, len(row))
-				//if x == len(row) {
-				//	break
-				//}
+				if x == len(row) {
+					break
+				}
 				if row[x] == '.' {
 					s.board[y][x].position = Point{x, y}
 					s.board[y][x].isEmpty = true
