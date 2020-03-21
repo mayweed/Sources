@@ -18,7 +18,7 @@ type Point struct {
 type Player struct {
 	id         int
 	currentPos Point
-
+	hitPoints  int
 	canGoWest  bool
 	canGoEast  bool
 	canGoNorth bool
@@ -56,7 +56,7 @@ func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Buffer(make([]byte, 1000000), 1000000)
 
-	//me := Player{}
+	me := Player{}
 	var width, height, myId int
 	scanner.Scan()
 	fmt.Sscan(scanner.Text(), &width, &height, &myId)
@@ -79,7 +79,6 @@ func main() {
 	fmt.Println(startPos.x, startPos.y)
 
 	for {
-		me := Player{}
 		var x, y, myLife, oppLife, torpedoCooldown, sonarCooldown, silenceCooldown, mineCooldown int
 		scanner.Scan()
 		fmt.Sscan(scanner.Text(), &x, &y, &myLife, &oppLife, &torpedoCooldown, &sonarCooldown, &silenceCooldown, &mineCooldown)
@@ -91,6 +90,7 @@ func main() {
 
 		//I know...but did i grasp the logic??
 		// !!! You cannot move on a cell you already visited before
+		// see surface this is not a replacement for a good floodfill or sth, but...
 		if me.canGoSouth {
 			fmt.Println("MOVE S TORPEDO")
 		}
@@ -103,11 +103,23 @@ func main() {
 		if !me.canGoNorth && !me.canGoEast && !me.canGoSouth && me.canGoWest {
 			fmt.Println("MOVE W TORPEDO")
 		}
+		if !me.canGoNorth && !me.canGoEast && !me.canGoSouth && !me.canGoWest {
+			fmt.Println("SURFACE")
+		}
 		var sonarResult string
 		scanner.Scan()
 		fmt.Sscan(scanner.Text(), &sonarResult)
 
 		scanner.Scan()
 		//opponentOrders := scanner.Text()
+
+		//reset turn player data
+		//write a reset turn eventually...
+		me.currentPos = Point{}
+		me.canGoNorth = false
+		me.canGoSouth = false
+		me.canGoWest = false
+		me.canGoEast = false
+		me.hitPoints = 0
 	}
 }
