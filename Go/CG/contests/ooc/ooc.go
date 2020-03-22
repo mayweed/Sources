@@ -179,10 +179,14 @@ func main() {
 		s.me.checkDirections(s.me.currentPos, s.board, visited)
 
 		var c bool
-		if s.me.torpedoCooldown < 3 {
+		if s.me.torpedoCooldown <= 3 {
 			c = true
 		} else {
 			c = false
+		}
+		//TEST, now should fire in the range!! and should chase the goose!!
+		if s.me.torpedoCooldown == 0 {
+			s.t.commands = append(s.t.commands, (torpedo(Point{3, 5})))
 		}
 		//I know...but did i grasp the logic??
 		// !!! You cannot move on a cell you already visited before
