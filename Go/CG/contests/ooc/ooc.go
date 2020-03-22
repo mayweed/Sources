@@ -29,16 +29,16 @@ type Tile struct {
 	visited bool
 }
 type Me struct {
-	id         int
-	currentPos Point
-	hitPoints  int
-	canGoWest  bool
-	canGoEast  bool
-	canGoNorth bool
-	canGoSouth bool
+	id              int
+	currentPos      Point
+	hitPoints       int
+	canGoWest       bool
+	canGoEast       bool
+	canGoNorth      bool
+	canGoSouth      bool
+	torpedoCooldown int
 }
 
-//first keep it stateless
 func (m *Me) checkDirections(pos Point, board string, visited map[int]bool) {
 
 	if pos.x-1 > 0 && board[pos.y*WIDTH+pos.x-1] != 'x' && !visited[pos.y*WIDTH+pos.x-1] {
@@ -66,12 +66,10 @@ func (o *Opp) parseOppOrders(orders string) {
 	s := strings.ReplaceAll(orders, "|", " ")
 	//split it
 	ord := strings.Split(s, " ")
-
 	for idx, w := range ord {
 		if w == "N" || w == "E" || w == "W" || w == "S" {
 			o.oppDirection = w
 		}
-		log.Println(idx, w)
 		//in move n torpedo my opponent cant see i m recharging my torpedo so...
 		if w == "TORPEDO" {
 			x, _ := strconv.Atoi(ord[idx+1])
@@ -83,8 +81,46 @@ func (o *Opp) parseOppOrders(orders string) {
 
 //question is: how to triangulate opp pos from his torpedoes?? BFS??
 
-type Action struct {
-	possibleDirections []string //= ['N','S','E','W']
+type Turn struct {
+	commands []string
+}
+
+//Helpers for turn
+//false = no charge, true = charge. if multiple arm could be string?
+func move(dir string, c bool) string {
+	var s string
+	switch dir {
+	case "N":
+		s = fmt.Sprintf("MOVE N")
+	case "S":
+		s = fmt.Sprintf("MOVE S")
+	case "W":
+		s = fmt.Sprintf("MOVE W")
+	case "E":
+		s = fmt.Sprintf("MOVE E")
+	}
+	if c {
+		s = s + " TORPEDO"
+	}
+	return s
+}
+func surface() string {
+	return fmt.Sprintf("SURFACE")
+}
+func torpedo(p Point) string {
+	return fmt.Sprintf("TORPEDO %d %d", p.x, p.y)
+}
+func msg(s string) string {
+	return fmt.Sprintf("MSG %s", s)
+}
+
+//if and only if commands > 1
+func sendTurn(commands []string) string {
+	if len(commands) == 1 {
+		return commands[0]
+	} else {
+		return strings.Join(commands, "|")
+	}
 }
 
 //no opp nothing, goal is roaming
@@ -93,6 +129,7 @@ type State struct {
 	carte [HEIGHT][WIDTH]Tile
 	me    Me
 	opp   Opp
+	t     Turn
 }
 
 //first:a simple bot that roams through the map avoiding islands
@@ -100,16 +137,12 @@ func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Buffer(make([]byte, 1000000), 1000000)
 
-	//me := Me{}
-	//opp := Opp{}
 	var s State
 	var width, height, myId int
 	scanner.Scan()
 	fmt.Sscan(scanner.Text(), &width, &height, &myId)
 	//did i really care about that??
 	s.me.id = myId
-	//var carte [HEIGHT][WIDTH]Tile
-	//var board string
 
 	//will put that here for now?
 	visited := make(map[int]bool)
@@ -121,17 +154,18 @@ func main() {
 	}
 
 	//init graph keeping board
-	//might use byte here?
 	//BIG TEST never did that before!!
 	for i := 0; i < HEIGHT; i++ {
 		for j := 0; j < WIDTH; j++ {
 			s.carte[i][j] = Tile{Point{i, j}, string(s.board[j*WIDTH+i]), false}
 		}
 	}
+
 	//my starting pos
 	var startPos = Point{7, 7}
 	fmt.Println(startPos.x, startPos.y)
 	//log.Println(carte[8][10])
+
 	for {
 		var x, y, myLife, oppLife, torpedoCooldown, sonarCooldown, silenceCooldown, mineCooldown int
 		scanner.Scan()
@@ -139,25 +173,31 @@ func main() {
 		s.me.currentPos = Point{x, y}
 		s.me.hitPoints = myLife
 		s.opp.hitPoints = oppLife
+		s.me.torpedoCooldown = torpedoCooldown
 		visited[y*width+x] = true
 
 		s.me.checkDirections(s.me.currentPos, s.board, visited)
-		//log.Println(me)
 
+		var c bool
+		if s.me.torpedoCooldown < 3 {
+			c = true
+		} else {
+			c = false
+		}
 		//I know...but did i grasp the logic??
 		// !!! You cannot move on a cell you already visited before
 		// see surface this is not a replacement for a good floodfill or sth, but...
 		if s.me.canGoSouth {
-			fmt.Println("MOVE S TORPEDO")
+			s.t.commands = append(s.t.commands, move("S", c))
 		}
 		if !s.me.canGoSouth && s.me.canGoEast {
-			fmt.Println("MOVE E TORPEDO")
+			s.t.commands = append(s.t.commands, move("E", c))
 		}
 		if !s.me.canGoSouth && !s.me.canGoEast && s.me.canGoNorth {
-			fmt.Println("MOVE N TORPEDO")
+			s.t.commands = append(s.t.commands, move("N", c))
 		}
 		if !s.me.canGoNorth && !s.me.canGoEast && !s.me.canGoSouth && s.me.canGoWest {
-			fmt.Println("MOVE W TORPEDO")
+			s.t.commands = append(s.t.commands, move("W", c))
 		}
 		if !s.me.canGoNorth && !s.me.canGoEast && !s.me.canGoSouth && !s.me.canGoWest {
 			fmt.Println("SURFACE")
@@ -176,10 +216,10 @@ func main() {
 		scanner.Scan()
 		opponentOrders := scanner.Text()
 		s.opp.parseOppOrders(opponentOrders)
-		log.Println(s.opp.oppDirection, s.opp.torpedoPos)
+		log.Println(s.me.torpedoCooldown)
 
-		//log.Println(torpedoCooldown, sonarResult)
-
+		res := sendTurn(s.t.commands)
+		fmt.Println(res)
 		//reset turn player data
 		//write a reset turn eventually...
 		s.me.currentPos = Point{}
@@ -188,5 +228,6 @@ func main() {
 		s.me.canGoWest = false
 		s.me.canGoEast = false
 		s.me.hitPoints = 0
+		s.t.commands = []string{}
 	}
 }
