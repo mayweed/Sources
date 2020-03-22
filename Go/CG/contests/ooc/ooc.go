@@ -8,12 +8,19 @@ import (
 )
 
 const (
-	height = 15
-	width  = 15
+	HEIGHT = 15
+	WIDTH  = 15
 )
 
 type Point struct {
 	x, y int
+}
+
+//a graph might help?
+type Tile struct {
+	pos     Point
+	what    string
+	visited bool
 }
 type Player struct {
 	id         int
@@ -37,16 +44,16 @@ type State struct {
 //first keep it stateless
 func (p *Player) checkDirections(pos Point, board string, visited map[int]bool) {
 
-	if pos.x-1 > 0 && board[pos.y*width+pos.x-1] != 'x' && !visited[pos.y*width+pos.x-1] {
+	if pos.x-1 > 0 && board[pos.y*WIDTH+pos.x-1] != 'x' && !visited[pos.y*WIDTH+pos.x-1] {
 		p.canGoWest = true
 	}
-	if pos.x+1 < width && board[pos.y*width+pos.x+1] != 'x' && !visited[pos.y*width+pos.x+1] {
+	if pos.x+1 < WIDTH && board[pos.y*WIDTH+pos.x+1] != 'x' && !visited[pos.y*WIDTH+pos.x+1] {
 		p.canGoEast = true
 	}
-	if pos.y-1 > 0 && board[(pos.y-1)*width+pos.x] != 'x' && !visited[(pos.y-1)*width+pos.x] {
+	if pos.y-1 > 0 && board[(pos.y-1)*WIDTH+pos.x] != 'x' && !visited[(pos.y-1)*WIDTH+pos.x] {
 		p.canGoNorth = true
 	}
-	if pos.y+1 < height && board[(pos.y+1)*width+pos.x] != 'x' && !visited[(pos.y+1)*width+pos.x] {
+	if pos.y+1 < HEIGHT && board[(pos.y+1)*WIDTH+pos.x] != 'x' && !visited[(pos.y+1)*WIDTH+pos.x] {
 		p.canGoSouth = true
 	}
 }
@@ -62,7 +69,7 @@ func main() {
 	fmt.Sscan(scanner.Text(), &width, &height, &myId)
 	//did i really care about that??
 	//me.id = myId
-
+	var carte [HEIGHT][WIDTH]Tile
 	var board string
 
 	//will put that here for now?
@@ -74,10 +81,18 @@ func main() {
 		board = board + line
 	}
 
+	//init graph keeping board
+	//might use byte here?
+	//BIG TEST never did that before!!
+	for i := 0; i < HEIGHT; i++ {
+		for j := 0; j < WIDTH; j++ {
+			carte[i][j] = Tile{Point{i, j}, string(board[j*WIDTH+i]), false}
+		}
+	}
 	//my starting pos
 	var startPos = Point{7, 7}
 	fmt.Println(startPos.x, startPos.y)
-
+	log.Println(carte[8][10])
 	for {
 		var x, y, myLife, oppLife, torpedoCooldown, sonarCooldown, silenceCooldown, mineCooldown int
 		scanner.Scan()
