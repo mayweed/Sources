@@ -39,6 +39,7 @@ type Me struct {
 	canGoNorth      bool
 	canGoSouth      bool
 	torpedoCooldown int
+	oppSurfaceHint  string
 }
 
 func (m *Me) checkDirections(pos Point, board string, visited map[int]bool) {
@@ -63,56 +64,55 @@ type Opp struct {
 	enemyZone    int
 }
 
-func (o *Opp) parseOppOrders(orders string) {
+func (s *State) parseOppOrders(orders string) {
 	//sanitize orders
-	s := strings.ReplaceAll(orders, "|", " ")
+	st := strings.ReplaceAll(orders, "|", " ")
 	//split it
-	ord := strings.Split(s, " ")
+	ord := strings.Split(st, " ")
 	for idx, w := range ord {
 		if w == "N" || w == "E" || w == "W" || w == "S" {
-			o.oppDirection = w
+			s.opp.oppDirection = w
 		}
 		//in move n torpedo my opponent cant see i m recharging my torpedo so...
 		if w == "TORPEDO" {
 			x, _ := strconv.Atoi(ord[idx+1])
 			y, _ := strconv.Atoi(ord[idx+2])
-			o.torpedoPos = append(o.torpedoPos, Point{x, y})
+			s.opp.torpedoPos = append(s.opp.torpedoPos, Point{x, y})
 		}
 		//important hint here, must find a way to parse it sector by sector
+		//the idea: if the enemy is in the SW zone and I head south,
+		//next i will go S and w and s etc..
+		//must find sth better
 		if w == "SURFACE" {
 			e, _ := strconv.Atoi(ord[idx+1])
-			o.enemyZone = e
-		}
-	}
-}
+			s.opp.enemyZone = e
+			switch s.opp.enemyZone {
+			case 1:
+				s.me.oppSurfaceHint = "NW"
+			case 2:
+				s.me.oppSurfaceHint = "N"
+			case 3:
+				s.me.oppSurfaceHint = "NE"
+			case 4:
+				s.me.oppSurfaceHint = "CW" //C like center
+			case 5:
+				s.me.oppSurfaceHint = "C"
+			case 6:
+				s.me.oppSurfaceHint = "CE"
+			case 7:
+				s.me.oppSurfaceHint = "SW"
+			case 8:
+				s.me.oppSurfaceHint = "S"
+			case 9:
+				s.me.oppSurfaceHint = "SE"
+			}
 
-//the idea: if the enemy is in the SW zone and I head south,
-//next i will go S and w and s etc..
-//must find sth better
-func (o *Opp) parseOppZone() string {
-	switch o.enemyZone {
-	case 1:
-		return "NW"
-	case 2:
-		return "N"
-	case 3:
-		return "NE"
-	case 4:
-		return "CW" //C like center
-	case 5:
-		return "C"
-	case 6:
-		return "CE"
-	case 7:
-		return "SW"
-	case 8:
-		return "S"
-	case 9:
-		return "SE"
+		}
 	}
 }
 
 //question is: how to triangulate opp pos from his torpedoes?? BFS??
+//WRITE A GUESS FUNC TO GUESS ENEMY POS FROM HINTS!!
 
 type Turn struct {
 	commands []string
@@ -254,9 +254,10 @@ func main() {
 	}
 
 	//my starting pos
+	//must be in sector 5, center. Must find a walkable tile in there
+	//idea : from all center tiles filter the walkable choose randomly one
 	var startPos = Point{7, 7}
 	fmt.Println(startPos.x, startPos.y)
-	//log.Println(carte[8][10])
 
 	for {
 		var x, y, myLife, oppLife, torpedoCooldown, sonarCooldown, silenceCooldown, mineCooldown int
@@ -311,7 +312,7 @@ func main() {
 
 		scanner.Scan()
 		opponentOrders := scanner.Text()
-		s.opp.parseOppOrders(opponentOrders)
+		s.parseOppOrders(opponentOrders)
 		//should yield 0 4/0 6/1 5
 		//MUST update the way i make test!!
 		log.Println(s.getNeighbours(s.carte[0][5]))
