@@ -18,16 +18,18 @@ type Point struct {
 	x, y int
 }
 
-func (p *Point) isValid() bool {
-	return p.x > 0 && p.x < WIDTH && p.y > 0 && p.y < HEIGHT
-}
-
 //a graph might help?
 type Tile struct {
 	pos     Point
 	what    string
 	visited bool
 }
+
+//check that a tile is not off limit + walkable
+func isWalkable(t Tile) bool {
+	return t.what == "."
+}
+
 type Me struct {
 	id              int
 	currentPos      Point
@@ -40,7 +42,6 @@ type Me struct {
 }
 
 func (m *Me) checkDirections(pos Point, board string, visited map[int]bool) {
-
 	if pos.x-1 > 0 && board[pos.y*WIDTH+pos.x-1] != 'x' && !visited[pos.y*WIDTH+pos.x-1] {
 		m.canGoWest = true
 	}
@@ -59,6 +60,7 @@ type Opp struct {
 	hitPoints    int
 	oppDirection string
 	torpedoPos   []Point
+	enemyZone    int
 }
 
 func (o *Opp) parseOppOrders(orders string) {
@@ -76,6 +78,37 @@ func (o *Opp) parseOppOrders(orders string) {
 			y, _ := strconv.Atoi(ord[idx+2])
 			o.torpedoPos = append(o.torpedoPos, Point{x, y})
 		}
+		//important hint here, must find a way to parse it sector by sector
+		if w == "SURFACE" {
+			e, _ := strconv.Atoi(ord[idx+1])
+			o.enemyZone = e
+		}
+	}
+}
+
+//the idea: if the enemy is in the SW zone and I head south,
+//next i will go S and w and s etc..
+//must find sth better
+func (o *Opp) parseOppZone() string {
+	switch o.enemyZone {
+	case 1:
+		return "NW"
+	case 2:
+		return "N"
+	case 3:
+		return "NE"
+	case 4:
+		return "CW" //C like center
+	case 5:
+		return "C"
+	case 6:
+		return "CE"
+	case 7:
+		return "SW"
+	case 8:
+		return "S"
+	case 9:
+		return "SE"
 	}
 }
 
@@ -132,6 +165,65 @@ type State struct {
 	t     Turn
 }
 
+//for ANY given walkable tile, yield its walkable valid tile!!
+func (s *State) getNeighbours(t Tile) []Tile {
+	var neighbours []Tile
+	//be sure it's walkable we're searching from...!!
+	//NOTE should update the way i handle error/exception (same for test!!)
+	// here's what i need https://blog.golang.org/error-handling-and-go
+	if isWalkable(t) {
+		//check north
+		if t.pos.y-1 > 0 && isWalkable(s.carte[t.pos.x][t.pos.y-1]) {
+			neighbours = append(neighbours, s.carte[t.pos.x][t.pos.y-1])
+		}
+		//check south
+		if t.pos.y+1 < HEIGHT && isWalkable(s.carte[t.pos.x][t.pos.y+1]) {
+			neighbours = append(neighbours, s.carte[t.pos.x][t.pos.y+1])
+		}
+		//check west
+		if t.pos.x-1 > 0 && isWalkable(s.carte[t.pos.x-1][t.pos.y]) {
+			neighbours = append(neighbours, s.carte[t.pos.x-1][t.pos.y])
+		}
+		//check east
+		if t.pos.x+1 < WIDTH && isWalkable(s.carte[t.pos.x+1][t.pos.y]) {
+			neighbours = append(neighbours, s.carte[t.pos.x+1][t.pos.y])
+		}
+	}
+	return neighbours
+}
+
+/*
+//a bfs? taken from xmasrush one...
+//need to keep track of the dist
+func (s *State) bfsPath(playerTilePos Tile) []Tile {
+	var visited = make(map[Tile]bool)
+	visited[playerTilePos] = true
+
+	var startTile = []Tile{playerTilePos}
+	var queue = [][]Tile{startTile}
+
+	for 0 < len(queue) {
+		//pop the first element
+		path := queue[0]
+		queue = queue[1:]
+
+		lastTile := path[len(path)-1]
+		if lastTile == questTile {
+			return path
+		}
+
+		for _, tile := range s.getNeighbours(lastTile) {
+			var newPath = path
+			if !visited[tile] {
+				visited[tile] = true
+				newPath = append(newPath, tile)
+				queue = append(queue, newPath)
+			}
+		}
+	}
+	return []Tile{}
+}
+*/
 //first:a simple bot that roams through the map avoiding islands
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
@@ -220,7 +312,10 @@ func main() {
 		scanner.Scan()
 		opponentOrders := scanner.Text()
 		s.opp.parseOppOrders(opponentOrders)
-		log.Println(s.me.torpedoCooldown)
+		//should yield 0 4/0 6/1 5
+		//MUST update the way i make test!!
+		log.Println(s.getNeighbours(s.carte[0][5]))
+		log.Println(s.opp.enemyZone)
 
 		res := sendTurn(s.t.commands)
 		fmt.Println(res)
