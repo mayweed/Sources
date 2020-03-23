@@ -4,9 +4,11 @@ import (
 	"bufio"
 	"fmt"
 	"log"
+	"math/rand"
 	"os"
 	"strconv"
 	"strings"
+	"time"
 )
 
 const (
@@ -30,6 +32,12 @@ func isWalkable(t Tile) bool {
 	return t.what == "."
 }
 
+//should i add ,... in arg list??
+func (s *State) numOfEdges(t Tile) int {
+	//could be useful
+	return len(s.getNeighbours(t))
+}
+
 type Me struct {
 	id              int
 	currentPos      Point
@@ -42,18 +50,23 @@ type Me struct {
 	oppSurfaceHint  string
 }
 
-func (m *Me) checkDirections(pos Point, board string, visited map[int]bool) {
-	if pos.x-1 > 0 && board[pos.y*WIDTH+pos.x-1] != 'x' && !visited[pos.y*WIDTH+pos.x-1] {
-		m.canGoWest = true
+func (s *State) checkDirections(pos Point, visited map[int]bool) {
+	//TODO should add a check on num of edges!! if num of edges walkable <2 dont fuckin
+	//go!! REFACTOR!!
+	//if pos.x-1 > 0 && isWalkable(s.carte[pos.x-1][pos.y]) && s.numOfEdges(s.carte[pos.x-1][pos.y]) >=2
+	//&& !visited[pos.y*WIDTH+pos.x-1] {
+	//must used the bool from Tile also...
+	if pos.x-1 > 0 && s.board[pos.y*WIDTH+pos.x-1] != 'x' && !visited[pos.y*WIDTH+pos.x-1] {
+		s.me.canGoWest = true
 	}
-	if pos.x+1 < WIDTH && board[pos.y*WIDTH+pos.x+1] != 'x' && !visited[pos.y*WIDTH+pos.x+1] {
-		m.canGoEast = true
+	if pos.x+1 < WIDTH && s.board[pos.y*WIDTH+pos.x+1] != 'x' && !visited[pos.y*WIDTH+pos.x+1] {
+		s.me.canGoEast = true
 	}
-	if pos.y-1 > 0 && board[(pos.y-1)*WIDTH+pos.x] != 'x' && !visited[(pos.y-1)*WIDTH+pos.x] {
-		m.canGoNorth = true
+	if pos.y-1 > 0 && s.board[(pos.y-1)*WIDTH+pos.x] != 'x' && !visited[(pos.y-1)*WIDTH+pos.x] {
+		s.me.canGoNorth = true
 	}
-	if pos.y+1 < HEIGHT && board[(pos.y+1)*WIDTH+pos.x] != 'x' && !visited[(pos.y+1)*WIDTH+pos.x] {
-		m.canGoSouth = true
+	if pos.y+1 < HEIGHT && s.board[(pos.y+1)*WIDTH+pos.x] != 'x' && !visited[(pos.y+1)*WIDTH+pos.x] {
+		s.me.canGoSouth = true
 	}
 }
 
@@ -158,11 +171,12 @@ func sendTurn(commands []string) string {
 
 //no opp nothing, goal is roaming
 type State struct {
-	board string
-	carte [HEIGHT][WIDTH]Tile
-	me    Me
-	opp   Opp
-	t     Turn
+	board         string
+	carte         [HEIGHT][WIDTH]Tile
+	walkableTiles []Tile
+	me            Me
+	opp           Opp
+	t             Turn
 }
 
 //for ANY given walkable tile, yield its walkable valid tile!!
@@ -228,6 +242,8 @@ func (s *State) bfsPath(playerTilePos Tile) []Tile {
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Buffer(make([]byte, 1000000), 1000000)
+	//random num generator
+	rand.Seed(time.Now().Unix())
 
 	var s State
 	var width, height, myId int
@@ -250,14 +266,19 @@ func main() {
 	for i := 0; i < HEIGHT; i++ {
 		for j := 0; j < WIDTH; j++ {
 			s.carte[i][j] = Tile{Point{i, j}, string(s.board[j*WIDTH+i]), false}
+			//get a list of walkable cells to choose randomly a starting point
+			if s.carte[i][j].what == "." {
+				s.walkableTiles = append(s.walkableTiles, s.carte[i][j])
+			}
 		}
 	}
 
 	//my starting pos
 	//must be in sector 5, center. Must find a walkable tile in there
 	//idea : from all center tiles filter the walkable choose randomly one
-	var startPos = Point{7, 7}
-	fmt.Println(startPos.x, startPos.y)
+	var startPos = s.walkableTiles[rand.Intn(len(s.walkableTiles))]
+	fmt.Println(startPos.pos.x, startPos.pos.y)
+	log.Println(startPos) //to know it...
 
 	for {
 		var x, y, myLife, oppLife, torpedoCooldown, sonarCooldown, silenceCooldown, mineCooldown int
@@ -269,7 +290,7 @@ func main() {
 		s.me.torpedoCooldown = torpedoCooldown
 		visited[y*width+x] = true
 
-		s.me.checkDirections(s.me.currentPos, s.board, visited)
+		s.checkDirections(s.me.currentPos, visited)
 
 		var c bool
 		if s.me.torpedoCooldown <= 3 {
@@ -315,7 +336,7 @@ func main() {
 		s.parseOppOrders(opponentOrders)
 		//should yield 0 4/0 6/1 5
 		//MUST update the way i make test!!
-		log.Println(s.getNeighbours(s.carte[0][5]))
+		log.Println(s.numOfEdges(s.carte[0][5]))
 		log.Println(s.opp.enemyZone)
 
 		res := sendTurn(s.t.commands)
