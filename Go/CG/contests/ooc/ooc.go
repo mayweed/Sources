@@ -20,12 +20,27 @@ type Point struct {
 	x, y int
 }
 
-/*
-func locatePosSector{
-if x > 0 && x<=4 && y>0 && y <=4{
+//idea where is the last torpedo pos located??
+//pff cant return in if directly...(no return etc..)
+//TOO SIMPLE should think rewrite!!
+//voronoi to get possible zones??
+func getDirFromPoint(myPos Point, torpedoPos Point) string {
+	var s string
+	if myPos.x > torpedoPos.x && myPos.y == torpedoPos.y {
+		s = "W"
+	}
+	if myPos.x < torpedoPos.x && myPos.y == torpedoPos.y {
+		s = "E"
+	}
+	if myPos.x == torpedoPos.x && myPos.y > torpedoPos.y {
+		s = "N"
+	}
+	if myPos.x == torpedoPos.x && myPos.y < torpedoPos.y {
+		s = "S"
+	}
+	return s
 }
-}
-*/
+
 //a graph might help?
 type Tile struct {
 	pos  Point
@@ -184,30 +199,12 @@ func (s *State) checkDirections(t Tile) {
 	}
 	if t.pos.y+1 < HEIGHT && isWalkable(s.carte[t.pos.x][t.pos.y+1]) && !s.hasBeenVisited(s.carte[t.pos.x][t.pos.y+1]) {
 		s.me.canGoSouth = true
-		log.Println(s.me.canGoSouth)
-	}
-}
-
-//First time doing that, in the base case should check limits no?
-func (s *State) floodfill(t Tile) {
-	if t.pos.x-1 < 0 || t.pos.y-1 < 0 || t.pos.x+1 > WIDTH || t.pos.y+1 > HEIGHT || t.color != "green" {
-		return
-	} else {
-		//it can only be green so walkable
-		//if t.color == "green" {
-		t.color = "blue"
-		//north
-		s.floodfill(s.carte[t.pos.x][t.pos.y-1])
-		s.floodfill(s.carte[t.pos.x][t.pos.y+1])
-		s.floodfill(s.carte[t.pos.x-1][t.pos.y])
-		s.floodfill(s.carte[t.pos.x+1][t.pos.y])
 	}
 }
 
 //for ANY given walkable tile, yield its walkable valid tile!!
 func (s *State) getNeighbours(t Tile) []Tile {
 	var neighbours []Tile
-	//be sure it's walkable we're searching from...!!
 	//NOTE should update the way i handle error/exception (same for test!!)
 	// here's what i need https://blog.golang.org/error-handling-and-go
 	if isWalkable(t) {
@@ -234,6 +231,7 @@ func (s *State) getNeighbours(t Tile) []Tile {
 /*
 //a bfs? taken from xmasrush one...
 //need to keep track of the dist
+//Idea: all path 4 cells from torpedoPos in the direction of opp
 func (s *State) bfsPath(playerTilePos Tile) []Tile {
 	var visited = make(map[Tile]bool)
 	visited[playerTilePos] = true
@@ -263,7 +261,6 @@ func (s *State) bfsPath(playerTilePos Tile) []Tile {
 	return []Tile{}
 }
 */
-//first:a simple bot that roams through the map avoiding islands
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Buffer(make([]byte, 1000000), 1000000)
@@ -310,6 +307,7 @@ func main() {
 		var x, y, myLife, oppLife, torpedoCooldown, sonarCooldown, silenceCooldown, mineCooldown int
 		scanner.Scan()
 		fmt.Sscan(scanner.Text(), &x, &y, &myLife, &oppLife, &torpedoCooldown, &sonarCooldown, &silenceCooldown, &mineCooldown)
+
 		s.me.currentPos = s.carte[x][y]
 		s.visitedTiles[s.me.currentPos.pos] = true
 		s.me.hitPoints = myLife
@@ -327,6 +325,11 @@ func main() {
 			if s.me.torpedoCooldown == 0 {
 				//this is shitty com'on!!
 				s.t.commands = append(s.t.commands, (torpedo(s.carte[s.me.currentPos.pos.x+2][s.me.currentPos.pos.y])))
+			}
+			//TEST
+			var dir string
+			if len(s.opp.torpedoPos) != 0 {
+				dir = getDirFromPoint(s.me.currentPos.pos, s.opp.torpedoPos[0])
 			}
 		*/
 		//I know...but did i grasp the logic??
@@ -363,12 +366,12 @@ func main() {
 		//TEST
 		//s.floodfill(startPos)
 		//log.Println(s.carte[startPos.pos.x-1][startPos.pos.y].color)
-		//log.Println(s.t.commands)
-		//log.Println("N: ", s.me.canGoNorth, "S: ", s.me.canGoSouth, "W: ", s.me.canGoWest, "E: ", s.me.canGoEast)
+		log.Println(s.t.commands)
+		log.Println("N: ", s.me.canGoNorth, "S: ", s.me.canGoSouth, "W: ", s.me.canGoWest, "E: ", s.me.canGoEast)
 		log.Println(s.opp.torpedoPos)
-		log.Println(sonarResult)
-		res := sendTurn(s.t.commands)
-		fmt.Println(res)
+
+		fmt.Println(sendTurn(s.t.commands))
+
 		//reset turn player data
 		//write a reset turn eventually...
 		//s.me.currentPos = Tile{}
