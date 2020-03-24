@@ -50,6 +50,7 @@ type Me struct {
 	oppSurfaceHint  string
 }
 
+//YannTt'as 3 mouvements possible, tu floodfill pour chaque, garde celui qui te laisse le plus de cases dispo après move
 func (s *State) checkDirections(pos Point, visited map[int]bool) {
 	//TODO should add a check on num of edges!! if num of edges walkable <2 dont fuckin
 	//go!! REFACTOR!!
