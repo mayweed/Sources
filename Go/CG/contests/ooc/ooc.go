@@ -22,8 +22,10 @@ type Point struct {
 
 //a graph might help?
 type Tile struct {
-	pos     Point
-	what    string
+	pos  Point
+	what string
+	//floodfill
+	color   string
 	visited bool
 }
 
@@ -40,7 +42,7 @@ func (s *State) numOfEdges(t Tile) int {
 
 type Me struct {
 	id              int
-	currentPos      Point
+	currentPos      Tile
 	hitPoints       int
 	canGoWest       bool
 	canGoEast       bool
@@ -48,27 +50,6 @@ type Me struct {
 	canGoSouth      bool
 	torpedoCooldown int
 	oppSurfaceHint  string
-}
-
-//YannTt'as 3 mouvements possible, tu floodfill pour chaque, garde celui qui te laisse le plus de cases dispo après move
-func (s *State) checkDirections(pos Point, visited map[int]bool) {
-	//TODO should add a check on num of edges!! if num of edges walkable <2 dont fuckin
-	//go!! REFACTOR!!
-	//if pos.x-1 > 0 && isWalkable(s.carte[pos.x-1][pos.y]) && s.numOfEdges(s.carte[pos.x-1][pos.y]) >=2
-	//&& !visited[pos.y*WIDTH+pos.x-1] {
-	//must used the bool from Tile also...
-	if pos.x-1 > 0 && s.board[pos.y*WIDTH+pos.x-1] != 'x' && !visited[pos.y*WIDTH+pos.x-1] {
-		s.me.canGoWest = true
-	}
-	if pos.x+1 < WIDTH && s.board[pos.y*WIDTH+pos.x+1] != 'x' && !visited[pos.y*WIDTH+pos.x+1] {
-		s.me.canGoEast = true
-	}
-	if pos.y-1 > 0 && s.board[(pos.y-1)*WIDTH+pos.x] != 'x' && !visited[(pos.y-1)*WIDTH+pos.x] {
-		s.me.canGoNorth = true
-	}
-	if pos.y+1 < HEIGHT && s.board[(pos.y+1)*WIDTH+pos.x] != 'x' && !visited[(pos.y+1)*WIDTH+pos.x] {
-		s.me.canGoSouth = true
-	}
 }
 
 type Opp struct {
@@ -180,6 +161,43 @@ type State struct {
 	t             Turn
 }
 
+//YannTt'as 3 mouvements possible, tu floodfill pour chaque, garde celui qui te laisse le plus de cases dispo après move
+func (s *State) checkDirections(t Tile, visited map[int]bool) {
+	//TODO should add a check on num of edges!! if num of edges walkable <2 dont fuckin
+	//go!! REFACTOR!!
+	//if pos.x-1 > 0 && isWalkable(s.carte[pos.x-1][pos.y]) && s.numOfEdges(s.carte[pos.x-1][pos.y]) >=2
+	//&& !visited[pos.y*WIDTH+pos.x-1] {
+	//must used the bool from Tile also...
+	if t.pos.x-1 > 0 && isWalkable(s.carte[t.pos.x-1][t.pos.y]) && !s.carte[t.pos.x-1][t.pos.y].visited {
+		s.me.canGoWest = true
+	}
+	if t.pos.x+1 < WIDTH && isWalkable(s.carte[t.pos.x+1][t.pos.y]) && !s.carte[t.pos.x+1][t.pos.y].visited {
+		s.me.canGoEast = true
+	}
+	if t.pos.y-1 > 0 && isWalkable(s.carte[t.pos.x][t.pos.y-1]) && !s.carte[t.pos.x][t.pos.y-1].visited {
+		s.me.canGoNorth = true
+	}
+	if t.pos.y+1 < HEIGHT && isWalkable(s.carte[t.pos.x][t.pos.y+1]) && !s.carte[t.pos.x][t.pos.y+1].visited {
+		s.me.canGoSouth = true
+	}
+}
+
+//First time doing that, in the base case should check limits no?
+func (s *State) floodfill(t Tile) {
+	if t.pos.x-1 < 0 || t.pos.y-1 < 0 || t.pos.x+1 > WIDTH || t.pos.y+1 > HEIGHT || t.color != "green" {
+		return
+	} else {
+		//it can only be green so walkable
+		//if t.color == "green" {
+		t.color = "blue"
+		//north
+		s.floodfill(s.carte[t.pos.x][t.pos.y-1])
+		s.floodfill(s.carte[t.pos.x][t.pos.y+1])
+		s.floodfill(s.carte[t.pos.x-1][t.pos.y])
+		s.floodfill(s.carte[t.pos.x+1][t.pos.y])
+	}
+}
+
 //for ANY given walkable tile, yield its walkable valid tile!!
 func (s *State) getNeighbours(t Tile) []Tile {
 	var neighbours []Tile
@@ -266,26 +284,32 @@ func main() {
 	//BIG TEST never did that before!!
 	for i := 0; i < HEIGHT; i++ {
 		for j := 0; j < WIDTH; j++ {
-			s.carte[i][j] = Tile{Point{i, j}, string(s.board[j*WIDTH+i]), false}
+			//red by default
+			s.carte[i][j] = Tile{Point{i, j}, string(s.board[j*WIDTH+i]), "red", false}
 			//get a list of walkable cells to choose randomly a starting point
 			if s.carte[i][j].what == "." {
+				//green like "you could go there"
+				s.carte[i][j].color = "green"
 				s.walkableTiles = append(s.walkableTiles, s.carte[i][j])
 			}
 		}
 	}
 
-	//my starting pos
-	//must be in sector 5, center. Must find a walkable tile in there
-	//idea : from all center tiles filter the walkable choose randomly one
-	var startPos = s.walkableTiles[rand.Intn(len(s.walkableTiles))]
-	fmt.Println(startPos.pos.x, startPos.pos.y)
-	log.Println(startPos) //to know it...
-
+	/*
+		//my starting pos
+		//must be in sector 5, center. Must find a walkable tile in there
+		//idea : from all center tiles filter the walkable choose randomly one
+		var startPos = s.walkableTiles[rand.Intn(len(s.walkableTiles))]
+		fmt.Println(startPos.pos.x, startPos.pos.y)
+		log.Println(startPos) //to know it...
+	*/
+	fmt.Println(2, 3) //debug purpose
 	for {
 		var x, y, myLife, oppLife, torpedoCooldown, sonarCooldown, silenceCooldown, mineCooldown int
 		scanner.Scan()
 		fmt.Sscan(scanner.Text(), &x, &y, &myLife, &oppLife, &torpedoCooldown, &sonarCooldown, &silenceCooldown, &mineCooldown)
-		s.me.currentPos = Point{x, y}
+		s.me.currentPos = s.carte[x][y]
+		s.me.currentPos.visited = true
 		s.me.hitPoints = myLife
 		s.opp.hitPoints = oppLife
 		s.me.torpedoCooldown = torpedoCooldown
@@ -318,13 +342,16 @@ func main() {
 		if !s.me.canGoNorth && !s.me.canGoEast && !s.me.canGoSouth && s.me.canGoWest {
 			s.t.commands = append(s.t.commands, move("W", c))
 		}
-		if !s.me.canGoNorth && !s.me.canGoEast && !s.me.canGoSouth && !s.me.canGoWest {
-			fmt.Println("SURFACE")
-			//should reset visited
-			for c, _ := range visited {
-				visited[c] = false
+		/*
+			//one direction is possible but cell has already been visited!! so surface
+			if s.me.canGoNorth || s.me.canGoEast || s.me.canGoSouth || s.me.canGoWest &&  visited[y*width+x+1]{
+				fmt.Println("SURFACE")
+				//should reset visited
+				for c, _ := range visited {
+					visited[c] = false
+				}
 			}
-		}
+		*/
 
 		//must write the  command chain!!
 		//if torpedoCooldown == 0 : FIRE!!!
@@ -335,16 +362,22 @@ func main() {
 		scanner.Scan()
 		opponentOrders := scanner.Text()
 		s.parseOppOrders(opponentOrders)
+
+		//TEST
+		//s.floodfill(startPos)
+		//log.Println(s.carte[startPos.pos.x-1][startPos.pos.y].color)
+
 		//should yield 0 4/0 6/1 5
 		//MUST update the way i make test!!
-		log.Println(s.numOfEdges(s.carte[0][5]))
-		log.Println(s.opp.enemyZone)
+		//log.Println(s.numOfEdges(s.carte[0][5]))
+		//log.Println(s.opp.enemyZone)
+		log.Println(isWalkable(s.carte[s.me.currentPos.pos.x+1][s.me.currentPos.pos.y]))
 
 		res := sendTurn(s.t.commands)
 		fmt.Println(res)
 		//reset turn player data
 		//write a reset turn eventually...
-		s.me.currentPos = Point{}
+		s.me.currentPos = Tile{}
 		s.me.canGoNorth = false
 		s.me.canGoSouth = false
 		s.me.canGoWest = false
