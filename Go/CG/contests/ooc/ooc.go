@@ -20,6 +20,12 @@ type Point struct {
 	x, y int
 }
 
+/*
+func locatePosSector{
+if x > 0 && x<=4 && y>0 && y <=4{
+}
+}
+*/
 //a graph might help?
 type Tile struct {
 	pos  Point
@@ -133,8 +139,8 @@ func move(dir string, c bool) string {
 func surface() string {
 	return fmt.Sprintf("SURFACE")
 }
-func torpedo(p Point) string {
-	return fmt.Sprintf("TORPEDO %d %d", p.x, p.y)
+func torpedo(t Tile) string {
+	return fmt.Sprintf("TORPEDO %d %d", t.pos.x, t.pos.y)
 }
 func msg(s string) string {
 	return fmt.Sprintf("MSG %s", s)
@@ -299,6 +305,7 @@ func main() {
 
 	s.visitedTiles = make(map[Point]bool)
 
+	var turn int
 	for {
 		var x, y, myLife, oppLife, torpedoCooldown, sonarCooldown, silenceCooldown, mineCooldown int
 		scanner.Scan()
@@ -318,12 +325,11 @@ func main() {
 		/*
 			//TEST, now should fire in the range!! and should chase the goose!!
 			if s.me.torpedoCooldown == 0 {
-				s.t.commands = append(s.t.commands, (torpedo(Point{3, 5})))
+				//this is shitty com'on!!
+				s.t.commands = append(s.t.commands, (torpedo(s.carte[s.me.currentPos.pos.x+2][s.me.currentPos.pos.y])))
 			}
 		*/
 		//I know...but did i grasp the logic??
-		// !!! You cannot move on a cell you already visited before
-		// see surface this is not a replacement for a good floodfill or sth, but...
 		s.checkDirections(s.me.currentPos)
 		if s.me.canGoSouth {
 			s.t.commands = append(s.t.commands, move("S", c))
@@ -346,8 +352,6 @@ func main() {
 			}
 		}
 
-		//must write the  command chain!!
-		//if torpedoCooldown == 0 : FIRE!!!
 		var sonarResult string
 		scanner.Scan()
 		fmt.Sscan(scanner.Text(), &sonarResult)
@@ -359,9 +363,10 @@ func main() {
 		//TEST
 		//s.floodfill(startPos)
 		//log.Println(s.carte[startPos.pos.x-1][startPos.pos.y].color)
-		log.Println(s.me.currentPos)
-
-		log.Println("N: ", s.me.canGoNorth, "S: ", s.me.canGoSouth, "W: ", s.me.canGoWest, "E: ", s.me.canGoEast)
+		//log.Println(s.t.commands)
+		//log.Println("N: ", s.me.canGoNorth, "S: ", s.me.canGoSouth, "W: ", s.me.canGoWest, "E: ", s.me.canGoEast)
+		log.Println(s.opp.torpedoPos)
+		log.Println(sonarResult)
 		res := sendTurn(s.t.commands)
 		fmt.Println(res)
 		//reset turn player data
@@ -372,5 +377,6 @@ func main() {
 		s.me.canGoWest = false
 		s.me.canGoEast = false
 		s.t.commands = []string{}
+		turn += 1
 	}
 }
