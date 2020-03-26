@@ -134,40 +134,43 @@ type Turn struct {
 
 //Helpers for turn
 //false = no charge, true = charge. if multiple arm could be string?
-func move(dir string, c bool) string {
-	var s string
+func (t *Turn) move(dir string, c bool) {
+	var command string
 	switch dir {
 	case "N":
-		s = fmt.Sprintf("MOVE N")
+		command = fmt.Sprintf("MOVE %s", dir)
 	case "S":
-		s = fmt.Sprintf("MOVE S")
+		command = fmt.Sprintf("MOVE %s", dir)
 	case "W":
-		s = fmt.Sprintf("MOVE W")
+		command = fmt.Sprintf("MOVE %s", dir)
 	case "E":
-		s = fmt.Sprintf("MOVE E")
+		command = fmt.Sprintf("MOVE %s", dir)
 	}
 	if c {
-		s = s + " TORPEDO"
+		command = command + " TORPEDO"
 	}
-	return s
+	t.commands = append(t.commands, command)
 }
-func surface() string {
-	return fmt.Sprintf("SURFACE")
+func (t *Turn) surface() {
+	t.commands = append(t.commands, "SURFACE")
 }
-func torpedo(t Tile) string {
-	return fmt.Sprintf("TORPEDO %d %d", t.pos.x, t.pos.y)
+func (t *Turn) torpedo(tile Tile) {
+	command := fmt.Sprintf("TORPEDO %d %d", tile.pos.x, tile.pos.y)
+	t.commands = append(t.commands, command)
 }
-func msg(s string) string {
-	return fmt.Sprintf("MSG %s", s)
+func (t *Turn) msg(s string) {
+	command := fmt.Sprintf("MSG %s", s)
+	t.commands = append(t.commands, command)
 }
 
 //if and only if commands > 1
-func sendTurn(commands []string) string {
-	if len(commands) == 1 {
-		return commands[0]
+func (t *Turn) sendTurn() {
+	if len(t.commands) == 1 {
+		fmt.Print(t.commands[0])
 	} else {
-		return strings.Join(commands, "|")
+		fmt.Print(strings.Join(t.commands, "|"))
 	}
+	fmt.Println()
 }
 
 //no opp nothing, goal is roaming
@@ -228,39 +231,34 @@ func (s *State) getNeighbours(t Tile) []Tile {
 	return neighbours
 }
 
-/*
 //a bfs? taken from xmasrush one...
 //need to keep track of the dist
 //Idea: all path 4 cells from torpedoPos in the direction of opp
-func (s *State) bfsPath(playerTilePos Tile) []Tile {
+func (s *State) getBfsPath(playerTilePos Tile) {
 	var visited = make(map[Tile]bool)
 	visited[playerTilePos] = true
 
-	var startTile = []Tile{playerTilePos}
-	var queue = [][]Tile{startTile}
+	var startTile = playerTilePos
+	var queue = []Tile{startTile}
+
+	//keep track of the preceding tile
+	var parent = make(map[Tile]Tile)
 
 	for 0 < len(queue) {
-		//pop the first element
-		path := queue[0]
+		//pop the first element/shouldnt i use container/list here?
+		startNode := queue[0]
 		queue = queue[1:]
 
-		lastTile := path[len(path)-1]
-		if lastTile == questTile {
-			return path
-		}
-
-		for _, tile := range s.getNeighbours(lastTile) {
-			var newPath = path
-			if !visited[tile] {
-				visited[tile] = true
-				newPath = append(newPath, tile)
-				queue = append(queue, newPath)
+		for _, adjTile := range s.getNeighbours(startNode) {
+			if !visited[adjTile] {
+				visited[adjTile] = true
+				parent[adjTile] = startNode
+				queue = append(queue, adjTile)
 			}
 		}
 	}
-	return []Tile{}
 }
-*/
+
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Buffer(make([]byte, 1000000), 1000000)
@@ -298,6 +296,7 @@ func main() {
 	//my starting pos
 	var startPos = s.walkableTiles[rand.Intn(len(s.walkableTiles))]
 	fmt.Println(startPos.pos.x, startPos.pos.y)
+	//fmt.Println("7 8")
 	//log.Println(startPos) //to know it...
 
 	s.visitedTiles = make(map[Point]bool)
@@ -335,20 +334,20 @@ func main() {
 		//I know...but did i grasp the logic??
 		s.checkDirections(s.me.currentPos)
 		if s.me.canGoSouth {
-			s.t.commands = append(s.t.commands, move("S", c))
+			s.t.move("S", c)
 		}
 		if !s.me.canGoSouth && s.me.canGoEast {
-			s.t.commands = append(s.t.commands, move("E", c))
+			s.t.move("E", c)
 		}
 		if !s.me.canGoSouth && !s.me.canGoEast && s.me.canGoNorth {
-			s.t.commands = append(s.t.commands, move("N", c))
+			s.t.move("N", c)
 		}
 		if !s.me.canGoNorth && !s.me.canGoEast && !s.me.canGoSouth && s.me.canGoWest {
-			s.t.commands = append(s.t.commands, move("W", c))
+			s.t.move("W", c)
 		}
 		//one direction is possible but cell has already been visited!! so surface
 		if !s.me.canGoNorth && !s.me.canGoEast && !s.me.canGoSouth && !s.me.canGoWest {
-			fmt.Println("SURFACE")
+			s.t.surface()
 			//should reset visited
 			for c, _ := range s.visitedTiles {
 				s.visitedTiles[c] = false
@@ -368,13 +367,17 @@ func main() {
 		//log.Println(s.carte[startPos.pos.x-1][startPos.pos.y].color)
 		log.Println(s.t.commands)
 		log.Println("N: ", s.me.canGoNorth, "S: ", s.me.canGoSouth, "W: ", s.me.canGoWest, "E: ", s.me.canGoEast)
-		log.Println(s.opp.torpedoPos)
+		//log.Println(s.opp.torpedoPos)
 
-		fmt.Println(sendTurn(s.t.commands))
+		//TEST
+		s.getBfsPath(s.me.currentPos)
 
+		//fmt.Println(s.sendTurn())
+		//s.sendTurn()
+		fmt.Println(s.t.commands[0])
 		//reset turn player data
 		//write a reset turn eventually...
-		//s.me.currentPos = Tile{}
+		s.me.currentPos = Tile{}
 		s.me.canGoNorth = false
 		s.me.canGoSouth = false
 		s.me.canGoWest = false
