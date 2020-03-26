@@ -20,25 +20,35 @@ type Point struct {
 	x, y int
 }
 
-//idea where is the last torpedo pos located??
-//pff cant return in if directly...(no return etc..)
-//TOO SIMPLE should think rewrite!!
-//voronoi to get possible zones??
-func getDirFromPoint(myPos Point, torpedoPos Point) string {
-	var s string
-	if myPos.x > torpedoPos.x && myPos.y == torpedoPos.y {
-		s = "W"
+func (s *State) getPosBySector(p Point) {
+	if p.x >= 0 && p.x <= 4 && p.y > 0 && p.y <= 4 {
+		s.opp.enemyZone = 1
 	}
-	if myPos.x < torpedoPos.x && myPos.y == torpedoPos.y {
-		s = "E"
+	if p.x >= 0 && p.x <= 4 && p.y > 4 && p.y <= 9 {
+		s.opp.enemyZone = 4
 	}
-	if myPos.x == torpedoPos.x && myPos.y > torpedoPos.y {
-		s = "N"
+	if p.x >= 0 && p.x <= 4 && p.y > 9 && p.y <= 14 {
+		s.opp.enemyZone = 7
 	}
-	if myPos.x == torpedoPos.x && myPos.y < torpedoPos.y {
-		s = "S"
+	if p.x > 4 && p.x <= 9 && p.y > 0 && p.y <= 4 {
+		s.opp.enemyZone = 2
 	}
-	return s
+	if p.x > 4 && p.x <= 9 && p.y > 4 && p.y <= 9 {
+		s.opp.enemyZone = 5
+	}
+	if p.x > 4 && p.x <= 9 && p.y > 9 && p.y <= 14 {
+		s.opp.enemyZone = 8
+	}
+	if p.x > 9 && p.x <= 14 && p.y > 0 && p.y <= 4 {
+		s.opp.enemyZone = 3
+	}
+	if p.x > 9 && p.x <= 14 && p.y > 4 && p.y <= 9 {
+		s.opp.enemyZone = 6
+	}
+	if p.x > 9 && p.x <= 14 && p.y > 9 && p.y <= 14 {
+		s.opp.enemyZone = 9
+	}
+
 }
 
 //a graph might help?
@@ -205,6 +215,50 @@ func (s *State) checkDirections(t Tile) {
 	}
 }
 
+//torpedo part must be moved one day!!
+func (s *State) possibleDir() {
+	var c bool
+	if s.me.torpedoCooldown <= 3 {
+		c = true
+	} else {
+		c = false
+	}
+	/*
+		//TEST, now should fire in the range!! and should chase the goose!!
+		if s.me.torpedoCooldown == 0 {
+			//this is shitty com'on!!
+			s.t.commands = append(s.t.commands, (torpedo(s.carte[s.me.currentPos.pos.x+2][s.me.currentPos.pos.y])))
+		}
+		//TEST
+		var dir string
+		if len(s.opp.torpedoPos) != 0 {
+			dir = getDirFromPoint(s.me.currentPos.pos, s.opp.torpedoPos[0])
+		}
+	*/
+	//I know...but did i grasp the logic??
+	s.checkDirections(s.me.currentPos)
+	if s.me.canGoSouth {
+		s.t.move("S", c)
+	}
+	if !s.me.canGoSouth && s.me.canGoEast {
+		s.t.move("E", c)
+	}
+	if !s.me.canGoSouth && !s.me.canGoEast && s.me.canGoNorth {
+		s.t.move("N", c)
+	}
+	if !s.me.canGoNorth && !s.me.canGoEast && !s.me.canGoSouth && s.me.canGoWest {
+		s.t.move("W", c)
+	}
+	//one direction is possible but cell has already been visited!! so surface
+	if !s.me.canGoNorth && !s.me.canGoEast && !s.me.canGoSouth && !s.me.canGoWest {
+		s.t.surface()
+		//should reset visited
+		for c, _ := range s.visitedTiles {
+			s.visitedTiles[c] = false
+		}
+	}
+}
+
 //for ANY given walkable tile, yield its walkable valid tile!!
 func (s *State) getNeighbours(t Tile) []Tile {
 	var neighbours []Tile
@@ -231,7 +285,10 @@ func (s *State) getNeighbours(t Tile) []Tile {
 	return neighbours
 }
 
-//a bfs? taken from xmasrush one...
+//idea where is the last torpedo pos located??
+//pff cant return in if directly...(no return etc..)
+//TOO SIMPLE should think rewrite!!
+//voronoi to get possible zones??
 //need to keep track of the dist
 //Idea: all path 4 cells from torpedoPos in the direction of opp
 func (s *State) getBfsPath(playerTilePos Tile) {
@@ -296,7 +353,6 @@ func main() {
 	//my starting pos
 	var startPos = s.walkableTiles[rand.Intn(len(s.walkableTiles))]
 	fmt.Println(startPos.pos.x, startPos.pos.y)
-	//fmt.Println("7 8")
 	//log.Println(startPos) //to know it...
 
 	s.visitedTiles = make(map[Point]bool)
@@ -313,46 +369,7 @@ func main() {
 		s.opp.hitPoints = oppLife
 		s.me.torpedoCooldown = torpedoCooldown
 
-		var c bool
-		if s.me.torpedoCooldown <= 3 {
-			c = true
-		} else {
-			c = false
-		}
-		/*
-			//TEST, now should fire in the range!! and should chase the goose!!
-			if s.me.torpedoCooldown == 0 {
-				//this is shitty com'on!!
-				s.t.commands = append(s.t.commands, (torpedo(s.carte[s.me.currentPos.pos.x+2][s.me.currentPos.pos.y])))
-			}
-			//TEST
-			var dir string
-			if len(s.opp.torpedoPos) != 0 {
-				dir = getDirFromPoint(s.me.currentPos.pos, s.opp.torpedoPos[0])
-			}
-		*/
-		//I know...but did i grasp the logic??
-		s.checkDirections(s.me.currentPos)
-		if s.me.canGoSouth {
-			s.t.move("S", c)
-		}
-		if !s.me.canGoSouth && s.me.canGoEast {
-			s.t.move("E", c)
-		}
-		if !s.me.canGoSouth && !s.me.canGoEast && s.me.canGoNorth {
-			s.t.move("N", c)
-		}
-		if !s.me.canGoNorth && !s.me.canGoEast && !s.me.canGoSouth && s.me.canGoWest {
-			s.t.move("W", c)
-		}
-		//one direction is possible but cell has already been visited!! so surface
-		if !s.me.canGoNorth && !s.me.canGoEast && !s.me.canGoSouth && !s.me.canGoWest {
-			s.t.surface()
-			//should reset visited
-			for c, _ := range s.visitedTiles {
-				s.visitedTiles[c] = false
-			}
-		}
+		s.possibleDir()
 
 		var sonarResult string
 		scanner.Scan()
@@ -363,18 +380,20 @@ func main() {
 		s.parseOppOrders(opponentOrders)
 
 		//TEST
-		//s.floodfill(startPos)
-		//log.Println(s.carte[startPos.pos.x-1][startPos.pos.y].color)
-		log.Println(s.t.commands)
-		log.Println("N: ", s.me.canGoNorth, "S: ", s.me.canGoSouth, "W: ", s.me.canGoWest, "E: ", s.me.canGoEast)
-		//log.Println(s.opp.torpedoPos)
+		//idea: i know where my enemy is
+		//check if it's possible to go in that direction
+		//if yes must go!! and fire fire fire!!
+		if len(s.opp.torpedoPos) != 0 {
+			log.Println(s.opp.torpedoPos)
+			s.getPosBySector(s.opp.torpedoPos[0])
+			log.Println(s.opp.enemyZone)
+		}
 
 		//TEST
 		s.getBfsPath(s.me.currentPos)
 
-		//fmt.Println(s.sendTurn())
-		//s.sendTurn()
-		fmt.Println(s.t.commands[0])
+		s.t.sendTurn()
+
 		//reset turn player data
 		//write a reset turn eventually...
 		s.me.currentPos = Tile{}
