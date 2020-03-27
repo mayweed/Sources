@@ -3,7 +3,6 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"log"
 	"math/rand"
 	"os"
 	"strconv"
@@ -23,6 +22,8 @@ type Point struct {
 func (s *State) getTileFromPoint(p Point) Tile {
 	return s.carte[p.x][p.y]
 }
+
+//idea where is the last torpedo pos located??
 func (s *State) getPosBySector(p Point) {
 	if p.x >= 0 && p.x <= 4 && p.y > 0 && p.y <= 4 {
 		s.opp.enemyZone = 1
@@ -56,9 +57,8 @@ func (s *State) getPosBySector(p Point) {
 
 //a graph might help?
 type Tile struct {
-	pos   Point
-	what  string
-	color string
+	pos  Point
+	what string
 }
 
 func isWalkable(t Tile) bool {
@@ -262,9 +262,6 @@ func (s *State) possibleDir() {
 	}
 }
 
-//idea where is the last torpedo pos located??
-//pff cant return in if directly...(no return etc..)
-//TOO SIMPLE should think rewrite!!
 //voronoi to get possible zones??
 //need to keep track of the dist
 //Idea: all path 4 cells from torpedoPos in the direction of opp
@@ -298,7 +295,7 @@ func (s *State) getBfsPath(startPos, target Tile) []Tile {
 		}
 
 		//check north
-		if t.pos.y-1 > 0 && isWalkable(s.carte[t.pos.x][t.pos.y-1]) && !visited[s.carte[t.pos.x][t.pos.y-1]] {
+		if t.pos.y-1 >= 0 && isWalkable(s.carte[t.pos.x][t.pos.y-1]) && !visited[s.carte[t.pos.x][t.pos.y-1]] {
 			visited[s.carte[t.pos.x][t.pos.y-1]] = true
 			parent[s.carte[t.pos.x][t.pos.y-1]] = t
 			queue = append(queue, s.carte[t.pos.x][t.pos.y-1])
@@ -310,7 +307,7 @@ func (s *State) getBfsPath(startPos, target Tile) []Tile {
 			queue = append(queue, s.carte[t.pos.x][t.pos.y+1])
 		}
 		//check west
-		if t.pos.x-1 > 0 && isWalkable(s.carte[t.pos.x-1][t.pos.y]) && !visited[s.carte[t.pos.x-1][t.pos.y]] {
+		if t.pos.x-1 >= 0 && isWalkable(s.carte[t.pos.x-1][t.pos.y]) && !visited[s.carte[t.pos.x-1][t.pos.y]] {
 			visited[s.carte[t.pos.x-1][t.pos.y]] = true
 			parent[s.carte[t.pos.x-1][t.pos.y]] = t
 			queue = append(queue, s.carte[t.pos.x-1][t.pos.y])
@@ -325,6 +322,25 @@ func (s *State) getBfsPath(startPos, target Tile) []Tile {
 		}
 	}
 	return path
+}
+
+//the distance from startPoint to all walkable Tiles!!
+//!! You can't change values associated with keys in a map, you can only reassign values.
+//!! When you "fill" the map, you can't use the loop's variable, as it gets overwritten in each iteration
+// see : https://stackoverflow.com/questions/42716852/how-to-update-map-values-in-go
+func (s *State) calculateDist(src Tile) map[Tile]*int {
+	var dist = make(map[Tile]*int)
+	var path []Tile
+	for _, target := range s.walkableTiles {
+		//dont need this one
+		if target == src {
+			continue
+		}
+		path = s.getBfsPath(src, target)
+		length := len(path)
+		dist[target] = &length
+	}
+	return dist
 }
 
 func main() {
@@ -351,23 +367,36 @@ func main() {
 	for i := 0; i < HEIGHT; i++ {
 		for j := 0; j < WIDTH; j++ {
 			//red by default
-			s.carte[i][j] = Tile{Point{i, j}, string(s.board[j*WIDTH+i]), "red"}
+			s.carte[i][j] = Tile{Point{i, j}, string(s.board[j*WIDTH+i])}
 			//get a list of walkable cells to choose randomly a starting point
 			if s.carte[i][j].what == "." {
 				//green like "you could go there"
-				s.carte[i][j].color = "green"
 				s.walkableTiles = append(s.walkableTiles, s.carte[i][j])
 			}
 		}
 	}
 
 	//my starting pos
-	//var startPos = s.walkableTiles[rand.Intn(len(s.walkableTiles))]
-	//fmt.Println(startPos.pos.x, startPos.pos.y)
-	fmt.Println("14 5")
+	var startPos = s.walkableTiles[rand.Intn(len(s.walkableTiles))]
+	fmt.Println(startPos.pos.x, startPos.pos.y)
+	//fmt.Println("14 5") //debug purpose
 
 	s.visitedTiles = make(map[Point]bool)
+	/*
+		dist := s.calculateDist(startPos)
 
+		//toying but could use that to calculate the nearest torpedo pos for ex
+		var max = 0
+		var farthestTile Tile
+		for k, v := range dist {
+			if *v > max {
+				farthestTile = k
+				max = *v
+			}
+		}
+
+		//log.Println("TARGET: ", farthestTile, "DIST: ", max)
+	*/
 	var turn int
 	for {
 		var x, y, myLife, oppLife, torpedoCooldown, sonarCooldown, silenceCooldown, mineCooldown int
@@ -399,11 +428,6 @@ func main() {
 			s.getPosBySector(s.opp.torpedoPos[0])
 			//log.Println(s.opp.enemyZone)
 		}
-
-		//TEST
-		path := s.getBfsPath(s.me.currentPos, s.carte[8][10])
-		log.Println(path)
-
 		s.t.sendTurn()
 
 		//reset turn player data
