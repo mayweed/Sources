@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"log"
 	"math/rand"
 	"os"
 	"strconv"
@@ -15,6 +16,7 @@ const (
 	WIDTH  = 15
 )
 
+//think about type Point in import "image"
 type Point struct {
 	x, y int
 }
@@ -57,8 +59,9 @@ func (s *State) getPosBySector(p Point) {
 
 //a graph might help?
 type Tile struct {
-	pos  Point
-	what string
+	pos   Point
+	what  string
+	color string
 }
 
 func isWalkable(t Tile) bool {
@@ -218,6 +221,78 @@ func (s *State) checkDirections(t Tile) {
 	}
 }
 
+/*
+Flood-fill (node, target-color, replacement-color):
+  1. If target-color is equal to replacement-color, return.
+  2. If color of node is not equal to target-color, return.
+  3. Set the color of node to replacement-color.
+  4. Set Q to the empty queue.
+  5. Add node to the end of Q.
+  6. While Q is not empty:
+  7.     Set n equal to the first element of Q.
+  8.     Remove first element from Q.
+  9.     If the color of the node to the west of n is target-color,
+             set the color of that node to replacement-color and add that node to the end of Q.
+ 10.     If the color of the node to the east of n is target-color,
+             set the color of that node to replacement-color and add that node to the end of Q.
+ 11.     If the color of the node to the north of n is target-color,
+             set the color of that node to replacement-color and add that node to the end of Q.
+ 12.     If the color of the node to the south of n is target-color,
+             set the color of that node to replacement-color and add that node to the end of Q.
+ 13. Continue looping until Q is exhausted.
+ 14. Return.
+
+ https://rosettacode.org/wiki/Bitmap/Flood_fill#Go ==> would like to see the getpx func i imagine a getTile()
+ with limit checkers in a Grid Type...
+*/
+func (s *State) floodfill(t Tile) {
+	var queue []Tile
+	queue = append(queue, t)
+
+	log.Println("WNUM", len(s.walkableTiles))
+	var numT int
+
+	for len(queue) != 0 {
+		var t = queue[0]
+		queue = queue[1:]
+
+		//t.color = "blue"
+
+		//TORPEDO RANGE if the tile is blue can be used to fire torpedo
+		//NOT the way to do that
+		//if path := s.getBfsPath(s.me.currentPos, t); len(path) > 4 {
+		//	return
+		//}
+		//check north
+		//if it's not yet blue and is walkable, we havent visited it yet!!
+		if t.pos.y-1 >= 0 && isWalkable(s.carte[t.pos.x][t.pos.y-1]) && s.carte[t.pos.x][t.pos.y-1].color != "blue" {
+			s.carte[t.pos.x][t.pos.y-1].color = "blue" //wouldn't black be better?
+			queue = append(queue, s.carte[t.pos.x][t.pos.y-1])
+			log.Println(s.carte[t.pos.x][t.pos.y-1].color)
+		}
+		//check south
+		if t.pos.y+1 < HEIGHT && isWalkable(s.carte[t.pos.x][t.pos.y+1]) && s.carte[t.pos.x][t.pos.y+1].color != "blue" {
+			s.carte[t.pos.x][t.pos.y+1].color = "blue"
+			queue = append(queue, s.carte[t.pos.x][t.pos.y+1])
+		}
+		//check west
+		if t.pos.x-1 >= 0 && isWalkable(s.carte[t.pos.x-1][t.pos.y]) && s.carte[t.pos.x-1][t.pos.y].color != "blue" {
+			s.carte[t.pos.x-1][t.pos.y].color = "blue"
+			queue = append(queue, s.carte[t.pos.x-1][t.pos.y])
+
+		}
+		//check east
+		if t.pos.x+1 < WIDTH && isWalkable(s.carte[t.pos.x+1][t.pos.y]) && s.carte[t.pos.x+1][t.pos.y].color != "blue" {
+			s.carte[t.pos.x+1][t.pos.y].color = "blue"
+			queue = append(queue, s.carte[t.pos.x+1][t.pos.y])
+
+		}
+		numT += 1
+		//log.Println(t.pos, t.color)
+	}
+	log.Println("FIN", numT)
+}
+
 //torpedo part must be moved one day!!
 func (s *State) possibleDir() {
 	var c bool
@@ -367,10 +442,11 @@ func main() {
 	for i := 0; i < HEIGHT; i++ {
 		for j := 0; j < WIDTH; j++ {
 			//red by default
-			s.carte[i][j] = Tile{Point{i, j}, string(s.board[j*WIDTH+i])}
+			s.carte[i][j] = Tile{Point{i, j}, string(s.board[j*WIDTH+i]), "red"}
 			//get a list of walkable cells to choose randomly a starting point
 			if s.carte[i][j].what == "." {
 				//green like "you could go there"
+				s.carte[i][j].color = "green"
 				s.walkableTiles = append(s.walkableTiles, s.carte[i][j])
 			}
 		}
@@ -381,6 +457,7 @@ func main() {
 	fmt.Println(startPos.pos.x, startPos.pos.y)
 	//fmt.Println("14 5") //debug purpose
 
+	s.floodfill(startPos)
 	s.visitedTiles = make(map[Point]bool)
 	/*
 		dist := s.calculateDist(startPos)
