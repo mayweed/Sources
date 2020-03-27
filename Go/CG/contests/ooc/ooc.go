@@ -20,6 +20,9 @@ type Point struct {
 	x, y int
 }
 
+func (s *State) getTileFromPoint(p Point) Tile {
+	return s.carte[p.x][p.y]
+}
 func (s *State) getPosBySector(p Point) {
 	if p.x >= 0 && p.x <= 4 && p.y > 0 && p.y <= 4 {
 		s.opp.enemyZone = 1
@@ -53,20 +56,19 @@ func (s *State) getPosBySector(p Point) {
 
 //a graph might help?
 type Tile struct {
-	pos  Point
-	what string
-	//floodfill
+	pos   Point
+	what  string
 	color string
 }
 
 func isWalkable(t Tile) bool {
+	/* does not work with array...
+	if t.pos.x >= 0 && t.pos.x < WIDTH && t.pos.y >= 0 && t.pos.y < HEIGHT && t.what == "." {
+		return true
+	}
+	return false
+	*/
 	return t.what == "."
-}
-
-//should i add ,... in arg list??
-func (s *State) numOfEdges(t Tile) int {
-	//could be useful
-	return len(s.getNeighbours(t))
 }
 
 type Me struct {
@@ -201,6 +203,7 @@ func (s *State) hasBeenVisited(t Tile) bool {
 
 //YannTt'as 3 mouvements possible, tu floodfill pour chaque, garde celui qui te laisse le plus de cases dispo après move
 func (s *State) checkDirections(t Tile) {
+	//TEST
 	if t.pos.x-1 > 0 && isWalkable(s.carte[t.pos.x-1][t.pos.y]) && !s.hasBeenVisited(s.carte[t.pos.x-1][t.pos.y]) {
 		s.me.canGoWest = true
 	}
@@ -259,61 +262,69 @@ func (s *State) possibleDir() {
 	}
 }
 
-//for ANY given walkable tile, yield its walkable valid tile!!
-func (s *State) getNeighbours(t Tile) []Tile {
-	var neighbours []Tile
-	//NOTE should update the way i handle error/exception (same for test!!)
-	// here's what i need https://blog.golang.org/error-handling-and-go
-	if isWalkable(t) {
-		//check north
-		if t.pos.y-1 > 0 && isWalkable(s.carte[t.pos.x][t.pos.y-1]) {
-			neighbours = append(neighbours, s.carte[t.pos.x][t.pos.y-1])
-		}
-		//check south
-		if t.pos.y+1 < HEIGHT && isWalkable(s.carte[t.pos.x][t.pos.y+1]) {
-			neighbours = append(neighbours, s.carte[t.pos.x][t.pos.y+1])
-		}
-		//check west
-		if t.pos.x-1 > 0 && isWalkable(s.carte[t.pos.x-1][t.pos.y]) {
-			neighbours = append(neighbours, s.carte[t.pos.x-1][t.pos.y])
-		}
-		//check east
-		if t.pos.x+1 < WIDTH && isWalkable(s.carte[t.pos.x+1][t.pos.y]) {
-			neighbours = append(neighbours, s.carte[t.pos.x+1][t.pos.y])
-		}
-	}
-	return neighbours
-}
-
 //idea where is the last torpedo pos located??
 //pff cant return in if directly...(no return etc..)
 //TOO SIMPLE should think rewrite!!
 //voronoi to get possible zones??
 //need to keep track of the dist
 //Idea: all path 4 cells from torpedoPos in the direction of opp
-func (s *State) getBfsPath(playerTilePos Tile) {
+func (s *State) getBfsPath(startPos, target Tile) []Tile {
 	var visited = make(map[Tile]bool)
-	visited[playerTilePos] = true
+	visited[startPos] = true
 
-	var startTile = playerTilePos
+	var startTile = startPos
 	var queue = []Tile{startTile}
 
 	//keep track of the preceding tile
 	var parent = make(map[Tile]Tile)
 
+	var path []Tile
 	for 0 < len(queue) {
 		//pop the first element/shouldnt i use container/list here?
-		startNode := queue[0]
+		//t for startNode
+		t := queue[0]
 		queue = queue[1:]
 
-		for _, adjTile := range s.getNeighbours(startNode) {
-			if !visited[adjTile] {
-				visited[adjTile] = true
-				parent[adjTile] = startNode
-				queue = append(queue, adjTile)
+		if t == target {
+			//p like predecessors
+			var p = target
+			path = append(path, target)
+			for parent[p] != startPos {
+				path = append(path, parent[p])
+				p = parent[p]
 			}
+			path = append(path, startPos)
+			return path
+		}
+
+		//check north
+		if t.pos.y-1 > 0 && isWalkable(s.carte[t.pos.x][t.pos.y-1]) && !visited[s.carte[t.pos.x][t.pos.y-1]] {
+			visited[s.carte[t.pos.x][t.pos.y-1]] = true
+			parent[s.carte[t.pos.x][t.pos.y-1]] = t
+			queue = append(queue, s.carte[t.pos.x][t.pos.y-1])
+		}
+		//check south
+		if t.pos.y+1 < HEIGHT && isWalkable(s.carte[t.pos.x][t.pos.y+1]) && !visited[s.carte[t.pos.x][t.pos.y+1]] {
+			visited[s.carte[t.pos.x][t.pos.y+1]] = true
+			parent[s.carte[t.pos.x][t.pos.y+1]] = t
+			queue = append(queue, s.carte[t.pos.x][t.pos.y+1])
+		}
+		//check west
+		if t.pos.x-1 > 0 && isWalkable(s.carte[t.pos.x-1][t.pos.y]) && !visited[s.carte[t.pos.x-1][t.pos.y]] {
+			visited[s.carte[t.pos.x-1][t.pos.y]] = true
+			parent[s.carte[t.pos.x-1][t.pos.y]] = t
+			queue = append(queue, s.carte[t.pos.x-1][t.pos.y])
+
+		}
+		//check east
+		if t.pos.x+1 < WIDTH && isWalkable(s.carte[t.pos.x+1][t.pos.y]) && !visited[s.carte[t.pos.x+1][t.pos.y]] {
+			visited[s.carte[t.pos.x+1][t.pos.y]] = true
+			parent[s.carte[t.pos.x+1][t.pos.y]] = t
+			queue = append(queue, s.carte[t.pos.x+1][t.pos.y])
+
 		}
 	}
+	return path
 }
 
 func main() {
@@ -351,9 +362,9 @@ func main() {
 	}
 
 	//my starting pos
-	var startPos = s.walkableTiles[rand.Intn(len(s.walkableTiles))]
-	fmt.Println(startPos.pos.x, startPos.pos.y)
-	//log.Println(startPos) //to know it...
+	//var startPos = s.walkableTiles[rand.Intn(len(s.walkableTiles))]
+	//fmt.Println(startPos.pos.x, startPos.pos.y)
+	fmt.Println("14 5")
 
 	s.visitedTiles = make(map[Point]bool)
 
@@ -384,13 +395,14 @@ func main() {
 		//check if it's possible to go in that direction
 		//if yes must go!! and fire fire fire!!
 		if len(s.opp.torpedoPos) != 0 {
-			log.Println(s.opp.torpedoPos)
+			//log.Println(s.opp.torpedoPos)
 			s.getPosBySector(s.opp.torpedoPos[0])
-			log.Println(s.opp.enemyZone)
+			//log.Println(s.opp.enemyZone)
 		}
 
 		//TEST
-		s.getBfsPath(s.me.currentPos)
+		path := s.getBfsPath(s.me.currentPos, s.carte[8][10])
+		log.Println(path)
 
 		s.t.sendTurn()
 
