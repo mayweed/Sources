@@ -377,9 +377,8 @@ func (s *State) getBfsPath(startPos, target Tile) []Tile {
 //!! You can't change values associated with keys in a map, you can only reassign values.
 //!! When you "fill" the map, you can't use the loop's variable, as it gets overwritten in each iteration
 // see : https://stackoverflow.com/questions/42716852/how-to-update-map-values-in-go
-//func (s *State) calculateDist(src Tile) map[Tile]*int {
-func (s *State) getTargets(src Tile) {
-	//var dist = make(map[Tile]*int)
+func (s *State) calculateDist(src Tile) map[Tile]*int {
+	var dist = make(map[Tile]*int)
 	var path []Tile
 	//should change that walkable to take into account floodfill?
 	for _, target := range s.walkableTiles {
@@ -389,14 +388,21 @@ func (s *State) getTargets(src Tile) {
 		}
 		path = s.getBfsPath(src, target)
 		length := len(path)
-		if length >= 4 {
-			s.targets = append(s.targets, path[0])
-		}
-		//dist[target] = &length
+		dist[target] = &length
 	}
-	//return dist
+	return dist
 }
-
+func (s *State) getTargets(dist map[Tile]*int) {
+	//let's find targets find the process costly (recalc the dist to all tiles etc...
+	var max = 5
+	var targetTile Tile
+	for k, v := range dist {
+		if *v <= max {
+			targetTile = k
+			s.targets = append(s.targets, targetTile)
+		}
+	}
+}
 func getBestMove(s State) {
 	//it takes state as an arg, clone it to sim?
 	//determine which direction is best wrt the num of wtiles left and the opp
@@ -474,31 +480,13 @@ func main() {
 
 	//my starting pos
 	var startPos = s.walkableTiles[rand.Intn(len(s.walkableTiles))]
+	//	var startPos = s.carte[7][8]
 	fmt.Println(startPos.pos.x, startPos.pos.y)
-	//var startPos = s.carte[14][5]
-	//fmt.Println("14 5") //debug purpose
 
-	//DOES NOT WORK
-	s.getTargets(startPos)
 	//Dont use it yet so...
 	//s.floodfill(startPos)
 	s.me.visitedTiles = make(map[Tile]bool)
-	//log.Println(s.getBfsPath(startPos, s.carte[12][3]))
 
-	/*
-		dist := s.calculateDist(startPos)
-		//toying but could use that to calculate the nearest torpedo pos for ex
-		var max = 4
-		var farthestTile Tile
-		for k, v := range dist {
-			if *v > max {
-				farthestTile = k
-				max = *v
-			}
-		}
-
-		log.Println("TARGET: ", farthestTile, "DIST: ", max)
-	*/
 	var turn int
 	for {
 		var x, y, myLife, oppLife, torpedoCooldown, sonarCooldown, silenceCooldown, mineCooldown int
@@ -513,6 +501,11 @@ func main() {
 		s.me.silenceCooldown = silenceCooldown
 
 		s.opp.hitPoints = oppLife
+
+		//TEST TARGET
+		dist := s.calculateDist(s.me.currentPos)
+		s.getTargets(dist)
+		log.Println(s.targets, len(s.targets))
 
 		s.checkDirections(s.me.currentPos)
 		s.woodMoves()
@@ -536,6 +529,7 @@ func main() {
 		s.me.canGoWest = false
 		s.me.canGoEast = false
 		s.me.commands = []string{}
+		s.targets = []Tile{}
 		turn += 1
 	}
 }
