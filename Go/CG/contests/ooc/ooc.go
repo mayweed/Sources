@@ -116,12 +116,14 @@ func (o *Opp) parseOppOrders(orders string) {
 func (o *Opp) getLastTorpZone() (int, Point) {
 	var zone int
 	var lastTPos Point
-	if len(o.torpedoPos) == 1 {
-		zone = getPosBySector(o.torpedoPos[0])
-		lastTPos = o.torpedoPos[0]
-	} else {
-		zone = getPosBySector(o.torpedoPos[len(o.torpedoPos)-1])
-		lastTPos = o.torpedoPos[len(o.torpedoPos)-1]
+	if len(o.torpedoPos) > 0 {
+		if len(o.torpedoPos) == 1 {
+			zone = getPosBySector(o.torpedoPos[0])
+			lastTPos = o.torpedoPos[0]
+		} else {
+			zone = getPosBySector(o.torpedoPos[len(o.torpedoPos)-1])
+			lastTPos = o.torpedoPos[len(o.torpedoPos)-1]
+		}
 	}
 	o.lastTorpedoZone = zone
 	return zone, lastTPos
@@ -158,6 +160,7 @@ func (m *Me) isTorpCharge() bool {
 	var c bool
 	if m.torpedoCooldown > 0 {
 		c = true
+		m.canFireTorpedo = false
 	} else {
 		c = false
 		m.canFireTorpedo = true
@@ -392,12 +395,15 @@ func (s *State) calculateDist(src Tile) map[Tile]*int {
 	}
 	return dist
 }
+
 func (s *State) getTargets(dist map[Tile]*int) {
 	//let's find targets find the process costly (recalc the dist to all tiles etc...
-	var max = 5
+	var max = 4
+	//to not damage myself
+	//var min = 2
 	var targetTile Tile
 	for k, v := range dist {
-		if *v <= max {
+		if *v == max { //&& *v > min {
 			targetTile = k
 			s.targets = append(s.targets, targetTile)
 		}
@@ -437,7 +443,17 @@ func (s *State) woodMoves() {
 		_, p := s.opp.getLastTorpZone()
 		s.me.torpedo(s.carte[p.x][p.y])
 	}
+	/*
+		//Torpedo spam to TEST
+		//pb with canFireTorpedo: not enougght charge??
+		if !s.me.isTorpCharge() {
+			t := s.targets[rand.Intn(len(s.targets))]
+			s.me.torpedo(t)
+		}
+	*/
+
 	//one direction is possible but cell has already been visited!! so surface
+	//must neutralize torpedo here
 	if !s.me.canGoNorth && !s.me.canGoEast && !s.me.canGoSouth && !s.me.canGoWest {
 		s.me.surface()
 		//should reset visited
