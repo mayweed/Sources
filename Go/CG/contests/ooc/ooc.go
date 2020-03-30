@@ -285,60 +285,60 @@ func (s *State) checkDirections(t Tile) {
 		s.me.canGoSouth = true
 	}
 }
-func (s *State) floodfill(t Tile, depth int) {
+func (s *State) floodfill(t Tile, depth float64) map[string]float64 {
 	var queue []Tile
 	queue = append(queue, t)
 
 	var numT int
 
-	var areaN int
-	var areaS int
-	var areaW int
-	var areaE int
-
-	var areaT []Tile
+	var areaN, areaS, areaW, areaE float64
+	var ffd = make(map[string]float64)
+	//var areaT []Tile
 	for len(queue) != 0 {
 		var t = queue[0]
 		queue = queue[1:]
 
 		if areaN == depth || areaS == depth || areaW == depth || areaE == depth {
 			//best ffDir = max des 4
-			log.Println("N: ", areaN, "S: ", areaS, "W: ", areaW, "E: ", areaE)
-			log.Println("areaT: ", areaT)
-			break
+			ffd["N"] = areaN
+			ffd["S"] = areaS
+			ffd["E"] = areaE
+			ffd["W"] = areaW
+			log.Println(ffd)
+			return ffd
 		}
 		//!!! cant check south if i go north!! i just came from south!!
 		//check north
 		if t.pos.y-1 >= 0 && isWalkable(s.carte[t.pos.x][t.pos.y-1]) && !s.me.visitedTiles[s.carte[t.pos.x][t.pos.y-1]] {
 			s.carte[t.pos.x][t.pos.y-1].color = "blue" //wouldn't black be better?
 			queue = append(queue, s.carte[t.pos.x][t.pos.y-1])
-			areaN += 1
+			areaN += 1.0
 		}
 		//check south
 		if t.pos.y+1 < HEIGHT && isWalkable(s.carte[t.pos.x][t.pos.y+1]) && !s.me.visitedTiles[s.carte[t.pos.x][t.pos.y+1]] {
 			s.carte[t.pos.x][t.pos.y+1].color = "blue"
 			queue = append(queue, s.carte[t.pos.x][t.pos.y+1])
-			areaS += 1
+			areaS += 1.0
 		}
 		//check west
 		if t.pos.x-1 >= 0 && isWalkable(s.carte[t.pos.x-1][t.pos.y]) && !s.me.visitedTiles[s.carte[t.pos.x-1][t.pos.y]] {
 			s.carte[t.pos.x-1][t.pos.y].color = "blue"
 			queue = append(queue, s.carte[t.pos.x-1][t.pos.y])
-			areaW += 1
+			areaW += 1.0
 
 		}
 		//check east
 		if t.pos.x+1 < WIDTH && isWalkable(s.carte[t.pos.x+1][t.pos.y]) && !s.me.visitedTiles[s.carte[t.pos.x+1][t.pos.y]] {
 			s.carte[t.pos.x+1][t.pos.y].color = "blue"
 			queue = append(queue, s.carte[t.pos.x+1][t.pos.y])
-			areaE += 1
-			areaT = append(areaT, s.carte[t.pos.x+1][t.pos.y])
+			areaE += 1.0
+			//areaT = append(areaT, s.carte[t.pos.x+1][t.pos.y])
 
 		}
 		numT += 1
 		//log.Println(t.pos, t.color)
 	}
-	log.Println("FIN", numT)
+	return nil
 }
 
 //voronoi to get possible zones??
@@ -451,22 +451,50 @@ func getBestMove(s State) {
 //WRITE A GUESS FUNC TO GUESS ENEMY POS FROM HINTS!!
 //I know...but did i grasp the logic??
 func (s *State) woodMoves() {
+	//huge test
+	var ffd = s.floodfill(s.me.currentPos, 10)
+
+	//calculate the best value
+	var north, south, east, west float64
 	if s.me.canGoSouth {
-		s.me.currentDir = "S"
-		s.me.move("S")
+		//s.me.currentDir = "S"
+		//s.me.move("S")
+		south = 1.0 + ffd["S"]
 	}
+	//what if i can go west?? if ffdW > a ffdE ne devrais je pas ponderer l'éval de W+0.5
 	if !s.me.canGoSouth && s.me.canGoEast {
-		s.me.currentDir = "E"
-		s.me.move("E")
+		//s.me.currentDir = "E"
+		//s.me.move("E")
+		east = 1.0 + ffd["E"]
+		if s.me.canGoWest || s.me.canGoNorth {
+			if ffd["N"] > ffd["E"] {
+				north += 0.5
+			}
+			if ffd["W"] > ffd["E"] {
+				west += 0.5
+			}
+		}
 	}
 	if !s.me.canGoSouth && !s.me.canGoEast && s.me.canGoNorth {
-		s.me.currentDir = "N"
-		s.me.move("N")
+		//s.me.currentDir = "N"
+		//s.me.move("N")
+		north = 1.0 + ffd["N"]
+		if s.me.canGoWest {
+			if ffd["W"] > ffd["N"] {
+				west += 0.5
+			}
+		}
 	}
 	if !s.me.canGoNorth && !s.me.canGoEast && !s.me.canGoSouth && s.me.canGoWest {
-		s.me.currentDir = "W"
-		s.me.move("W")
+		//s.me.currentDir = "W"
+		//s.me.move("W")
+		west = 1.0 + ffd["W"]
+		//c'est une connerie !! je devrais regarder ces ifs c'est une connerie!!
+		// je devrais raisonner au niveau de la tile!! combien de direciton possible
+		//s il y en a plus qu'une , quelqu'elle soit, c'est que j'ai raté quelque
+		//chose!!! et que j'ai plus qu'à perdre une vie en surface!!!
 	}
+	log.Println(east, north, south, west)
 	//TEST
 	//if i am round the torp zone sonar to see what happens
 	if getSector(s.me.currentPos.pos) == s.opp.lastTorpedoZone {
@@ -483,6 +511,8 @@ func (s *State) woodMoves() {
 		}
 	*/
 
+	/* I surface way too much!! should first learn to use my floodfill to optimize my
+	* moves and then i might be able to surface at the right time
 	//one direction is possible but cell has already been visited!! so surface
 	//must neutralize torpedo here
 	if !s.me.canGoNorth && !s.me.canGoEast && !s.me.canGoSouth && !s.me.canGoWest {
@@ -492,6 +522,7 @@ func (s *State) woodMoves() {
 			s.me.visitedTiles[c] = false
 		}
 	}
+	*/
 }
 
 func main() {
