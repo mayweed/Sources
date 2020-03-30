@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"log"
+	"math"
 	"math/rand"
 	"os"
 	"strconv"
@@ -22,37 +23,16 @@ type Point struct {
 	x, y int
 }
 
-//idea where is the last torpedo pos located??
-func getPosBySector(p Point) int {
-	var zone int
-	if p.x >= 0 && p.x <= 4 && p.y > 0 && p.y <= 4 {
-		zone = 1
-	}
-	if p.x >= 0 && p.x <= 4 && p.y > 4 && p.y <= 9 {
-		zone = 4
-	}
-	if p.x >= 0 && p.x <= 4 && p.y > 9 && p.y <= 14 {
-		zone = 7
-	}
-	if p.x > 4 && p.x <= 9 && p.y > 0 && p.y <= 4 {
-		zone = 2
-	}
-	if p.x > 4 && p.x <= 9 && p.y > 4 && p.y <= 9 {
-		zone = 5
-	}
-	if p.x > 4 && p.x <= 9 && p.y > 9 && p.y <= 14 {
-		zone = 8
-	}
-	if p.x > 9 && p.x <= 14 && p.y > 0 && p.y <= 4 {
-		zone = 3
-	}
-	if p.x > 9 && p.x <= 14 && p.y > 4 && p.y <= 9 {
-		zone = 6
-	}
-	if p.x > 9 && p.x <= 14 && p.y > 9 && p.y <= 14 {
-		zone = 9
-	}
-	return zone
+func getSector(p Point) int {
+	zone := math.Ceil(float64(p.x+1)/5.0) + math.Floor(float64(p.y/5.0)*3)
+	return int(zone)
+}
+
+//DIRECTION
+type Direction struct {
+	dx   int
+	dy   int
+	name string
 }
 
 //TILE
@@ -118,10 +98,10 @@ func (o *Opp) getLastTorpZone() (int, Point) {
 	var lastTPos Point
 	if len(o.torpedoPos) > 0 {
 		if len(o.torpedoPos) == 1 {
-			zone = getPosBySector(o.torpedoPos[0])
+			zone = getSector(o.torpedoPos[0])
 			lastTPos = o.torpedoPos[0]
 		} else {
-			zone = getPosBySector(o.torpedoPos[len(o.torpedoPos)-1])
+			zone = getSector(o.torpedoPos[len(o.torpedoPos)-1])
 			lastTPos = o.torpedoPos[len(o.torpedoPos)-1]
 		}
 	}
@@ -246,6 +226,7 @@ func (m *Me) sendTurn() {
 type State struct {
 	board         string
 	carte         [HEIGHT][WIDTH]Tile
+	directions    []Direction
 	walkableTiles []Tile
 	me            Me
 	opp           Opp
@@ -271,16 +252,33 @@ if cpState.me.currentDir =="N"{
 }
 }
 */
+func (s *State) getTile(t Tile) (Tile, error) {
+	if t.pos.x < 0 || t.pos.x > WIDTH || t.pos.y < 0 || t.pos.y > HEIGHT || t.what != "." {
+		return Tile{}, fmt.Errorf("out of bound or island\n") //an error here like out of range or island!!
+	} else {
+		return s.carte[t.pos.x][t.pos.y], nil
+	}
+}
+
 //YannTt'as 3 mouvements possible, tu floodfill pour chaque, garde celui qui te laisse le plus de cases dispo après move
+//for _,dirs := range s.directions{
 func (s *State) checkDirections(t Tile) {
-	if t.pos.x-1 > 0 && isWalkable(s.carte[t.pos.x-1][t.pos.y]) && !s.me.visitedTiles[s.carte[t.pos.x-1][t.pos.y]] {
+	/*
+		tile, err := s.getTile(t)
+		if err != nil {
+			return
+		}
+	*/
+	//les pos devraient être checkées ttes ici puis tu checkes direct dans la tile
+	//passée en arg (tu passes x-1) plutot que de checker en static ici...
+	if t.pos.x-1 >= 0 && isWalkable(s.carte[t.pos.x-1][t.pos.y]) && !s.me.visitedTiles[s.carte[t.pos.x-1][t.pos.y]] {
 		s.me.canGoWest = true
 		s.floodfill(s.carte[t.pos.x-1][t.pos.y], 5) //
 	}
 	if t.pos.x+1 < WIDTH && isWalkable(s.carte[t.pos.x+1][t.pos.y]) && !s.me.visitedTiles[s.carte[t.pos.x+1][t.pos.y]] {
 		s.me.canGoEast = true
 	}
-	if t.pos.y-1 > 0 && isWalkable(s.carte[t.pos.x][t.pos.y-1]) && !s.me.visitedTiles[s.carte[t.pos.x][t.pos.y-1]] {
+	if t.pos.y-1 >= 0 && isWalkable(s.carte[t.pos.x][t.pos.y-1]) && !s.me.visitedTiles[s.carte[t.pos.x][t.pos.y-1]] {
 		s.me.canGoNorth = true
 	}
 	if t.pos.y+1 < HEIGHT && isWalkable(s.carte[t.pos.x][t.pos.y+1]) && !s.me.visitedTiles[s.carte[t.pos.x][t.pos.y+1]] {
@@ -471,7 +469,7 @@ func (s *State) woodMoves() {
 	}
 	//TEST
 	//if i am round the torp zone sonar to see what happens
-	if getPosBySector(s.me.currentPos.pos) == s.opp.lastTorpedoZone {
+	if getSector(s.me.currentPos.pos) == s.opp.lastTorpedoZone {
 		//s.me.sonar(s.opp.lastTorpedoZone) //useless should be able to use sonar in the neighhouring zones
 		_, p := s.opp.getLastTorpZone()
 		s.me.torpedo(s.carte[p.x][p.y])
@@ -502,7 +500,10 @@ func main() {
 	//random num generator
 	rand.Seed(time.Now().Unix())
 
+	//should have a new func here
 	var s State
+	s.directions = []Direction{Direction{-1, 0, "W"}, Direction{0, -1, "N"}, Direction{+1, 0, "E"}, Direction{0, +1, "S"}}
+
 	var width, height, myId int
 	scanner.Scan()
 	fmt.Sscan(scanner.Text(), &width, &height, &myId)
@@ -528,8 +529,8 @@ func main() {
 	}
 
 	//my starting pos
-	//var startPos = s.walkableTiles[rand.Intn(len(s.walkableTiles))]
-	var startPos = s.carte[11][13]
+	var startPos = s.walkableTiles[rand.Intn(len(s.walkableTiles))]
+	//var startPos = s.carte[11][13]
 	fmt.Println(startPos.pos.x, startPos.pos.y)
 
 	s.me.visitedTiles = make(map[Tile]bool)
@@ -554,6 +555,7 @@ func main() {
 		s.getTargets(dist)
 		//log.Println(s.targets, len(s.targets))
 
+		log.Println(getSector(Point{11, 12}))
 		//s.floodfill(s.me.currentPos, 10)
 		s.checkDirections(s.me.currentPos)
 		s.woodMoves()
