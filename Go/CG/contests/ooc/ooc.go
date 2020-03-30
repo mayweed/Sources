@@ -156,6 +156,7 @@ type Me struct {
 	commands []string
 }
 
+//COMMANDS
 func (m *Me) isTorpCharge() bool {
 	var c bool
 	if m.torpedoCooldown > 0 {
@@ -245,16 +246,19 @@ type State struct {
 	board         string
 	carte         [HEIGHT][WIDTH]Tile
 	walkableTiles []Tile
-	visitedTiles  map[Point]bool
 	me            Me
 	opp           Opp
 	targets       []Tile
 }
 
+// sim///
+//func (s *State) makeMove(dir String){
+//}
 //YannTt'as 3 mouvements possible, tu floodfill pour chaque, garde celui qui te laisse le plus de cases dispo après move
 func (s *State) checkDirections(t Tile) {
 	if t.pos.x-1 > 0 && isWalkable(s.carte[t.pos.x-1][t.pos.y]) && !s.me.visitedTiles[s.carte[t.pos.x-1][t.pos.y]] {
 		s.me.canGoWest = true
+		s.floodfill(s.carte[t.pos.x-1][t.pos.y], 5) //
 	}
 	if t.pos.x+1 < WIDTH && isWalkable(s.carte[t.pos.x+1][t.pos.y]) && !s.me.visitedTiles[s.carte[t.pos.x+1][t.pos.y]] {
 		s.me.canGoEast = true
@@ -266,46 +270,54 @@ func (s *State) checkDirections(t Tile) {
 		s.me.canGoSouth = true
 	}
 }
-func (s *State) floodfill(t Tile) {
+func (s *State) floodfill(t Tile, depth int) {
 	var queue []Tile
 	queue = append(queue, t)
 
-	log.Println("WNUM", len(s.walkableTiles))
 	var numT int
 
+	var areaN int
+	var areaS int
+	var areaW int
+	var areaE int
+
+	var areaT []Tile
 	for len(queue) != 0 {
 		var t = queue[0]
 		queue = queue[1:]
 
-		//t.color = "blue"
-
-		//TORPEDO RANGE if the tile is blue can be used to fire torpedo
-		//NOT the way to do that
-		//if path := s.getBfsPath(s.me.currentPos, t); len(path) > 4 {
-		//	return
-		//}
+		if areaN == depth || areaS == depth || areaW == depth || areaE == depth {
+			//best ffDir = max des 4
+			log.Println("N: ", areaN, "S: ", areaS, "W: ", areaW, "E: ", areaE)
+			log.Println("areaT: ", areaT)
+			break
+		}
+		//!!! cant check south if i go north!! i just came from south!!
 		//check north
-		//if it's not yet blue and is walkable, we havent visited it yet!!
-		if t.pos.y-1 >= 0 && isWalkable(s.carte[t.pos.x][t.pos.y-1]) && s.carte[t.pos.x][t.pos.y-1].color != "blue" {
+		if t.pos.y-1 >= 0 && isWalkable(s.carte[t.pos.x][t.pos.y-1]) && !s.me.visitedTiles[s.carte[t.pos.x][t.pos.y-1]] {
 			s.carte[t.pos.x][t.pos.y-1].color = "blue" //wouldn't black be better?
 			queue = append(queue, s.carte[t.pos.x][t.pos.y-1])
-			log.Println(s.carte[t.pos.x][t.pos.y-1].color)
+			areaN += 1
 		}
 		//check south
-		if t.pos.y+1 < HEIGHT && isWalkable(s.carte[t.pos.x][t.pos.y+1]) && s.carte[t.pos.x][t.pos.y+1].color != "blue" {
+		if t.pos.y+1 < HEIGHT && isWalkable(s.carte[t.pos.x][t.pos.y+1]) && !s.me.visitedTiles[s.carte[t.pos.x][t.pos.y+1]] {
 			s.carte[t.pos.x][t.pos.y+1].color = "blue"
 			queue = append(queue, s.carte[t.pos.x][t.pos.y+1])
+			areaS += 1
 		}
 		//check west
-		if t.pos.x-1 >= 0 && isWalkable(s.carte[t.pos.x-1][t.pos.y]) && s.carte[t.pos.x-1][t.pos.y].color != "blue" {
+		if t.pos.x-1 >= 0 && isWalkable(s.carte[t.pos.x-1][t.pos.y]) && !s.me.visitedTiles[s.carte[t.pos.x-1][t.pos.y]] {
 			s.carte[t.pos.x-1][t.pos.y].color = "blue"
 			queue = append(queue, s.carte[t.pos.x-1][t.pos.y])
+			areaW += 1
 
 		}
 		//check east
-		if t.pos.x+1 < WIDTH && isWalkable(s.carte[t.pos.x+1][t.pos.y]) && s.carte[t.pos.x+1][t.pos.y].color != "blue" {
+		if t.pos.x+1 < WIDTH && isWalkable(s.carte[t.pos.x+1][t.pos.y]) && !s.me.visitedTiles[s.carte[t.pos.x+1][t.pos.y]] {
 			s.carte[t.pos.x+1][t.pos.y].color = "blue"
 			queue = append(queue, s.carte[t.pos.x+1][t.pos.y])
+			areaE += 1
+			areaT = append(areaT, s.carte[t.pos.x+1][t.pos.y])
 
 		}
 		numT += 1
@@ -495,12 +507,10 @@ func main() {
 	}
 
 	//my starting pos
-	var startPos = s.walkableTiles[rand.Intn(len(s.walkableTiles))]
-	//	var startPos = s.carte[7][8]
+	//var startPos = s.walkableTiles[rand.Intn(len(s.walkableTiles))]
+	var startPos = s.carte[11][13]
 	fmt.Println(startPos.pos.x, startPos.pos.y)
 
-	//Dont use it yet so...
-	//s.floodfill(startPos)
 	s.me.visitedTiles = make(map[Tile]bool)
 
 	var turn int
@@ -521,8 +531,9 @@ func main() {
 		//TEST TARGET
 		dist := s.calculateDist(s.me.currentPos)
 		s.getTargets(dist)
-		log.Println(s.targets, len(s.targets))
+		//log.Println(s.targets, len(s.targets))
 
+		//s.floodfill(s.me.currentPos, 10)
 		s.checkDirections(s.me.currentPos)
 		s.woodMoves()
 
