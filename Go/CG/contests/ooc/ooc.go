@@ -133,6 +133,7 @@ func (o *Opp) getLastTorpZone() (int, Point) {
 type Me struct {
 	id           int
 	currentPos   Tile
+	currentDir   string
 	hitPoints    int
 	visitedTiles map[Tile]bool
 	//dirs
@@ -251,9 +252,25 @@ type State struct {
 	targets       []Tile
 }
 
+/*
 // sim///
-//func (s *State) makeMove(dir String){
-//}
+func estimateTrajectory(s State,numTurns int){
+	//simply play the game of trajectory right?
+	cpState := s //a copy of the state
+	for i := 0, i < numTurns, i++{
+if cpState.me.currentDir =="N"{
+	//MUST find ja simpler way to do that: getTile!!! and a valid one!! with no shit
+	//if y+1 etc
+	nextPos = cpState.carte[cpState.me.currentDir.pos.x][cpState.me.currentDir.pos.y-1]
+	//if next pos is a deadstreet do not go there!!
+	if nextPos.pos.x+1 >0 &&
+
+
+	}
+
+}
+}
+*/
 //YannTt'as 3 mouvements possible, tu floodfill pour chaque, garde celui qui te laisse le plus de cases dispo après move
 func (s *State) checkDirections(t Tile) {
 	if t.pos.x-1 > 0 && isWalkable(s.carte[t.pos.x-1][t.pos.y]) && !s.me.visitedTiles[s.carte[t.pos.x-1][t.pos.y]] {
@@ -437,15 +454,19 @@ func getBestMove(s State) {
 //I know...but did i grasp the logic??
 func (s *State) woodMoves() {
 	if s.me.canGoSouth {
+		s.me.currentDir = "S"
 		s.me.move("S")
 	}
 	if !s.me.canGoSouth && s.me.canGoEast {
+		s.me.currentDir = "E"
 		s.me.move("E")
 	}
 	if !s.me.canGoSouth && !s.me.canGoEast && s.me.canGoNorth {
+		s.me.currentDir = "N"
 		s.me.move("N")
 	}
 	if !s.me.canGoNorth && !s.me.canGoEast && !s.me.canGoSouth && s.me.canGoWest {
+		s.me.currentDir = "W"
 		s.me.move("W")
 	}
 	//TEST
