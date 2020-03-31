@@ -35,19 +35,42 @@ type Direction struct {
 	name string
 }
 
+func (s *State) getTile(t Tile) (Tile, error) {
+	if t.pos.x < 0 || t.pos.x > WIDTH || t.pos.y < 0 || t.pos.y > HEIGHT || t.what != "." {
+		return Tile{}, fmt.Errorf("out of bound or island\n") //an error here like out of range or island!!
+	} else {
+		return s.carte[t.pos.x][t.pos.y], nil
+	}
+}
+
 //TILE
 //getTile() with limit checking
 //to see what happen if border crossed?
 //https://rosettacode.org/wiki/Bitmap/Flood_fill#Go ==> would like to see the getpx func i imagine a getTile()
 // with limit checkers in a Grid Type...
 type Tile struct {
-	pos   Point
-	what  string
-	color string
+	pos  Point
+	what string
 }
 
 func isWalkable(t Tile) bool {
 	return t.what == "."
+}
+func (s *State) computeNeighbours(t Tile) int {
+	var neighbours int
+	if t.pos.x-1 >= 0 && s.carte[t.pos.x-1][t.pos.y].what == "." {
+		neighbours += 1
+	}
+	if t.pos.x+1 < WIDTH && s.carte[t.pos.x+1][t.pos.y].what == "." {
+		neighbours += 1
+	}
+	if t.pos.y-1 >= 0 && s.carte[t.pos.x][t.pos.y-1].what == "." {
+		neighbours += 1
+	}
+	if t.pos.y+1 < HEIGHT && s.carte[t.pos.x][t.pos.y+1].what == "." {
+		neighbours += 1
+	}
+	return neighbours
 }
 
 //OPP
@@ -134,7 +157,8 @@ type Me struct {
 	//Opp
 	oppSurfaceHint string
 	//comm to send
-	commands []string
+	commands      []string
+	possibleMoves []Tile
 }
 
 //COMMANDS
@@ -252,98 +276,33 @@ if cpState.me.currentDir =="N"{
 }
 }
 */
-func (s *State) getTile(t Tile) (Tile, error) {
-	if t.pos.x < 0 || t.pos.x > WIDTH || t.pos.y < 0 || t.pos.y > HEIGHT || t.what != "." {
-		return Tile{}, fmt.Errorf("out of bound or island\n") //an error here like out of range or island!!
-	} else {
-		return s.carte[t.pos.x][t.pos.y], nil
-	}
-}
 
 //YannTt'as 3 mouvements possible, tu floodfill pour chaque, garde celui qui te laisse le plus de cases dispo après move
 //for _,dirs := range s.directions{
 func (s *State) checkDirections(t Tile) {
-	/*
-		tile, err := s.getTile(t)
-		if err != nil {
-			return
-		}
-	*/
 	//les pos devraient être checkées ttes ici puis tu checkes direct dans la tile
 	//passée en arg (tu passes x-1) plutot que de checker en static ici...
+	//FF je cpds pas retour au neigbour..
 	if t.pos.x-1 >= 0 && isWalkable(s.carte[t.pos.x-1][t.pos.y]) && !s.me.visitedTiles[s.carte[t.pos.x-1][t.pos.y]] {
 		s.me.canGoWest = true
-		s.floodfill(s.carte[t.pos.x-1][t.pos.y], 5) //
+		s.me.possibleMoves = append(s.me.possibleMoves, s.carte[t.pos.x-1][t.pos.y])
 	}
 	if t.pos.x+1 < WIDTH && isWalkable(s.carte[t.pos.x+1][t.pos.y]) && !s.me.visitedTiles[s.carte[t.pos.x+1][t.pos.y]] {
 		s.me.canGoEast = true
+		s.me.possibleMoves = append(s.me.possibleMoves, s.carte[t.pos.x+1][t.pos.y])
+
 	}
 	if t.pos.y-1 >= 0 && isWalkable(s.carte[t.pos.x][t.pos.y-1]) && !s.me.visitedTiles[s.carte[t.pos.x][t.pos.y-1]] {
+		s.me.possibleMoves = append(s.me.possibleMoves, s.carte[t.pos.x][t.pos.y-1])
+
 		s.me.canGoNorth = true
 	}
 	if t.pos.y+1 < HEIGHT && isWalkable(s.carte[t.pos.x][t.pos.y+1]) && !s.me.visitedTiles[s.carte[t.pos.x][t.pos.y+1]] {
+		s.me.possibleMoves = append(s.me.possibleMoves, s.carte[t.pos.x][t.pos.y+1])
+
 		s.me.canGoSouth = true
 	}
 }
-func (s *State) floodfill(t Tile, depth float64) map[string]float64 {
-	var queue []Tile
-	queue = append(queue, t)
-
-	var numT int
-
-	var areaN, areaS, areaW, areaE float64
-	var ffd = make(map[string]float64)
-	//var areaT []Tile
-	for len(queue) != 0 {
-		var t = queue[0]
-		queue = queue[1:]
-
-		if areaN == depth || areaS == depth || areaW == depth || areaE == depth {
-			//best ffDir = max des 4
-			ffd["N"] = areaN
-			ffd["S"] = areaS
-			ffd["E"] = areaE
-			ffd["W"] = areaW
-			log.Println(ffd)
-			return ffd
-		}
-		//!!! cant check south if i go north!! i just came from south!!
-		//check north
-		if t.pos.y-1 >= 0 && isWalkable(s.carte[t.pos.x][t.pos.y-1]) && !s.me.visitedTiles[s.carte[t.pos.x][t.pos.y-1]] {
-			s.carte[t.pos.x][t.pos.y-1].color = "blue" //wouldn't black be better?
-			queue = append(queue, s.carte[t.pos.x][t.pos.y-1])
-			areaN += 1.0
-		}
-		//check south
-		if t.pos.y+1 < HEIGHT && isWalkable(s.carte[t.pos.x][t.pos.y+1]) && !s.me.visitedTiles[s.carte[t.pos.x][t.pos.y+1]] {
-			s.carte[t.pos.x][t.pos.y+1].color = "blue"
-			queue = append(queue, s.carte[t.pos.x][t.pos.y+1])
-			areaS += 1.0
-		}
-		//check west
-		if t.pos.x-1 >= 0 && isWalkable(s.carte[t.pos.x-1][t.pos.y]) && !s.me.visitedTiles[s.carte[t.pos.x-1][t.pos.y]] {
-			s.carte[t.pos.x-1][t.pos.y].color = "blue"
-			queue = append(queue, s.carte[t.pos.x-1][t.pos.y])
-			areaW += 1.0
-
-		}
-		//check east
-		if t.pos.x+1 < WIDTH && isWalkable(s.carte[t.pos.x+1][t.pos.y]) && !s.me.visitedTiles[s.carte[t.pos.x+1][t.pos.y]] {
-			s.carte[t.pos.x+1][t.pos.y].color = "blue"
-			queue = append(queue, s.carte[t.pos.x+1][t.pos.y])
-			areaE += 1.0
-			//areaT = append(areaT, s.carte[t.pos.x+1][t.pos.y])
-
-		}
-		numT += 1
-		//log.Println(t.pos, t.color)
-	}
-	return nil
-}
-
-//voronoi to get possible zones??
-//need to keep track of the dist
-//Idea: all path 4 cells from torpedoPos in the direction of opp
 func (s *State) getBfsPath(startPos, target Tile) []Tile {
 	var visited = make(map[Tile]bool)
 	visited[startPos] = true
@@ -451,50 +410,44 @@ func getBestMove(s State) {
 //WRITE A GUESS FUNC TO GUESS ENEMY POS FROM HINTS!!
 //I know...but did i grasp the logic??
 func (s *State) woodMoves() {
-	//huge test
-	var ffd = s.floodfill(s.me.currentPos, 10)
-
 	//calculate the best value
-	var north, south, east, west float64
+	//var north, south, east, west float64
+
 	if s.me.canGoSouth {
-		//s.me.currentDir = "S"
-		//s.me.move("S")
-		south = 1.0 + ffd["S"]
+		s.me.currentDir = "S"
+		s.me.move("S")
+		//doin it that way is real shit
+		n := s.computeNeighbours(s.carte[s.me.currentPos.pos.x][s.me.currentPos.pos.y+1])
+		south := 1.0 + float64(n)
+		log.Println(south, n)
 	}
 	//what if i can go west?? if ffdW > a ffdE ne devrais je pas ponderer l'éval de W+0.5
 	if !s.me.canGoSouth && s.me.canGoEast {
-		//s.me.currentDir = "E"
-		//s.me.move("E")
-		east = 1.0 + ffd["E"]
-		if s.me.canGoWest || s.me.canGoNorth {
-			if ffd["N"] > ffd["E"] {
-				north += 0.5
-			}
-			if ffd["W"] > ffd["E"] {
-				west += 0.5
-			}
-		}
+		s.me.currentDir = "E"
+		s.me.move("E")
 	}
 	if !s.me.canGoSouth && !s.me.canGoEast && s.me.canGoNorth {
-		//s.me.currentDir = "N"
-		//s.me.move("N")
-		north = 1.0 + ffd["N"]
-		if s.me.canGoWest {
-			if ffd["W"] > ffd["N"] {
-				west += 0.5
+		s.me.currentDir = "N"
+		s.me.move("N")
+		/*
+			north = 1.0 + ffd["N"]
+			if s.me.canGoWest {
+				if ffd["W"] > ffd["N"] {
+					west += 0.5
+				}
 			}
-		}
+		*/
 	}
 	if !s.me.canGoNorth && !s.me.canGoEast && !s.me.canGoSouth && s.me.canGoWest {
-		//s.me.currentDir = "W"
-		//s.me.move("W")
-		west = 1.0 + ffd["W"]
+		s.me.currentDir = "W"
+		s.me.move("W")
+		//west = 1.0 + ffd["W"]
 		//c'est une connerie !! je devrais regarder ces ifs c'est une connerie!!
 		// je devrais raisonner au niveau de la tile!! combien de direciton possible
 		//s il y en a plus qu'une , quelqu'elle soit, c'est que j'ai raté quelque
 		//chose!!! et que j'ai plus qu'à perdre une vie en surface!!!
 	}
-	log.Println(east, north, south, west)
+	//log.Println(east, north, south, west)
 	//TEST
 	//if i am round the torp zone sonar to see what happens
 	if getSector(s.me.currentPos.pos) == s.opp.lastTorpedoZone {
@@ -549,19 +502,17 @@ func main() {
 
 	for i := 0; i < HEIGHT; i++ {
 		for j := 0; j < WIDTH; j++ {
-			//red by default
-			s.carte[i][j] = Tile{Point{i, j}, string(s.board[j*WIDTH+i]), "red"}
+			s.carte[i][j] = Tile{Point{i, j}, string(s.board[j*WIDTH+i])}
 			if s.carte[i][j].what == "." {
-				//green like "you could go there"
-				s.carte[i][j].color = "green"
 				s.walkableTiles = append(s.walkableTiles, s.carte[i][j])
 			}
 		}
 	}
 
+	log.Println(s.walkableTiles)
 	//my starting pos
-	var startPos = s.walkableTiles[rand.Intn(len(s.walkableTiles))]
-	//var startPos = s.carte[11][13]
+	//var startPos = s.walkableTiles[rand.Intn(len(s.walkableTiles))]
+	var startPos = s.carte[7][10]
 	fmt.Println(startPos.pos.x, startPos.pos.y)
 
 	s.me.visitedTiles = make(map[Tile]bool)
@@ -584,11 +535,9 @@ func main() {
 		//TEST TARGET
 		dist := s.calculateDist(s.me.currentPos)
 		s.getTargets(dist)
-		//log.Println(s.targets, len(s.targets))
 
-		log.Println(getSector(Point{11, 12}))
-		//s.floodfill(s.me.currentPos, 10)
 		s.checkDirections(s.me.currentPos)
+		log.Println(s.me.possibleMoves)
 		s.woodMoves()
 
 		var sonarResult string
@@ -609,6 +558,7 @@ func main() {
 		s.me.canGoSouth = false
 		s.me.canGoWest = false
 		s.me.canGoEast = false
+		s.me.possibleMoves = []Tile{}
 		s.me.commands = []string{}
 		s.targets = []Tile{}
 		turn += 1
