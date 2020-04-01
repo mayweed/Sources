@@ -1,4 +1,4 @@
-#!/usr/bin/python
+!/usr/bin/python
 
 import os
 import sys
@@ -8,11 +8,10 @@ TODO:
 - first all the files then parse main.go
 - check the import statements: should I use goimports?
 - what about gofmt? https://blog.golang.org/go-fmt-your-code
-- put package an import statement at the beginning of the file?
 """
 
-# the directory should be given as an argument
-filelist=os.listdir("/home/raimondeaug/scripts/Sources/Go/fb")
+# must check that it's directory + add usage() 
+filelist=os.listdir(sys.argv[1])
 filelist.sort()
 
 # check for preexisting file and delete it eventually
@@ -21,7 +20,7 @@ if "bigfile.go" in filelist:
 
 def sanitizeList(fileList):
     """
-    keep only *.go files
+    keep only *.go files in the directory
     better use a new clean list rather than deleting elements
     """
     cleanList=[]
@@ -32,57 +31,30 @@ def sanitizeList(fileList):
 
     return cleanList
 
-def scanLines(fileObject,line):
-    """
-    takes a file, scan all the lines
-    if line found get true and exit
-    else return false
-    """
-    #do not use open() twice!!
-    for l in fileObject:
-        if line==l:return False
-        else: return True
-    
-
-def scanAndAdd (fileList):
-    """
-    First sanitize the list
-    then check all lines of file and write import and package at the
-    beginning
-    """
-    for file in fileList:
-        with open(file,'r') as f:
-            # w+ to create the file, works with a+
-            with open("bigfile.go",'a+')as bf:
-                for line in f:
-                    if line.startswith("package") or line.startswith("import"):
-                        #does not work...
-                        #if scanLines(bf,line):
-                        #    print(scanLines(bf,line),file=sys.stderr)
-                        bf.write(line)
-
-
 def assemble(fileList):
     #get rid of non go files
     fl=sanitizeList(fileList)
 
-    #import and package
-    scanAndAdd(fl)
-
-    # adding what's left
     for file in fl:
-        #do not include backup from cg
-        if file!="allin.go":
             with open(file,'r') as f:
-                # w+ to create the file, works with a+
                 with open("bigfile.go",'a+')as bf:
-                    bf.write("//"+file+"\n")
+                    bf.write("//"+file+ "crafted with love by assembleFile\n")
+                    #add a package in our big file
+                    bf.write("package main")
                     for line in f:
-                        #prune files from package and import except main?
-                        if line.startswith("package") or \
-                            line.startswith("import") or \
-                            line.startswith("//"):
+                        if line.startswith("package") :
                             continue
+                        elif line.startswith("import"):
+                            # import group
+                            if line.endswith("("):
+                                #tant que la ligne ne commence pas par ) ignorer
+                                for line in f:
+                                    continue
+                                    if line.startswith(")")
+                                        break
+                            elif:
+                                #import by line
+                                continue
                         else:
                             bf.write(line)
 
