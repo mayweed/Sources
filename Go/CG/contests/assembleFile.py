@@ -7,7 +7,7 @@ import sys
 TODO: 
 - does not work if it's not called in the directory!! Cant find files otherwise!!
   Must fix that!!
-- check the import statements: should I use goimports?
+- wtf is wrong with goimports?
 """
 
 # must check that it's directory + add usage() 
