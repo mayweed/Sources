@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
-import os
+import os 
+import os.path
 import sys
 
 """
@@ -12,13 +13,17 @@ TODO:
 
 # must check that it's directory + add usage() 
 #filelist=os.listdir(sys.argv[1])
-filelist=os.listdir("/home/guillaume/scripts/Sources/Go/CG/contests/ooc")
+filelist= os.listdir("/home/guillaume/scripts/Sources/Go/CG/contests/ooc")
+#why does it bug if i delete that?
 filelist.sort()
 
 # check for preexisting file and delete it eventually
-if "cgfile.go" in filelist:
+#what about pathlib? cf https://linuxize.com/post/python-check-if-file-exists/
+if os.path.isfile("cgfile.go"):
     os.system("rm cgfile.go")
 
+#if i go by file i dont need that. Would be great though to have choice
+#by args between dir and files...
 def sanitizeList(fileList):
     """
     keep only *.go files in the directory
