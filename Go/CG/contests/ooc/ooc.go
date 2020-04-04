@@ -199,23 +199,37 @@ func (s *State) checkDirections(t Tile) {
 	//passée en arg (tu passes x-1) plutot que de checker en static ici...
 	//FF je cpds pas retour au neigbour..
 	if t.pos.x-1 >= 0 && isWalkable(s.carte[t.pos.x-1][t.pos.y]) && !s.me.visitedTiles[s.carte[t.pos.x-1][t.pos.y]] {
-		s.me.canGoWest = true
-		s.me.possibleMoves = append(s.me.possibleMoves, s.carte[t.pos.x-1][t.pos.y])
+		if s.computeNeighbours(s.carte[t.pos.x-1][t.pos.y]) == 1 {
+			s.me.canGoWest = false
+		} else {
+			s.me.canGoWest = true
+			s.me.possibleMoves = append(s.me.possibleMoves, s.carte[t.pos.x-1][t.pos.y])
+		}
 	}
 	if t.pos.x+1 < WIDTH && isWalkable(s.carte[t.pos.x+1][t.pos.y]) && !s.me.visitedTiles[s.carte[t.pos.x+1][t.pos.y]] {
-		s.me.canGoEast = true
-		s.me.possibleMoves = append(s.me.possibleMoves, s.carte[t.pos.x+1][t.pos.y])
+		if s.computeNeighbours(s.carte[t.pos.x+1][t.pos.y]) == 1 {
+			s.me.canGoEast = false
+		} else {
+			s.me.canGoEast = true
+			s.me.possibleMoves = append(s.me.possibleMoves, s.carte[t.pos.x+1][t.pos.y])
+		}
 
 	}
 	if t.pos.y-1 >= 0 && isWalkable(s.carte[t.pos.x][t.pos.y-1]) && !s.me.visitedTiles[s.carte[t.pos.x][t.pos.y-1]] {
-		s.me.possibleMoves = append(s.me.possibleMoves, s.carte[t.pos.x][t.pos.y-1])
-
-		s.me.canGoNorth = true
+		if s.computeNeighbours(s.carte[t.pos.x][t.pos.y-1]) == 1 {
+			s.me.canGoNorth = false
+		} else {
+			s.me.canGoNorth = true
+			s.me.possibleMoves = append(s.me.possibleMoves, s.carte[t.pos.x][t.pos.y-1])
+		}
 	}
 	if t.pos.y+1 < HEIGHT && isWalkable(s.carte[t.pos.x][t.pos.y+1]) && !s.me.visitedTiles[s.carte[t.pos.x][t.pos.y+1]] {
-		s.me.possibleMoves = append(s.me.possibleMoves, s.carte[t.pos.x][t.pos.y+1])
-
-		s.me.canGoSouth = true
+		if s.computeNeighbours(s.carte[t.pos.x][t.pos.y+1]) == 1 {
+			s.me.canGoSouth = false
+		} else {
+			s.me.canGoSouth = true
+			s.me.possibleMoves = append(s.me.possibleMoves, s.carte[t.pos.x][t.pos.y+1])
+		}
 	}
 }
 func getBestMove(s State) {
@@ -240,9 +254,9 @@ func (s *State) woodMoves() {
 		s.me.currentDir = "S"
 		s.me.move("S")
 		//doin it that way is real shit
-		n := s.computeNeighbours(s.carte[s.me.currentPos.pos.x][s.me.currentPos.pos.y+1])
-		south := 1.0 + float64(n)
-		log.Println(south, n)
+		//n := s.computeNeighbours(s.carte[s.me.currentPos.pos.x][s.me.currentPos.pos.y+1])
+		//south := 1.0 + float64(n)
+		//log.Println(south, n)
 	}
 	//what if i can go west?? if ffdW > a ffdE ne devrais je pas ponderer l'éval de W+0.5
 	if !s.me.canGoSouth && s.me.canGoEast {
