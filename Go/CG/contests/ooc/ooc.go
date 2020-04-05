@@ -58,16 +58,17 @@ func isWalkable(t Tile) bool {
 }
 func (s *State) computeNeighbours(t Tile) int {
 	var neighbours int
-	if t.pos.x-1 >= 0 && s.carte[t.pos.x-1][t.pos.y].what == "." {
+	if t.pos.x-1 >= 0 && s.carte[t.pos.x-1][t.pos.y].what == "." && !s.me.visitedTiles[s.carte[t.pos.x-1][t.pos.y]] {
+
 		neighbours += 1
 	}
-	if t.pos.x+1 < WIDTH && s.carte[t.pos.x+1][t.pos.y].what == "." {
+	if t.pos.x+1 < WIDTH && s.carte[t.pos.x+1][t.pos.y].what == "." && !s.me.visitedTiles[s.carte[t.pos.x+1][t.pos.y]] {
 		neighbours += 1
 	}
-	if t.pos.y-1 >= 0 && s.carte[t.pos.x][t.pos.y-1].what == "." {
+	if t.pos.y-1 >= 0 && s.carte[t.pos.x][t.pos.y-1].what == "." && !s.me.visitedTiles[s.carte[t.pos.x][t.pos.y-1]]{
 		neighbours += 1
 	}
-	if t.pos.y+1 < HEIGHT && s.carte[t.pos.x][t.pos.y+1].what == "." {
+	if t.pos.y+1 < HEIGHT && s.carte[t.pos.x][t.pos.y+1].what == "." && !s.me.visitedTiles[s.carte[t.pos.x][t.pos.y+1]]{
 		neighbours += 1
 	}
 	return neighbours
