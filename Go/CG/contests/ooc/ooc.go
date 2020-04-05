@@ -23,6 +23,11 @@ type Point struct {
 	x, y int
 }
 
+func addPoint(p1, p2 Point) Point {
+	var dest Point
+	dest = Point{(p1.x + p2.x), (p1.y + p2.y)}
+	return dest
+}
 func getSector(p Point) int {
 	zone := math.Ceil(float64(p.x+1)/5.0) + math.Floor(float64(p.y/5.0)*3)
 	return int(zone)
@@ -65,10 +70,10 @@ func (s *State) computeNeighbours(t Tile) int {
 	if t.pos.x+1 < WIDTH && s.carte[t.pos.x+1][t.pos.y].what == "." && !s.me.visitedTiles[s.carte[t.pos.x+1][t.pos.y]] {
 		neighbours += 1
 	}
-	if t.pos.y-1 >= 0 && s.carte[t.pos.x][t.pos.y-1].what == "." && !s.me.visitedTiles[s.carte[t.pos.x][t.pos.y-1]]{
+	if t.pos.y-1 >= 0 && s.carte[t.pos.x][t.pos.y-1].what == "." && !s.me.visitedTiles[s.carte[t.pos.x][t.pos.y-1]] {
 		neighbours += 1
 	}
-	if t.pos.y+1 < HEIGHT && s.carte[t.pos.x][t.pos.y+1].what == "." && !s.me.visitedTiles[s.carte[t.pos.x][t.pos.y+1]]{
+	if t.pos.y+1 < HEIGHT && s.carte[t.pos.x][t.pos.y+1].what == "." && !s.me.visitedTiles[s.carte[t.pos.x][t.pos.y+1]] {
 		neighbours += 1
 	}
 	return neighbours
@@ -173,34 +178,16 @@ type State struct {
 	targets       []Tile
 }
 
-/*
-// sim///
-func estimateTrajectory(s State,numTurns int){
-	//simply play the game of trajectory right?
-	cpState := s //a copy of the state
-	for i := 0, i < numTurns, i++{
-if cpState.me.currentDir =="N"{
-	//MUST find ja simpler way to do that: getTile!!! and a valid one!! with no shit
-	//if y+1 etc
-	nextPos = cpState.carte[cpState.me.currentDir.pos.x][cpState.me.currentDir.pos.y-1]
-	//if next pos is a deadstreet do not go there!!
-	if nextPos.pos.x+1 >0 &&
-
-
-	}
-
-}
-}
-*/
-
 //YannTt'as 3 mouvements possible, tu floodfill pour chaque, garde celui qui te laisse le plus de cases dispo après move
 //for _,dirs := range s.directions{
 func (s *State) checkDirections(t Tile) {
 	//les pos devraient être checkées ttes ici puis tu checkes direct dans la tile
 	//passée en arg (tu passes x-1) plutot que de checker en static ici...
 	//FF je cpds pas retour au neigbour..
+	//pas bon: parfois c un mais c'est pas une impasse pour autant... dois évaluer
+	//avec ff!!
 	if t.pos.x-1 >= 0 && isWalkable(s.carte[t.pos.x-1][t.pos.y]) && !s.me.visitedTiles[s.carte[t.pos.x-1][t.pos.y]] {
-		if s.computeNeighbours(s.carte[t.pos.x-1][t.pos.y]) == 1 {
+		if s.computeNeighbours(s.carte[t.pos.x-1][t.pos.y]) <= 1 {
 			s.me.canGoWest = false
 		} else {
 			s.me.canGoWest = true
@@ -208,7 +195,7 @@ func (s *State) checkDirections(t Tile) {
 		}
 	}
 	if t.pos.x+1 < WIDTH && isWalkable(s.carte[t.pos.x+1][t.pos.y]) && !s.me.visitedTiles[s.carte[t.pos.x+1][t.pos.y]] {
-		if s.computeNeighbours(s.carte[t.pos.x+1][t.pos.y]) == 1 {
+		if s.computeNeighbours(s.carte[t.pos.x+1][t.pos.y]) <= 1 {
 			s.me.canGoEast = false
 		} else {
 			s.me.canGoEast = true
@@ -217,7 +204,7 @@ func (s *State) checkDirections(t Tile) {
 
 	}
 	if t.pos.y-1 >= 0 && isWalkable(s.carte[t.pos.x][t.pos.y-1]) && !s.me.visitedTiles[s.carte[t.pos.x][t.pos.y-1]] {
-		if s.computeNeighbours(s.carte[t.pos.x][t.pos.y-1]) == 1 {
+		if s.computeNeighbours(s.carte[t.pos.x][t.pos.y-1]) <= 1 {
 			s.me.canGoNorth = false
 		} else {
 			s.me.canGoNorth = true
@@ -225,10 +212,12 @@ func (s *State) checkDirections(t Tile) {
 		}
 	}
 	if t.pos.y+1 < HEIGHT && isWalkable(s.carte[t.pos.x][t.pos.y+1]) && !s.me.visitedTiles[s.carte[t.pos.x][t.pos.y+1]] {
-		if s.computeNeighbours(s.carte[t.pos.x][t.pos.y+1]) == 1 {
+		if s.computeNeighbours(s.carte[t.pos.x][t.pos.y+1]) <= 1 {
 			s.me.canGoSouth = false
 		} else {
 			s.me.canGoSouth = true
+			area := s.floodfill(s.carte[s.me.currentPos.pos.x][s.me.currentPos.pos.y+1], 10)
+			log.Println("areaS: ", area)
 			s.me.possibleMoves = append(s.me.possibleMoves, s.carte[t.pos.x][t.pos.y+1])
 		}
 	}
@@ -349,8 +338,8 @@ func main() {
 
 	log.Println(s.walkableTiles)
 	//my starting pos
-	//var startPos = s.walkableTiles[rand.Intn(len(s.walkableTiles))]
-	var startPos = s.carte[7][10]
+	var startPos = s.walkableTiles[rand.Intn(len(s.walkableTiles))]
+	//var startPos = s.carte[7][10]
 	fmt.Println(startPos.pos.x, startPos.pos.y)
 
 	s.me.visitedTiles = make(map[Tile]bool)
@@ -375,7 +364,7 @@ func main() {
 		s.getTargets(dist)
 
 		s.checkDirections(s.me.currentPos)
-		log.Println(s.me.possibleMoves)
+		//log.Println(s.me.possibleMoves)
 		s.woodMoves()
 
 		var sonarResult string
