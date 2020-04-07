@@ -1,12 +1,18 @@
 package main
 
+import (
+	"log"
+	"math/rand"
+	"time"
+)
+
+/*
 // sim///
 //s.directions = []Direction{Direction{-1, 0, "W"}, Direction{0, -1, "N"}, Direction{+1, 0, "E"}, Direction{0, +1, "S"}}
 func estimateTrajectory(s State, numTurns int) {
 	//simply play the game of trajectory right?
 	cpState := s //a copy of the state
 	//copy of a board to test
-	cpState.board = " xx..xxx............xxx.............xxx.....xx.....xxx.....xx.....xxx.......................................................xx.............xx...............xxx............xxx......x.....xxx......x......xx......................"
 	for i := 0; i < numTurns; i++ {
 		if cpState.me.canGoEast {
 			//MUST find ja simpler way to do that: getTile!!! and a valid one!! with no shit
@@ -20,5 +26,38 @@ func estimateTrajectory(s State, numTurns int) {
 		}
 		//if next pos is a deadstreet do not go there!!
 		//if nextPos.pos.x+1 >0 &&
+	}
+}
+*/
+func main() {
+	//random num generator
+	rand.Seed(time.Now().Unix())
+
+	//init Grid
+	var board = "xx..xxx............xxx.............xxx.....xx.....xxx.....xx.....xxx.......................................................xx.............xx...............xxx............xxx......x.....xxx......x......xx......................"
+	var g Grid
+	g.NewGrid(board)
+	var wtiles = g.getWalkableTiles()
+
+	//Players
+	var p [2]Player //p0 is me right
+
+	//Get a random starting pos on grid for each
+	for i := range p {
+		p[i].currentPos = wtiles[rand.Intn(len(wtiles))]
+	}
+
+	var turn int
+
+	//game loop in itself
+	for turn < 1 {
+
+		//update grid manually, next step factorize and make it move
+		g[p[0].currentPos.x][p[0].currentPos.y].what = "M"
+		g[p[1].currentPos.x][p[1].currentPos.y].what = "O"
+
+		log.Println(p[0].currentPos)
+		g.printGrid()
+		turn += 1 //inc turn
 	}
 }

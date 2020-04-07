@@ -6,8 +6,9 @@ import (
 )
 
 type Tile struct {
-	x    int
-	y    int
+	//x    int
+	//y    int
+	Point
 	what string
 }
 
@@ -16,7 +17,7 @@ type Grid [HEIGHT][WIDTH]Tile
 func (g *Grid) NewGrid(c string) {
 	for y := 0; y < HEIGHT; y++ {
 		for x := 0; x < WIDTH; x++ {
-			g[x][y] = Tile{x, y, string(c[(y*WIDTH)+x])}
+			g[x][y] = Tile{Point{x, y}, string(c[(y*WIDTH)+x])}
 		}
 	}
 }
@@ -37,7 +38,21 @@ func (g Grid) getNeigh(x, y int) (Tile, error) {
 		return t, nil
 	}
 }
+func (g *Grid) getWalkableTiles() []Tile {
+	var wtiles []Tile
+	for y := 0; y < HEIGHT; y++ {
+		for x := 0; x < WIDTH; x++ {
+			if g[x][y].what == "." {
+				wtiles = append(wtiles, g[x][y])
+			}
+		}
+	}
+	return wtiles
+}
 
+func (g *Grid) updateGrid(posPlayer Point) {
+
+}
 func (g *Grid) printGrid() {
 	for y := 0; y < HEIGHT; y++ {
 		for x := 0; x < WIDTH; x++ {
@@ -45,11 +60,4 @@ func (g *Grid) printGrid() {
 		}
 		fmt.Println()
 	}
-}
-
-func main() {
-	var board = "xx..xxx............xxx.............xxx.....xx.....xxx.....xx.....xxx.......................................................xx.............xx...............xxx............xxx......x.....xxx......x......xx......................"
-	var g Grid
-	g.NewGrid(board)
-	g.printGrid()
 }
