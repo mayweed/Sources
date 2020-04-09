@@ -6,14 +6,14 @@ import (
 
 type Tile struct {
 	Point
-	what       string
-	neighbours []Tile
+	what string
 }
 
 type Grid struct {
 	carte        [HEIGHT][WIDTH]Tile
 	wtiles       []Tile
 	visitedTiles []Tile
+	neighbours   map[Tile][]Tile
 }
 
 func (g *Grid) NewGrid(c string) {

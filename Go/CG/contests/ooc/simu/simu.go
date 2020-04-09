@@ -59,8 +59,9 @@ func main() {
 		log.Println(p[0].currentPos)
 		g.printGrid()
 		g.getTileNeighbours(&p[0].currentPos)
-		var visitedTiles = make(map[Tile]bool)
-		visitedTiles[p[0].currentPos] = true
+		//invalid key : it has a slice i suppose better a map in grid?
+		var visitedTiles = make(map[Point]bool)
+		visitedTiles[p[0].currentPos.Point] = true
 		log.Println(p[0].currentPos.neighbours)
 		turn += 1 //inc turn
 	}
