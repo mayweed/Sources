@@ -18,16 +18,26 @@ const (
 )
 
 //POINT
-//think about type Point in import "image"
 type Point struct {
 	x, y int
 }
-
-func addPoint(p1, p2 Point) Point {
-	var dest Point
-	dest = Point{(p1.x + p2.x), (p1.y + p2.y)}
-	return dest
+func (src Point) printDirection(dest Point) string {
+	var dir string
+	if dest.x > src.x {
+		dir = "E"
+	}
+	if dest.x < src.x {
+		dir = "W"
+	}
+	if dest.y < src.y {
+		dir = "N"
+	}
+	if dest.y > src.y {
+		dir = "S"
+	}
+	return dir
 }
+
 func getSector(p Point) int {
 	zone := math.Ceil(float64(p.x+1)/5.0) + math.Floor(float64(p.y/5.0)*3)
 	return int(zone)
@@ -40,19 +50,7 @@ type Direction struct {
 	name string
 }
 
-func (s *State) getTile(t Tile) (Tile, error) {
-	if t.pos.x < 0 || t.pos.x > WIDTH || t.pos.y < 0 || t.pos.y > HEIGHT || t.what != "." {
-		return Tile{}, fmt.Errorf("out of bound or island\n") //an error here like out of range or island!!
-	} else {
-		return s.carte[t.pos.x][t.pos.y], nil
-	}
-}
-
 //TILE
-//getTile() with limit checking
-//to see what happen if border crossed?
-//https://rosettacode.org/wiki/Bitmap/Flood_fill#Go ==> would like to see the getpx func i imagine a getTile()
-// with limit checkers in a Grid Type...
 type Tile struct {
 	pos  Point
 	what string
@@ -60,23 +58,6 @@ type Tile struct {
 
 func isWalkable(t Tile) bool {
 	return t.what == "."
-}
-func (s *State) computeNeighbours(t Tile) int {
-	var neighbours int
-	if t.pos.x-1 >= 0 && s.carte[t.pos.x-1][t.pos.y].what == "." && !s.me.visitedTiles[s.carte[t.pos.x-1][t.pos.y]] {
-
-		neighbours += 1
-	}
-	if t.pos.x+1 < WIDTH && s.carte[t.pos.x+1][t.pos.y].what == "." && !s.me.visitedTiles[s.carte[t.pos.x+1][t.pos.y]] {
-		neighbours += 1
-	}
-	if t.pos.y-1 >= 0 && s.carte[t.pos.x][t.pos.y-1].what == "." && !s.me.visitedTiles[s.carte[t.pos.x][t.pos.y-1]] {
-		neighbours += 1
-	}
-	if t.pos.y+1 < HEIGHT && s.carte[t.pos.x][t.pos.y+1].what == "." && !s.me.visitedTiles[s.carte[t.pos.x][t.pos.y+1]] {
-		neighbours += 1
-	}
-	return neighbours
 }
 
 //OPP
@@ -171,13 +152,14 @@ type Me struct {
 type State struct {
 	board         string
 	carte         [HEIGHT][WIDTH]Tile
+	neighbours    map[Tile][]Tile
 	directions    []Direction
 	walkableTiles []Tile
 	me            Me
 	opp           Opp
 	targets       []Tile
 }
-
+/*
 //YannTt'as 3 mouvements possible, tu floodfill pour chaque, garde celui qui te laisse le plus de cases dispo après move
 //for _,dirs := range s.directions{
 func (s *State) checkDirections(t Tile) {
@@ -187,41 +169,45 @@ func (s *State) checkDirections(t Tile) {
 	//pas bon: parfois c un mais c'est pas une impasse pour autant... dois évaluer
 	//avec ff!!
 	if t.pos.x-1 >= 0 && isWalkable(s.carte[t.pos.x-1][t.pos.y]) && !s.me.visitedTiles[s.carte[t.pos.x-1][t.pos.y]] {
-		if s.computeNeighbours(s.carte[t.pos.x-1][t.pos.y]) <= 1 {
-			s.me.canGoWest = false
-		} else {
-			s.me.canGoWest = true
-			s.me.possibleMoves = append(s.me.possibleMoves, s.carte[t.pos.x-1][t.pos.y])
-		}
+		//if s.computeNeighbours(s.carte[t.pos.x-1][t.pos.y]) <= 1 {
+		//s.me.canGoWest = false
+		//} else {
+		s.me.canGoWest = true
+		s.me.possibleMoves = append(s.me.possibleMoves, s.carte[t.pos.x-1][t.pos.y])
+		//}
 	}
 	if t.pos.x+1 < WIDTH && isWalkable(s.carte[t.pos.x+1][t.pos.y]) && !s.me.visitedTiles[s.carte[t.pos.x+1][t.pos.y]] {
-		if s.computeNeighbours(s.carte[t.pos.x+1][t.pos.y]) <= 1 {
-			s.me.canGoEast = false
-		} else {
-			s.me.canGoEast = true
-			s.me.possibleMoves = append(s.me.possibleMoves, s.carte[t.pos.x+1][t.pos.y])
-		}
-
+		s.me.canGoEast = true
+		s.me.possibleMoves = append(s.me.possibleMoves, s.carte[t.pos.x+1][t.pos.y])
 	}
+
 	if t.pos.y-1 >= 0 && isWalkable(s.carte[t.pos.x][t.pos.y-1]) && !s.me.visitedTiles[s.carte[t.pos.x][t.pos.y-1]] {
-		if s.computeNeighbours(s.carte[t.pos.x][t.pos.y-1]) <= 1 {
-			s.me.canGoNorth = false
-		} else {
-			s.me.canGoNorth = true
-			s.me.possibleMoves = append(s.me.possibleMoves, s.carte[t.pos.x][t.pos.y-1])
-		}
+		s.me.canGoNorth = true
+		s.me.possibleMoves = append(s.me.possibleMoves, s.carte[t.pos.x][t.pos.y-1])
 	}
 	if t.pos.y+1 < HEIGHT && isWalkable(s.carte[t.pos.x][t.pos.y+1]) && !s.me.visitedTiles[s.carte[t.pos.x][t.pos.y+1]] {
-		if s.computeNeighbours(s.carte[t.pos.x][t.pos.y+1]) <= 1 {
-			s.me.canGoSouth = false
-		} else {
-			s.me.canGoSouth = true
-			area := s.floodfill(s.carte[s.me.currentPos.pos.x][s.me.currentPos.pos.y+1], 10)
-			log.Println("areaS: ", area)
-			s.me.possibleMoves = append(s.me.possibleMoves, s.carte[t.pos.x][t.pos.y+1])
-		}
+		s.me.canGoSouth = true
+		s.me.possibleMoves = append(s.me.possibleMoves, s.carte[t.pos.x][t.pos.y+1])
 	}
 }
+*/
+func (s *State) computeNeighbours(t Tile) int {
+	s.neighbours = make(map[Tile][]Tile)
+	if t.pos.x-1 >= 0 && s.carte[t.pos.x-1][t.pos.y].what == "." { 
+		s.neighbours[t] = append(s.neighbours[t], s.carte[t.pos.x-1][t.pos.y])
+	}
+	if t.pos.x+1 < WIDTH && s.carte[t.pos.x+1][t.pos.y].what == "." { 
+		s.neighbours[t] = append(s.neighbours[t], s.carte[t.pos.x+1][t.pos.y])
+
+	}
+	if t.pos.y-1 >= 0 && s.carte[t.pos.x][t.pos.y-1].what == "." { 
+		s.neighbours[t] = append(s.neighbours[t], s.carte[t.pos.x][t.pos.y-1])
+	}
+	if t.pos.y+1 < HEIGHT && s.carte[t.pos.x][t.pos.y+1].what == "."{
+		s.neighbours[t] = append(s.neighbours[t], s.carte[t.pos.x][t.pos.y+1])
+	}
+}
+
 func getBestMove(s State) {
 	//it takes state as an arg, clone it to sim?
 	//determine which direction is best wrt the num of wtiles left and the opp
@@ -240,6 +226,16 @@ func (s *State) woodMoves() {
 	//calculate the best value
 	//var north, south, east, west float64
 
+	//WHERE can i go??
+	var eval []int
+	for i, t := range s.me.possibleMoves{
+		if !s.me.visitedTiles[t]{
+			area:=s.floodfill(t) //to check area
+			eval[i]+=area
+	}
+	/*
+	//Here you check if it's in visitedTiles and a bit of nose to see if it's no
+	//deadend
 	if s.me.canGoSouth {
 		s.me.currentDir = "S"
 		s.me.move("S")
@@ -256,14 +252,12 @@ func (s *State) woodMoves() {
 	if !s.me.canGoSouth && !s.me.canGoEast && s.me.canGoNorth {
 		s.me.currentDir = "N"
 		s.me.move("N")
-		/*
 			north = 1.0 + ffd["N"]
 			if s.me.canGoWest {
 				if ffd["W"] > ffd["N"] {
 					west += 0.5
 				}
 			}
-		*/
 	}
 	if !s.me.canGoNorth && !s.me.canGoEast && !s.me.canGoSouth && s.me.canGoWest {
 		s.me.currentDir = "W"
@@ -274,7 +268,7 @@ func (s *State) woodMoves() {
 		//s il y en a plus qu'une , quelqu'elle soit, c'est que j'ai raté quelque
 		//chose!!! et que j'ai plus qu'à perdre une vie en surface!!!
 	}
-	//log.Println(east, north, south, west)
+	*/
 	//TEST
 	//if i am round the torp zone sonar to see what happens
 	if getSector(s.me.currentPos.pos) == s.opp.lastTorpedoZone {
@@ -282,15 +276,6 @@ func (s *State) woodMoves() {
 		_, p := s.opp.getLastTorpZone()
 		s.me.torpedo(s.carte[p.x][p.y])
 	}
-	/*
-		//Torpedo spam to TEST
-		//pb with canFireTorpedo: not enougght charge??
-		if !s.me.isTorpCharge() {
-			t := s.targets[rand.Intn(len(s.targets))]
-			s.me.torpedo(t)
-		}
-	*/
-
 	/* I surface way too much!! should first learn to use my floodfill to optimize my
 	* moves and then i might be able to surface at the right time
 	//one direction is possible but cell has already been visited!! so surface
@@ -330,13 +315,13 @@ func main() {
 	for i := 0; i < HEIGHT; i++ {
 		for j := 0; j < WIDTH; j++ {
 			s.carte[i][j] = Tile{Point{i, j}, string(s.board[j*WIDTH+i])}
+			s.computeNeighbours(s.carte[i][j]) //doing it once and for all
 			if s.carte[i][j].what == "." {
 				s.walkableTiles = append(s.walkableTiles, s.carte[i][j])
 			}
 		}
 	}
 
-	log.Println(s.walkableTiles)
 	//my starting pos
 	var startPos = s.walkableTiles[rand.Intn(len(s.walkableTiles))]
 	//var startPos = s.carte[7][10]
