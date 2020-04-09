@@ -341,6 +341,12 @@ func main() {
 	var startPos = s.walkableTiles[rand.Intn(len(s.walkableTiles))]
 	//var startPos = s.carte[7][10]
 	fmt.Println(startPos.pos.x, startPos.pos.y)
+	/* can i read what opp outputs as startPos on stddout?
+	var test int
+	reader := bufio.NewScanner(os.Stdout)
+	reader.Scan()
+	fmt.Sscan(reader.Text(), &test)
+	*/
 
 	s.me.visitedTiles = make(map[Tile]bool)
 

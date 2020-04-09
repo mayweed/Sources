@@ -1,53 +1,54 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 )
 
 type Tile struct {
-	//x    int
-	//y    int
 	Point
-	what string
+	what       string
+	neighbours []Tile
 }
 
-type Grid [HEIGHT][WIDTH]Tile
+type Grid struct {
+	carte        [HEIGHT][WIDTH]Tile
+	wtiles       []Tile
+	visitedTiles []Tile
+}
 
 func (g *Grid) NewGrid(c string) {
 	for y := 0; y < HEIGHT; y++ {
 		for x := 0; x < WIDTH; x++ {
-			g[x][y] = Tile{Point{x, y}, string(c[(y*WIDTH)+x])}
+			g.carte[x][y] = Tile{Point{x, y}, string(c[(y*WIDTH)+x]), []Tile{}}
 		}
 	}
 }
 
-func (g *Grid) Get(x, y int) (Tile, error) {
-	if x < 0 || x > WIDTH || y < 0 || y > HEIGHT {
-		return Tile{}, errors.New("out of bound")
-	} else {
-		return g[x][y], nil
-	}
-
-}
-func (g Grid) getNeigh(x, y int) (Tile, error) {
-	t, err := g.Get(x, y+1)
-	if err != nil {
-		return Tile{}, errors.New("out of bound")
-	} else {
-		return t, nil
-	}
-}
-func (g *Grid) getWalkableTiles() []Tile {
-	var wtiles []Tile
+func (g *Grid) getWalkableTiles() {
 	for y := 0; y < HEIGHT; y++ {
 		for x := 0; x < WIDTH; x++ {
-			if g[x][y].what == "." {
-				wtiles = append(wtiles, g[x][y])
+			if g.carte[x][y].what == "." {
+				g.wtiles = append(g.wtiles, g.carte[x][y])
 			}
 		}
 	}
-	return wtiles
+}
+
+//shouldnt be t passes as a pointer?
+func (g *Grid) getTileNeighbours(t *Tile) {
+	//var t.neighbours = list.NewList()
+	if t.x-1 >= 0 && g.carte[t.x-1][t.y].what == "." { //&& !g[t.x-1][t.y].visited { just neigh can check that later no?
+		t.neighbours = append(t.neighbours, g.carte[t.x-1][t.y])
+	}
+	if t.x+1 < WIDTH && g.carte[t.x+1][t.y].what == "." {
+		t.neighbours = append(t.neighbours, g.carte[t.x+1][t.y])
+	}
+	if t.y-1 >= 0 && g.carte[t.x][t.y-1].what == "." {
+		t.neighbours = append(t.neighbours, g.carte[t.x][t.y-1])
+	}
+	if t.y+1 < HEIGHT && g.carte[t.x][t.y+1].what == "." {
+		t.neighbours = append(t.neighbours, g.carte[t.x][t.y+1])
+	}
 }
 
 func (g *Grid) updateGrid(posPlayer Point) {
@@ -56,7 +57,7 @@ func (g *Grid) updateGrid(posPlayer Point) {
 func (g *Grid) printGrid() {
 	for y := 0; y < HEIGHT; y++ {
 		for x := 0; x < WIDTH; x++ {
-			fmt.Printf("%v", g[x][y].what)
+			fmt.Printf("%v", g.carte[x][y].what)
 		}
 		fmt.Println()
 	}

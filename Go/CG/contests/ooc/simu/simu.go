@@ -37,14 +37,14 @@ func main() {
 	var board = "xx..xxx............xxx.............xxx.....xx.....xxx.....xx.....xxx.......................................................xx.............xx...............xxx............xxx......x.....xxx......x......xx......................"
 	var g Grid
 	g.NewGrid(board)
-	var wtiles = g.getWalkableTiles()
+	g.getWalkableTiles()
 
 	//Players
 	var p [2]Player //p0 is me right
 
 	//Get a random starting pos on grid for each
 	for i := range p {
-		p[i].currentPos = wtiles[rand.Intn(len(wtiles))]
+		p[i].currentPos = g.wtiles[rand.Intn(len(g.wtiles))]
 	}
 
 	var turn int
@@ -53,11 +53,15 @@ func main() {
 	for turn < 1 {
 
 		//update grid manually, next step factorize and make it move
-		g[p[0].currentPos.x][p[0].currentPos.y].what = "M"
-		g[p[1].currentPos.x][p[1].currentPos.y].what = "O"
+		g.carte[p[0].currentPos.x][p[0].currentPos.y].what = "M"
+		g.carte[p[1].currentPos.x][p[1].currentPos.y].what = "O"
 
 		log.Println(p[0].currentPos)
 		g.printGrid()
+		g.getTileNeighbours(&p[0].currentPos)
+		var visitedTiles = make(map[Tile]bool)
+		visitedTiles[p[0].currentPos] = true
+		log.Println(p[0].currentPos.neighbours)
 		turn += 1 //inc turn
 	}
 }
