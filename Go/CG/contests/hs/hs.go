@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	BOMB_RANGE = 3
+	MAX_BOMB_RANGE = 3
 )
 
 //POINT
@@ -60,14 +60,24 @@ type Grid struct {
 //It's NOT always 3 if you meet a crate before it's that range!!
 //eg: if the nearest crate is in range 2, range for the bomb is two!!
 func (g Grid) cratesAround(c Cell) (int, []Cell) {
+	var bombRange = 3
 	var numCrates int
 	var crateCells []Cell
 	//for any given free cell let's see how many crates are in range
+	// DID I REALLY NEED Round here??
 	for _, crate := range g.crates {
-		if c.pos.x == crate.pos.x && math.Round(math.Abs(float64(c.pos.y-crate.pos.y))) <= BOMB_RANGE ||
-			c.pos.y == crate.pos.y && math.Round(math.Abs(float64(c.pos.x-crate.pos.x))) <= BOMB_RANGE {
-			numCrates += 1
+		if c.pos.x == crate.pos.x && math.Round(math.Abs(float64(c.pos.y-crate.pos.y))) <= bombRange {
 			crateCells = append(crateCells, crate)
+			numCrates += 1
+			bombRange = math.Round(math.Abs(float64(c.pos.y - crate.pos.y))) //update brange
+		}
+		//||
+		if c.pos.y == crate.pos.y && math.Round(math.Abs(float64(c.pos.x-crate.pos.x))) <= bombRange {
+			crateCells = append(crateCells, crate)
+
+			numCrates += 1
+			bombRange = math.Round(math.Abs(float64(c.pos.x - crate.pos.x))) //update brange
+
 		}
 	}
 	return numCrates, crateCells
