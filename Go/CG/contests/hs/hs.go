@@ -57,16 +57,20 @@ type Grid struct {
 	crates []Cell
 }
 
-func (g Grid) cratesAround(c Cell) int {
+//It's NOT always 3 if you meet a crate before it's that range!!
+//eg: if the nearest crate is in range 2, range for the bomb is two!!
+func (g Grid) cratesAround(c Cell) (int, []Cell) {
 	var numCrates int
+	var crateCells []Cell
 	//for any given free cell let's see how many crates are in range
 	for _, crate := range g.crates {
 		if c.pos.x == crate.pos.x && math.Round(math.Abs(float64(c.pos.y-crate.pos.y))) <= BOMB_RANGE ||
 			c.pos.y == crate.pos.y && math.Round(math.Abs(float64(c.pos.x-crate.pos.x))) <= BOMB_RANGE {
 			numCrates += 1
+			crateCells = append(crateCells, crate)
 		}
 	}
-	return numCrates
+	return numCrates, crateCells
 }
 func (g Grid) getCellFromXY(x, y int) Cell {
 	return g.c[x][y]
@@ -99,13 +103,44 @@ type State struct {
 //TURN and Action
 //a turn is an action + a destination
 type Turn struct {
-	c Cell
+	c             Cell
+	possibleMoves []Cell
 	//evalScore float64
+}
+
+func getPossibleMoves(s State) Cell {
+	var cells []Cell
+	//get ten possible actions
+	for i := 0; i < 10; i++ {
+		x := rand.Intn(12)
+		y := rand.Intn(10)
+		if s.board.c[x][y].isEmpty() {
+			cells = append(cells, s.board.c[x][y])
+		}
+	}
+	var max int
+	var dest Cell
+	for _, c := range cells {
+		num, _ := s.board.cratesAround(c)
+		if num > max {
+			max = num
+			dest = c
+		}
+	}
+	return dest
+
 }
 
 //should make it generic, so that it works for every player
 //idea: simulate bomb explosion
-func (s *State) applyTurn(t Turn) {
+func (s *State) simBombTurn(c Cell) {
+	g := s.board //copy grid
+	for _, crate := range g.crates {
+		if c.pos.x == crate.pos.x && math.Round(math.Abs(float64(c.pos.y-crate.pos.y))) <= BOMB_RANGE ||
+			c.pos.y == crate.pos.y && math.Round(math.Abs(float64(c.pos.x-crate.pos.x))) <= BOMB_RANGE {
+			g.c[crate.pos.x][crate.pos.y].what = "." //wipe out crate
+		}
+	}
 }
 
 //should be in action type
@@ -118,49 +153,32 @@ func bomb(c Cell) string {
 	return s
 }
 
+/*
 func (s *State) think() string {
 	//first select a batch of random possible move
 	//evaluate them: is this enough far from any given bomb? is this close to
 	// a foe (bombs will become lethal)? AND is there any crates around?
 
-	var cells []Cell
 	//so first move to a random cell
 	//select 10 cells check cratesAround
-	/*
-		for i := 0; i < 10; i++ {
-			x := rand.Intn(12)
-			y := rand.Intn(10)
-			if s.board[y][x].isEmpty {
-				cells = append(cells, s.board[y][x])
-			}
-		}
-	*/
 	//LIST POSSIBLE ACTIONS!!
 
 	//very light eval, should take into account the range of others players bomb (and
 	//mine too, watch out not be killed by my own bombs!!)
-	var max int
-	var cell Cell
-	for _, c := range cells {
-		num := s.board.cratesAround(c)
-		if num > max {
-			max = num
-			cell = c
-		}
-	}
-	var res string
+	//var res string
 	//attempt to understand
 	//OOPS you go first and bomb then!!
 	//so calculate a path with most crates and bomb at a given time?
-	if s.me.numOfBombsLeft > 0 {
-		res = bomb(cell)
-	} else {
-		res = move(cell)
-	}
+	//if s.me.numOfBombsLeft > 0 {
+	//j		res = bomb(cell)
+	//	} else {
+	//		res = move(cell)
+	////	}
 
 	//wait til param1 of bombPlaced == 0
-	return res
+	//return res
 }
+*/
 
 func main() {
 	//read Grid
@@ -184,7 +202,14 @@ func main() {
 		for x := 0; x < s.board.w; x++ {
 			s.board.c[x] = make([]Cell, s.board.h)
 			for y := 0; y < s.board.h; y++ {
-				s.board.c[x][y] = Cell{Point{x, y}, string(s.board.rows[x*height+y]), false, false, false}
+				s.board.c[x][y] = Cell{Point{x, y}, string(s.board.rows[y*width+x]), false, false, false}
+			}
+		}
+
+		//isolate crates
+		for x := 0; x < s.board.w; x++ {
+			for y := 0; y < s.board.h; y++ {
+
 				if s.board.c[x][y].what == "0" {
 					s.board.crates = append(s.board.crates, s.board.c[x][y])
 				}
@@ -217,16 +242,21 @@ func main() {
 			}
 
 		}
+		c := getPossibleMoves(s)
+		log.Println("DEST: ", c)
 
-		res := s.think()
-		fmt.Println(res)
+		_, cs := s.board.cratesAround(c)
+		log.Println("CRATES IN RANGE: ", cs)
+		log.Println(len(cs))
+
+		//res := s.think()
+		//fmt.Println(res)
+
 		//MOVE test
 		//should list possible moves+simulate where to leave bombs to get
 		//more boxes destroy
-		//fmt.Println("MOVE 10 10") // Write action to stdout
-
-		//LOGS
-		log.Println(s.board.c)
-		//s.grid = "" //reset state
+		fmt.Println("MOVE 10 10") // Write action to stdout
+		s.board.crates = []Cell{} //empties it!!
+		s.board.rows = ""         //to update map when crates get bombed
 	}
 }
