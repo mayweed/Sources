@@ -60,7 +60,7 @@ type Grid struct {
 //It's NOT always 3 if you meet a crate before it's that range!!
 //eg: if the nearest crate is in range 2, range for the bomb is two!!
 func (g Grid) cratesAround(c Cell) (int, []Cell) {
-	var bombRange = 3
+	var bombRange = 3.0
 	var numCrates int
 	var crateCells []Cell
 	//for any given free cell let's see how many crates are in range
@@ -146,8 +146,8 @@ func getPossibleMoves(s State) Cell {
 func (s *State) simBombTurn(c Cell) {
 	g := s.board //copy grid
 	for _, crate := range g.crates {
-		if c.pos.x == crate.pos.x && math.Round(math.Abs(float64(c.pos.y-crate.pos.y))) <= BOMB_RANGE ||
-			c.pos.y == crate.pos.y && math.Round(math.Abs(float64(c.pos.x-crate.pos.x))) <= BOMB_RANGE {
+		if c.pos.x == crate.pos.x && math.Round(math.Abs(float64(c.pos.y-crate.pos.y))) <= MAX_BOMB_RANGE ||
+			c.pos.y == crate.pos.y && math.Round(math.Abs(float64(c.pos.x-crate.pos.x))) <= MAX_BOMB_RANGE {
 			g.c[crate.pos.x][crate.pos.y].what = "." //wipe out crate
 		}
 	}
