@@ -66,16 +66,14 @@ func (g Grid) cratesAround(c Cell) (int, []Cell) {
 	//for any given free cell let's see how many crates are in range
 	// DID I REALLY NEED Round here??
 	for _, crate := range g.crates {
-		if c.pos.x == crate.pos.x && math.Round(math.Abs(float64(c.pos.y-crate.pos.y))) <= bombRange {
+		//if it's equal to the current br
+		if c.pos.x == crate.pos.x && math.Round(math.Abs(float64(c.pos.y-crate.pos.y))) == bombRange || c.pos.y == crate.pos.y && math.Round(math.Abs(float64(c.pos.x-crate.pos.x))) == bombRange {
 			crateCells = append(crateCells, crate)
 			numCrates += 1
-			bombRange = math.Round(math.Abs(float64(c.pos.y - crate.pos.y))) //update brange
-		}
-		//||
-		if c.pos.y == crate.pos.y && math.Round(math.Abs(float64(c.pos.x-crate.pos.x))) <= bombRange {
+		} else if c.pos.x == crate.pos.x && math.Round(math.Abs(float64(c.pos.y-crate.pos.y))) < bombRange || c.pos.y < crate.pos.y && math.Round(math.Abs(float64(c.pos.x-crate.pos.x))) == bombRange {
+			crateCells = []Cell{} //empty it we got a new range
 			crateCells = append(crateCells, crate)
-
-			numCrates += 1
+			numCrates = 1                                                    //new range new nb of crates
 			bombRange = math.Round(math.Abs(float64(c.pos.x - crate.pos.x))) //update brange
 
 		}
@@ -118,6 +116,8 @@ type Turn struct {
 	//evalScore float64
 }
 
+//choose also moves by dist
+//can calc num bomb on path?
 func getPossibleMoves(s State) Cell {
 	var cells []Cell
 	//get ten possible actions
