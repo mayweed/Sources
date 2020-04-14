@@ -65,12 +65,14 @@ func (g Grid) cratesAround(c Cell) (int, []Cell) {
 	var crateCells []Cell
 	//for any given free cell let's see how many crates are in range
 	// DID I REALLY NEED Round here??
+	//this is not the right way to do it!! Measure which is the nearest crate from
+	//point (< bombRange) this our new range)
 	for _, crate := range g.crates {
 		//if it's equal to the current br
 		if c.pos.x == crate.pos.x && math.Round(math.Abs(float64(c.pos.y-crate.pos.y))) == bombRange || c.pos.y == crate.pos.y && math.Round(math.Abs(float64(c.pos.x-crate.pos.x))) == bombRange {
 			crateCells = append(crateCells, crate)
 			numCrates += 1
-		} else if c.pos.x == crate.pos.x && math.Round(math.Abs(float64(c.pos.y-crate.pos.y))) < bombRange || c.pos.y < crate.pos.y && math.Round(math.Abs(float64(c.pos.x-crate.pos.x))) == bombRange {
+		} else if c.pos.x == crate.pos.x && math.Round(math.Abs(float64(c.pos.y-crate.pos.y))) < bombRange || c.pos.y < crate.pos.y && math.Round(math.Abs(float64(c.pos.x-crate.pos.x))) < bombRange {
 			crateCells = []Cell{} //empty it we got a new range
 			crateCells = append(crateCells, crate)
 			numCrates = 1                                                    //new range new nb of crates

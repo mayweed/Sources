@@ -8,6 +8,7 @@ import sys
 TODO: 
 - does not work if it's not called in the directory!! Cant find files otherwise!!
   Must fix that!!
+  check sys.path.append(os.path.realpath(os.path.dirname(__file__)) ??
 - Write option to take files and not only dir (argparse --dir/--files)
 - wtf is wrong with goimports?
 --> useful read: https://automatetheboringstuff.com/chapter8/

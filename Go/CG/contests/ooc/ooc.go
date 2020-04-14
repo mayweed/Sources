@@ -3,7 +3,6 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"log"
 	"math"
 	"math/rand"
 	"os"
@@ -21,6 +20,7 @@ const (
 type Point struct {
 	x, y int
 }
+
 func (src Point) printDirection(dest Point) string {
 	var dir string
 	if dest.x > src.x {
@@ -159,6 +159,7 @@ type State struct {
 	opp           Opp
 	targets       []Tile
 }
+
 /*
 //YannTt'as 3 mouvements possible, tu floodfill pour chaque, garde celui qui te laisse le plus de cases dispo après move
 //for _,dirs := range s.directions{
@@ -193,17 +194,17 @@ func (s *State) checkDirections(t Tile) {
 */
 func (s *State) computeNeighbours(t Tile) int {
 	s.neighbours = make(map[Tile][]Tile)
-	if t.pos.x-1 >= 0 && s.carte[t.pos.x-1][t.pos.y].what == "." { 
+	if t.pos.x-1 >= 0 && s.carte[t.pos.x-1][t.pos.y].what == "." {
 		s.neighbours[t] = append(s.neighbours[t], s.carte[t.pos.x-1][t.pos.y])
 	}
-	if t.pos.x+1 < WIDTH && s.carte[t.pos.x+1][t.pos.y].what == "." { 
+	if t.pos.x+1 < WIDTH && s.carte[t.pos.x+1][t.pos.y].what == "." {
 		s.neighbours[t] = append(s.neighbours[t], s.carte[t.pos.x+1][t.pos.y])
 
 	}
-	if t.pos.y-1 >= 0 && s.carte[t.pos.x][t.pos.y-1].what == "." { 
+	if t.pos.y-1 >= 0 && s.carte[t.pos.x][t.pos.y-1].what == "." {
 		s.neighbours[t] = append(s.neighbours[t], s.carte[t.pos.x][t.pos.y-1])
 	}
-	if t.pos.y+1 < HEIGHT && s.carte[t.pos.x][t.pos.y+1].what == "."{
+	if t.pos.y+1 < HEIGHT && s.carte[t.pos.x][t.pos.y+1].what == "." {
 		s.neighbours[t] = append(s.neighbours[t], s.carte[t.pos.x][t.pos.y+1])
 	}
 }
@@ -228,46 +229,47 @@ func (s *State) woodMoves() {
 
 	//WHERE can i go??
 	var eval []int
-	for i, t := range s.me.possibleMoves{
-		if !s.me.visitedTiles[t]{
-			area:=s.floodfill(t) //to check area
-			eval[i]+=area
+	for i, t := range s.me.possibleMoves {
+		if !s.me.visitedTiles[t] {
+			area := s.floodfill(t) //to check area
+			eval[i] += area
+		}
 	}
 	/*
-	//Here you check if it's in visitedTiles and a bit of nose to see if it's no
-	//deadend
-	if s.me.canGoSouth {
-		s.me.currentDir = "S"
-		s.me.move("S")
-		//doin it that way is real shit
-		//n := s.computeNeighbours(s.carte[s.me.currentPos.pos.x][s.me.currentPos.pos.y+1])
-		//south := 1.0 + float64(n)
-		//log.Println(south, n)
-	}
-	//what if i can go west?? if ffdW > a ffdE ne devrais je pas ponderer l'éval de W+0.5
-	if !s.me.canGoSouth && s.me.canGoEast {
-		s.me.currentDir = "E"
-		s.me.move("E")
-	}
-	if !s.me.canGoSouth && !s.me.canGoEast && s.me.canGoNorth {
-		s.me.currentDir = "N"
-		s.me.move("N")
-			north = 1.0 + ffd["N"]
-			if s.me.canGoWest {
-				if ffd["W"] > ffd["N"] {
-					west += 0.5
+		//Here you check if it's in visitedTiles and a bit of nose to see if it's no
+		//deadend
+		if s.me.canGoSouth {
+			s.me.currentDir = "S"
+			s.me.move("S")
+			//doin it that way is real shit
+			//n := s.computeNeighbours(s.carte[s.me.currentPos.pos.x][s.me.currentPos.pos.y+1])
+			//south := 1.0 + float64(n)
+			//log.Println(south, n)
+		}
+		//what if i can go west?? if ffdW > a ffdE ne devrais je pas ponderer l'éval de W+0.5
+		if !s.me.canGoSouth && s.me.canGoEast {
+			s.me.currentDir = "E"
+			s.me.move("E")
+		}
+		if !s.me.canGoSouth && !s.me.canGoEast && s.me.canGoNorth {
+			s.me.currentDir = "N"
+			s.me.move("N")
+				north = 1.0 + ffd["N"]
+				if s.me.canGoWest {
+					if ffd["W"] > ffd["N"] {
+						west += 0.5
+					}
 				}
-			}
-	}
-	if !s.me.canGoNorth && !s.me.canGoEast && !s.me.canGoSouth && s.me.canGoWest {
-		s.me.currentDir = "W"
-		s.me.move("W")
-		//west = 1.0 + ffd["W"]
-		//c'est une connerie !! je devrais regarder ces ifs c'est une connerie!!
-		// je devrais raisonner au niveau de la tile!! combien de direciton possible
-		//s il y en a plus qu'une , quelqu'elle soit, c'est que j'ai raté quelque
-		//chose!!! et que j'ai plus qu'à perdre une vie en surface!!!
-	}
+		}
+		if !s.me.canGoNorth && !s.me.canGoEast && !s.me.canGoSouth && s.me.canGoWest {
+			s.me.currentDir = "W"
+			s.me.move("W")
+			//west = 1.0 + ffd["W"]
+			//c'est une connerie !! je devrais regarder ces ifs c'est une connerie!!
+			// je devrais raisonner au niveau de la tile!! combien de direciton possible
+			//s il y en a plus qu'une , quelqu'elle soit, c'est que j'ai raté quelque
+			//chose!!! et que j'ai plus qu'à perdre une vie en surface!!!
+		}
 	*/
 	//TEST
 	//if i am round the torp zone sonar to see what happens

@@ -11,7 +11,7 @@ function fill(array, x, y)
     if x < array.width-1: fill(array, x+1, y)
     if y < array.height-1: fill(array, x, y+1)
 */
-func floodfill(grid [][]Tile, x int, y int) {
+func floodfill(x int, y int) {
 	var visited = make(map[Tile]bool)
 if !visited[s.carte[t.pos.x][t.pos.y]]{
 
