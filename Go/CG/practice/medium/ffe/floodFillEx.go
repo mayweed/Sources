@@ -19,6 +19,15 @@ type Grid struct {
 	c [][]Cell
 }
 
+func (g *Grid) printAnswer() {
+	for y := 0; y < g.w; y++ {
+		for x := 0; x < g.h; x++ {
+			fmt.Print(g.c[y][x].what)
+		}
+		fmt.Println()
+	}
+	fmt.Println()
+}
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Buffer(make([]byte, 1000000), 1000000)
@@ -41,15 +50,16 @@ func main() {
 		row += scanner.Text()
 	}
 
-	g.c = make([][]Cell, g.w)
-	for x := 0; x < g.w; x++ {
-		g.c[x] = make([]Cell, g.h)
-		for y := 0; y < g.h; y++ {
+	g.c = make([][]Cell, g.h)
+	for y := 0; y < g.h; y++ {
+		g.c[y] = make([]Cell, g.w)
+		for x := 0; x < g.w; x++ {
 			//not sure i need x and y in cell...(g.c[x][y] and you got it)
-			g.c[x][y] = Cell{x, y, string(row[y*g.w+x])}
+			g.c[y][x] = Cell{x, y, string(row[y*g.w+x])}
 		}
 	}
 
-	log.Println(g, g.c[3][4])
-	fmt.Println("answer") // Write answer to stdout
+	log.Println(g.c[5][4])
+	g.printAnswer()
+	//fmt.Println("answer") // Write answer to stdout
 }

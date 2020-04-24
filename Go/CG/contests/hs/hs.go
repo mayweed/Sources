@@ -57,6 +57,16 @@ type Grid struct {
 	crates []Cell
 }
 
+func (g *Grid) printAnswer() {
+	for y := 0; y < g.h; y++ {
+		for x := 0; x < g.w; x++ {
+			fmt.Print(g.c[x][y].what)
+		}
+		fmt.Println()
+	}
+	fmt.Println()
+}
+
 //It's NOT always 3 if you meet a crate before it's that range!!
 //eg: if the nearest crate is in range 2, range for the bomb is two!!
 func (g Grid) cratesAround(c Cell) (int, []Cell) {
@@ -260,7 +270,6 @@ func main() {
 		_, cs := s.board.cratesAround(c)
 		log.Println("CRATES IN RANGE: ", cs)
 		log.Println(len(cs))
-
 		//res := s.think()
 		//fmt.Println(res)
 
