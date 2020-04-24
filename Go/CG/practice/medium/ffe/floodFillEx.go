@@ -3,7 +3,6 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"log"
 	"os"
 )
 
@@ -20,9 +19,9 @@ type Grid struct {
 }
 
 func (g *Grid) printAnswer() {
-	for y := 0; y < g.w; y++ {
-		for x := 0; x < g.h; x++ {
-			fmt.Print(g.c[y][x].what)
+	for y := 0; y < g.h; y++ {
+		for x := 0; x < g.w; x++ {
+			fmt.Print(g.c[x][y].what)
 		}
 		fmt.Println()
 	}
@@ -50,16 +49,13 @@ func main() {
 		row += scanner.Text()
 	}
 
-	g.c = make([][]Cell, g.h)
-	for y := 0; y < g.h; y++ {
-		g.c[y] = make([]Cell, g.w)
-		for x := 0; x < g.w; x++ {
+	g.c = make([][]Cell, g.w)
+	for x := 0; x < g.w; x++ {
+		g.c[x] = make([]Cell, g.h)
+		for y := 0; y < g.h; y++ {
 			//not sure i need x and y in cell...(g.c[x][y] and you got it)
-			g.c[y][x] = Cell{x, y, string(row[y*g.w+x])}
+			g.c[x][y] = Cell{x, y, string(row[y*g.w+x])}
 		}
 	}
-
-	log.Println(g.c[5][4])
 	g.printAnswer()
-	//fmt.Println("answer") // Write answer to stdout
 }
