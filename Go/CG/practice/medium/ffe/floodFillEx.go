@@ -13,9 +13,10 @@ type Cell struct {
 }
 
 type Grid struct {
-	h int
-	w int
-	c [][]Cell
+	h          int
+	w          int
+	c          [][]Cell
+	startCells []Cell
 }
 
 func (g *Grid) printAnswer() {
@@ -26,6 +27,19 @@ func (g *Grid) printAnswer() {
 		fmt.Println()
 	}
 	fmt.Println()
+}
+func (g *Grid) getStartCells() {
+	for y := 0; y < g.h; y++ {
+		for x := 0; x < g.w; x++ {
+			if g.c[x][y].what != "." && g.c[x][y].what != "#" {
+				g.startCells = append(g.startCells, g.c[x][y])
+			}
+		}
+	}
+}
+func ff(c []Cell) {
+	//for each startCells you get the neighbour
+	//if that neighbour is == "." || != "#" you copy cell.what
 }
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
@@ -57,5 +71,8 @@ func main() {
 			g.c[x][y] = Cell{x, y, string(row[y*g.w+x])}
 		}
 	}
+	g.getStartCells()
+
 	g.printAnswer()
+
 }
