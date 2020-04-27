@@ -43,9 +43,11 @@ func (g *Grid) getStartCells() {
 		}
 	}
 }
-func ff(c []Cell) {
+func (g *Grid) ff(c []Cell) {
 	//for each startCells you get the neighbour
 	//if that neighbour is == "." || != "#" you copy cell.what
+	//queue := g.startCells
+
 }
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
