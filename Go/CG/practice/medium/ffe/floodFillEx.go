@@ -20,7 +20,8 @@ type Grid struct {
 	startCells []Cell
 }
 
-func (g *Grid) String() string {
+//no pointer: Grid has a string meth, not *Grid !!
+func (g Grid) String() string {
 	var buf bytes.Buffer
 	for y := 0; y < g.h; y++ {
 		for x := 0; x < g.w; x++ {
@@ -79,6 +80,6 @@ func main() {
 	g.getStartCells()
 
 	//g.printAnswer()
-	fmt.Println(g.String())
+	fmt.Println(g)
 
 }

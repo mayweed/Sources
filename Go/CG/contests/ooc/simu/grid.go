@@ -1,8 +1,6 @@
 package main
 
-import (
-	"fmt"
-)
+import "bytes"
 
 type Tile struct {
 	Point
@@ -54,6 +52,19 @@ func (g *Grid) getTileNeighbours(t *Tile) {
 func (g *Grid) updateGrid(posPlayer Point) {
 
 }
+func (g *Grid) String() string {
+	var buf bytes.Buffer
+	for y := 0; y < g.h; y++ {
+		for x := 0; x < g.w; x++ {
+			buf.WriteString(g.carte[x][y].what)
+		}
+		buf.WriteString("\n")
+	}
+	//fmt.Println()
+	return buf.String()
+}
+
+/*
 func (g *Grid) printGrid() {
 	for y := 0; y < HEIGHT; y++ {
 		for x := 0; x < WIDTH; x++ {
@@ -62,3 +73,4 @@ func (g *Grid) printGrid() {
 		fmt.Println()
 	}
 }
+*/
