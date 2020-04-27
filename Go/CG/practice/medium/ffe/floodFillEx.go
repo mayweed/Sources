@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
 	"os"
 )
@@ -19,15 +20,19 @@ type Grid struct {
 	startCells []Cell
 }
 
-func (g *Grid) printAnswer() {
+func (g *Grid) String() string {
+	var buf bytes.Buffer
 	for y := 0; y < g.h; y++ {
 		for x := 0; x < g.w; x++ {
-			fmt.Print(g.c[x][y].what)
+			buf.WriteString(g.c[x][y].what)
 		}
-		fmt.Println()
+		buf.WriteString("\n")
 	}
-	fmt.Println()
+	//fmt.Println()
+	return buf.String()
 }
+
+//container/list??
 func (g *Grid) getStartCells() {
 	for y := 0; y < g.h; y++ {
 		for x := 0; x < g.w; x++ {
@@ -73,6 +78,7 @@ func main() {
 	}
 	g.getStartCells()
 
-	g.printAnswer()
+	//g.printAnswer()
+	fmt.Println(g.String())
 
 }
