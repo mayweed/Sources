@@ -46,7 +46,16 @@ func (g *Grid) getStartCells() {
 func (g *Grid) ff(c []Cell) {
 	//for each startCells you get the neighbour
 	//if that neighbour is == "." || != "#" you copy cell.what
-	//queue := g.startCells
+	queue := g.startCells
+	for len(queue) > 0 {
+		//container list!!
+		start := queue[0]
+		queue := queue[1:]
+		if start.y+1 < g.h && g.c[start.x][start.y+1].what == "." {
+			g.c[start.x][start.y+1].what = g.c[start.x][start.y].what
+		}
+
+	}
 
 }
 func main() {
