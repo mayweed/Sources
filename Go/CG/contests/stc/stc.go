@@ -1,10 +1,10 @@
 package main
 
 import (
+	"bytes"
+	"container/list"
 	"fmt"
-	"log"
-	"strconv"
-	"strings"
+	"os"
 )
 
 const (
@@ -12,20 +12,24 @@ const (
 	HEIGHT = 12
 )
 
+type Cell struct {
+	x    int
+	y    int
+	what string
+}
+
 type Block struct {
 	ColorFirstBlock  int
 	ColorSecondBlock int
 }
 
-type Grid [HEIGHT][WIDTH]int
-
 type State struct {
 	Turn       int
-	myGrid     Grid
-	oppGrid    Grid
+	myGrid     [][]Cell
+	oppGrid    [][]Cell
 	myScore    int
 	oppScore   int
-	queueBlock []Block
+	queueBlock list.List
 }
 
 func (s *State) initQueueBlock() {
@@ -34,7 +38,7 @@ func (s *State) initQueueBlock() {
 		// colorB: color of the attached block
 		var colorA, colorB int
 		fmt.Scan(&colorA, &colorB)
-		s.queueBlock = append(s.queueBlock, Block{ColorFirstBlock: colorA, ColorSecondBlock: colorB})
+		s.queueBlock.PushBack(Block{ColorFirstBlock: colorA, ColorSecondBlock: colorB})
 	}
 
 }
@@ -43,20 +47,19 @@ func (s *State) initPlayer1() {
 	fmt.Scan(&score1)
 	s.myScore = score1
 
+	var row string
 	for y := 0; y < 12; y++ {
 		// row: One line of the map ('.' = empty, '0' = skull block, '1' to '5' = colored block)
-		var row string
-		fmt.Scan(&row)
+		var line string
+		fmt.Scan(&line)
+		row = row + line
+	}
 
-		r := strings.Split(row, "")
-		for x, c := range r {
-			switch c {
-			case ".":
-				s.myGrid[y][x] = -1
-			default:
-				s.myGrid[y][x], _ = strconv.Atoi(c)
-
-			}
+	s.myGrid = make([][]Cell, WIDTH)
+	for x := 0; x < WIDTH; x++ {
+		s.myGrid[x] = make([]Cell, HEIGHT)
+		for y := 0; y < HEIGHT; y++ {
+			s.myGrid[x][y] = Cell{x, y, string(row[y*WIDTH+x])}
 		}
 	}
 }
@@ -66,22 +69,34 @@ func (s *State) initPlayer2() {
 	fmt.Scan(&score2)
 	s.oppScore = score2
 
+	var row string
 	for y := 0; y < 12; y++ {
 		// row: One line of the map ('.' = empty, '0' = skull block, '1' to '5' = colored block)
-		var row string
-		fmt.Scan(&row)
+		var line string
+		fmt.Scan(&line)
+		row = row + line
+	}
 
-		r := strings.Split(row, "")
-		for x, c := range r {
-			switch c {
-			case ".":
-				s.oppGrid[y][x] = -1
-			default:
-				s.oppGrid[y][x], _ = strconv.Atoi(c)
-			}
+	s.oppGrid = make([][]Cell, WIDTH)
+	for x := 0; x < WIDTH; x++ {
+		s.oppGrid[x] = make([]Cell, HEIGHT)
+		for y := 0; y < HEIGHT; y++ {
+			s.oppGrid[x][y] = Cell{x, y, string(row[y*WIDTH+x])}
 		}
 	}
 
+}
+
+func printGrid(g [][]Cell) string {
+	var buf bytes.Buffer
+	for y := 0; y < HEIGHT; y++ {
+		for x := 0; x < WIDTH; x++ {
+			buf.WriteString(g[x][y].what)
+		}
+		buf.WriteString("\n")
+	}
+	//fmt.Println()
+	return buf.String()
 }
 
 /*
@@ -97,7 +112,6 @@ func (s *State) simu() {
 		}
 	}
 }
-*/
 func (s *State) think() {
 	nextBlock := s.queueBlock[0]
 	var result int
@@ -109,18 +123,16 @@ func (s *State) think() {
 
 	log.Println(result)
 }
-
+*/
 func main() {
 	s := State{}
 	for {
 		s.initQueueBlock()
 		s.initPlayer1()
 		s.initPlayer2()
-		s.think()
+		//s.think()
+		fmt.Fprintln(os.Stderr, printGrid(s.oppGrid))
 		fmt.Printf("0\n") // "x": the column in which to drop your blocks
 		s.Turn += 1
-		//must clear state at one moment...
-		//write a proper func to print grid
-		//log.Println(s.myGrid)
 	}
 }
