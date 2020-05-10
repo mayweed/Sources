@@ -2,11 +2,8 @@ package main
 
 import (
 	"bufio"
-	"bytes"
 	"fmt"
-	"math/rand"
 	"os"
-	"strconv"
 	"strings"
 )
 
@@ -27,12 +24,24 @@ type (
 	}
 	Pac struct {
 		Point
-		id int
+		id              int
+		target          Pellet
+		possibleActions Action
+		//visitedCells    map[Pellet]bool
+	}
+	//all the possible actions of a pac
+	//the state of the pac
+	Action struct {
+		canGoUp    bool
+		canGoDown  bool
+		canGoLeft  bool
+		canGoRight bool
+		//mustSwitched bool (if blocked etc...)
 	}
 	//what about a player id == pacid to send comm?
 	Player struct {
 		score int
-		pacs  []Pac
+		pacs  map[int]*Pac //where int is pacid??
 	}
 	//state of the game per turn
 	Turn struct {
@@ -71,25 +80,6 @@ func (g *Grid) NewGrid(c string) {
 	}
 }
 
-//no pointer: Grid has a string meth, not *Grid !!
-func (g *Grid) String() string {
-	var buf bytes.Buffer
-	for y := 0; y < g.h; y++ {
-		for x := 0; x < g.w; x++ {
-			if g.c[x][y].what == -1 {
-				buf.WriteString("#")
-			} else if g.c[x][y].what != 0 {
-				buf.WriteString(strconv.Itoa(g.c[x][y].what))
-
-			} else {
-				buf.WriteString(" ")
-			}
-		}
-		buf.WriteString("\n")
-	}
-	//fmt.Println()
-	return buf.String()
-}
 func (g Grid) getNeighbours(p Pellet) []Pellet {
 	var neighbours []Pellet
 	if p.x+1 < g.w && g.c[p.x+1][p.y].what != -1 {
@@ -156,36 +146,21 @@ func (g Grid) pathToValPellet(myPos Pellet) []Pellet {
 	}
 	return shortestPath
 }
-func (g *Grid) findValuablePath(myPos Pellet) []Pellet {
-	//could do that at the beginning!! to all the grid!! to spot the highest
-	//paying path!!
-	var path []Pellet
-	//calculate all possible paths to pellets
-	//and extract the one with highest value which i will follow
-	var max = 0
-	var value int
-	var myPath []Pellet
-	for _, p := range g.pellets {
-		path = g.bfs(myPos, p)
-		value = getPathValue(path)
-		//log.Println("inside f value", value)
-		if value >= max {
-			myPath = path
-			max = value
-		}
+func (g Grid) getPossibleMoves(p *Pac) {
+	if p.x+1 < g.w && g.c[p.x+1][p.y].what != -1 {
+		p.possibleActions.canGoRight = true
 	}
-	//log.Println("inside f", myPath)
-	return myPath
+	if p.x-1 >= 0 && g.c[p.x-1][p.y].what != -1 {
+		p.possibleActions.canGoLeft = true
+	}
+	if p.y+1 < g.h && g.c[p.x][p.y+1].what != -1 {
+		p.possibleActions.canGoDown = true
+	}
+	if p.y-1 >= 0 && g.c[p.x][p.y-1].what != -1 {
+		p.possibleActions.canGoUp = true
+	}
 
 }
-func getPathValue(path []Pellet) int {
-	var value int
-	for _, p := range path {
-		value += p.what
-	}
-	return value
-}
-
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Buffer(make([]byte, 1000000), 1000000)
@@ -216,6 +191,8 @@ func main() {
 		scanner.Scan()
 		fmt.Sscan(scanner.Text(), &visiblePacCount)
 
+		t.me.pacs = make(map[int]*Pac)
+
 		//must update grid to see what's left
 		for i := 0; i < visiblePacCount; i++ {
 			// pacId: pac number (unique within a team)
@@ -233,7 +210,7 @@ func main() {
 			scanner.Scan()
 			fmt.Sscan(scanner.Text(), &pacId, &mine, &x, &y, &typeId, &speedTurnsLeft, &abilityCooldown)
 			if mine == 1 {
-				t.me.pacs = append(t.me.pacs, Pac{Point{x, y}, pacId})
+				t.me.pacs[pacId] = &Pac{Point{x, y}, pacId, Pellet{}, Action{}}
 			}
 			//update grid /turn?
 			g.c[x][y].what = 0
@@ -260,40 +237,41 @@ func main() {
 		//Think : grab all the big pellets first and then just roam in cell with
 		//pellet!!
 		//one day should check if two pacs go for the same pellet...
+		//no need, only got the shortest path, one only to the cherry
 		//var possPaths [][]Pellet
-		var possPaths = make(map[int][][]Pellet) //==> where point is pac loc?
+		var possPaths = make(map[int][]Pellet) //==> where point is pac loc?
 		if len(g.valuablePellets) > 0 {
-			for _, p := range t.me.pacs {
-				possPaths[p.id] = append(possPaths[p.id], g.pathToValPellet(g.c[p.x][p.y]))
+			for idx, p := range t.me.pacs {
+				possPaths[idx] = g.pathToValPellet(g.c[p.x][p.y])
 			}
 			for pid, path := range possPaths {
-				t.commands = append(t.commands, move(pid, path[0][0].x, path[0][0].y))
+				t.commands = append(t.commands, move(pid, path[0].x, path[0].y))
 			}
 		} else {
-			///and here...they must continue roaming? what about rand on g.pellets??
-			//findvalpath does not work :'''(
 			//and what about tracking visited pellet and goes only to unvisited
 			//ones???
 			//a strat per pac, with a chasing one aiming at killing foe pacs??
 			for _, p := range t.me.pacs {
-				if (len(g.pellets)) > 0 {
-					//a random pellet for each pac
-					randIdx := rand.Intn(len(g.pellets))
-
-					//path for each to the rand pellet
-					//add to commands
-					//could directly go to the pellet indeed
-					t.commands = append(t.commands, move(p.id, g.pellets[randIdx].x, g.pellets[randIdx].y))
-				} else {
-					//les pacs ne voient plus à travers les murs...
-					if g.c[p.x+1][p.y].what != -1 && p.x+1 < g.w {
-						t.commands = append(t.commands, move(p.id, p.x+1, p.y))
-					}
+				g.getPossibleMoves(p)
+				//check possible moves | must evaluate each possible actions!!
+				//MUST EVALUATE DIR!!! how?? can i see pellet around??
+				if p.possibleActions.canGoRight {
+					t.commands = append(t.commands, move(p.id, p.x+1, p.y))
+				} else if p.possibleActions.canGoLeft {
+					t.commands = append(t.commands, move(p.id, p.x-1, p.y))
+				} else if p.possibleActions.canGoUp {
+					t.commands = append(t.commands, move(p.id, p.x, p.y-1))
+				} else if p.possibleActions.canGoDown {
+					t.commands = append(t.commands, move(p.id, p.x, p.y+1))
 				}
+
 			}
 		}
 
-		//fmt.Fprintln(os.Stderr, possPaths)
+		for i, p := range t.me.pacs {
+			g.getPossibleMoves(p)
+			fmt.Fprintln(os.Stderr, i, p)
+		}
 
 		//output
 		//fmt.Println(res) // MOVE <pacId> <x> <y>
