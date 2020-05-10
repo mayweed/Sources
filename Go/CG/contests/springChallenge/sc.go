@@ -4,23 +4,58 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
+	"math/rand"
 	"os"
 	"strconv"
+	"strings"
 )
 
-type Point struct {
-	x, y int
+type (
+	Point struct {
+		x, y int
+	}
+	Grid struct {
+		h               int
+		w               int
+		c               [][]Pellet
+		valuablePellets []Pellet
+		pellets         []Pellet
+	}
+	Pellet struct {
+		Point
+		what int
+	}
+	Pac struct {
+		Point
+		id int
+	}
+	//what about a player id == pacid to send comm?
+	Player struct {
+		score int
+		pacs  []Pac
+	}
+	//state of the game per turn
+	Turn struct {
+		g        Grid
+		me       Player
+		p        []Player
+		commands []string
+	}
+)
+
+func move(id, x, y int) string {
+	return fmt.Sprintf("MOVE %d %d %d", id, x, y)
 }
-type Pellet struct {
-	Point
-	what int
-}
-type Grid struct {
-	h int
-	w int
-	c [][]Pellet
+func (t Turn) sendTurn() {
+	if len(t.commands) == 1 {
+		fmt.Print(t.commands[0])
+	} else {
+		fmt.Print(strings.Join(t.commands, "|"))
+	}
+	fmt.Println()
 }
 
+//Grid meth
 func (g *Grid) NewGrid(c string) {
 	g.c = make([][]Pellet, g.w)
 	for x := 0; x < g.w; x++ {
@@ -102,6 +137,55 @@ func (g Grid) bfs(startPoint, endPoint Pellet) []Pellet {
 	}
 	return path
 }
+func (g Grid) pathToValPellet(myPos Pellet) []Pellet {
+	//must extract the most valuable and the shortest
+	//Best are those with multiple big pac
+	var paths [][]Pellet
+	var shortestPath []Pellet
+	for _, vp := range g.valuablePellets {
+		p := g.bfs(myPos, vp)
+		paths = append(paths, p)
+	}
+	var min = 1000
+	for _, p := range paths {
+		//log.Println(len(p))
+		if len(p) < min {
+			shortestPath = p
+			min = len(p)
+		}
+	}
+	return shortestPath
+}
+func (g *Grid) findValuablePath(myPos Pellet) []Pellet {
+	//could do that at the beginning!! to all the grid!! to spot the highest
+	//paying path!!
+	var path []Pellet
+	//calculate all possible paths to pellets
+	//and extract the one with highest value which i will follow
+	var max = 0
+	var value int
+	var myPath []Pellet
+	for _, p := range g.pellets {
+		path = g.bfs(myPos, p)
+		value = getPathValue(path)
+		//log.Println("inside f value", value)
+		if value >= max {
+			myPath = path
+			max = value
+		}
+	}
+	//log.Println("inside f", myPath)
+	return myPath
+
+}
+func getPathValue(path []Pellet) int {
+	var value int
+	for _, p := range path {
+		value += p.what
+	}
+	return value
+}
+
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Buffer(make([]byte, 1000000), 1000000)
@@ -120,19 +204,21 @@ func main() {
 		scanner.Scan()
 		line = line + scanner.Text() // one line of the grid: space " " is floor, pound "#" is wall
 	}
-
 	g.NewGrid(line)
 
 	for {
+		var t Turn
 		var myScore, opponentScore int
 		scanner.Scan()
 		fmt.Sscan(scanner.Text(), &myScore, &opponentScore)
+		t.me.score = myScore
+
 		// visiblePacCount: all your pacs and enemy pacs in sight
 		var visiblePacCount int
 		scanner.Scan()
 		fmt.Sscan(scanner.Text(), &visiblePacCount)
 
-		var myPos Pellet
+		//must update grid to see what's left
 		for i := 0; i < visiblePacCount; i++ {
 			// pacId: pac number (unique within a team)
 			// mine: true if this pac is yours
@@ -149,15 +235,16 @@ func main() {
 			scanner.Scan()
 			fmt.Sscan(scanner.Text(), &pacId, &mine, &x, &y, &typeId, &speedTurnsLeft, &abilityCooldown)
 			if mine == 1 {
-				myPos = g.c[x][y]
+				t.me.pacs = append(t.me.pacs, Pac{Point{x, y}, pacId})
 			}
+			//update grid /turn?
+			g.c[x][y].what = 0
 		}
 		// visiblePelletCount: all pellets in sight
 		var visiblePelletCount int
 		scanner.Scan()
 		fmt.Sscan(scanner.Text(), &visiblePelletCount)
 
-		var valuablePellets []Pellet
 		for i := 0; i < visiblePelletCount; i++ {
 			// value: amount of points this pellet is worth
 			var x, y, value int
@@ -165,20 +252,41 @@ func main() {
 			fmt.Sscan(scanner.Text(), &x, &y, &value)
 			g.c[x][y].what = value
 			if value == 10 {
-				valuablePellets = append(valuablePellets, g.c[x][y])
+				g.valuablePellets = append(g.valuablePellets, g.c[x][y])
+			} else {
+				g.pellets = append(g.pellets, g.c[x][y])
 			}
-		}
-		//must extract the most valuable and the shortest
-		//Best are those with multiple big pac
-		var paths [][]Pellet
-		for _, vp := range valuablePellets {
-			p := g.bfs(myPos, vp)
-			paths = append(paths, p)
+
 		}
 
-		//p := g.bfs(g.c[19][2], g.c[25][7])
-		//fmt.Fprintln(os.Stderr, g.String())
-		fmt.Fprintln(os.Stderr, myPos, len(paths), paths)
-		fmt.Println("MOVE 0 15 10") // MOVE <pacId> <x> <y>
+		//Think : grab all the big pellets first and then just roam in cell with
+		//pellet!!
+		//one day should check if two pacs go for the same pellet...
+		//var possPaths [][]Pellet
+		var possPaths = make(map[int][][]Pellet) //==> where point is pac loc?
+		if len(g.valuablePellets) > 0 {
+			for _, p := range t.me.pacs {
+				possPaths[p.id] = append(possPaths[p.id], g.pathToValPellet(g.c[p.x][p.y]))
+			}
+			for pid, path := range possPaths {
+				t.commands = append(t.commands, move(pid, path[0][0].x, path[0][0].y))
+			}
+		} else {
+			///and here...they must continue roaming? what about rand on g.pellets??
+			//findvalpath does not work :'''(
+			for _, p := range t.me.pacs {
+				randIdx := rand.Intn(len(g.pellets))
+				t.commands = append(t.commands, move(p.id, g.pellets[randIdx].x, g.pellets[randIdx].y))
+			}
+		}
+
+		fmt.Fprintln(os.Stderr, possPaths)
+
+		//output
+		//fmt.Println(res) // MOVE <pacId> <x> <y>
+		t.sendTurn()
+
+		//reset
+		g.valuablePellets = []Pellet{}
 	}
 }
