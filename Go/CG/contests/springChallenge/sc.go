@@ -190,15 +190,13 @@ func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Buffer(make([]byte, 1000000), 1000000)
 
+	//init grid
 	g := Grid{}
-	// width: size of the grid
-	// height: top left corner is (x=0, y=0)
 	var width, height int
 	scanner.Scan()
 	fmt.Sscan(scanner.Text(), &width, &height)
 	g.h = height
 	g.w = width
-
 	var line string
 	for i := 0; i < height; i++ {
 		scanner.Scan()
@@ -274,13 +272,28 @@ func main() {
 		} else {
 			///and here...they must continue roaming? what about rand on g.pellets??
 			//findvalpath does not work :'''(
+			//and what about tracking visited pellet and goes only to unvisited
+			//ones???
+			//a strat per pac, with a chasing one aiming at killing foe pacs??
 			for _, p := range t.me.pacs {
-				randIdx := rand.Intn(len(g.pellets))
-				t.commands = append(t.commands, move(p.id, g.pellets[randIdx].x, g.pellets[randIdx].y))
+				if (len(g.pellets)) > 0 {
+					//a random pellet for each pac
+					randIdx := rand.Intn(len(g.pellets))
+
+					//path for each to the rand pellet
+					//add to commands
+					//could directly go to the pellet indeed
+					t.commands = append(t.commands, move(p.id, g.pellets[randIdx].x, g.pellets[randIdx].y))
+				} else {
+					//les pacs ne voient plus à travers les murs...
+					if g.c[p.x+1][p.y].what != -1 && p.x+1 < g.w {
+						t.commands = append(t.commands, move(p.id, p.x+1, p.y))
+					}
+				}
 			}
 		}
 
-		fmt.Fprintln(os.Stderr, possPaths)
+		//fmt.Fprintln(os.Stderr, possPaths)
 
 		//output
 		//fmt.Println(res) // MOVE <pacId> <x> <y>
@@ -288,5 +301,6 @@ func main() {
 
 		//reset
 		g.valuablePellets = []Pellet{}
+		g.pellets = []Pellet{}
 	}
 }
