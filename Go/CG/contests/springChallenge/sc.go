@@ -255,6 +255,8 @@ func main() {
 				g.getPossibleMoves(p)
 				//check possible moves | must evaluate each possible actions!!
 				//MUST EVALUATE DIR!!! how?? can i see pellet around??
+				//ou i select a random pellet and ask to go there checking via bfs if
+				//no foe is around
 				if p.possibleActions.canGoRight {
 					t.commands = append(t.commands, move(p.id, p.x+1, p.y))
 				} else if p.possibleActions.canGoLeft {
