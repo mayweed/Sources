@@ -1,5 +1,5 @@
 #docker run -it -p8888:80 testpb3:latest /bin/bash
-FROM debian:10
+FROM debian:testing
 
 #set hostname
 RUN echo "SRVPLANNING" >> /etc/hostname
@@ -12,6 +12,7 @@ apache2 \
 default-mysql-server \
 default-mysql-client \
 php7.3 \
+php-symfony-framework-bundle \
 git \
 apt-utils \
 apt-transport-https \
@@ -38,7 +39,10 @@ chown -R www-data /var/www/planningBiblio && \
 chgrp -R www-data /var/www/planningBiblio
 
 #https://getcomposer.org/doc/01-basic-usage.md //composer install not good here
-#RUN cd /var/www/planningBiblio && composer update
+RUN cd /var/www/planningBiblio && \
+cp .env .env.local && \
+composer update
+
 WORKDIR /home/guillaume
 
 #to boot apache at start
