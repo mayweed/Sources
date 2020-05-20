@@ -31,15 +31,16 @@ COPY ./amcmz.crt /usr/local/share/ca-certificates/amcmz.crt
 RUN update-ca-certificates
 
 RUN mkdir -p /var/www/planningBiblio && \
-git clone https://github.com/PlanningBiblio/PlanningBiblio/ /var/www/planningBiblio && \
+git clone https://github.com/PlanningBiblio/PlanningBiblio/ -b 19.10.xx /var/www/planningBiblio && \
 chown -R www-data /var/www/planningBiblio && \
-chgrp -R www-data /var/www/planningBiblio
+chgrp -R www-data /var/www/planningBiblio && \
+chmod -R 755 /var/www/planningBiblio
 
-RUN cd /var/www/planningBiblio && \
+#RUN cd /var/www/planningBiblio && \
 #cp .env .env.local && \
-composer update && \
-composer install ext-xml && \
-composer install
+#composer update && \
+#composer install ext-xml && \
+#composer install
 
 WORKDIR /home/guillaume
 
