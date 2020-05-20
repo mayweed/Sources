@@ -15,7 +15,6 @@ php7.4 \
 php7.4-curl \
 php7.4-xml \
 composer \
-php-symfony-framework-bundle \
 git \
 apt-utils \
 apt-transport-https \
@@ -30,17 +29,15 @@ apt-get clean
 COPY ./amcmz.crt /usr/local/share/ca-certificates/amcmz.crt
 RUN update-ca-certificates
 
+# -b 19.10.xx 
 RUN mkdir -p /var/www/planningBiblio && \
-git clone https://github.com/PlanningBiblio/PlanningBiblio/ -b 19.10.xx /var/www/planningBiblio && \
+git clone https://github.com/PlanningBiblio/PlanningBiblio/ /var/www/planningBiblio && \
 chown -R www-data /var/www/planningBiblio && \
 chgrp -R www-data /var/www/planningBiblio && \
 chmod -R 755 /var/www/planningBiblio
 
-#RUN cd /var/www/planningBiblio && \
-#cp .env .env.local && \
-#composer update && \
-#composer install ext-xml && \
-#composer install
+RUN cd /var/www/planningBiblio && \
+composer update  --no-scripts
 
 WORKDIR /home/guillaume
 
