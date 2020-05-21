@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 )
 
 const (
@@ -10,29 +9,23 @@ const (
 	HEIGHT = 20
 )
 
+type Point struct {
+	x, y int
+}
 type Cell struct {
-	x, y  int
+	Point
 	owner int
 }
-type Board struct {
-	width  int //=30
-	height int //=20
-	//list of points
-	cells [][]Cell
-}
-type Player struct {
-	id       int
-	startPos Cell
-	lastPos  Cell
-}
-type gameState struct {
-	//where int is the id?
-	players map[int]Player
-	board   Board
+type Grid [][]Cell
+
+type Turn struct {
+	id int
+	//action Action
+	board   [][]Cell
+	nbTurns int
 }
 
-//should be inited with w h // gameState??
-func initBoard(width, height int) Board { //dont need that no?,start ...point)board{
+func initGrid(width, height int) Grid {
 	//a simple grid made of cells
 	var i, j int
 	//no player got -1 id
@@ -41,17 +34,21 @@ func initBoard(width, height int) Board { //dont need that no?,start ...point)bo
 	for i = 0; i < height; i++ {
 		grid[i] = make([]Cell, width)
 		for j = range grid[i] {
-			grid[i][j] = Cell{i, j, m}
+			grid[i][j] = Cell{Point{i, j}, m}
 		}
 	}
-
-	return Board{
-		width:  width,
-		height: height,
-		cells:  grid,
+	return grid
+}
+func (g Grid) possibleMoves(c Cell) /*???*/ {
+	if c.x+1 < WIDTH && g[c.x+1][c.y].owner == -1 {
+	}
+	if c.y+1 < HEIGHT && g[c.x][c.y+1].owner == -1 {
+	}
+	if c.x-1 >= 0 && g[c.x-1][c.y].owner == -1 {
+	}
+	if c.y-1 >= 0 && g[c.x][c.y-1].owner == -1 {
 	}
 }
-
 func main() {
 	//is this the right struct for this?
 	var actions = make(map[string][]int)
@@ -61,8 +58,9 @@ func main() {
 	actions["UP"] = []int{0, -1}
 	actions["DOWN"] = []int{0, 1}
 
-	g := gameState{players: make(map[int]Player)}
-	board := initBoard(WIDTH, HEIGHT)
+	t := Turn{}
+	board := initGrid(WIDTH, HEIGHT)
+
 	for {
 		// N: total number of players (2 to 4).
 		// P: your player number (0 to 3).
@@ -76,21 +74,9 @@ func main() {
 			// Y1: starting Y coordinate of lightcycle (can be the same as Y0 if you play before this player)
 			var X0, Y0, X1, Y1 int
 			fmt.Scan(&X0, &Y0, &X1, &Y1)
-			//i== player, first is me that is 0
-			g.players[i] = Player{i, Cell{X0, Y0, i}, Cell{X1, Y1, i}}
-			board.cells[Y1][X1].owner = i
-			log.Println(X0, Y0, X1, Y1)
+			board[Y1][X1].owner = i
 		}
-
-		//Does it work? Seems so
-		//for dy:=0;dy<HEIGHT;dy++{
-		//    for dx:=0;dx<WIDTH;dx++{
-		//        if board.cells[dy][dx].owner==0{
-		//            log.Println(board.cells[dy][dx])
-		//        }
-		//    }
-		//}
-		log.Println(g.players[0])
-		fmt.Println("LEFT") // A single line with UP, DOWN, LEFT or RIGHT
+		t.nbTurns += 1
+		//fmt.Println("LEFT") // A single line with UP, DOWN, LEFT or RIGHT
 	}
 }
