@@ -83,6 +83,7 @@ func (g Grid) fill(from Cell) int {
 	var fillableCell int
 
 	var visited = make(map[Cell]bool)
+	visited[from] = true
 
 	var queue []Cell
 	queue = append(queue, from)
