@@ -47,29 +47,50 @@ func (g *Grid) ff(c []Cell) {
 	//for each startCells you get the neighbour
 	//if that neighbour is == "." || != "#" you copy cell.what
 	var queue = c //will be startCells
+	var visited = make(map[Cell]bool)
 	for len(queue) > 0 {
 		//container list!!
 		start := queue[0]
+		visited[start] = true
 		queue = queue[1:]
 		if start.y+1 < g.h && g.c[start.x][start.y+1].what == "." {
-			g.c[start.x][start.y+1].what = g.c[start.x][start.y].what
-			queue = append(queue, g.c[start.x][start.y+1])
+			if !visited[g.c[start.x][start.y+1]] {
+				g.c[start.x][start.y+1].what = g.c[start.x][start.y].what
+				queue = append(queue, g.c[start.x][start.y+1])
+				visited[g.c[start.x][start.y+1]] = true
+			} else {
+				g.c[start.x][start.y+1].what = "+" //g.c[start.x][start.y].what
+			}
 		}
 		if start.y-1 >= 0 && g.c[start.x][start.y-1].what == "." {
-			g.c[start.x][start.y-1].what = g.c[start.x][start.y].what
-			queue = append(queue, g.c[start.x][start.y-1])
+			if !visited[g.c[start.x][start.y-1]] {
+				g.c[start.x][start.y-1].what = g.c[start.x][start.y].what
+				queue = append(queue, g.c[start.x][start.y-1])
+				visited[g.c[start.x][start.y-1]] = true
+			} else {
+				g.c[start.x][start.y-1].what = "+"
+			}
 		}
 		if start.x+1 < g.w && g.c[start.x+1][start.y].what == "." {
-			g.c[start.x+1][start.y].what = g.c[start.x][start.y].what
-			queue = append(queue, g.c[start.x+1][start.y])
+			if !visited[g.c[start.x+1][start.y]] {
+				g.c[start.x+1][start.y].what = g.c[start.x][start.y].what
+				queue = append(queue, g.c[start.x+1][start.y])
+				visited[g.c[start.x+1][start.y]] = true
+			} else {
+				g.c[start.x+1][start.y].what = "+"
+			}
 		}
 		if start.x-1 >= 0 && g.c[start.x-1][start.y].what == "." {
-			g.c[start.x-1][start.y].what = g.c[start.x][start.y].what
-			queue = append(queue, g.c[start.x-1][start.y])
+			if !visited[g.c[start.x-1][start.y]] {
+				g.c[start.x-1][start.y].what = g.c[start.x][start.y].what
+				queue = append(queue, g.c[start.x-1][start.y])
+				visited[g.c[start.x-1][start.y]] = true
+			} else {
+				g.c[start.x-1][start.y].what = "+"
+			}
 		}
 
 	}
-
 }
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
