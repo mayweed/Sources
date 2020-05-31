@@ -14,6 +14,7 @@ default-mysql-client \
 php7.4 \
 php7.4-curl \
 php7.4-xml \
+php7.4-mysql \
 composer \
 git \
 apt-utils \
@@ -30,14 +31,12 @@ COPY ./amcmz.crt /usr/local/share/ca-certificates/amcmz.crt
 RUN update-ca-certificates
 
 # -b 19.10.xx 
-RUN mkdir -p /var/www/planningBiblio && \
-git clone https://github.com/PlanningBiblio/PlanningBiblio/ /var/www/planningBiblio && \
-chown -R www-data /var/www/planningBiblio && \
-chgrp -R www-data /var/www/planningBiblio && \
-chmod -R 755 /var/www/planningBiblio
+RUN git clone https://github.com/PlanningBiblio/PlanningBiblio/ -b 19.10.xx && \
+chown -R www-data:www-data /var/www/planningBiblio/include && \
+chown -R www-data:www-data /var/www/planningBiblio/data 
 
 RUN cd /var/www/planningBiblio && \
-composer update  --no-scripts
+composer update  #--no-scripts
 
 WORKDIR /home/guillaume
 
