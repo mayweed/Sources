@@ -30,13 +30,12 @@ apt-get clean
 COPY ./amcmz.crt /usr/local/share/ca-certificates/amcmz.crt
 RUN update-ca-certificates
 
-# -b 19.10.xx 
-RUN git clone https://github.com/PlanningBiblio/PlanningBiblio/ -b 19.10.xx && \
+RUN git clone https://github.com/PlanningBiblio/PlanningBiblio/ -b 19.10.xx /var/www/planningBiblio && \
 chown -R www-data:www-data /var/www/planningBiblio/include && \
 chown -R www-data:www-data /var/www/planningBiblio/data 
 
 RUN cd /var/www/planningBiblio && \
-composer update  #--no-scripts
+composer update 
 
 WORKDIR /home/guillaume
 
