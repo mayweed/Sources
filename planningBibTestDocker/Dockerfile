@@ -1,7 +1,6 @@
 #docker run -it -p8888:80 testpb3:latest /bin/bash
 FROM debian:testing
 
-#set hostname
 RUN echo "SRVPLANNING" >> /etc/hostname
 
 #general install
@@ -26,7 +25,6 @@ unzip && \
 apt-get clean
 
 #this is amcmz sh*t
-#ENV GIT_SSL_NO_VERIFY=true
 COPY ./amcmz.crt /usr/local/share/ca-certificates/amcmz.crt
 RUN update-ca-certificates
 
