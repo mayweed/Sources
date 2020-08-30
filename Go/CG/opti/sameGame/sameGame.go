@@ -3,30 +3,35 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"log"
 	"os"
 	"strconv"
+	"strings"
 )
 
-type Grid [][]int
+type Point struct {
+	x, y  int
+	color int64
+}
 
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Buffer(make([]byte, 1000000), 1000000)
 
-	var board Grid
-
 	for {
-		for i := 0; i < 15; i++ {
+		//15 is width AND height
+		var board = make([][]Point, 15)
+
+		for y := 14; y >= 0; y-- {
 			scanner.Scan()
-			inputs := scanner.Text() //strings.Split(scanner.Text(), " ")
-			for j := 0; j < 15; j++ {
-				// color: Color of the tile
-				board[i][j] = strconv.ParseInt(inputs[i*width+j])
-				_ = color
+			inputs := strings.Split(scanner.Text(), " ")
+			board[y] = make([]Point, 15)
+			for x := 0; x < 15; x++ {
+				c, _ := strconv.ParseInt(inputs[x], 10, 32)
+				board[y][x] = Point{y, x, c}
 			}
 		}
-
-		// fmt.Fprintln(os.Stderr, "Debug messages...")
+		log.Println(board)
 		fmt.Println("3 6 Hello SameGame\\n:-)") // Selected tile "x y [message]".
 	}
 }
