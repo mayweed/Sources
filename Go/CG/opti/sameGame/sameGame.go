@@ -5,23 +5,23 @@ import (
 	"fmt"
 	"os"
 	"strconv"
-	"strings"
 )
 
-type Grid struct {
-}
+type Grid [][]int
 
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Buffer(make([]byte, 1000000), 1000000)
 
+	var board Grid
+
 	for {
 		for i := 0; i < 15; i++ {
 			scanner.Scan()
-			inputs := strings.Split(scanner.Text(), " ")
+			inputs := scanner.Text() //strings.Split(scanner.Text(), " ")
 			for j := 0; j < 15; j++ {
 				// color: Color of the tile
-				color, _ := strconv.ParseInt(inputs[j], 10, 32)
+				board[i][j] = strconv.ParseInt(inputs[i*width+j])
 				_ = color
 			}
 		}
