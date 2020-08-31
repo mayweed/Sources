@@ -8,31 +8,24 @@ import (
 	"strings"
 )
 
+func checkRows(g [][]int64) {
+
+}
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Buffer(make([]byte, 1000000), 1000000)
 
-	var gridState = true //bool
+	var grid = make([][]int64, 9)
+
 	for i := 0; i < 9; i++ {
-		var checkRows = make(map[int64]int)
 		scanner.Scan()
 		inputs := strings.Split(scanner.Text(), " ")
+		grid[i] = make([]int64, 9)
 		for j := 0; j < 9; j++ {
 			n, _ := strconv.ParseInt(inputs[j], 10, 32)
-			checkRows[n] += 1
-			if checkRows[n] > 1 {
-				gridState = false
-				break
-			}
-		}
-		if !gridState {
-			break
+			grid[i][j] = n
 		}
 	}
+	fmt.Println("true")
 
-	if gridState {
-		fmt.Println("true")
-	} else {
-		fmt.Println("false")
-	}
 }
