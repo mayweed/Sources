@@ -8,7 +8,8 @@ import (
 	"strings"
 )
 
-func checkRows(g [][]int64) {
+func checkCols(g [][]int64) {
+	//inc y, not x
 
 }
 func main() {
