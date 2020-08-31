@@ -14,6 +14,8 @@ type Point struct {
 	color int64
 }
 
+func outputTile(p Point) {
+}
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Buffer(make([]byte, 1000000), 1000000)
