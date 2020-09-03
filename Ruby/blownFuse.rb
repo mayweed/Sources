@@ -13,10 +13,11 @@ alreadySeen = {}
 inputs = gets.split(" ")
 for i in 0..(m-1)
     mx = inputs[i].to_i
-    #STDERR.puts powerConsumption[mx-1]
 		#appliance was off
 	if !alreadySeen[mx] 
 	  n+=powerConsumption[mx-1]
+
+      STDERR.puts mx-1
         if n > max
 		  max=n
 	    end
