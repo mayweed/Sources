@@ -26,10 +26,12 @@ for i in 0..(m-1)
 	end
 end
 
-STDERR.puts max 
-
+STDERR.puts c,max 
+if max > c
+  puts "Fuse was blown."
+else
+  puts "Fuse was not blown."
+  puts "Maximal consumed current was %d A." % [max] 
+end
 # Write an answer using puts
 #STDERR.puts powerConsumption,alreadySeen
-
-puts "Fuse was not blown."
-puts "Maximal consumed current was XX A."
