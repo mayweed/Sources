@@ -15,18 +15,18 @@ for i in 0..(m-1)
     mx = inputs[i].to_i
 		#appliance was off
 	if !alreadySeen[mx] 
-	  n+=powerConsumption[mx-1]
-
-      STDERR.puts mx-1
+	    n+=powerConsumption[mx-1]
         if n > max
 		  max=n
 	    end
-	  alreadySeen[mx] = true
+	    alreadySeen[mx] = true
 	else
 		n-=powerConsumption[mx-1]
+        alreadySeen[mx]=false
 	end
-    STDERR.puts n
 end
+
+STDERR.puts max 
 
 # Write an answer using puts
 #STDERR.puts powerConsumption,alreadySeen
