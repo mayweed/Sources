@@ -15,7 +15,11 @@ def distance(horses)
   dists = []
   horses.each{|x|
     horses[1..horses.length].each{|y|
-      dists << y.velocity-x.velocity+y.elegance-x.elegance
+      if y == x
+        next
+      else
+        dists << (y.velocity.abs-x.velocity.abs)+(y.elegance.abs-x.elegance.abs)
+      end
     }
   }
   return dists
@@ -32,4 +36,4 @@ end
 
 d = distance(horses).sort
 
-d.each{|x| if x > 0 then STDERR.puts x end}
+d.each{|x| STDERR.puts x }
