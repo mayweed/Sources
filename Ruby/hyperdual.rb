@@ -11,14 +11,13 @@ class Horse
 end
 
 def distance(horses)
-#to write
   dists = []
   horses.each{|x|
-    horses[1..horses.length].each{|y|
+    horses.each{|y|
       if y == x
         next
       else
-        dists << (y.velocity.abs-x.velocity.abs)+(y.elegance.abs-x.elegance.abs)
+        dists << (y.velocity-x.velocity).abs+(y.elegance-x.elegance).abs
       end
     }
   }
@@ -36,4 +35,4 @@ end
 
 d = distance(horses).sort
 
-d.each{|x| STDERR.puts x }
+puts d[0]
