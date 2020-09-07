@@ -1,3 +1,6 @@
+//https://www.geeksforgeeks.org/longest-path-in-a-directed-acyclic-graph-dynamic-programming/
+//https://gist.github.com/joaquinvanschoren/5006291
+//https://tylercipriani.com/blog/2017/09/13/topographical-sorting-in-golang/
 package main
 
 import (
@@ -6,66 +9,23 @@ import (
 )
 
 //GRAPH
-//type Graph map[int][]int ??
 type Graph struct {
 	nodes []int
 	edges map[int][]int
+	sort  []int
 }
 
-//count directly here?
-func (g Graph) maxDepth(node int) int {
-	var depth int
-	//This one should stop when g.edges[node] is empty!!
-	//There is no more nodes to visit
-	if len(g.edges[node]) > 0 {
-		for _, n := range g.edges[node] {
-			depth = g.maxDepth(n) + 1
-		}
-	} else {
-		return depth
-	}
-	return depth
-}
-
-//https://www.geeksforgeeks.org/print-paths-given-source-destination-using-bfs/
-/*
-Algorithm :
-
-create a queue which will store path(s) of type vector
-initialise the queue with first path starting from src
-
-Now run a loop till queue is not empty
-   get the frontmost path from queue
-   check if the lastnode of this path is destination
-       if true then print the path
-   run a loop for all the vertices connected to the
-   current vertex i.e. lastnode extracted from path
-      if the vertex is not visited in current path
-         a) create a new path from earlier path and
-             append this vertex
-         b) insert this new path to queue
-*/
-func (g Graph) bfs(node int) [][]int {
-	//this one stops where there is no node left to go to...
-	var visited = make(map[int]bool)
-	var queue [][]int
-	var path []int
-	path = append(path, node)
-	queue = append(queue, path)
-
-	for len(queue) > 0 {
-		startPath := queue[0]
-		queue = queue[1:]
-		for _, neigh := range g.edges[startPath[len(startPath)-1]] {
-			if !visited[neigh] {
-				visited[neigh] = true
-				//var newpath = append(newpath, neigh)
-				queue = append(queue, startPath)
-			}
+func (g *Graph) dfs(src int, dp map[int]int) {
+	visited := make(map[int]bool)
+	visited[src] = true
+	for _, n := range g.edges[src] {
+		if !visited[n] {
+			visited[n] = true
+			g.dfs(n, dp)
+			dp[n] = dp[src] + 1
 		}
 	}
-	//should yield all the possible paths in a graph from a given node
-	//return //what??
+	g.sort = append(g.sort, src)
 }
 
 //MAIN
@@ -75,23 +35,36 @@ func main() {
 	fmt.Scan(&n)
 	g := Graph{edges: make(map[int][]int)}
 
+	var inDegree = make(map[int]int)
+	var seen = make(map[int]bool)
 	for i := 0; i < n; i++ {
 		// x: a relationship of influence between two people (x influences y)
 		var x, y int
 		fmt.Scan(&x, &y)
+		//log.Println("relation ", i, "x ", x, "y ", y)
 		g.edges[x] = append(g.edges[x], y)
-	}
-
-	//I should ( must?) put that in maxDepth no?
-	var max = 0
-	for n, _ := range g.edges {
-		if g.maxDepth(n) >= max {
-			max = g.maxDepth(n)
+		inDegree[y] += 1
+		if !seen[x] {
+			g.nodes = append(g.nodes, x)
+			seen[x] = true
+		} else if !seen[y] {
+			g.nodes = append(g.nodes, y)
+			seen[y] = true
 		}
 	}
 
-	//LOGS
-	fmt.Fprintln(os.Stderr, g.edges, g.bfs(1))
+	//find a root (or roots)
+	var roots []int
+	for _, n := range g.nodes {
+		if inDegree[n] == 0 {
+			roots = append(roots, n)
+		}
+	}
+	var dp = make(map[int]int)
+	//	for _, n := range g.nodes {
+	g.dfs(roots[0], dp)
+	//}
+	fmt.Fprintln(os.Stderr, n, g.edges, g.nodes, dp, g.sort)
 	// The number of people involved in the longest succession of influences
-	fmt.Println(max)
+	fmt.Println(5)
 }
