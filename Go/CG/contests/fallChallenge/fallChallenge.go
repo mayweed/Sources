@@ -1,18 +1,26 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"log"
+)
 
-/**
- * Auto-generated code below aims at helping you parse
- * the standard input according to the problem statement.
- **/
+type Action struct {
+	id    int
+	price int
+}
 
 func main() {
+
 	for {
 		// actionCount: the number of spells and recipes in play
 		var actionCount int
 		fmt.Scan(&actionCount)
 
+		var max = 0
+		var potMax int
+
+		var ids []int
 		for i := 0; i < actionCount; i++ {
 			// actionId: the unique ID of this spell or recipe
 			// actionType: in the first league: BREW; later: CAST, OPPONENT_CAST, LEARN, BREW
@@ -28,11 +36,17 @@ func main() {
 			var actionId int
 			var actionType string
 			var delta0, delta1, delta2, delta3, price, tomeIndex, taxCount int
-			var castable, repeatable bool
+			//var castable, repeatable bool
 			var _castable, _repeatable int
 			fmt.Scan(&actionId, &actionType, &delta0, &delta1, &delta2, &delta3, &price, &tomeIndex, &taxCount, &_castable, &_repeatable)
-			castable = _castable != 0
-			repeatable = _repeatable != 0
+			if max < price {
+				max = price
+				potMax = actionId
+			}
+			//castable = _castable != 0
+			//repeatable = _repeatable != 0
+			ids = append(ids, actionId)
+			log.Println(potMax, "max", max)
 		}
 		for i := 0; i < 2; i++ {
 			// inv0: tier-0 ingredients in inventory
@@ -41,9 +55,9 @@ func main() {
 			fmt.Scan(&inv0, &inv1, &inv2, &inv3, &score)
 		}
 
-		// fmt.Fprintln(os.Stderr, "Debug messages...")
-
+		log.Println(ids)
+		//randomIndex := rand.Intn(len(ids))
 		// in the first league: BREW <id> | WAIT; later: BREW <id> | CAST <id> [<times>] | LEARN <id> | REST | WAIT
-		fmt.Println("BREW 0")
+		fmt.Println("BREW ", potMax) //ids[randomIndex])
 	}
 }
