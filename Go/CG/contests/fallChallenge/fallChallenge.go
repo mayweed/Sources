@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"math"
 )
 
 type Potion struct {
@@ -50,6 +51,32 @@ func (s State) findMaxPrice() (int, Potion) {
 	}
 	return potMax, p
 }
+
+//check my ing vs what i need
+//if no different then it's good: either i got or it's 0
+//else need to find a cast with those that are true
+func (s State) checkIng(p Potion) map[int]bool {
+	var table = make(map[int]bool)
+	if math.Abs(float64(s.witches[0].inv0)) != float64(p.ing1) {
+		//i need ing0
+		table[0] = true
+	}
+	if math.Abs(float64(s.witches[0].inv1)) != float64(p.ing2) {
+		//i needf ing0
+		table[1] = true
+	}
+	if math.Abs(float64(s.witches[0].inv2)) != float64(p.ing3) {
+		//i need ing0
+		table[2] = true
+	}
+	if math.Abs(float64(s.witches[0].inv3)) != float64(p.ing4) {
+		//i need ing0
+		table[3] = true
+	}
+	return table
+}
+
+/*
 func (s State) think() {
 	var _, target = s.findMaxPrice()
 	var cpState = s
@@ -68,6 +95,7 @@ func (s State) think() {
 		}
 	}
 }
+*/
 func main() {
 
 	for {
@@ -113,14 +141,22 @@ func main() {
 			s.witches = append(s.witches, Witch{inv0, inv1, inv2, inv3, score})
 		}
 
-		log.Println(s.commandes, s.witches[0])
-		log.Println(s.casts)
-		//potMax, _ := s.findMaxPrice()
+		t := s.checkIng(s.commandes[0])
+		//log.Println(s.commandes, s.witches[0])
+		log.Println(s.commandes[0], s.witches[0], t[0])
+		log.Println(t)
+		potMax, _ := s.findMaxPrice()
 		// in the first league: BREW <id> | WAIT; later: BREW <id> | CAST <id> [<times>] | LEARN <id> | REST | WAIT
-		//cast while you can
-		for _, c := range s.casts {
-		}
-
-		//fmt.Println("BREW ", potMax)
+		/*
+			//cast while you can
+			if !s.cannotCast() {
+				//just cast to fill inv then must check if brew
+				fmt.Println("CAST ", c.id)
+			} else {
+				fmt.Println("REST")
+				//or brew
+			}
+		*/
+		fmt.Println("BREW ", potMax)
 	}
 }
