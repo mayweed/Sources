@@ -15,19 +15,20 @@ type Potion struct {
 }
 
 type Sort struct {
-	id int
-	d1 int
-	d2 int
-	d3 int
-	d4 int
+	id       int
+	d1       int
+	d2       int
+	d3       int
+	d4       int
+	castable int
 }
 
 type Witch struct {
-	numIng int
-	inv1   int
-	inv2   int
-	inv3   int
-	score  int
+	inv0  int
+	inv1  int
+	inv2  int
+	inv3  int
+	score int
 }
 type State struct {
 	commandes []Potion
@@ -36,16 +37,36 @@ type State struct {
 	oppCasts  []Sort
 }
 
-func (s State) findMaxPrice() int {
+func (s State) findMaxPrice() (int, Potion) {
 	var max = 0
 	var potMax int
+	var p Potion
 	for _, potion := range s.commandes {
 		if potion.price > max {
 			max = potion.price
 			potMax = potion.id
+			p = potion
 		}
 	}
-	return potMax
+	return potMax, p
+}
+func (s State) think() {
+	var _, target = s.findMaxPrice()
+	var cpState = s
+	if target.ing2 == 0 {
+		//check for a cast
+		for _, c := range cpState.casts {
+			if c.castable == 1 {
+				if c.d1 == -1 {
+					//apply cast
+					cpState.witches[0].inv0 - 1
+					//me.invX+1
+					//fmt.Println("CAST ", c.id)
+				}
+			}
+
+		}
+	}
 }
 func main() {
 
@@ -80,11 +101,9 @@ func main() {
 			if actionType == "BREW" {
 				s.commandes = append(s.commandes, Potion{id: actionId, ing1: delta0, ing2: delta1, ing3: delta2, ing4: delta3, price: price})
 			} else if actionType == "CAST" {
-				s.casts = append(s.casts, Sort{actionId, delta0, delta1, delta2, delta3})
+				s.casts = append(s.casts, Sort{actionId, delta0, delta1, delta2, delta3, _castable})
 			}
 
-			//castable = _castable != 0
-			//repeatable = _repeatable != 0
 		}
 		for i := 0; i < 2; i++ {
 			// inv0: tier-0 ingredients in inventory
@@ -94,9 +113,14 @@ func main() {
 			s.witches = append(s.witches, Witch{inv0, inv1, inv2, inv3, score})
 		}
 
-		log.Println(s.commandes)
-		potMax := s.findMaxPrice()
+		log.Println(s.commandes, s.witches[0])
+		log.Println(s.casts)
+		//potMax, _ := s.findMaxPrice()
 		// in the first league: BREW <id> | WAIT; later: BREW <id> | CAST <id> [<times>] | LEARN <id> | REST | WAIT
-		fmt.Println("BREW ", potMax)
+		//cast while you can
+		for _, c := range s.casts {
+		}
+
+		//fmt.Println("BREW ", potMax)
 	}
 }
