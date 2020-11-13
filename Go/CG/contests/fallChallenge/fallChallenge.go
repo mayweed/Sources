@@ -5,11 +5,48 @@ import (
 	"log"
 )
 
-type Action struct {
+type Potion struct {
 	id    int
+	ing1  int
+	ing2  int
+	ing3  int
+	ing4  int
 	price int
 }
 
+type Sort struct {
+	id int
+	d1 int
+	d2 int
+	d3 int
+	d4 int
+}
+
+type Witch struct {
+	numIng int
+	inv1   int
+	inv2   int
+	inv3   int
+	score  int
+}
+type State struct {
+	commandes []Potion
+	witches   []Witch
+	casts     []Sort
+	oppCasts  []Sort
+}
+
+func (s State) findMaxPrice() int {
+	var max = 0
+	var potMax int
+	for _, potion := range s.commandes {
+		if potion.price > max {
+			max = potion.price
+			potMax = potion.id
+		}
+	}
+	return potMax
+}
 func main() {
 
 	for {
@@ -17,10 +54,8 @@ func main() {
 		var actionCount int
 		fmt.Scan(&actionCount)
 
-		var max = 0
-		var potMax int
+		var s State
 
-		var ids []int
 		for i := 0; i < actionCount; i++ {
 			// actionId: the unique ID of this spell or recipe
 			// actionType: in the first league: BREW; later: CAST, OPPONENT_CAST, LEARN, BREW
@@ -39,25 +74,29 @@ func main() {
 			//var castable, repeatable bool
 			var _castable, _repeatable int
 			fmt.Scan(&actionId, &actionType, &delta0, &delta1, &delta2, &delta3, &price, &tomeIndex, &taxCount, &_castable, &_repeatable)
-			if max < price {
-				max = price
-				potMax = actionId
+
+			//idée basique: trouver les ing qui manquent pour max et voir si
+			//je peux jeter un sort pour les avoir
+			if actionType == "BREW" {
+				s.commandes = append(s.commandes, Potion{id: actionId, ing1: delta0, ing2: delta1, ing3: delta2, ing4: delta3, price: price})
+			} else if actionType == "CAST" {
+				s.casts = append(s.casts, Sort{actionId, delta0, delta1, delta2, delta3})
 			}
+
 			//castable = _castable != 0
 			//repeatable = _repeatable != 0
-			ids = append(ids, actionId)
-			log.Println(potMax, "max", max)
 		}
 		for i := 0; i < 2; i++ {
 			// inv0: tier-0 ingredients in inventory
 			// score: amount of rupees
 			var inv0, inv1, inv2, inv3, score int
 			fmt.Scan(&inv0, &inv1, &inv2, &inv3, &score)
+			s.witches = append(s.witches, Witch{inv0, inv1, inv2, inv3, score})
 		}
 
-		log.Println(ids)
-		//randomIndex := rand.Intn(len(ids))
+		log.Println(s.commandes)
+		potMax := s.findMaxPrice()
 		// in the first league: BREW <id> | WAIT; later: BREW <id> | CAST <id> [<times>] | LEARN <id> | REST | WAIT
-		fmt.Println("BREW ", potMax) //ids[randomIndex])
+		fmt.Println("BREW ", potMax)
 	}
 }
