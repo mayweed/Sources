@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"log"
-	"math"
 )
 
 type Potion struct {
@@ -16,12 +15,13 @@ type Potion struct {
 }
 
 type Sort struct {
-	id       int
-	d1       int
-	d2       int
-	d3       int
-	d4       int
-	castable int
+	id         int
+	d1         int
+	d2         int
+	d3         int
+	d4         int
+	castable   bool
+	repeatable bool
 }
 
 type Witch struct {
@@ -52,28 +52,36 @@ func (s State) findMaxPrice() (int, Potion) {
 	return potMax, p
 }
 
-//check my ing vs what i need
-//if no different then it's good: either i got or it's 0
-//else need to find a cast with those that are true
-func (s State) checkIng(p Potion) map[int]bool {
-	var table = make(map[int]bool)
-	if math.Abs(float64(s.witches[0].inv0)) != float64(p.ing1) {
-		//i need ing0
-		table[0] = true
+func (s State) validatePotion(p Potion) bool {
+	if p.ing1+s.witches[0].inv0 >= 0 {
+		if p.ing2+s.witches[0].inv1 >= 0 {
+			if p.ing3+s.witches[0].inv2 >= 0 {
+				if p.ing4+s.witches[0].inv3 >= 0 {
+					return true
+				}
+			}
+		}
 	}
-	if math.Abs(float64(s.witches[0].inv1)) != float64(p.ing2) {
-		//i needf ing0
-		table[1] = true
+	return false
+}
+
+func (s State) getPotionToDeliver() []int {
+	var ids []int
+	for _, p := range s.commandes {
+		if s.validatePotion(p) {
+			ids = append(ids, p.id)
+		}
 	}
-	if math.Abs(float64(s.witches[0].inv2)) != float64(p.ing3) {
-		//i need ing0
-		table[2] = true
+	return ids
+}
+
+func (s State) canAfford(c Sort) bool {
+	//must check the cast
+	if s.witches[0].inv0+c.d1 < 0 || s.witches[0].inv1+c.d2 < 0 || s.witches[0].inv2+c.d3 < 0 || s.witches[0].inv3+c.d4 < 0 {
+		return false
+	} else {
+		return true
 	}
-	if math.Abs(float64(s.witches[0].inv3)) != float64(p.ing4) {
-		//i need ing0
-		table[3] = true
-	}
-	return table
 }
 
 /*
@@ -120,16 +128,17 @@ func main() {
 			var actionId int
 			var actionType string
 			var delta0, delta1, delta2, delta3, price, tomeIndex, taxCount int
-			//var castable, repeatable bool
+			var castable, repeatable bool
 			var _castable, _repeatable int
 			fmt.Scan(&actionId, &actionType, &delta0, &delta1, &delta2, &delta3, &price, &tomeIndex, &taxCount, &_castable, &_repeatable)
+			castable = _castable != 0
+			repeatable = _repeatable != 0
 
-			//idée basique: trouver les ing qui manquent pour max et voir si
-			//je peux jeter un sort pour les avoir
+			//init sorts et potions
 			if actionType == "BREW" {
 				s.commandes = append(s.commandes, Potion{id: actionId, ing1: delta0, ing2: delta1, ing3: delta2, ing4: delta3, price: price})
 			} else if actionType == "CAST" {
-				s.casts = append(s.casts, Sort{actionId, delta0, delta1, delta2, delta3, _castable})
+				s.casts = append(s.casts, Sort{actionId, delta0, delta1, delta2, delta3, castable, repeatable})
 			}
 
 		}
@@ -141,22 +150,28 @@ func main() {
 			s.witches = append(s.witches, Witch{inv0, inv1, inv2, inv3, score})
 		}
 
-		t := s.checkIng(s.commandes[0])
-		//log.Println(s.commandes, s.witches[0])
-		log.Println(s.commandes[0], s.witches[0], t[0])
-		log.Println(t)
-		potMax, _ := s.findMaxPrice()
 		// in the first league: BREW <id> | WAIT; later: BREW <id> | CAST <id> [<times>] | LEARN <id> | REST | WAIT
-		/*
-			//cast while you can
-			if !s.cannotCast() {
-				//just cast to fill inv then must check if brew
-				fmt.Println("CAST ", c.id)
-			} else {
-				fmt.Println("REST")
-				//or brew
+
+		// this one rests too much and brew too late!!!
+		t := s.getPotionToDeliver()
+		log.Println(t)
+
+		if len(t) == 0 {
+			// must filter the cast!! in a func and pick the cast
+			// given castable,canAfford and the possibility of délivery
+			for _, c := range s.casts {
+				if c.castable {
+					if s.canAfford(c) {
+						fmt.Println("CAST ", c.id)
+						continue
+					}
+				} else {
+					fmt.Println("REST")
+				}
+
 			}
-		*/
-		fmt.Println("BREW ", potMax)
+		} else {
+			fmt.Println("BREW ", t[0])
+		}
 	}
 }
