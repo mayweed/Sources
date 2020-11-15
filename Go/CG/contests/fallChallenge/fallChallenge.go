@@ -2,14 +2,16 @@ package main
 
 import (
 	"fmt"
+	"log"
+	"math"
 )
 
 type Potion struct {
 	id    int
+	ing0  int
 	ing1  int
 	ing2  int
 	ing3  int
-	ing4  int
 	price int
 }
 
@@ -37,6 +39,19 @@ type State struct {
 	oppCasts  []Sort
 }
 
+func (s State) mustRest() bool {
+	var acc int
+	for _, c := range s.casts {
+		if c.castable {
+			acc += 1
+		}
+	}
+	if acc == len(s.casts) {
+		return true
+	} else {
+		return false
+	}
+}
 func (s State) findMaxPrice() (int, Potion) {
 	var max = 0
 	var potMax int
@@ -52,10 +67,10 @@ func (s State) findMaxPrice() (int, Potion) {
 }
 
 func (s State) validatePotion(p Potion) bool {
-	if p.ing1+s.witches[0].inv0 >= 0 {
-		if p.ing2+s.witches[0].inv1 >= 0 {
-			if p.ing3+s.witches[0].inv2 >= 0 {
-				if p.ing4+s.witches[0].inv3 >= 0 {
+	if p.ing0+s.witches[0].inv0 >= 0 {
+		if p.ing1+s.witches[0].inv1 >= 0 {
+			if p.ing2+s.witches[0].inv2 >= 0 {
+				if p.ing3+s.witches[0].inv3 >= 0 {
 					return true
 				}
 			}
@@ -81,6 +96,22 @@ func (s State) canAfford(c Sort) bool {
 	} else {
 		return true
 	}
+}
+func (s State) checkWhatIneed(p Potion) map[int]int {
+	var needs = make(map[int]int)
+	if s.witches[0].inv0+p.ing0 < 0 {
+		needs[0] = int(math.Abs(float64(p.ing0)))
+	}
+	if s.witches[0].inv1+p.ing1 < 0 {
+		needs[1] = int(math.Abs(float64(p.ing1)))
+	}
+	if s.witches[0].inv2+p.ing2 < 0 {
+		needs[2] = int(math.Abs(float64(p.ing2)))
+	}
+	if s.witches[0].inv3+p.ing3 < 0 {
+		needs[3] = int(math.Abs(float64(p.ing3)))
+	}
+	return needs
 }
 
 /*
@@ -140,7 +171,7 @@ func main() {
 
 			//init sorts et potions
 			if actionType == "BREW" {
-				s.commandes = append(s.commandes, Potion{id: actionId, ing1: delta0, ing2: delta1, ing3: delta2, ing4: delta3, price: price})
+				s.commandes = append(s.commandes, Potion{id: actionId, ing0: delta0, ing1: delta1, ing2: delta2, ing3: delta3, price: price})
 			} else if actionType == "CAST" {
 				s.casts = append(s.casts, Sort{actionId, delta0, delta1, delta2, delta3, castable, repeatable})
 			}
@@ -156,6 +187,9 @@ func main() {
 
 		// this one rests too much and brew too late!!!
 		t := s.getPotionToDeliver()
+		_, pot := s.findMaxPrice()
+		n := s.checkWhatIneed(pot)
+		log.Println(n, pot)
 
 		if len(t) == 0 {
 			// must filter the cast!! in a func and pick the cast
@@ -164,13 +198,13 @@ func main() {
 				if c.castable {
 					if s.canAfford(c) {
 						fmt.Println("CAST ", c.id)
-						continue
 					}
-				} else {
-					fmt.Println("REST")
 				}
-
 			}
+			if s.mustRest() {
+				fmt.Println("REST")
+			}
+
 		} else {
 			fmt.Println("BREW ", t[0])
 		}
