@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 )
 
 type Potion struct {
@@ -85,20 +84,25 @@ func (s State) canAfford(c Sort) bool {
 }
 
 /*
+//if i chose that cast what my inv will look like?
+func (s State) applyCast(c Sort) {
+	var cpState = s
+	if c.castable {
+		if c.d1 < 0 {
+			//apply cast
+			cpState.witches[0].inv0 + c.d1
+		} else if c.d1 > 0 {
+			cpState.witches[0].inv0 + c.d1
+		}
+	}
+}
+*/
+/*
 func (s State) think() {
 	var _, target = s.findMaxPrice()
-	var cpState = s
-	if target.ing2 == 0 {
+		if target.ing2 == 0 {
 		//check for a cast
 		for _, c := range cpState.casts {
-			if c.castable == 1 {
-				if c.d1 == -1 {
-					//apply cast
-					cpState.witches[0].inv0 - 1
-					//me.invX+1
-					//fmt.Println("CAST ", c.id)
-				}
-			}
 
 		}
 	}
@@ -107,11 +111,11 @@ func (s State) think() {
 func main() {
 
 	for {
+		var s State
+
 		// actionCount: the number of spells and recipes in play
 		var actionCount int
 		fmt.Scan(&actionCount)
-
-		var s State
 
 		for i := 0; i < actionCount; i++ {
 			// actionId: the unique ID of this spell or recipe
@@ -150,11 +154,8 @@ func main() {
 			s.witches = append(s.witches, Witch{inv0, inv1, inv2, inv3, score})
 		}
 
-		// in the first league: BREW <id> | WAIT; later: BREW <id> | CAST <id> [<times>] | LEARN <id> | REST | WAIT
-
 		// this one rests too much and brew too late!!!
 		t := s.getPotionToDeliver()
-		log.Println(t)
 
 		if len(t) == 0 {
 			// must filter the cast!! in a func and pick the cast
