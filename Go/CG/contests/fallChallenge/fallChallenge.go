@@ -2,54 +2,112 @@ package main
 
 import (
 	"fmt"
+	"log"
+	"math"
 )
 
-type Recipe struct {
-	id    int
-	ings  []int
-	price int
-}
+const (
+	ING_TYPE_COUNT = 4
+)
 
-type Cast struct {
-	id         int
-	deltas     []int
-	castable   bool
-	repeatable bool
-}
+type (
+	Recipe struct {
+		id    int
+		ings  []int
+		price int
+	}
 
-type Witch struct {
-	inv   []int
-	score int
-}
-type State struct {
-	commandes []Recipe
-	//must be Me et Opp
-	witches  []Witch
-	casts    []Cast
-	oppCasts []Cast
-}
+	Cast struct {
+		id         int
+		deltas     []int
+		castable   bool
+		repeatable bool
+	}
 
-func (c Cast) isCastable() bool {
-	return c.castable
-}
-func (s State) mustRest() bool {
-	var acc int
-	for _, c := range s.casts {
-		if c.castable {
-			acc += 1
+	Witch struct {
+		//what i got
+		inv []int
+		//what i need to deliver a given recipe
+		needs []int
+		score int
+	}
+	State struct {
+		deliveries []Recipe
+		me         Witch
+		casts      []Cast
+		opp        Witch
+		oppCasts   []Cast
+	}
+)
+
+//init deliveries and casts
+func (s *State) init() {
+	// actionCount: the number of spells and recipes in play
+	var actionCount int
+	fmt.Scan(&actionCount)
+
+	for i := 0; i < actionCount; i++ {
+		var actionId int
+		var actionType string
+		var delta0, delta1, delta2, delta3, price, tomeIndex, taxCount int
+		var castable, repeatable bool
+		var _castable, _repeatable int
+		fmt.Scan(&actionId, &actionType, &delta0, &delta1, &delta2, &delta3, &price, &tomeIndex, &taxCount, &_castable, &_repeatable)
+		castable = _castable != 0
+		repeatable = _repeatable != 0
+
+		switch actionType {
+		case "BREW":
+			var d []int
+			d = append(d, delta0, delta1, delta2, delta3)
+			s.deliveries = append(s.deliveries, Recipe{actionId, d, price})
+		case "CAST":
+			var r []int
+			r = append(r, delta0, delta1, delta2, delta3)
+			s.casts = append(s.casts, Cast{actionId, r, castable, repeatable})
+		case "OPPONENT_CAST":
+			var r []int
+			r = append(r, delta0, delta1, delta2, delta3)
+			s.casts = append(s.oppCasts, Cast{actionId, r, castable, repeatable})
+
 		}
 	}
-	if acc == len(s.casts) {
-		return true
-	} else {
-		return false
+}
+
+//init inventories
+func (s *State) initInventory() {
+	for i := 0; i < 2; i++ {
+		// inv0: tier-0 ingredients in inventory
+		// score: amount of rupees
+		var inv0, inv1, inv2, inv3, score int
+		fmt.Scan(&inv0, &inv1, &inv2, &inv3, &score)
+		var inv []int
+		inv = append(inv, inv0, inv1, inv2, inv3)
+		switch i {
+		case 0:
+			s.me = Witch{inv, []int{}, score}
+		case 1:
+			s.opp = Witch{inv, []int{}, score}
+		}
 	}
 }
+
+//are all spells exhausted? do i need rest?
+func (s State) mustRest() bool {
+	for _, c := range s.casts {
+		if c.castable {
+			return false
+		}
+	}
+	return true
+}
+
+//the one recipe which yields max profit
 func (s State) findMaxPrice() (int, Recipe) {
 	var max = 0
 	var potMax int
 	var p Recipe
-	for _, potion := range s.commandes {
+	for _, potion := range s.deliveries {
 		if potion.price > max {
 			max = potion.price
 			potMax = potion.id
@@ -59,53 +117,37 @@ func (s State) findMaxPrice() (int, Recipe) {
 	return potMax, p
 }
 
-/*
-func (s State) validatePotion(p Recipe) bool {
-	if p.ing0+s.witches[0].inv0 >= 0 {
-		if p.ing1+s.witches[0].inv1 >= 0 {
-			if p.ing2+s.witches[0].inv2 >= 0 {
-				if p.ing3+s.witches[0].inv3 >= 0 {
-					return true
-				}
-			}
+//check if a witch can deliver a given recipe
+func (w Witch) canDeliver(r Recipe) bool {
+	for i := 0; i < ING_TYPE_COUNT; i++ {
+		if w.inv[i]+r.ings[i] < 0 {
+			return false
 		}
 	}
-	return false
-}
-func (s State) getPotionToDeliver() []int {
-	var ids []int
-	for _, p := range s.commandes {
-		if s.validatePotion(p) {
-			ids = append(ids, p.id)
-		}
-	}
-	return ids
+	return true
 }
 
-func (s State) canAfford(c Cast) bool {
-	//must check the cast
-	if s.witches[0].inv0+c.d0 < 0 || s.witches[0].inv1+c.d1 < 0 || s.witches[0].inv2+c.d2 < 0 || s.witches[0].inv3+c.d3 < 0 {
-		return false
-	} else {
-		return true
+//check if i can cast a given spell
+func (w Witch) canCast(c Cast) bool {
+	for i := 0; i < ING_TYPE_COUNT; i++ {
+		if w.inv[i]+c.deltas[i] < 0 {
+			return false
+		}
+	}
+	return true
+}
+
+func (w *Witch) checkWhatIneed(r Recipe) {
+	for i := 0; i < ING_TYPE_COUNT; i++ {
+		if w.inv[i]+r.ings[i] < 0 {
+			w.needs = append(w.needs, int(math.Abs(float64(r.ings[i]))))
+		} else {
+			w.needs = append(w.needs, 0)
+		}
 	}
 }
-func (s State) checkWhatIneed(p Recipe) map[int]int {
-	var needs = make(map[int]int)
-	if s.witches[0].inv0+p.ing0 < 0 {
-		needs[0] = int(math.Abs(float64(p.ing0)))
-	}
-	if s.witches[0].inv1+p.ing1 < 0 {
-		needs[1] = int(math.Abs(float64(p.ing1)))
-	}
-	if s.witches[0].inv2+p.ing2 < 0 {
-		needs[2] = int(math.Abs(float64(p.ing2)))
-	}
-	if s.witches[0].inv3+p.ing3 < 0 {
-		needs[3] = int(math.Abs(float64(p.ing3)))
-	}
-	return needs
-}
+
+/*
 //it takes a recipe and gave me a sort
 func (s State) pickCast(p Recipe) Cast {
 	n := s.checkWhatIneed(p)
@@ -150,80 +192,37 @@ func main() {
 
 	for {
 		var s State
+		s.init()
+		s.initInventory()
 
-		// actionCount: the number of spells and recipes in play
-		var actionCount int
-		fmt.Scan(&actionCount)
-
-		for i := 0; i < actionCount; i++ {
-			// actionId: the unique ID of this spell or recipe
-			// actionType: in the first league: BREW; later: CAST, OPPONENT_CAST, LEARN, BREW
-			// delta0: tier-0 ingredient change
-			// delta1: tier-1 ingredient change
-			// delta2: tier-2 ingredient change
-			// delta3: tier-3 ingredient change
-			// price: the price in rupees if this is a potion
-			// tomeIndex: in the first two leagues: always 0; later: the index in the tome if this is a tome spell, equal to the read-ahead tax
-			// taxCount: in the first two leagues: always 0; later: the amount of taxed tier-0 ingredients you gain from learning this spell
-			// castable: in the first league: always 0; later: 1 if this is a castable player spell
-			// repeatable: for the first two leagues: always 0; later: 1 if this is a repeatable player spell
-			var actionId int
-			var actionType string
-			var delta0, delta1, delta2, delta3, price, tomeIndex, taxCount int
-			var castable, repeatable bool
-			var _castable, _repeatable int
-			fmt.Scan(&actionId, &actionType, &delta0, &delta1, &delta2, &delta3, &price, &tomeIndex, &taxCount, &_castable, &_repeatable)
-			castable = _castable != 0
-			repeatable = _repeatable != 0
-
-			//init sorts et potions
-			if actionType == "BREW" {
-				var d []int
-				d = append(d, delta0, delta1, delta2, delta3)
-				s.commandes = append(s.commandes, Recipe{actionId, d, price})
-			} else if actionType == "CAST" {
-				var r []int
-				r = append(r, delta0, delta1, delta2, delta3)
-				s.casts = append(s.casts, Cast{actionId, r, castable, repeatable})
-			}
-
-		}
-		for i := 0; i < 2; i++ {
-			// inv0: tier-0 ingredients in inventory
-			// score: amount of rupees
-			var inv0, inv1, inv2, inv3, score int
-			fmt.Scan(&inv0, &inv1, &inv2, &inv3, &score)
-			var inv []int
-			inv = append(inv, inv0, inv1, inv2, inv3)
-			s.witches = append(s.witches, Witch{inv, score})
-		}
+		_, target := s.findMaxPrice()
+		s.me.checkWhatIneed(target)
+		log.Println("T: ", target, "N: ", s.me.needs, "I :", s.me.inv)
 		/*
-			// this one rests too much and brew too late!!!
-			t := s.getPotionToDeliver()
-			_, pot := s.findMaxPrice()
-			n := s.checkWhatIneed(pot)
-			log.Println(n, pot)
+			so set a target then check my needs and casts accordingly
+			the idea: fulfill recipes
+				// this one rests too much and brew too late!!!
 
-			if len(t) == 0 {
-				// must filter the cast!! in a func and pick the cast
-				// given castable,canAfford and the possibility of délivery
-				for _, c := range s.casts {
-					if c.castable {
-						if s.canAfford(c) {
-							fmt.Println("CAST ", c.id)
+				if len(t) == 0 {
+					// must filter the cast!! in a func and pick the cast
+					// given castable,canAfford and the possibility of délivery
+					for _, c := range s.casts {
+						if c.castable {
+							if s.canAfford(c) {
+								fmt.Println("CAST ", c.id)
+							}
+						} else {
+							continue
 						}
-					} else {
-						continue
 					}
-				}
-				if s.mustRest() {
-					fmt.Println("REST")
-				}
+					if s.mustRest() {
+						fmt.Println("REST")
+					}
 
-			} else {
-				fmt.Println("BREW ", t[0])
-			}
-			log.Println(t)
+				} else {
+					fmt.Println("BREW ", t[0])
+				}
+				log.Println(t)
 		*/
 		fmt.Println("WAIT")
 	}
