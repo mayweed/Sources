@@ -68,7 +68,7 @@ func (s *State) init() {
 		case "OPPONENT_CAST":
 			var r []int
 			r = append(r, delta0, delta1, delta2, delta3)
-			s.casts = append(s.oppCasts, Cast{actionId, r, castable, repeatable})
+			s.oppCasts = append(s.oppCasts, Cast{actionId, r, castable, repeatable})
 
 		}
 	}
@@ -90,16 +90,6 @@ func (s *State) initInventory() {
 			s.opp = Witch{inv, []int{}, score}
 		}
 	}
-}
-
-//are all spells exhausted? do i need rest?
-func (s State) mustRest() bool {
-	for _, c := range s.casts {
-		if c.castable {
-			return false
-		}
-	}
-	return true
 }
 
 //the one recipe which yields max profit
@@ -147,47 +137,51 @@ func (w *Witch) checkWhatIneed(r Recipe) {
 	}
 }
 
-/*
-//it takes a recipe and gave me a sort
-func (s State) pickCast(p Recipe) Cast {
-	n := s.checkWhatIneed(p)
+//pick a given cast for a given witch in a given gamestate
+func (w Witch) pickCast(s State) []Cast {
 	var possCast []Cast
+	var added = make(map[int]bool)
 	for _, c := range s.casts {
-		//must check inventory after??
-		//if s.ing0 < 0 && s.witches[0].inv0 >0
-		for i := 0; i < 4; i++ {
-			if n[i] > 0 && c.d0 > 0 {
+		for i := 0; i < ING_TYPE_COUNT; i++ {
+			//i need the ing, the cast can provide AND i can pay…
+			if w.needs[i] > 0 && w.canCast(c) && c.castable {
 				//c can be a candidate
-				possCast = append(possCast, c)
-				//continue? The best would be to check for other needs and eval
-				//higher the cast if multiple needs are met
+				if !added[c.id] {
+					possCast = append(possCast, c)
+					added[c.id] = true
+				}
 			}
 		}
 	}
+	return possCast
 }
 
 //if i chose that cast what my inv will look like?
-func (s State) applyCast(c Sort) {
+//seems to work: can simulate what my next turn inv
+//will be…
+func (s State) applyCast(c Cast) []int {
 	var cpState = s
+	var newInv []int
+	//be sure i can cast it
 	if c.castable {
-		if c.d1 < 0 {
+		for i := 0; i < ING_TYPE_COUNT; i++ {
 			//apply cast
-			cpState.witches[0].inv0 + c.d1
-		} else if c.d1 > 0 {
-			cpState.witches[0].inv0 + c.d1
+			newInv = append(newInv, cpState.me.inv[i]+c.deltas[i])
+			//c.castable = true //exhausted on next turn
 		}
 	}
+	return newInv
 }
-func (s State) think() {
-	var _, target = s.findMaxPrice()
-		if target.ing2 == 0 {
-		//check for a cast
-		for _, c := range cpState.casts {
 
-		}
+//i could apply any cast, even all, but must eval which is the
+//best to choose...
+func (s State) possibleInvNextTurn() [][]int {
+	var allInv [][]int
+	for _, c := range s.casts {
+		allInv = append(allInv, s.applyCast(c))
 	}
+	return allInv
 }
-*/
 func main() {
 
 	for {
@@ -195,35 +189,16 @@ func main() {
 		s.init()
 		s.initInventory()
 
+		//so set a target then check my needs and casts accordingly
+		//the idea: fulfill recipes
+
 		_, target := s.findMaxPrice()
 		s.me.checkWhatIneed(target)
-		log.Println("T: ", target, "N: ", s.me.needs, "I :", s.me.inv)
-		/*
-			so set a target then check my needs and casts accordingly
-			the idea: fulfill recipes
-				// this one rests too much and brew too late!!!
-
-				if len(t) == 0 {
-					// must filter the cast!! in a func and pick the cast
-					// given castable,canAfford and the possibility of délivery
-					for _, c := range s.casts {
-						if c.castable {
-							if s.canAfford(c) {
-								fmt.Println("CAST ", c.id)
-							}
-						} else {
-							continue
-						}
-					}
-					if s.mustRest() {
-						fmt.Println("REST")
-					}
-
-				} else {
-					fmt.Println("BREW ", t[0])
-				}
-				log.Println(t)
-		*/
-		fmt.Println("WAIT")
+		log.Println("N: ", s.me.needs, "I :", s.me.inv)
+		p := s.me.pickCast(s)
+		log.Println("CASTS: ", s.casts, "POSS CASTS: ", p)
+		test := s.possibleInvNextTurn()
+		log.Println(test)
+		fmt.Println("CAST ", p[0].id)
 	}
 }
