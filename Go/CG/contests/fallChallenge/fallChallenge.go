@@ -1,3 +1,4 @@
+//Check the cast: do i need what it yields for the first recipe???
 package main
 
 import (
@@ -22,6 +23,8 @@ type (
 		deltas     []int
 		castable   bool
 		repeatable bool
+		tomeIndex  int
+		taxCount   int
 	}
 
 	Witch struct {
@@ -37,6 +40,7 @@ type (
 		casts      []Cast
 		opp        Witch
 		oppCasts   []Cast
+		tomeSpell  []Cast
 	}
 )
 
@@ -64,11 +68,15 @@ func (s *State) init() {
 		case "CAST":
 			var r []int
 			r = append(r, delta0, delta1, delta2, delta3)
-			s.casts = append(s.casts, Cast{actionId, r, castable, repeatable})
+			s.casts = append(s.casts, Cast{actionId, r, castable, repeatable, tomeIndex, taxCount})
 		case "OPPONENT_CAST":
 			var r []int
 			r = append(r, delta0, delta1, delta2, delta3)
-			s.oppCasts = append(s.oppCasts, Cast{actionId, r, castable, repeatable})
+			s.oppCasts = append(s.oppCasts, Cast{actionId, r, castable, repeatable, tomeIndex, taxCount})
+		case "LEARN":
+			var r []int
+			r = append(r, delta0, delta1, delta2, delta3)
+			s.oppCasts = append(s.tomeSpell, Cast{actionId, r, castable, repeatable, tomeIndex, taxCount})
 
 		}
 	}
@@ -192,6 +200,16 @@ func (s State) possibleInvNextTurn() [][]int {
 	}
 	return allInv
 }
+func (s State) doIneedYou(){
+	for _,c := range s.casts{
+		for _,n : range c.deltas{
+if n > 0{
+//might gain an ing
+
+}
+		}
+	}
+}
 func main() {
 
 	for {
@@ -202,11 +220,16 @@ func main() {
 		//so set a target then check my needs and casts accordingly
 		//the idea: fulfill recipes
 
-		_, target := s.findMaxPrice()
-		s.me.checkWhatIneed(target)
+		//_, target := s.findMaxPrice()
+		//s.me.checkWhatIneed(target)
 		log.Println("N: ", s.me.needs, "I :", s.me.inv)
 		p := s.me.pickCast(s)
-		log.Println("CASTS: ", s.casts, "POSS CASTS: ", p)
+		//log.Println("CASTS: ", s.casts, "POSS CASTS: ", p)
+		target := s.deliveries[0]
+
+		for _,i := range target.ings{
+
+		}
 		test := s.possibleInvNextTurn()
 		log.Println(test)
 		if po := s.checkRecipe(); po != 0 {
