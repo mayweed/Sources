@@ -93,6 +93,7 @@ func (s *State) initInventory() {
 }
 
 //the one recipe which yields max profit
+//in bronze there is a bonus for the first one so…
 func (s State) findMaxPrice() (int, Recipe) {
 	var max = 0
 	var potMax int
@@ -115,6 +116,15 @@ func (w Witch) canDeliver(r Recipe) bool {
 		}
 	}
 	return true
+}
+
+func (s State) checkRecipe() int {
+	for _, p := range s.deliveries {
+		if s.me.canDeliver(p) {
+			return p.id
+		}
+	}
+	return 0 //no recipe found
 }
 
 //check if i can cast a given spell
@@ -199,6 +209,12 @@ func main() {
 		log.Println("CASTS: ", s.casts, "POSS CASTS: ", p)
 		test := s.possibleInvNextTurn()
 		log.Println(test)
-		fmt.Println("CAST ", p[0].id)
+		if po := s.checkRecipe(); po != 0 {
+			fmt.Println("BREW ", po)
+		} else if len(p) > 0 {
+			fmt.Println("CAST ", p[0].id)
+		} else {
+			fmt.Println("REST")
+		}
 	}
 }
