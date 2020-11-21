@@ -200,16 +200,6 @@ func (s State) possibleInvNextTurn() [][]int {
 	}
 	return allInv
 }
-func (s State) doIneedYou(){
-	for _,c := range s.casts{
-		for _,n : range c.deltas{
-if n > 0{
-//might gain an ing
-
-}
-		}
-	}
-}
 func main() {
 
 	for {
@@ -225,11 +215,8 @@ func main() {
 		log.Println("N: ", s.me.needs, "I :", s.me.inv)
 		p := s.me.pickCast(s)
 		//log.Println("CASTS: ", s.casts, "POSS CASTS: ", p)
-		target := s.deliveries[0]
+		//target := s.deliveries[0]
 
-		for _,i := range target.ings{
-
-		}
 		test := s.possibleInvNextTurn()
 		log.Println(test)
 		if po := s.checkRecipe(); po != 0 {
