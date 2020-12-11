@@ -12,49 +12,69 @@ const (
 	MAX_BOMB_RANGE = 3
 )
 
-//POINT
-type Point struct {
-	x, y int
-}
+type (
+	point struct {
+		x, y int
+	}
+	Bomb struct {
+		position  point
+		ownerId   int
+		countdown int
+		expRange  int
+	}
+	//a turn is an action + a destination
+	Turn struct {
+		c             Cell
+		possibleMoves []Cell
+		//evalScore float64
+	}
+	Cell struct {
+		pos       point //might use anon point but...
+		what      string
+		hasMe     bool
+		hasPlayer bool
+		hasBomb   bool
+	}
+	Grid struct {
+		w      int
+		h      int
+		rows   string
+		c      [][]Cell
+		crates []Cell
+	}
+	Player struct {
+		position       point
+		id             int
+		numOfBombsLeft int
+		rangeOfBombs   int
+	}
+	State struct {
+		me      Player
+		board   Grid
+		players []Player
+		bombs   []Bomb
+	}
+)
 
 //distance in a grid idea voronoi
-func (p Point) manhattanDist(p2 Point) float64 {
+func (p point) manhattanDist(p2 point) float64 {
 	var dx = p2.x - p.x
 	var dy = p2.y - p.y
 	return math.Abs(float64(dx)) + math.Abs(float64(dy))
 }
 
-//CELL
-type Cell struct {
-	pos       Point //might use anon point but...
-	what      string
-	hasMe     bool
-	hasPlayer bool
-	hasBomb   bool
-}
-
 func (c Cell) isEmpty() bool {
 	if c.what == "." {
 		return true
-	} else {
-		return false
 	}
+	return false
 }
+
 func (c Cell) hasCrate() bool {
 	if c.what == "0" {
 		return true
-	} else {
-		return false
 	}
-}
-
-//GRID
-type Grid struct {
-	w      int
-	h      int
-	rows   string
-	c      [][]Cell
-	crates []Cell
+	return false
 }
 
 func (g *Grid) printAnswer() {
@@ -73,21 +93,11 @@ func (g Grid) cratesAround(c Cell) (int, []Cell) {
 	var bombRange = 3.0
 	var numCrates int
 	var crateCells []Cell
-	//for any given free cell let's see how many crates are in range
-	// DID I REALLY NEED Round here??
-	//this is not the right way to do it!! Measure which is the nearest crate from
-	//point (< bombRange) this our new range)
 	for _, crate := range g.crates {
 		//if it's equal to the current br
-		if c.pos.x == crate.pos.x && math.Round(math.Abs(float64(c.pos.y-crate.pos.y))) == bombRange || c.pos.y == crate.pos.y && math.Round(math.Abs(float64(c.pos.x-crate.pos.x))) == bombRange {
+		if c.pos.x == crate.pos.x && math.Round(math.Abs(float64(c.pos.y-crate.pos.y))) >= bombRange || c.pos.y == crate.pos.y && math.Round(math.Abs(float64(c.pos.x-crate.pos.x))) >= bombRange {
 			crateCells = append(crateCells, crate)
-			numCrates += 1
-		} else if c.pos.x == crate.pos.x && math.Round(math.Abs(float64(c.pos.y-crate.pos.y))) < bombRange || c.pos.y < crate.pos.y && math.Round(math.Abs(float64(c.pos.x-crate.pos.x))) < bombRange {
-			crateCells = []Cell{} //empty it we got a new range
-			crateCells = append(crateCells, crate)
-			numCrates = 1                                                    //new range new nb of crates
-			bombRange = math.Round(math.Abs(float64(c.pos.x - crate.pos.x))) //update brange
-
+			numCrates++
 		}
 	}
 	return numCrates, crateCells
@@ -95,37 +105,8 @@ func (g Grid) cratesAround(c Cell) (int, []Cell) {
 func (g Grid) getCellFromXY(x, y int) Cell {
 	return g.c[x][y]
 }
-func (g Grid) getCellFromPoint(p Point) Cell {
+func (g Grid) getCellFromPoint(p point) Cell {
 	return g.c[p.x][p.y]
-}
-
-type Player struct {
-	position       Point
-	id             int
-	numOfBombsLeft int
-	rangeOfBombs   int
-}
-
-type Bomb struct {
-	position  Point
-	ownerId   int
-	countdown int
-	expRange  int
-}
-
-type State struct {
-	me      Player
-	board   Grid
-	players []Player
-	bombs   []Bomb
-}
-
-//TURN and Action
-//a turn is an action + a destination
-type Turn struct {
-	c             Cell
-	possibleMoves []Cell
-	//evalScore float64
 }
 
 //choose also moves by dist
@@ -224,7 +205,7 @@ func main() {
 		for x := 0; x < s.board.w; x++ {
 			s.board.c[x] = make([]Cell, s.board.h)
 			for y := 0; y < s.board.h; y++ {
-				s.board.c[x][y] = Cell{Point{x, y}, string(s.board.rows[y*width+x]), false, false, false}
+				s.board.c[x][y] = Cell{point{x, y}, string(s.board.rows[y*width+x]), false, false, false}
 			}
 		}
 
@@ -247,7 +228,7 @@ func main() {
 			fmt.Scan(&entityType, &owner, &x, &y, &param1, &param2)
 
 			if owner == myId {
-				s.me.position = Point{x, y}
+				s.me.position = point{x, y}
 				s.me.id = owner
 				s.me.numOfBombsLeft = param1
 				s.me.rangeOfBombs = param2
@@ -256,10 +237,10 @@ func main() {
 				switch entityType {
 				case 0:
 					s.board.c[x][y].hasPlayer = true
-					s.players = append(s.players, Player{position: Point{x, y}, id: owner, numOfBombsLeft: param1, rangeOfBombs: param2})
+					s.players = append(s.players, Player{position: point{x, y}, id: owner, numOfBombsLeft: param1, rangeOfBombs: param2})
 				case 1:
 					s.board.c[x][y].hasBomb = true
-					s.bombs = append(s.bombs, Bomb{position: Point{x, y}, ownerId: owner, countdown: param1, expRange: param2})
+					s.bombs = append(s.bombs, Bomb{position: point{x, y}, ownerId: owner, countdown: param1, expRange: param2})
 				}
 			}
 
