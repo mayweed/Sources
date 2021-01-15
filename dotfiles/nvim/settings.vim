@@ -19,3 +19,6 @@ set shiftwidth=4               " number of spaces for auto-indent
 set softtabstop=4              " let backspace delete indent
 set textwidth=85
 set smartindent
+" Create horizontal splits below the current window
+set splitbelow
+set splitright

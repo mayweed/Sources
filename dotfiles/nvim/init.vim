@@ -18,6 +18,8 @@ call plug#end()
 "my life-saving bepo shortcuts
 execute "source" . s:vimpath . "bepo.vim"
  
+"some time you need mappings
+execute "source" . s:vimpath . "mappings.vim"
 
 " must put that in a special file!!
 " this is vim-go only…
