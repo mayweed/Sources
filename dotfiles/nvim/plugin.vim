@@ -10,6 +10,7 @@ Plug 'deoplete-plugins/deoplete-go', { 'do': 'make'}
 Plug 'udalov/kotlin-vim'
 Plug 'rust-lang/rust.vim'
 Plug 'vim-ruby/vim-ruby'
+Plug 'tpope/vim-fugitive'              " Git integration
 
 "Theme
 Plug 'Rigellute/rigel'
