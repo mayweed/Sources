@@ -7,6 +7,7 @@ set undoreload=10000        " Maximum number lines to save for undo on a buffer 
 set nu
 set encoding=utf-8
 set termencoding=utf-8
+set termguicolors
 "avoid the ^M or ^V bullsh*t
 set fileformat=unix
 set showmode

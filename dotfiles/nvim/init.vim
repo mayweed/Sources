@@ -21,6 +21,8 @@ execute "source" . s:vimpath . "bepo.vim"
 "some time you need mappings
 execute "source" . s:vimpath . "mappings.vim"
 
+"theme
+colorscheme rigel
 " must put that in a special file!!
 " this is vim-go only…
 au FileType go set noexpandtab
