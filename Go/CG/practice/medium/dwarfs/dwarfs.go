@@ -5,7 +5,6 @@ package main
 
 import (
 	"fmt"
-	"os"
 )
 
 //GRAPH
@@ -20,12 +19,10 @@ func (g *Graph) dfs(src int, dp map[int]int) {
 	visited[src] = true
 	for _, n := range g.edges[src] {
 		if !visited[n] {
-			visited[n] = true
 			g.dfs(n, dp)
 			dp[n] = dp[src] + 1
 		}
 	}
-	g.sort = append(g.sort, src)
 }
 
 //MAIN
@@ -64,7 +61,6 @@ func main() {
 	//	for _, n := range g.nodes {
 	g.dfs(roots[0], dp)
 	//}
-	fmt.Fprintln(os.Stderr, n, g.edges, g.nodes, dp, g.sort)
+	//fmt.Fprintln(os.Stderr, n, g.edges, g.nodes, dp, g.sort)
 	// The number of people involved in the longest succession of influences
-	fmt.Println(5)
 }
