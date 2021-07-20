@@ -1,4 +1,4 @@
-/*toutes les requetes faites pendant le stage théma */
+/*toutes les requetes faites pendant le stage théma consacré à la poldoc*/
 
 //nbre d’ouvrages par fond et par année d’acq
 SELECT v.lib as Fonds,count(*) as 'Total'
@@ -136,4 +136,137 @@ from borrowers b
 left join categories c on b.categorycode=c.categorycode
 group by c.description
 
+//nombre de prêts par an et par fonds
+SELECT i.location, v.lib as Fonds, count(*)as Total
+FROM statistics s
+left join items i on i.itemnumber=s.itemnumber
+left join authorised_values v on i.ccode=v.authorised_value
+where s.type='issue'
+and year(s.datetime) = <<année>>
+and v.category='CCODE'
+GROUP BY v.lib, i.location
 
+//nbre de docs par date de publication
+select ExtractValue( metadata, '//datafield[@tag="210"][1]/subfield[@code="d"]' ) as 'Date', count(*) as Total
+from biblio_metadata
+group by Date
+order by Date
+limit 50
+
+//budget d’acq par bib !!! scrib dev spé
+SELECT
+c.description as 'Catégorie Bib',
+b.surname AS 'Bibliothèque',
+max(case when ms.field='F701'then ms.value end) AS 'Budget Livres imprimés'
+FROM borrowers b
+LEFT JOIN borrower_attributes ba USING (borrowernumber)
+LEFT JOIN mappings_scrib ms ON ms.code_ua=ba.attribute
+left join categories c on b.categorycode=c.categorycode
+where ms.year=<<Année du rapport>>
+GROUP BY b.surname
+
+//nbre d’emprunteurs actifs par bib du réseau, scrib
+select ms.code_ua,
+c.description as Type,
+b.surname as Bibliothèque,
+max(case when ms.field='E112' then ms.value end) as 'Actifs_0-14 ans', 
+max(case when ms.field='E121' then ms.value end) as 'Actifs_15-64 ans',
+max(case when ms.field='E130' then ms.value end) as 'Actifs_65 ans et +',
+max(case when ms.field='E103' then ms.value end) as 'Actifs_TOTAL',
+max(case when ms.field='E144' then ms.value end) as 'Actifs_Collectivités'
+from borrowers b 
+left join borrower_attributes ba on b.borrowernumber=ba.borrowernumber 
+left join mappings_scrib ms ON ms.code_ua=ba.attribute
+left join categories c on c.categorycode=b.categorycode
+where year=<<année>>
+group by ms.code_ua
+
+//nbre de docs par support
+select it.description as Support,count(distinct i.itemnumber)as Total
+from items i
+left join itemtypes it on i.itype=it.itemtype
+group by it.itemtype
+
+//nbre d’ouvrages et de prêts par bib du réseau à l’année, scrib
+select ms.code_ua,c.description as Type, b.surname as Bibliothèque,
+max(case when ms.field='D101' then ms.value end) as 'Fonds Adultes',
+max(case when ms.field='D144' then ms.value end) as 'Fonds BDP Adultes',
+max(case when ms.field='E237' then ms.value end) as 'Prêts Adultes', 
+max(case when ms.field='D116' then ms.value end) as 'Fonds Jeunesse',
+max(case when ms.field='D142' then ms.value end) as 'Fonds BDP Jeunesse',
+max(case when ms.field='E238' then ms.value end) as 'Prêts Jeunesse',
+max(case when ms.field='E241' then ms.value end) as 'Prêts BDP Livres',
+max(case when ms.field='E420' then ms.value end) as 'Fonds BDP Audio',
+max(case when ms.field='E245' then ms.value end) as 'Prêts BDP CD',
+max(case when ms.field='E239' then ms.value end) as 'Total des prêts'
+from borrowers b 
+left join borrower_attributes ba on b.borrowernumber=ba.borrowernumber 
+left join mappings_scrib ms ON ms.code_ua=ba.attribute
+left join categories c on c.categorycode=b.categorycode
+where year=<<année>>
+group by ms.code_ua
+order by Type
+
+//personnel dans les bibs du réseau, scrib
+select ms.code_ua, 
+c.description as Type,
+b.surname as Bibliothèque,
+max(case when ms.field='G135' then ms.value end) as 'Personnes Salariées', 
+max(case when ms.field='G129' then ms.value end) as 'Personnes Bénévoles',
+max(case when ms.field='G101' then ms.value end) as 'Total des Personnes',
+max(case when ms.field='G102' then ms.value end) as 'ETP Salariés', 
+max(case when ms.field='G131' then ms.value end) as 'ETP Bénévoles',
+max(case when ms.field='G132' then ms.value end) as 'Total ETP'
+from borrowers b 
+left join borrower_attributes ba on b.borrowernumber=ba.borrowernumber 
+left join mappings_scrib ms ON ms.code_ua=ba.attribute
+left join categories c on b.categorycode=c.categorycode
+where year=<<année>>
+group by ms.code_ua
+order by Type
+
+//nbre de nouveaux inscrits par bib du réseau, scrib
+select ms.code_ua,
+c.description as Type,
+b.surname as Bibliothèque,
+max(case when ms.field='E111' then ms.value end) as 'Nouveaux Inscrits_0-14 ans', 
+max(case when ms.field='E120' then ms.value end) as 'Nouveaux Inscrits_15-64 ans',
+max(case when ms.field='E129' then ms.value end) as 'Nouveaux Inscrits_65 ans et +',
+max(case when ms.field='E102' then ms.value end) as 'Nouveaux Inscrits_TOTAL',
+max(case when ms.field='E143' then ms.value end) as 'Nouveaux Inscrits_Collectivités'
+from borrowers b 
+left join borrower_attributes ba on b.borrowernumber=ba.borrowernumber 
+left join mappings_scrib ms ON ms.code_ua=ba.attribute
+left join categories c on c.categorycode=b.categorycode
+where year=<<année>>
+group by ms.code_ua
+
+//acq et éliminations par bib du réseau, scrib
+select ms.code_ua,c.description as Type, b.surname as Bibliothèque,
+max(case when ms.field='D102' then ms.value end) as 'Acquisitions Adultes',
+max(case when ms.field='D117' then ms.value end) as 'Acquisitions Jeunesse',
+max(case when ms.field='E129' then ms.value end) as 'Total acquisitions',
+max(case when ms.field='D103' then ms.value end) as 'Éliminations Adultes', 
+max(case when ms.field='D118' then ms.value end) as 'Éliminations Jeunesse',
+max(case when ms.field='D130' then ms.value end) as 'Total Éliminations'
+from borrowers b 
+left join borrower_attributes ba on b.borrowernumber=ba.borrowernumber 
+left join mappings_scrib ms ON ms.code_ua=ba.attribute
+left join categories c on c.categorycode=b.categorycode
+where year=<<année>>
+group by ms.code_ua
+order by Type
+
+//nbre de docs à récoler
+select *, 
+t1.TotalEx-t1.TotalPret as 'ResteArecoler'
+from
+(SELECT
+it.itype AS 'Type de prêt', 
+it.location AS 'Section',
+it.ccode AS 'Fonds', 
+count(it.itemnumber) as 'TotalEx',
+COUNT(i.itemnumber) AS 'TotalPret'
+FROM items it
+LEFT JOIN issues i USING (itemnumber)
+GROUP BY it.itype,it.location,it.ccode) t1
