@@ -6,7 +6,7 @@ library("cartography")
 #get everything 
 load("/home/guillaume/DONNEES_R/GEOFLA_2019_l93.RData")
 
-#xls : search for ods
+#xls : add data
 bibT <- read_excel(path="/home/guillaume/DONNEES_R/PRETS_POP.xlsx",
                    sheet=1,
                    col_names=TRUE)
@@ -35,7 +35,7 @@ x11() #use windows() or quartz() for mac
 #    paper="a4") 
 
 
-mf_init(GEOFLA_COMMUNE_2019_l93)
+mf_init(GEOFLA_COMMUNE_2019_l93,expandBB=c(0,0.15,0,0))
 
 #mf_background("/home/guillaume/Desktop/INET/STAGES/Stage_pro/ESSONNE/CARTES_DIAG/fondEssonne.png")
 
@@ -78,7 +78,7 @@ mf_map(x=GEOFLA_EPCI91_2019_l93,
        col=NA,
        border="black",
        add=TRUE,
-       lwd=3)
+       lwd=5)
 
 mf_credits(txt="Données issues du rapport SCRIB 2020")
 
