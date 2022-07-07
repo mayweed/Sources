@@ -12,8 +12,23 @@ import (
  **/
 
 type Application struct {
-	objectType                                                                                                                                                             string
-	id, trainingNeeded, codingNeeded, dailyRoutineNeeded, taskPrioritizationNeeded, architectureStudyNeeded, continuousDeliveryNeeded, codeReviewNeeded, refactoringNeeded int
+	objectType               string
+	id                       int
+	trainingNeeded           int
+	codingNeeded             int
+	dailyRoutineNeeded       int
+	taskPrioritizationNeeded int
+	architectureStudyNeeded  int
+	continuousDeliveryNeeded int
+	codeReviewNeeded         int
+	refactoringNeeded        int
+}
+
+type Player struct {
+	playerLocation                        int
+	playerScore                           int
+	playerPermanentDailyRoutineCards      int
+	playerPermanentArchitectureStudyCards int
 }
 
 func main() {
@@ -47,6 +62,8 @@ func main() {
 			fmt.Sscan(scanner.Text(), &objectType, &id, &trainingNeeded, &codingNeeded, &dailyRoutineNeeded, &taskPrioritizationNeeded, &architectureStudyNeeded, &continuousDeliveryNeeded, &codeReviewNeeded, &refactoringNeeded)
 			apps = append(apps, Application{objectType, id, trainingNeeded, codingNeeded, dailyRoutineNeeded, taskPrioritizationNeeded, architectureStudyNeeded, continuousDeliveryNeeded, codeReviewNeeded, refactoringNeeded})
 		}
+
+		var players []Player
 		for i := 0; i < 2; i++ {
 			// playerLocation: id of the zone in which the player is located
 			// playerPermanentDailyRoutineCards: number of DAILY_ROUTINE the player has played. It allows them to take cards from the adjacent zones
@@ -54,18 +71,34 @@ func main() {
 			var playerLocation, playerScore, playerPermanentDailyRoutineCards, playerPermanentArchitectureStudyCards int
 			scanner.Scan()
 			fmt.Sscan(scanner.Text(), &playerLocation, &playerScore, &playerPermanentDailyRoutineCards, &playerPermanentArchitectureStudyCards)
+			players = append(players, Player{playerLocation, playerScore, playerPermanentDailyRoutineCards, playerPermanentArchitectureStudyCards})
 		}
+
 		var cardLocationsCount int
 		scanner.Scan()
 		fmt.Sscan(scanner.Text(), &cardLocationsCount)
 
+		var myHand []int
+		var myDraw []int
+		var myDiscard []int
+
 		for i := 0; i < cardLocationsCount; i++ {
 			// cardsLocation: the location of the card list. It can be HAND, DRAW, DISCARD or OPPONENT_CARDS (AUTOMATED and OPPONENT_AUTOMATED will appear in later leagues)
 			var cardsLocation string
-			var trainingCardsCount, codingCardsCount, dailyRoutineCardsCount, taskPrioritizationCardsCount, architectureStudyCardsCount, continuousDeliveryCardsCount, codeReviewCardsCount, refactoringCardsCount, bonusCardsCount, technicalDebtCardsCount int
+			var training, coding, dailyRoutine, taskPrioritization, architectureStudy, continuousDelivery, codeReview, refactoring, bonus, technicalDebt int
 			scanner.Scan()
-			fmt.Sscan(scanner.Text(), &cardsLocation, &trainingCardsCount, &codingCardsCount, &dailyRoutineCardsCount, &taskPrioritizationCardsCount, &architectureStudyCardsCount, &continuousDeliveryCardsCount, &codeReviewCardsCount, &refactoringCardsCount, &bonusCardsCount, &technicalDebtCardsCount)
+			fmt.Sscan(scanner.Text(), &cardsLocation, &training, &coding, &dailyRoutine, &taskPrioritization, &architectureStudy, &continuousDelivery, &codeReview, &refactoring, &bonus, &technicalDebt)
+			switch cardsLocation {
+			case "HAND":
+				myHand = append(myHand, training, coding, dailyRoutine, taskPrioritization, architectureStudy, continuousDelivery, codeReview, refactoring, bonus, technicalDebt)
+			case "DRAW":
+				myDraw = append(myDraw, training, coding, dailyRoutine, taskPrioritization, architectureStudy, continuousDelivery, codeReview, refactoring, bonus, technicalDebt)
+			case "DISCARD":
+				myDiscard = append(myDiscard, training, coding, dailyRoutine, taskPrioritization, architectureStudy, continuousDelivery, codeReview, refactoring, bonus, technicalDebt)
+
+			}
 		}
+
 		var possibleMovesCount int
 		scanner.Scan()
 		fmt.Sscan(scanner.Text(), &possibleMovesCount)
@@ -75,11 +108,10 @@ func main() {
 			possibleMove := scanner.Text()
 			_ = possibleMove // to avoid unused error
 		}
+		log.Println(gamePhase)
+		log.Println(cardLocationsCount, myHand, myDraw)
 
-		// fmt.Fprintln(os.Stderr, "Debug messages...")
-		log.Println(gamePhase, applicationsCount, apps)
-
-		// In the first league: RANDOM | MOVE <zoneId> | RELEASE <applicationId> | WAIT; In later leagues: | GIVE <cardType> | THROW <cardType> | TRAINING | CODING | DAILY_ROUTINE | TASK_PRIORITIZATION <cardTypeToThrow> <cardTypeToTake> | ARCHITECTURE_STUDY | CONTINUOUS_DELIVERY <cardTypeToAutomate> | CODE_REVIEW | REFACTORING;
+		// In the first league: RANDOM | MOVE <zoneId> | RELEASE <applicationId> | WAIT;
 		fmt.Println("RANDOM")
 	}
 }
