@@ -1,70 +1,89 @@
 library("sf")
 library("mapsf")
 library("readxl")
+library("cartography")
 
-#get the maps
+#get everything 
 load("/home/guillaume/DONNEES_R/GEOFLA_2019_l93.RData")
 
-bibP <- read_excel(path="/home/guillaume/DONNEES_R/PRETS_USAGERS_2020.xlsx",
+#xls : search for ods
+bibT <- read_excel(path="/home/guillaume/DONNEES_R/PRETS_POP.xlsx",
                    sheet=1,
                    col_names=TRUE)
 
 #all is very important for NA!!
 GEOFLA_COMMUNE_2019_l93 <- merge(GEOFLA_COMMUNE_2019_l93,
-                                 bibP,
+                                 bibT,
                                  by.x="INSEE_COM",
                                  by.y="INSEE_COM",
                                  all.x=TRUE)
 
-#  mf_get_breaks(x=bibP$USAGERS,nbreaks=5,breaks="equal")
-#[1]      0  35238  70476 105714 140952 176190
+bibS <- read_excel(path="/home/guillaume/DONNEES_R/BIB_SIGB.xlsx",
+                   sheet=1,
+                   col_names=TRUE)
+GEOFLA_COMMUNE_2019_l93 <- merge(GEOFLA_COMMUNE_2019_l93,
+                                 bibS,
+                                 by.x="INSEE_COM",
+                                 by.y="INSEE_COM",
+                                 all.x=TRUE)
 
-#  mf_get_breaks(x=bibP$PRETS,nbreaks=5,breaks="equal")
-#[1]    0 1168 2336 3504 4672 5840
+x11() #use windows() or quartz() for mac
 
-#GEOFLA_COMMUNE_2019_l93$pretstypo <- cut(GEOFLA_COMMUNE_2019_l93$PRETS,
-#                                         breaks=c(0,5000,10000,20000,300000),
-#                                        labels = c("0-5000","5000-10000","10000-20000","> 20000"),
-#                                         include.lowest=TRUE)
-# mf_typo(x=GEOFLA_COMMUNE_2019_l93,
-#        var="pretstypo",
-#        pal=c("red","orange","yellow","green"),
-#        val_order=c("0-5000","5000-10000","10000-20000","> 20000"),
-#        leg_pos="topleft",
-#        leg_title="Prêt en milliers de documents",
-#)
+#pdf(file="/home/guillaume/carteBudget.pdf",
+#    width=8,
+#    height=12,
+#    paper="a4") 
 
-x11() #use windows() or quartz() for maic
 
-mf_map(GEOFLA_COMMUNE_2019_l93)
+mf_init(GEOFLA_COMMUNE_2019_l93)
 
-mf_prop_choro(
-  x = GEOFLA_COMMUNE_2019_l93, var = c("USAGERS", "PRETS"), inches = .35, border = "black",
-  val_max = 250000, symbol = "circle", col_na = "grey", pal = "Green-Orange",
-  breaks = "equal", nbreaks = 8, lwd = 2,
-  leg_pos = c("bottomright", "topleft"),
-  leg_title = c("Nombre d’usagers", "Nombre de prêts"),
-  leg_title_cex = c(0.8, 1),
-  leg_val_cex = c(.7, .9),
-  leg_val_rnd = c(0, 0),
-  leg_no_data = "Pas de données",
-  leg_frame = c(TRUE, TRUE),
-  add = TRUE
+#mf_background("/home/guillaume/Desktop/INET/STAGES/Stage_pro/ESSONNE/CARTES_DIAG/fondEssonne.png")
+
+mf_map(x=GEOFLA_DEP_2019_l93[GEOFLA_DEP_2019_l93$CODE_DEPT == 91,],
+       col=NA,
+       border="black",
+       add=TRUE,
+       lwd=3)
+
+GEOFLA_COMMUNE_2019_l93$pretstypo <- cut(GEOFLA_COMMUNE_2019_l93$PRETS,
+                                         breaks=c(0,1000,5000,10000,50000,100000,250000),
+                                         labels=c("0-1000","1000-5000","5000-10000","10000-50000","50000-100000","> 100000"),
+                                         include.lowest=TRUE)
+
+# http://www.sthda.com/french/wiki/couleurs-dans-r
+mf_map(x=GEOFLA_COMMUNE_2019_l93,
+       var="pretstypo",
+       type="typo",
+       #breaks=c(0,1000,5000,10000,50000,100000,250000),
+       val_order=c("0-1000","1000-5000","5000-10000","10000-50000","50000-100000","> 100000"),
+       pal= c("red","orange","yellow","lightblue","#00CC33","green"),
+       leg_no_data="Données non communiquées",
+       leg_pos= "topleft", #NA, #waiting for a solution
+       leg_title="Prêts",
+       leg_frame = TRUE,
+       add=TRUE,
+       lwd=2
 )
 
+mf_title(txt = "Nombre de prêts par commune")
 
-mf_title(txt="Ratio prêts de documents/usagers par ville")
+mf_symb(x =GEOFLA_COMMUNE_2019_l93,
+        var ="BIB",
+        val_order=c("0","1"),
+        pch=c(17,26), #26 to 31 are unassigned and that does not work with NA
+        leg_pos=NA,
+        add=TRUE)
 
-#instead of plot, won’t work
-#mf_map(x=GEOFLA_EPCI91_2019_l93,add=TRUE,lwd=3)
-#plot(st_geometry(GEOFLA_EPCI91_2019_l93),add=TRUE,lwd=3)
-#instead of labelLayer() won’t work…
-#mf_label(x=GEOFLA_EPCI91_2019_l93,
-#         var="LIBEPCI",
-#         cex=0.8,
-#         overlap=FALSE,
-#         lines=FALSE,
-#)
+mf_map(x=GEOFLA_EPCI91_2019_l93,
+       col=NA,
+       border="black",
+       add=TRUE,
+       lwd=3)
+
+mf_credits(txt="Données issues du rapport SCRIB 2020")
+
+# pour pdf
+#dev.off()
 
 #wait please!!
 locator(1)
