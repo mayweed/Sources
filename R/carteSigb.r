@@ -25,12 +25,15 @@ x11() #use windows() or quartz() for mac
 #    height=12,
 #    paper="a4") 
 
-mf_map(x=GEOFLA_DEP_2019_l93[GEOFLA_DEP_2019_l93$CODE_DEPT == 91,],
-     border="black",
-     lwd=3)
 
 mf_init(x=GEOFLA_COMMUNE_2019_l93,
         expandBB=c(0.2,0.3,0,0))
+
+mf_map(x=GEOFLA_DEP_2019_l93[GEOFLA_DEP_2019_l93$CODE_DEPT == 91,],
+     border="black",
+     add=TRUE,
+     lwd=3)
+
 
 # http://www.sthda.com/french/wiki/couleurs-dans-r
 mf_typo(x=GEOFLA_COMMUNE_2019_l93,
@@ -47,7 +50,9 @@ mf_typo(x=GEOFLA_COMMUNE_2019_l93,
 mf_symb(x =GEOFLA_COMMUNE_2019_l93,
         var ="BIB",
         val_order=c("0","1"),
-        pch=c(17,26), #26 to 31 are unassigned and that does not work with NA
+        pch=c(4,26), #26 to 31 are unassigned and that does not work with NA
+        lwd=.5,
+        col_na="black",
         leg_pos=NA,
         add=TRUE)
 

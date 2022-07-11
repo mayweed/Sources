@@ -2,9 +2,12 @@ library("sf")
 library("mapsf")
 library("readxl")
 library("cartography")
-
+library("png")
 #get everything 
 load("/home/guillaume/DONNEES_R/GEOFLA_2019_l93.RData")
+
+bibC <- st_read("/home/guillaume/SHP/adresses-des-bibliotheques-publiques.shp")
+bib91 <- bibC[bibC$dept == 91,]
 
 #xls : search for ods
 bibT <- read_excel(path="/home/guillaume/DONNEES_R/STATUT_BIB.xlsx",
@@ -20,10 +23,10 @@ GEOFLA_COMMUNE_2019_l93 <- merge(GEOFLA_COMMUNE_2019_l93,
 
 x11() #use windows() or quartz() for mac
 
-pdf(file="/home/guillaume/carteReseau.pdf",
-    width=8,
-    height=12,
-    paper="a4") 
+#pdf(file="/home/guillaume/carteReseau.pdf",
+#    width=8,
+#    height=12,
+#    paper="a4") 
 
 mf_map(x=GEOFLA_DEP_2019_l93[GEOFLA_DEP_2019_l93$CODE_DEPT == 91,],
      border="black",
@@ -45,11 +48,12 @@ mf_symb(
   x =GEOFLA_COMMUNE_2019_l93, var ="TYPOLOGIE", pch = c(21:23), pal = c("red","yellow", "tan1", "#990066","white"),
   border = "grey20", cex = c(1.5, 1, .9,.7,.5), lwd = .5,
   val_order = c("B1", "B2", "B3","B4","B5"),
-  #pch_na = 18,#
+  pch_na = 4,
   leg_no_data="Pas de bibliothèque",col_na= "black",leg_frame = TRUE,leg_pos = "topleft",
   leg_title = "Typologie des bibs"
 )
 
+mf_symb(x = bib91,var="geometry",pch=10,add=TRUE)
 mf_title(txt = "Réseau de lecture publique du département de l’Essonne")
 
 
@@ -69,8 +73,9 @@ mf_credits(txt="Données issues du rapport SCRIB 2020")
 #     border="black",
 #     add=TRUE,
 #     lwd=5)
-dev.off()
 #labelLayer(x=GEOFLA_EPCI91_2019_l93,txt="EPCI",font=4)
 #mf_export(GEOFLA_COMMUNE_2019_l93,filename=test.png)
+png("/home/guillaume/carteTypoReseau.png")
+dev.off()
 #wait please!!
-locator(1)
+#locator(1)

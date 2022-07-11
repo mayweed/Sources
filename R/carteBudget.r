@@ -18,6 +18,15 @@ GEOFLA_COMMUNE_2019_l93 <- merge(GEOFLA_COMMUNE_2019_l93,
                                  by.y="INSEE_COM",
                                  all.x=TRUE)
 
+bibS <- read_excel(path="/home/guillaume/DONNEES_R/BIB_SIGB.xlsx",
+                   sheet=1,
+                   col_names=TRUE)
+GEOFLA_COMMUNE_2019_l93 <- merge(GEOFLA_COMMUNE_2019_l93,
+                                 bibS,
+                                 by.x="INSEE_COM",
+                                 by.y="INSEE_COM",
+                                 all.x=TRUE)
+
 x11() #use windows() or quartz() for mac
 
 #pdf(file="/home/guillaume/carteBudget.pdf",
@@ -39,16 +48,17 @@ mf_init(GEOFLA_COMMUNE_2019_l93)
 
 mf_map(x=GEOFLA_DEP_2019_l93[GEOFLA_DEP_2019_l93$CODE_DEPT == 91,],
        col=NA,
-       border="black",
+       border="grey",
        add=TRUE,
        lwd=3)
 
 # http://www.sthda.com/french/wiki/couleurs-dans-r
-#mf_map(x=GEOFLA_COMMUNE_2019_l93,
-#       col=NA,
-#       add=TRUE,
-#       lwd=2
-#)
+mf_map(x=GEOFLA_COMMUNE_2019_l93,
+       col=NA,
+       add=TRUE,
+       lwd=2
+)
+
 mf_prop_choro(
   x = GEOFLA_COMMUNE_2019_l93, var = c("BUDGET", "RATIO"), inches = .18, 
   val_max = 90000, symbol = "circle", col_na = "grey", pal = "Viridis",
@@ -62,6 +72,14 @@ mf_prop_choro(
 
 mf_title(txt = "Budget d’acquisition 2020 (en €)")
 
+# pas de bib dans la commune
+mf_symb(x =GEOFLA_COMMUNE_2019_l93,
+        var ="BIB",
+        val_order=c("0","1"),
+        pch=c(4,26), #26 to 31 are unassigned and that does not work with NA
+        col="black",
+        leg_pos=NA,
+        add=TRUE)
 
 mf_map(x=GEOFLA_EPCI91_2019_l93,
        col=NA,
