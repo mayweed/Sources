@@ -1,7 +1,6 @@
 library("sf")
 library("mapsf")
 library("readxl")
-library("cartography")
 
 #get everything 
 load("/home/guillaume/DONNEES_R/GEOFLA_2019_l93.RData")
@@ -24,39 +23,17 @@ x11() #use windows() or quartz() for mac
 
 mf_init(GEOFLA_COMMUNE_2019_l93,expandBB=c(0,0.15,0,0))
 
-#mf_background("/home/guillaume/Desktop/INET/STAGES/Stage_pro/ESSONNE/CARTES_DIAG/fondEssonne.png")
-
 mf_map(x=GEOFLA_DEP_2019_l93[GEOFLA_DEP_2019_l93$CODE_DEPT == 91,],
        col=NA,
        border="black",
        add=TRUE,
        lwd=3)
 
-#GEOFLA_COMMUNE_2019_l93$pretstypo <- cut(GEOFLA_COMMUNE_2019_l93$PRETS,
- #                                        breaks=c(0,1000,5000,10000,50000,100000,250000),
- #                                        labels=c("0-1000","1000-5000","5000-10000","10000-50000","50000-100000","> 100000"),
- #                                        include.lowest=TRUE)
-
-# http://www.sthda.com/french/wiki/couleurs-dans-r
-#mf_map(x=GEOFLA_COMMUNE_2019_l93,
-#       var="pretstypo",
-#       type="typo",
-#       #breaks=c(0,1000,5000,10000,50000,100000,250000),
-#       val_order=c("0-1000","1000-5000","5000-10000","10000-50000","50000-100000","> 100000"),
-#       pal= c("red","orange","yellow","lightblue","#00CC33","green"),
-#       leg_no_data="Données non communiquées",
-#       leg_pos= "topleft", #NA, #waiting for a solution
-#       leg_title="Prêts",
-#       leg_frame = TRUE,
-#       add=TRUE,
-#       lwd=2
-#)
 mf_choro(x=GEOFLA_COMMUNE_2019_l93,
          var="RATIO",
+         leg_title = "Taux d’emprunt par habitant",
          leg_no_data="Données non communiquées",
          add=T)
-
-mf_title(txt = "Nombre de prêts par commune")
 
 # pas de bib dans la commune
 mf_typo(x = villeSansBib,
@@ -70,6 +47,18 @@ mf_map(x=GEOFLA_EPCI91_2019_l93,
        border="black",
        add=TRUE,
        lwd=5)
+
+mf_map(x=GEOFLA_COMMUNE_2019_l93,
+       var="PRETS",
+       type="prop",
+       inches=.20,
+       col="yellow",
+       symbol="circle",
+       leg_pos="bottomright",
+       leg_title="Nombre de prêts par bib.",
+       add=T)
+
+mf_title(txt = "Prêts par bibliothèque et taux d’emprunt/hab.")
 
 mf_credits(txt="Données issues du rapport SCRIB 2020")
 
