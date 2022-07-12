@@ -16,31 +16,16 @@ bibC <- st_transform(st_read("/home/guillaume/SHP/adresses-des-bibliotheques-pub
 
 bib91 <- bibC[bibC$dept == 91,] 
 
-com91 <- GEOFLA_DEP_2019_l93[GEOFLA_DEP_2019_l93$CODE_DEPT == 91,]
-
-biblio91 <- com91 %>%
- st_intersection(bib91)
-
-biblio91 <- merge(biblio91,
-                  bibT,
-                  by.x="insee",
-                  by.y="INSEE_COM",
-                  all.x=TRUE)
+dep91 <- GEOFLA_DEP_2019_l93[GEOFLA_DEP_2019_l93$CODE_DEPT == 91,]
 
 x11()
 
-mf_init(com91)
-mf_typo(x=biblio91,
-        var="TRANSFERT",
-        pal = c("pink","lightgreen","lightblue"),
-        val_order=c("Non-transférée","Transférée","Bib. associative"),
-        leg_pos="bottomright",
-        leg_title="Statut des bibs",
-        leg_frame = TRUE,
-        leg_no_data = "Pas de données",
-        add=TRUE
-)
+plot(st_geometry(dep91))
+#plot(st_geometry(bib91),add=T)
 
+plot(st_geometry(GEOFLA_COMMUNE_2019_l93),add=T)
+buff <- st_buffer(bib91,5000)
+plot(st_geometry(buff),add=T)
  #ggplot() +
  # geom_sf(data = com91, colour = "grey20") +
  # geom_sf(data = biblio91,
@@ -49,3 +34,4 @@ mf_typo(x=biblio91,
 #mf_map(com91,
  #      lwd=3,
   #     add=TRUE)
+locator(1)

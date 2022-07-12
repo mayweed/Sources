@@ -1,7 +1,6 @@
 library("sf")
 library("mapsf")
 library("readxl")
-library("maptiles")
 
 #get everything 
 load("/home/guillaume/DONNEES_R/GEOFLA_2019_l93.RData")
@@ -29,22 +28,10 @@ GEOFLA_COMMUNE_2019_l93 <- merge(GEOFLA_COMMUNE_2019_l93,
 
 x11() #use windows() or quartz() for mac
 
-#pdf(file="/home/guillaume/carteBudget.pdf",
-#    width=8,
-#    height=12,
-#    paper="a4") 
-
 
 mf_init(GEOFLA_COMMUNE_2019_l93)
 
 #mf_background("/home/guillaume/Desktop/INET/STAGES/Stage_pro/ESSONNE/CARTES_DIAG/fondEssonne.png")
-# ,q='https://tile.openstreetmap.org/${z}/${x}/${y}.png')
-# https://rdrr.io/cran/maptiles/man/get_tiles.html
-# OKI : this is epsg 2154 we need 3857
-# cf https://github.com/riatelab/maptiles/issues/5#issuecomment-810237958
-#com3857 <- st_transform(GEOFLA_COMMUNE_2019_l93,3857)
-#tiles3857 <- get_tiles(x=com3857,zoom=10)
-#plot_tiles(tiles3857,add=TRUE)
 
 mf_map(x=GEOFLA_DEP_2019_l93[GEOFLA_DEP_2019_l93$CODE_DEPT == 91,],
        col=NA,
@@ -56,8 +43,17 @@ mf_map(x=GEOFLA_DEP_2019_l93[GEOFLA_DEP_2019_l93$CODE_DEPT == 91,],
 mf_map(x=GEOFLA_COMMUNE_2019_l93,
        col=NA,
        add=TRUE,
-       lwd=2
-)
+       lwd=2)
+
+# pas de bib dans la commune
+mf_typo(x =GEOFLA_COMMUNE_2019_l93,
+        var ="BIB",
+        val_order=c("0","1"),
+        #pch=c(4,26), #26 to 31 are unassigned and that does not work with NA
+        pal=c("lightgrey","white"),
+        col="black",
+        leg_pos=NA,
+        add=TRUE)
 
 mf_prop_choro(
   x = GEOFLA_COMMUNE_2019_l93, var = c("BUDGET", "RATIO"), inches = .18, 
@@ -72,14 +68,6 @@ mf_prop_choro(
 
 mf_title(txt = "Budget d’acquisition 2020 (en €)")
 
-# pas de bib dans la commune
-mf_symb(x =GEOFLA_COMMUNE_2019_l93,
-        var ="BIB",
-        val_order=c("0","1"),
-        pch=c(4,26), #26 to 31 are unassigned and that does not work with NA
-        col="black",
-        leg_pos=NA,
-        add=TRUE)
 
 mf_map(x=GEOFLA_EPCI91_2019_l93,
        col=NA,
@@ -88,9 +76,5 @@ mf_map(x=GEOFLA_EPCI91_2019_l93,
        lwd=3)
 
 mf_credits(txt="Données issues du rapport SCRIB 2020")
-
-# pour pdf
-#dev.off()
-
 #wait please!!
 locator(1)
