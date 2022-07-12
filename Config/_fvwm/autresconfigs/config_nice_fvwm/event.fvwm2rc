@@ -1,7 +1,0 @@
-####
-# Configuration de FvwmEvent
-####################
-DestroyModuleConfig FvwmEvent: *
-*FvwmEvent: new_desk ChangeDeskFunc
-*FvwmEvent: deiconify DeThumbnail
-

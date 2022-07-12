@@ -1,7 +1,0 @@
-####
-# Configuration de FvwmIdent
-####################
-DestroyModuleConfig FvwmIdent: *
-*FvwmIdent: Fore black
-*FvwmIdent: Back white
-*FvwmIdent: Font "xft:Bitstream Vera Sans:size=8:style=Roman:rgba=rgb:antialias=True"
