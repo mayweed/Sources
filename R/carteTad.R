@@ -1,7 +1,6 @@
 library("sf")
 library("mapsf")
 library("readxl")
-library("cartography")
 
 #get everything 
 load("/home/guillaume/DONNEES_R/GEOFLA_2019_l93.RData")
@@ -28,9 +27,11 @@ mf_map(x=GEOFLA_EPCI91_2019_l93,
        add=TRUE,
        lwd=3)
 
+#mf_label(x=GEOFLA_EPCI91_2019_l93,
+#         var="EPCI",
+#         col="black")
+
 mf_title(txt = "Les territoires d’action départementale de la MDE")
-
-
 
 #wait please!!
 locator(1)
