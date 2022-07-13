@@ -66,13 +66,15 @@ mf_legend_t(pal = c("pink","lightgreen","lightblue","orange","lightgrey"),
             title="Statut des bibs")
 
 # pch_na look at : http://www.sthda.com/french/wiki/les-differents-types-de-points-dans-r-comment-utiliser-pch
-mf_symb(
-  x =GEOFLA_COMMUNE_2019_l93, var ="TYPOLOGIE", pch = c(21), pal = c("red","yellow", "tan1", "#990066","white"),
-  border = "grey20", cex = c(1.5, 1, .9,.7,.5), lwd = .5,
-  val_order = c("B1", "B2", "B3","B4","B5"),
-  leg_pos = "topleft",
-  leg_title = "Typologie des bibs"
-)
+mf_symb(x =GEOFLA_COMMUNE_2019_l93, 
+        var ="TYPOLOGIE", 
+        val_order = c("B1", "B2", "B3","B4","B5"),
+        pal = c("red","yellow", "tan1", "#990066","white"),
+        pch = c(21), 
+        border = "grey20", cex = c(1.5, 1, .9,.7,.5), lwd = .5,
+        leg_pos = "topleft",
+        leg_title = "Typologie des bibs",
+        leg_no_data="Pas de données communiquées")
 
 mf_title(txt = "Réseau de lecture publique du département de l’Essonne")
 
