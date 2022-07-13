@@ -61,7 +61,7 @@ mf_title(txt = "Budget d’acquisition 2020 (en €)")
 
 mf_legend_t(val = "Pas de bib.",pal="lightgrey",pos="topright",title=NA)
 
-mf_credits(txt="Réalisation: MDE - Données issues du rapport SCRIB 2020",pos="rightbottom")
+mf_credits(txt="Réalisation: MDE - Données issues du rapport SCRIB 2020",pos="bottomleft")
 
 #wait please!!
 locator(1)

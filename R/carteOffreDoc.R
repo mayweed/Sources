@@ -73,7 +73,7 @@ mf_map(x=GEOFLA_EPCI91_2019_l93,
        add=TRUE,
        lwd=3)
 
-mf_credits(txt="Réalisation: MDE - Données issues du rapport SCRIB 2020",pos="rightbottom")
+mf_credits(txt="Réalisation: MDE - Données issues du rapport SCRIB 2020",pos="bottomleft")
 
 # pour pdf
 #dev.off()

@@ -11,6 +11,8 @@ load("/home/guillaume/DONNEES_R/GEOFLA_2019_l93.RData")
 bibT <- read_excel(path="/home/guillaume/DONNEES_R/USAGERS_TX.xlsx", sheet=1,
                    col_names=TRUE)
 
+villeSansBib <- st_read("/home/guillaume/SHP/villeSansBib.shp")
+
 #all is very important for NA!!
 GEOFLA_COMMUNE_2019_l93 <- merge(GEOFLA_COMMUNE_2019_l93,
                                  bibT,
@@ -21,15 +23,6 @@ GEOFLA_COMMUNE_2019_l93 <- merge(GEOFLA_COMMUNE_2019_l93,
 x11() #use windows() or quartz() for mac
 
 mf_init(GEOFLA_COMMUNE_2019_l93)
-
-#mf_background("/home/guillaume/Desktop/INET/STAGES/Stage_pro/ESSONNE/CARTES_DIAG/fondEssonne.png")
-# ,q='https://tile.openstreetmap.org/${z}/${x}/${y}.png')
-# https://rdrr.io/cran/maptiles/man/get_tiles.html
-# OKI : this is epsg 2154 we need 3857
-# cf https://github.com/riatelab/maptiles/issues/5#issuecomment-810237958
-#com3857 <- st_transform(GEOFLA_COMMUNE_2019_l93,3857)
-#tiles3857 <- get_tiles(x=com3857,zoom=10)
-#plot_tiles(tiles3857,add=TRUE)
 
 mf_map(x=GEOFLA_DEP_2019_l93[GEOFLA_DEP_2019_l93$CODE_DEPT == 91,],
        col=NA,
@@ -51,12 +44,18 @@ mf_prop_choro(
   leg_pos = c("bottomright", "topleft"),
   leg_title = c("Inscrits/bibliothèque", "Taux/habitant"),
   leg_no_data = "Données non communiquées",
-  leg_frame = c(TRUE, TRUE),
   add = TRUE
 )
 
 mf_title(txt = "Inscrits par commune")
 
+mf_typo(x=villeSansBib,
+        var="INSEE_COM",
+        pal="lightgrey",
+        leg_pos=NA,
+        add=T)
+
+mf_legend_t(val= "Pas de bib.",pal="lightgrey",pos="topright",title=NA)
 
 mf_map(x=GEOFLA_EPCI91_2019_l93,
        col=NA,
@@ -64,7 +63,7 @@ mf_map(x=GEOFLA_EPCI91_2019_l93,
        add=TRUE,
        lwd=3)
 
-mf_credits(txt="Réalisation: MDE - Données issues du rapport SCRIB 2020",pos="rightbottom")
+mf_credits(txt="Réalisation: MDE - Données issues du rapport SCRIB 2020",pos="bottomleft")
 
 # EXPORT
 #png("txusagers.png")

@@ -72,7 +72,7 @@ mf_symb(x =GEOFLA_COMMUNE_2019_l93,
         pch = c(21), 
         border = "grey20", cex = c(1.5, 1, .9,.7,.5), lwd = .5,
         leg_pos = "topleft",
-        leg_title = "Typologie des bibs",
+        leg_title = NA,
         leg_no_data="Pas de données")
 
 mf_title(txt = "Typologie du réseau de lecture publique de l’Essonne")
@@ -84,7 +84,7 @@ mf_map(x=GEOFLA_EPCI91_2019_l93,
        add=TRUE,
        lwd=3)
 
-mf_credits(txt="Réalisation: MDE - Données issues du rapport SCRIB 2020",pos="rightbottom")
+mf_credits(txt="Réalisation: MDE - Données issues du rapport SCRIB 2020",pos="bottomleft")
 
 #wait please!!
 locator(1)

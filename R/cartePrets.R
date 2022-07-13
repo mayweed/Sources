@@ -60,7 +60,7 @@ mf_map(x=GEOFLA_COMMUNE_2019_l93,
 
 mf_title(txt = "Prêts par bibliothèque et taux d’emprunt/hab.")
 
-mf_credits(txt="Réalisation: MDE - Données issues du rapport SCRIB 2020",pos="rightbottom")
+mf_credits(txt="Réalisation: MDE - Données issues du rapport SCRIB 2020",pos="bottomleft")
 
 # pour pdf
 #dev.off()
