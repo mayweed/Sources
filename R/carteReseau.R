@@ -25,7 +25,6 @@ GEOFLA_COMMUNE_2019_l93 <- merge(GEOFLA_COMMUNE_2019_l93,
                                  all.x=TRUE)
 
 x11() #use windows() or quartz() for mac
-
 mf_map(x=GEOFLA_DEP_2019_l93[GEOFLA_DEP_2019_l93$CODE_DEPT == 91,],
      border="black",
      lwd=3)
@@ -61,9 +60,9 @@ mf_typo(x=villeSansBib,
         add=TRUE)
 
 mf_legend_t(pal = c("pink","lightgreen","lightblue","orange","lightgrey"),
-            val=c("Non-transférée","Transférée","Bib. associative","Bib. Tiers-lieu", "Pas de bibliothèque"),
+            val=c("Bib. non-transférée","bib. transférée","Bib. associative","Bib. Tiers-lieu", "Pas de bibliothèque"),
             pos="bottomright",
-            title="Statut des bibs")
+            title=NA ) #"Statut des bibs")
 
 # pch_na look at : http://www.sthda.com/french/wiki/les-differents-types-de-points-dans-r-comment-utiliser-pch
 mf_symb(x =GEOFLA_COMMUNE_2019_l93, 
@@ -74,9 +73,9 @@ mf_symb(x =GEOFLA_COMMUNE_2019_l93,
         border = "grey20", cex = c(1.5, 1, .9,.7,.5), lwd = .5,
         leg_pos = "topleft",
         leg_title = "Typologie des bibs",
-        leg_no_data="Pas de données communiquées")
+        leg_no_data="Pas de données")
 
-mf_title(txt = "Réseau de lecture publique du département de l’Essonne")
+mf_title(txt = "Typologie du réseau de lecture publique de l’Essonne")
 
 
 mf_map(x=GEOFLA_EPCI91_2019_l93,
@@ -85,7 +84,7 @@ mf_map(x=GEOFLA_EPCI91_2019_l93,
        add=TRUE,
        lwd=3)
 
-mf_credits(txt="Données issues du rapport SCRIB 2020")
+mf_credits(txt="Réalisation: MDE - Données issues du rapport SCRIB 2020",pos="rightbottom")
 
 #wait please!!
 locator(1)

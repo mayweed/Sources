@@ -40,7 +40,7 @@ mf_typo(x = bibAssoc,
         leg_pos=NA,
         add=TRUE)
 
-mf_legend_t(title = "Bibliothèque",val = c("Pas de bib.", "Bib. associative"), pal = c("lightgrey", "lightblue"))
+mf_legend_t(title = NA,val = c("Pas de bib.", "Bib. associative"), pal = c("lightgrey", "lightblue"))
 
 mf_map(x=GEOFLA_DEP_2019_l93[GEOFLA_DEP_2019_l93$CODE_DEPT == 91,],
        col=NA,
@@ -62,7 +62,6 @@ mf_prop_choro(
   leg_pos = c("bottomright", "topleft"),
   leg_title = c("Nombre de documents/bibliothèque", "Nombre de documents/habitant"),
   leg_no_data = "Données non communiquées",
-#  leg_frame = c(TRUE, TRUE),
   add = TRUE
 )
 
@@ -74,7 +73,7 @@ mf_map(x=GEOFLA_EPCI91_2019_l93,
        add=TRUE,
        lwd=3)
 
-mf_credits(txt="Données issues du rapport SCRIB 2020")
+mf_credits(txt="Réalisation: MDE - Données issues du rapport SCRIB 2020",pos="rightbottom")
 
 # pour pdf
 #dev.off()

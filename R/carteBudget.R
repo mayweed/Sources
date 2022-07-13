@@ -59,7 +59,9 @@ mf_prop_choro(
 
 mf_title(txt = "Budget d’acquisition 2020 (en €)")
 
-mf_credits(txt="Données issues du rapport SCRIB 2020")
+mf_legend_t(val = "Pas de bib.",pal="lightgrey",pos="topright",title=NA)
+
+mf_credits(txt="Réalisation: MDE - Données issues du rapport SCRIB 2020",pos="rightbottom")
 
 #wait please!!
 locator(1)

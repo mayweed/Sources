@@ -71,7 +71,7 @@ mf_legend_t(title="Présence de bénévoles",pos="bottomright",
 
 mf_title(txt = "Personnel dans les bibliothèques")
 
-mf_credits(txt="Données issues du rapport SCRIB 2020")
+mf_credits(txt="Réalisation: MDE - Données issues du rapport SCRIB 2020",pos="rightbottom")
 
 # pour pdf
 #dev.off()
