@@ -6,7 +6,7 @@ library("readxl")
 load("/home/guillaume/DONNEES_R/GEOFLA_2019_l93.RData")
 
 #xls : add data
-bibPrets <- read_excel(path="/home/guillaume/DONNEES_R/PRETS_POP.xlsx",
+bibPrets <- read_excel(path="/home/guillaume/DONNEES_R/BIB_HORAIRES.xlsx",
                    sheet=1,
                    col_names=TRUE)
 
@@ -29,11 +29,14 @@ mf_map(x=GEOFLA_DEP_2019_l93[GEOFLA_DEP_2019_l93$CODE_DEPT == 91,],
        add=TRUE,
        lwd=3)
 
-mf_choro(x=GEOFLA_COMMUNE_2019_l93,
-         var="RATIO",
-         leg_title = "Taux d’emprunt par habitant",
-         leg_no_data="Données non communiquées",
-         add=T)
+mf_map(x=GEOFLA_COMMUNE_2019_l93,
+       col=NA,
+       add=T)
+#mf_choro(x=GEOFLA_COMMUNE_2019_l93,
+#         var="RATIO",
+#         leg_title = "Taux d’emprunt par habitant",
+#         leg_no_data="Données non communiquées",
+#         add=T)
 
 # pas de bib dans la commune
 mf_typo(x = villeSansBib,
@@ -49,16 +52,16 @@ mf_map(x=GEOFLA_EPCI91_2019_l93,
        lwd=5)
 
 mf_map(x=GEOFLA_COMMUNE_2019_l93,
-       var="PRETS",
+       var="SEM",
        type="prop",
        inches=.20,
        col="yellow",
        symbol="circle",
        leg_pos="bottomright",
-       leg_title="Nombre de prêts par bib.",
+       leg_title="Nombre d’heures d’ouverture par bib.",
        add=T)
 
-mf_title(txt = "Prêts par bibliothèque et taux d’emprunt/hab. (hors collectivités)")
+mf_title(txt = "Heures d’ouverture par bibliothèque")
 
 mf_credits(txt="Réalisation: MDE - Données issues du rapport SCRIB 2020",pos="bottomleft")
 
