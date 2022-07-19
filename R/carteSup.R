@@ -1,18 +1,19 @@
 library("sf")
 library("mapsf")
 library("readxl")
+library("png")
 
 #get everything 
 load("/home/guillaume/DONNEES_R/GEOFLA_2019_l93.RData")
 
 #xls : add data
-bibPrets <- read_excel(path="/home/guillaume/DONNEES_R/BIB_HORAIRES.xlsx",
+bibSup <- read_excel(path="/home/guillaume/DONNEES_R/BIB_SUPERFICIE.xlsx",
                    sheet=1,
                    col_names=TRUE)
 
 #all is very important for NA!!
 GEOFLA_COMMUNE_2019_l93 <- merge(GEOFLA_COMMUNE_2019_l93,
-                                 bibPrets,
+                                 bibSup,
                                  by.x="INSEE_COM",
                                  by.y="INSEE_COM",
                                  all.x=TRUE)
@@ -20,8 +21,11 @@ GEOFLA_COMMUNE_2019_l93 <- merge(GEOFLA_COMMUNE_2019_l93,
 villeSansBib <- st_read("/home/guillaume/SHP/villeSansBib.shp")
 
 x11() #use windows() or quartz() for mac
+#png("/home/guillaume/Desktop/INET/STAGES/Stage_pro/ESSONNE/CARTES_DIAG/carteSup.png",width=800,height=800,res=100)
 
-mf_init(GEOFLA_COMMUNE_2019_l93,expandBB=c(0,0.15,0,0))
+target <- GEOFLA_EPCI91_2019_l93[9,]
+mf_init(target)
+#mf_init(GEOFLA_COMMUNE_2019_l93,expandBB=c(0,0.15,0,0))
 
 mf_map(x=GEOFLA_DEP_2019_l93[GEOFLA_DEP_2019_l93$CODE_DEPT == 91,],
        col=NA,
@@ -29,14 +33,12 @@ mf_map(x=GEOFLA_DEP_2019_l93[GEOFLA_DEP_2019_l93$CODE_DEPT == 91,],
        add=TRUE,
        lwd=3)
 
-mf_map(x=GEOFLA_COMMUNE_2019_l93,
-       col=NA,
-       add=T)
-#mf_choro(x=GEOFLA_COMMUNE_2019_l93,
-#         var="RATIO",
-#         leg_title = "Taux d’emprunt par habitant",
-#         leg_no_data="Données non communiquées",
-#         add=T)
+mf_choro(x=GEOFLA_COMMUNE_2019_l93,
+         var="RATIO",
+         pal="Sunset",
+         leg_title = "Superficie par habitant",
+         leg_no_data="Données non communiquées",
+         add=T)
 
 # pas de bib dans la commune
 mf_typo(x = villeSansBib,
@@ -52,16 +54,16 @@ mf_map(x=GEOFLA_EPCI91_2019_l93,
        lwd=5)
 
 mf_map(x=GEOFLA_COMMUNE_2019_l93,
-       var="SEM",
+       var="SUP",
        type="prop",
-       inches=.15,
-       col="yellow",
+       inches=.20,
+       col="lightblue",
        symbol="circle",
-       leg_pos="topleft",
-       leg_title="Nombre d’heures d’ouverture par bib.",
+       leg_pos="bottomright",
+       leg_title="Superficie bib./commune",
        add=T)
 
-mf_title(txt = "Heures d’ouverture par bibliothèque")
+mf_title(txt = "Superficie des bib. par commune et superficie/hab.")
 
 mf_credits(txt="Réalisation: MDE - Données issues du rapport SCRIB 2020",pos="bottomleft")
 
