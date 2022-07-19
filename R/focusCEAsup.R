@@ -20,6 +20,9 @@ library("png")
 #12        91  ESSONNE     CC Entre Juine et Renarde  Sud-Ouest
 #13        91  ESSONNE           CC des Deux Vallées    Sud-Est
 
+# ttes les communes de cea
+# GEOFLA_COMMUNE_2019_l93[GEOFLA_COMMUNE_2019_l93$EPCI == "200057859",]
+
 #get everything 
 load("/home/guillaume/DONNEES_R/GEOFLA_2019_l93.RData")
 
@@ -38,39 +41,38 @@ GEOFLA_COMMUNE_2019_l93 <- merge(GEOFLA_COMMUNE_2019_l93,
 villeSansBib <- st_read("/home/guillaume/SHP/villeSansBib.shp")
 
 x11() #use windows() or quartz() for mac
-png("/home/guillaume/Desktop/INET/STAGES/Stage_pro/ESSONNE/CARTES_DIAG/focusCEA.png",width=1366,height=800,res=100)
+png("/home/guillaume/Desktop/INET/STAGES/Stage_pro/ESSONNE/CARTES_DIAG/focusCEAtest.png",width=800,height=800,res=100)
 
 target <- GEOFLA_EPCI91_2019_l93[9,]
 mf_init(target,expandBB=c(0,0.15,0,0))
 
-mf_map(x=GEOFLA_DEP_2019_l93[GEOFLA_DEP_2019_l93$CODE_DEPT == 91,],
-       col=NA,
-       border="black",
-       add=TRUE,
-       lwd=3)
+#mf_map(x=GEOFLA_DEP_2019_l93[GEOFLA_DEP_2019_l93$CODE_DEPT == 91,],
+#       col=NA,
+#       border="black",
+#       add=TRUE,
+#       lwd=3)
 
-mf_choro(x= GEOFLA_COMMUNE_2019_l93,
+mf_choro(x= GEOFLA_COMMUNE_2019_l93[GEOFLA_COMMUNE_2019_l93$EPCI == "200057859",],
          var="RATIO",
          pal="Sunset",
-         leg_pos=NA,
-         #leg_title = "Superficie par habitant",
-         #leg_no_data="Données non communiquées",
+         leg_title = "Superficie par habitant",
+         leg_no_data="Données non communiquées",
          add=T)
 
 # pas de bib dans la commune
-mf_typo(x = villeSansBib,
-        var ="INSEE_COM",
-        pal= "lightgrey",
-        leg_pos=NA,
-        add=TRUE)
+#mf_typo(x = villeSansBib,
+ #       var ="INSEE_COM",
+ ##       pal= "lightgrey",
+  #      leg_pos=NA,
+   #     add=TRUE)
 
-mf_map(x=GEOFLA_EPCI91_2019_l93,
-       col=NA,
-       border="black",
-       add=TRUE,
-       lwd=5)
+#mf_map(x=GEOFLA_EPCI91_2019_l93,
+#       col=NA,
+#       border="black",
+#       add=TRUE,
+#       lwd=5)
 
-mf_map(x=GEOFLA_COMMUNE_2019_l93,
+mf_map(x= GEOFLA_COMMUNE_2019_l93[GEOFLA_COMMUNE_2019_l93$EPCI == "200057859",],
        var="SUP",
        type="prop",
        inches=.20,
