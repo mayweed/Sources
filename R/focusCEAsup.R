@@ -38,9 +38,9 @@ GEOFLA_COMMUNE_2019_l93 <- merge(GEOFLA_COMMUNE_2019_l93,
 villeSansBib <- st_read("/home/guillaume/SHP/villeSansBib.shp")
 
 x11() #use windows() or quartz() for mac
-png("/home/guillaume/Desktop/INET/STAGES/Stage_pro/ESSONNE/CARTES_DIAG/focusCPS.png",width=1366,height=800,res=100)
+png("/home/guillaume/Desktop/INET/STAGES/Stage_pro/ESSONNE/CARTES_DIAG/focusCEA.png",width=1366,height=800,res=100)
 
-target <- GEOFLA_EPCI91_2019_l93[1,]
+target <- GEOFLA_EPCI91_2019_l93[9,]
 mf_init(target,expandBB=c(0,0.15,0,0))
 
 mf_map(x=GEOFLA_DEP_2019_l93[GEOFLA_DEP_2019_l93$CODE_DEPT == 91,],
@@ -52,8 +52,9 @@ mf_map(x=GEOFLA_DEP_2019_l93[GEOFLA_DEP_2019_l93$CODE_DEPT == 91,],
 mf_choro(x= GEOFLA_COMMUNE_2019_l93,
          var="RATIO",
          pal="Sunset",
-         leg_title = "Superficie par habitant",
-         leg_no_data="Données non communiquées",
+         leg_pos=NA,
+         #leg_title = "Superficie par habitant",
+         #leg_no_data="Données non communiquées",
          add=T)
 
 # pas de bib dans la commune
@@ -75,7 +76,7 @@ mf_map(x=GEOFLA_COMMUNE_2019_l93,
        inches=.20,
        col="lightblue",
        symbol="circle",
-       leg_pos="topright",
+       leg_pos="bottomright",
        leg_title="Superficie bib./commune",
        add=T)
 
