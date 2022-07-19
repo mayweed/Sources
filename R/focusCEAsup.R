@@ -41,7 +41,7 @@ GEOFLA_COMMUNE_2019_l93 <- merge(GEOFLA_COMMUNE_2019_l93,
 villeSansBib <- st_read("/home/guillaume/SHP/villeSansBib.shp")
 
 x11() #use windows() or quartz() for mac
-png("/home/guillaume/Desktop/INET/STAGES/Stage_pro/ESSONNE/CARTES_DIAG/focusCEAtest.png",width=800,height=800,res=100)
+png("/home/guillaume/Desktop/INET/STAGES/Stage_pro/ESSONNE/CARTES_DIAG/focusCEA.png",width=800,height=800,res=100)
 
 target <- GEOFLA_EPCI91_2019_l93[9,]
 mf_init(target,expandBB=c(0,0.15,0,0))
@@ -66,11 +66,11 @@ mf_choro(x= GEOFLA_COMMUNE_2019_l93[GEOFLA_COMMUNE_2019_l93$EPCI == "200057859",
   #      leg_pos=NA,
    #     add=TRUE)
 
-#mf_map(x=GEOFLA_EPCI91_2019_l93,
-#       col=NA,
-#       border="black",
-#       add=TRUE,
-#       lwd=5)
+mf_map(x=GEOFLA_EPCI91_2019_l93[9,],
+       col=NA,
+       border="black",
+       add=TRUE,
+       lwd=5)
 
 mf_map(x= GEOFLA_COMMUNE_2019_l93[GEOFLA_COMMUNE_2019_l93$EPCI == "200057859",],
        var="SUP",
