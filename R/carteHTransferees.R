@@ -67,11 +67,11 @@ mf_map(x=GEOFLA_EPCI91_2019_l93,
        lwd=5)
 
 
-mf_title(txt = "Nombre d’heures d’ouverture par semaine")
+mf_title(txt = "Nombre d’heures d’ouverture par semaine des bibs transférées")
 
 mf_credits(txt="Réalisation: MDE - Données issues du rapport SCRIB 2020",pos="bottomleft")
 
-mf_legend_t(title = NA,val = c("Bib. non transférée","Pas de bib."), pal = c("lightblue","lightgrey")
+mf_legend_t(title = NA,val = c("Bib. non transférée","Pas de bib."), pal = c("lightblue","lightgrey"))
 
 # pour pdf
 dev.off()
