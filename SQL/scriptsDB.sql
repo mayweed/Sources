@@ -1,6 +1,7 @@
 --# mysql --local-infile -u root 
 --LOAD DATA LOCAL INFILE '/home/guillaume/cc.csv' INTO TABLE comcom FIELDS TERMINATED
 --BY ';'LINE TERMINATED BY '\n\r'; 
+--mysqldump -u root -p SLL_MDE > backupDBMDE.sql
 
 create database SLL_MDE; 
 --default character set utf8 ?
