@@ -6,7 +6,7 @@ library("readxl")
 load("/home/guillaume/DONNEES_R/GEOFLA_2019_l93.RData")
 
 #xls : search for ods
-bibT <- read_excel(path="/home/guillaume/DONNEES_R/BIB_SIGB.xlsx",
+bibT <- read_excel(path="/home/guillaume/Desktop/CPS/STATS_NAVETTE.xlsx",
                    sheet=1,
                    col_names=TRUE)
 
@@ -19,7 +19,7 @@ GEOFLA_COMMUNE_2019_l93 <- merge(GEOFLA_COMMUNE_2019_l93,
 
 x11() #use windows() or quartz() for mac
 
-png("/home/guillaume/Desktop/INET/STAGES/Stage_pro/ESSONNE/CARTES_DIAG/focusSigbCPS.png",width=800,height=800,res=100)
+png("/home/guillaume/Desktop/CPS/focusSigbCPS.png",width=800,height=800,res=100)
 
 target <- GEOFLA_EPCI91_2019_l93[1,]
 mf_init(target,expandBB=c(0,0.15,0,0))
@@ -36,7 +36,6 @@ mf_typo(x= GEOFLA_COMMUNE_2019_l93[ GEOFLA_COMMUNE_2019_l93$EPCI == "200056232",
 
 mf_label(x=GEOFLA_COMMUNE_2019_l93[ GEOFLA_COMMUNE_2019_l93$EPCI == "200056232",] ,
          var="LIBGEO",
-         #TODO:changer cette police et la mettre en plus gros
          overlap=FALSE)
 
 mf_title(txt = "Liste des SIGB utilisés - CPS")
@@ -48,7 +47,7 @@ mf_map(x=GEOFLA_EPCI91_2019_l93[1,],
        add=TRUE,
        lwd=3)
 
-mf_credits(txt="Réalisation: MDE - Données issues du rapport SCRIB 2020",pos="rightbottom")
+mf_credits(txt="Réalisation: G. Raimondeau - Données internes",pos="rightbottom")
 
 # pour pdf
 dev.off()
