@@ -27,8 +27,8 @@ mf_init(target,expandBB=c(0,0.15,0,0))
 # http://www.sthda.com/french/wiki/couleurs-dans-r
 mf_typo(x= GEOFLA_COMMUNE_2019_l93[ GEOFLA_COMMUNE_2019_l93$EPCI == "200056232",] ,
         var="SIGB",
-        pal = c("#00FFCC","yellow","blue","#CC6600","#FF0033","purple","lightgrey","#FF99FF","#669933"),
-        val_order=c("Orphée NX","PMB","Syracuse","Orphée.net 3.3","SIGB DECALOG","BiblixNet","Paprika CS2","Registar AMJ 3.98","Agate 2.02"),
+        pal = c("#00FFCC","yellow","blue","#CC6600","#FF0033","purple","lightgrey","#669933"),
+        val_order=c("Orphée NX","PMB","Syracuse","Orphée.net 3.3","SIGB DECALOG","BiblixNet","Paprika CS2","Agate 2.02"),
         leg_title=NA,
         leg_pos= "topleft",
         leg_no_data = "Non communiqué",
@@ -39,7 +39,7 @@ mf_label(x=GEOFLA_COMMUNE_2019_l93[ GEOFLA_COMMUNE_2019_l93$EPCI == "200056232",
          #TODO:changer cette police et la mettre en plus gros
          overlap=FALSE)
 
-mf_title(txt = "Liste des SIGB utilisés - CPS")
+mf_title(txt = "Agglo’ Paris-Saclay - Système Informatisé de Gestion de Bibliothèques")
 
 
 mf_map(x=GEOFLA_EPCI91_2019_l93[1,],
@@ -48,7 +48,7 @@ mf_map(x=GEOFLA_EPCI91_2019_l93[1,],
        add=TRUE,
        lwd=3)
 
-mf_credits(txt="Réalisation: MDE - Données issues du rapport SCRIB 2020",pos="rightbottom")
+mf_credits(txt="Réalisation: G. Raimondeau - Agglo’ Paris-Saclay",pos="rightbottom")
 
 # pour pdf
 dev.off()
