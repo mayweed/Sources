@@ -1,7 +1,5 @@
 --# mysql --local-infile -u root 
---LOAD DATA LOCAL INFILE "C:\Users\Raimondeaug\Documents\CPS\SLL\DB\BIB_ID.csv" INTO TABLE bib FIELDS TERMINATED BY ';'LINES TERMINATED BY '\n\r'; 
---mysqldump -u root -p SLL_MDE > backupDBMDE.sql
-
+--LOAD DATA LOCAL INFILE "C:/Users/Raimondeaug/Documents/CPS/SLL/DB/BIB_ID.txt" INTO TABLE bib FIELDS TERMINATED BY '\t' LINES TERMINATED BY '\n';
 create database SLL_CPS_23; 
 
 use SLL_CPS_23;
@@ -21,7 +19,6 @@ create table if not exists bib (
 --update coordonnees2020 c join bib b on c.bibId=b.bibId set c.inseeCode=b.inseeCode;
 create table if not exists coordonnees (
     bibId smallint not null primary key auto_increment, 
-    A100 int,
     A101 varchar(100),
     A102 varchar(100),
     A103 varchar(50),
@@ -32,7 +29,6 @@ create table if not exists coordonnees (
     A108 varchar(100),
     A109 varchar(50),
     A112 int,
-    A113 int,
     A114 varchar(100),
     A115 varchar(100),
     A116 varchar(150),
