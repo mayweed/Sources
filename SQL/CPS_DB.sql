@@ -1,15 +1,12 @@
 --# mysql --local-infile -u root 
---LOAD DATA LOCAL INFILE '/home/guillaume/cc.csv' INTO TABLE comcom FIELDS TERMINATED
---BY ';'LINE TERMINATED BY '\n\r'; 
+--LOAD DATA LOCAL INFILE "C:\Users\Raimondeaug\Documents\CPS\SLL\DB\BIB_ID.csv" INTO TABLE bib FIELDS TERMINATED BY ';'LINES TERMINATED BY '\n\r'; 
 --mysqldump -u root -p SLL_MDE > backupDBMDE.sql
 
 create database SLL_CPS_23; 
---default character set utf8 ?
 
 use SLL_CPS_23;
 
 --alter table bib rename column cc to ccId;
---is this table really of use? cant i merge it with coordonnees?
 create table if not exists bib (
     bibId smallint primary key not null auto_increment,
     inseeCode int,
