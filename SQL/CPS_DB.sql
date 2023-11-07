@@ -12,33 +12,18 @@ use SLL_CPS_23;
 --is this table really of use? cant i merge it with coordonnees?
 create table if not exists bib (
     bibId smallint primary key not null auto_increment,
-    bibCode int,
     inseeCode int,
     ville varchar(150),
-    ccId smallint,
+    typoOld varchar(50),
+    typoNew varchar(50),
     -- 0 non transféré/1 transféré/2 associative
     transfert smallint);
-
-create table if not exists cc (
-    ccId smallint not null primary key auto_increment,
-    nom varchar (100),
-    nomComplet varchar(200),
-    tad varchar(5),
-    rural tinyint);
-
-create table if not exists code_ua(
-    code varchar(50) primary key not_null,
-    def text);
 
 --update coordonnees2021 join bib on bib.bibId=coordonnees2021.bibId set coordonnees2021.ccId=bib.cc;
 --insert into does not work…
 --update coordonnees2020 c join bib b on c.bibId=b.bibId set c.inseeCode=b.inseeCode;
 create table if not exists coordonnees (
     bibId smallint not null primary key auto_increment, 
-    ccId smallint,
-    typeRapport varchar(50),
-    avancement varchar(50),
-    typologie varchar(50),
     A100 int,
     A101 varchar(100),
     A102 varchar(100),
@@ -64,7 +49,6 @@ create table if not exists coordonnees (
 
 create table if not exists prets (
     bibId int primary key not null,
-    bibCode int,
     E201 mediumint,
     E202 mediumint,
     E203 mediumint,
@@ -109,7 +93,6 @@ create table if not exists prets (
     
 create table if not exists personnel (
     bibId smallint primary key,
-    bibCode int,
     G101 int,
     G102 double,
     G103 smallint,
@@ -152,7 +135,6 @@ create table if not exists personnel (
 
 create table if not exists budget (
     bibId smallint primary key,
-    bibCode int,
     F101 mediumint,
     F102 mediumint,
     F103 mediumint,
@@ -227,7 +209,6 @@ create table if not exists budget (
 
 create table if not exists usagers(
     bibId smallint primary key,
-    bibcode int,
     E101 smallint,
     E102 smallint,
     E103 smallint,
@@ -278,7 +259,6 @@ create table if not exists usagers(
 
 create table if not exists acces(
     bibId smallint primary key,
-    bibCode int,
     C101 smallint,
     C102 smallint,
     C103 smallint,
