@@ -76,8 +76,7 @@ create table if not exists acces(
     C309 varchar(5),
     C310 text); -- ce champ peut poser souci à l’import avec des \n dans ts les sens…
 
---REVOIR CETTE TABLE, TOO BIG
-create table if not exists docs (
+create table if not exists imprimes (
     bibId smallint primary key,
     D101 mediumint,
     D102 mediumint,
@@ -107,7 +106,10 @@ create table if not exists docs (
     D202 mediumint,
     D203 mediumint,
     D204 mediumint,
-    D211 mediumint,
+    D211 mediumint);
+
+create table if not exists ressourcesAutres (
+    bibId smallint primary key,
     D301 mediumint,
     D302 mediumint,
     D303 mediumint,
@@ -170,7 +172,10 @@ create table if not exists docs (
     D445 mediumint,
     D446 mediumint,
     D447 mediumint,
-    D448 mediumint,
+    D448 mediumint);
+
+create table if not exists ressourcesNum (
+    bibId smallint primary key,
     D520 varchar(150),
     D521 varchar(150),
     D522 varchar(150),
@@ -319,7 +324,6 @@ create table if not exists prets (
     E245 mediumint,
     E246 mediumint);
 
--- REVOIR CETTE TABLE, TOO BIG + VARCHAR()
  create table if not exists budget (
     bibId smallint primary key,
     F101 mediumint,
@@ -365,7 +369,10 @@ create table if not exists prets (
     F713 mediumint,
     F714 mediumint,
     F715 mediumint,
-    F716 mediumint,
+    F716 mediumint);
+
+create table if not exists achats (
+    bibId smallint primary key,
     F801 varchar(200),
     F802 varchar(200),
     F803 smallint,
