@@ -27,7 +27,7 @@ mf_init(target,expandBB=c(0,0.15,0,0))
 # http://www.sthda.com/french/wiki/couleurs-dans-r
 mf_typo(x= GEOFLA_COMMUNE_2019_l93[ GEOFLA_COMMUNE_2019_l93$EPCI == "200056232",] ,
         var="SIGB",
-        pal = c("#00FFCC","yellow","blue","#CC6600","#FF0033","purple","lightgrey","#669933"),
+        pal = c("#00FFCC","yellow","blue","#CC6600","#FF0033","purple","lightgrey","#669933","lightblue"),
         val_order=c("Orphée NX","PMB","Syracuse","Orphée.net 3.3","SIGB DECALOG","BiblixNet","Paprika CS2","Agate 2.02"),
         leg_title=NA,
         leg_pos= "topleft",

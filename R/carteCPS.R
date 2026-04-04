@@ -1,6 +1,7 @@
 library("sf")
 library("mapsf")
 library("readxl")
+library("ggpubr")
 
 #get everything 
 load("/home/guillaume/DONNEES_R/GEOFLA_2019_l93.RData")
