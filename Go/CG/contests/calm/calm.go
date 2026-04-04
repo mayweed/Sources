@@ -11,47 +11,59 @@ const (
 	HEIGHT = 7
 )
 
+// ---------------------- BASIC TYPES -------------------------
+
 type Cell struct {
-	x, y int
-	//what string
+	x, y int // x = colonne, y = ligne
 }
 
 type Table struct {
 	pos  Cell
 	item string
 }
+
 type Kitchen struct {
 	grid [HEIGHT][WIDTH]Cell
-	//crates
+
 	blueCrates  []Cell
 	iceCrates   []Cell
 	strawCrates []Cell
 	doughCrates []Cell
-	//tools
+
 	customerWindow Cell
 	dishwasher     Cell
 	choppingBoard  Cell
 	oven           Cell
-	//tables
+
 	dishTable []Table
 	bbTable   []Table
 	icTable   []Table
 }
+
 type Customer struct {
 	customerItem  string
 	customerAward int
 }
+
 type Chef struct {
-	pos Cell
-	//playeritem?
+	pos   Cell
 	items string
 }
+
 type State struct {
 	k            Kitchen
-	numCustomers int
 	c            []Customer
 	players      [2]Chef
+	numCustomers int
 }
+
+// ---------------------- HELPERS -------------------------
+
+func use(c Cell) string {
+	return fmt.Sprintf("USE %d %d", c.x, c.y)
+}
+
+// ---------------------- PARSING -------------------------
 
 func (s *State) parseKitchen() {
 	var kitchenLine string
@@ -59,9 +71,9 @@ func (s *State) parseKitchen() {
 		fmt.Scan(&kitchenLine)
 		kl := strings.Split(kitchenLine, "")
 		for x, c := range kl {
-			s.k.grid[y][x].x = x
-			s.k.grid[y][x].y = y
-			//k.grid[y][x].what = c
+
+			s.k.grid[y][x] = Cell{x, y}
+
 			switch c {
 			case "B":
 				s.k.blueCrates = append(s.k.blueCrates, s.k.grid[y][x])
@@ -82,30 +94,39 @@ func (s *State) parseKitchen() {
 			}
 		}
 	}
-
 }
+
 func (s *State) parseChefs() {
-	var playerX, playerY int
-	var playerItem string
-	fmt.Scan(&playerX, &playerY, &playerItem)
-	s.players[0] = Chef{Cell{playerX, playerY}, playerItem}
+	var x, y int
+	var item string
 
-	var partnerX, partnerY int
-	var partnerItem string
-	fmt.Scan(&partnerX, &partnerY, &partnerItem)
-	s.players[1] = Chef{Cell{playerX, playerY}, playerItem}
+	fmt.Scan(&x, &y, &item)
+	s.players[0] = Chef{Cell{x, y}, item}
 
+	var px, py int
+	var pitem string
+	fmt.Scan(&px, &py, &pitem)
+
+	// ✅ correction du bug : mauvais playerX / item recopié
+	s.players[1] = Chef{Cell{px, py}, pitem}
 }
-func (s *State) parseTables() {
-	// numTablesWithItems: the number of tables in the kitchen that currently hold an item
-	var numTablesWithItems int
-	fmt.Scan(&numTablesWithItems)
 
-	for i := 0; i < numTablesWithItems; i++ {
-		var tableX, tableY int
+func (s *State) parseTables() {
+	var num int
+	fmt.Scan(&num)
+
+	// ✅ éviter accumulation d’anciennes tables
+	s.k.dishTable = nil
+	s.k.bbTable = nil
+	s.k.icTable = nil
+
+	for i := 0; i < num; i++ {
+		var x, y int
 		var item string
-		fmt.Scan(&tableX, &tableY, &item)
-		t := Table{Cell{tableX, tableY}, item}
+		fmt.Scan(&x, &y, &item)
+
+		t := Table{Cell{x, y}, item}
+
 		switch item {
 		case "DISH":
 			s.k.dishTable = append(s.k.dishTable, t)
@@ -117,11 +138,7 @@ func (s *State) parseTables() {
 	}
 }
 
-//first action func
-func use(c Cell) string {
-	s := fmt.Sprintf("USE %d %d", c.x, c.y)
-	return s
-}
+// ---------------------- MAIN -------------------------
 
 func main() {
 	var s State
@@ -131,93 +148,126 @@ func main() {
 	s.numCustomers = numAllCustomers
 
 	for i := 0; i < numAllCustomers; i++ {
-		// customerItem: the food the customer is waiting for
-		// customerAward: the number of points awarded for delivering the food
-		var customerItem string
-		var customerAward int
-		fmt.Scan(&customerItem, &customerAward)
+		var item string
+		var award int
+		fmt.Scan(&item, &award)
 	}
 
 	s.parseKitchen()
-	log.Println(s.k.iceCrates)
 
 	for {
-		//should write a parseTurn() maybe a turn?
-		var turnsRemaining int
-		fmt.Scan(&turnsRemaining)
+		var turns int
+		fmt.Scan(&turns)
 
 		s.parseChefs()
 		s.parseTables()
 
-		// ovenContents: ignore until wood 1 league
 		var ovenContents string
 		var ovenTimer int
 		fmt.Scan(&ovenContents, &ovenTimer)
 
-		// numCustomers: the number of customers currently waiting for food
 		var numCustomers int
 		fmt.Scan(&numCustomers)
 
+		// ✅ reset clients
+		s.c = nil
+
 		for i := 0; i < numCustomers; i++ {
-			var customerItem string
-			var customerAward int
-			fmt.Scan(&customerItem, &customerAward)
-			customer := Customer{customerItem, customerAward}
-			s.c = append(s.c, customer)
+			var item string
+			var award int
+			fmt.Scan(&item, &award)
+			s.c = append(s.c, Customer{item, award})
 		}
 
-		//should serve the customer with most award first
-		//pick an order!! By default the first..
-		//here i can simulate move to see what is the best crate to go first
-		//take all the order and serve them, and score the best one (biggest award?)
-		//write an func (s *State)executeOrder(order string){} which yields a turn
+		// ---------------------- LOGIQUE COOKING -------------------------
+
 		order := s.c[0].customerItem
 		myItems := s.players[0].items
 
-		//must change the order wrt the items i already own...my string order will
-		//always contains a dish, so if i keep searching for that in an order that
-		//contains dish while i already got one, i got stuck..
 		var res string
+
+		// ------------------ CROISSANT -----------------------
+
 		if strings.Contains(order, "CROISSANT") &&
 			!strings.Contains(myItems, "DOUGH") &&
 			!strings.Contains(myItems, "CROISSANT") &&
 			ovenContents == "NONE" {
-			res = use(s.k.grid[s.k.doughCrates[0].y][s.k.doughCrates[0].x])
-		} else if strings.Contains(myItems, "DOUGH") &&
-			ovenContents == "NONE" {
+
+			if len(s.k.doughCrates) > 0 {
+				c := s.k.doughCrates[0]
+				res = use(c)
+			} else {
+				res = "WAIT"
+			}
+
+		} else if strings.Contains(myItems, "DOUGH") && ovenContents == "NONE" {
 			res = use(s.k.oven)
+
 		} else if ovenContents == "DOUGH" {
-			//sth is cooking
 			res = "WAIT"
+
 		} else if ovenContents == "CROISSANT" {
 			res = use(s.k.oven)
-			//	}
+
 		} else if strings.Contains(myItems, "CROISSANT") && !strings.Contains(myItems, "DISH") {
 			res = use(s.k.dishwasher)
-		} else if strings.Contains(order, "CHOPPED_STRAWBERRIES") && !strings.Contains(myItems, "STRAWBERRIES") {
-			res = use(s.k.grid[s.k.strawCrates[0].y][s.k.strawCrates[0].x])
-		} else if strings.Contains(order, "CHOPPED_STRAWBERRIES") && !strings.Contains(myItems, "CHOPPED_STRAWBERRIES") {
-			//i already picked straws, go chopping instead
+
+			// ------------------ FRAISES -----------------------
+
+		} else if strings.Contains(order, "CHOPPED_STRAWBERRIES") &&
+			!strings.Contains(myItems, "STRAWBERRIES") {
+
+			if len(s.k.strawCrates) > 0 {
+				c := s.k.strawCrates[0]
+				res = use(c)
+			} else {
+				res = "WAIT"
+			}
+
+		} else if strings.Contains(order, "CHOPPED_STRAWBERRIES") &&
+			!strings.Contains(myItems, "CHOPPED_STRAWBERRIES") {
+
 			res = use(s.k.choppingBoard)
-			//should i add a || with strawberries?
-		} else if !strings.Contains(myItems, "DISH") { // &&
-			//	(strings.Contains(myItems, "CROISSANT") || strings.Contains(myItems, "CHOPPED_STRAWBERRIES")) {
+
+			// ---------------- DISH ---------------------------
+
+		} else if !strings.Contains(myItems, "DISH") {
 			res = use(s.k.dishwasher)
-		} else if strings.Contains(order, "BLUEBERRIES") && !strings.Contains(myItems, "BLUEBERRIES") {
-			res = use(s.k.grid[s.k.blueCrates[0].y][s.k.blueCrates[0].x])
-		} else if strings.Contains(order, "ICE_CREAM") && !strings.Contains(myItems, "ICE_CREAM") {
-			res = use(s.k.grid[s.k.iceCrates[0].y][s.k.iceCrates[0].x])
+
+			// ---------------- BLUEBERRIES --------------------
+
+		} else if strings.Contains(order, "BLUEBERRIES") &&
+			!strings.Contains(myItems, "BLUEBERRIES") {
+
+			if len(s.k.blueCrates) > 0 {
+				c := s.k.blueCrates[0]
+				res = use(c)
+			} else {
+				res = "WAIT"
+			}
+
+			// ---------------- ICE CREAM ----------------------
+
+		} else if strings.Contains(order, "ICE_CREAM") &&
+			!strings.Contains(myItems, "ICE_CREAM") {
+
+			if len(s.k.iceCrates) > 0 {
+				c := s.k.iceCrates[0]
+				res = use(c)
+			} else {
+				res = "WAIT"
+			}
+
+			// ---------------- SERVIR -------------------------
+
 		} else {
-			//nothing left to do just go to customer?
 			res = use(s.k.customerWindow)
 		}
 
+		// ---------------------- OUTPUT -----------------------
+
 		fmt.Println(res)
 
-		//flush state between turns
-		s.c = []Customer{}
-
-		//LOGS
-		log.Println(ovenContents, ovenTimer, "ORDER", order, "myItems", myItems)
+		log.Println("ORDER:", order, "myItems:", myItems, "oven:", ovenContents, ovenTimer)
 	}
 }
