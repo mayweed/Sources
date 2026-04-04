@@ -138,10 +138,23 @@ func main() {
 		adj := board.getAdjacent(myPos)
 		fmt.Fprintln(os.Stderr, startPos, adj[0], board.fill(adj[0]))
 		t.nbTurns += 1
-		//testing
-		if free(adj[0]) {
-			fmt.Println(getDir(myPos, adj[0]))
+		bestScore := -1
+		bestCell := Cell{}
+
+		for _, cell := range adj {
+			score := board.fill(cell)
+
+			if score > bestScore {
+				bestScore = score
+				bestCell = cell
+			}
 		}
-		//fmt.Println("LEFT") // A single line with UP, DOWN, LEFT or RIGHT
+
+		if bestScore != -1 {
+			fmt.Println(getDir(myPos, bestCell))
+		} else {
+			fmt.Println("UP") // fallback (avoid crash)
+		}
 	}
+	//fmt.Println("LEFT") // A single line with UP, DOWN, LEFT or RIGHT
 }
