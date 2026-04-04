@@ -1,0 +1,36 @@
+# POur mémoire
+#> GEOFLA_EPCI91_2019_l93[8-11]
+#   CODE_DEPT NOM_DEPT                          EPCI        TAD
+#1         91  ESSONNE               CA Paris Saclay Nord-Ouest
+#2         91  ESSONNE            CA Grand Paris Sud        Est
+#3         91  ESSONNE           CC du Val d'Essonne    Sud-Est
+#4         91  ESSONNE      CA Versailles Grand Parc Nord-Ouest
+#5         91  ESSONNE CC du Dourdannais en Hurepoix  Sud-Ouest
+#6         91  ESSONNE       CC de l'Orée de la Brie   Nord-Est
+#7         91  ESSONNE       Grand-Orly Seine Bièvre       Nord
+#8         91  ESSONNE         CC du Pays de Limours Nord-Ouest
+#9         91  ESSONNE Coeur d'Essonne Agglomération     Centre
+#10        91  ESSONNE  CA de l'Etampois Sud Essonne  Sud-Ouest
+#11        91  ESSONNE  CA Val d'Yerres Val de Seine   Nord-Est
+#12        91  ESSONNE     CC Entre Juine et Renarde  Sud-Ouest
+#13        91  ESSONNE           CC des Deux Vallées    Sud-Est
+
+#> select(GEOFLA_COMMUNE_2019_l93,LIBEPCI,EPCI)
+#   LIBEPCI                                 EPCI                         geometry
+#   <chr>                                   <chr>                   <POLYGON [m]>
+# 1 CA Grand Paris Sud Seine Essonne Sénart 200059228 ((661187.8 6830962, 661097…
+# 2 CA Grand Paris Sud Seine Essonne Sénart 200059228 ((663540.2 6836966, 663206…
+# 3 CA Cœur d'Essonne Agglomération         200057859 ((647804.3 6839946, 647829…
+# 4 CC Entre Juine et Renarde (CCEJR)       249100553 ((641175.4 6824331, 641115…
+# 5 CA Grand Paris Sud Seine Essonne Sénart 200059228 ((655659.7 6834272, 655614…
+# 6 CC Entre Juine et Renarde (CCEJR)       249100553 ((640876.4 6830906, 641023…
+# 7 CA Étampois Sud-Essonne                 200017846 ((626105.7 6811057, 626149…
+# 8 CA Grand Paris Sud Seine Essonne Sénart 200059228 ((662427.3 6834250, 662562…
+# 9 CA Communauté Paris-Saclay              200056232 ((648033.6 6845229, 648095…
+#10 CA Étampois Sud-Essonne                 200017846 ((632146.5 6818063, 632351…
+# … with 184 more rows
+
+# ttes les communes de cea
+# GEOFLA_COMMUNE_2019_l93[GEOFLA_COMMUNE_2019_l93$EPCI == "200057859",]
+# ttes les communes cps
+# GEOFLA_COMMUNE_2019_l93[ GEOFLA_COMMUNE_2019_l93$EPCI == "200056232",]
