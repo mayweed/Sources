@@ -41,13 +41,6 @@ func getDir(from, to Cell) string {
 
 type Grid [][]Cell
 
-type Turn struct {
-	id int
-	//action Action
-	board   [][]Cell
-	nbTurns int
-}
-
 func initGrid(width, height int) Grid {
 	//no player got -1 id
 	var m = -1
@@ -79,6 +72,21 @@ func (g Grid) getAdjacent(c Cell) []Cell {
 	}
 	return adjacents
 }
+
+//replace by a voronoi?
+//Your voronoiScore:
+/*
+Start BFS from:
+You
+All enemies
+Expand simultaneously
+Each cell gets an owner:
+Whoever reaches it first
+Count:
+if mine → +1
+if enemy → -1
+*/
+func (g Grid) voronoi() {}
 func (g Grid) fill(from Cell) int {
 	var fillableCell int
 
@@ -110,11 +118,11 @@ func main() {
 	actions["UP"] = []int{0, -1}
 	actions["DOWN"] = []int{0, 1}
 
-	t := Turn{}
 	board := initGrid(WIDTH, HEIGHT)
-
 	var startPos Cell
+
 	for {
+
 		var myPos Cell
 
 		// N: total number of players (2 to 4).
@@ -129,15 +137,17 @@ func main() {
 			// Y1: starting Y coordinate of lightcycle (can be the same as Y0 if you play before this player)
 			var X0, Y0, X1, Y1 int
 			fmt.Scan(&X0, &Y0, &X1, &Y1)
+
 			if i == P {
 				startPos = board[X0][Y0]
 				myPos = board[X1][Y1]
 			}
+
 			board[X1][Y1].owner = i
 		}
 		adj := board.getAdjacent(myPos)
 		fmt.Fprintln(os.Stderr, startPos, adj[0], board.fill(adj[0]))
-		t.nbTurns += 1
+
 		bestScore := -1
 		bestCell := Cell{}
 
@@ -156,5 +166,4 @@ func main() {
 			fmt.Println("UP") // fallback (avoid crash)
 		}
 	}
-	//fmt.Println("LEFT") // A single line with UP, DOWN, LEFT or RIGHT
 }
