@@ -59,7 +59,8 @@ int main()
         case '^': dir = 2; break;
         case '<': dir = 3; break;
     }
-   
+    
+    bool firstStep = true;
     while (1) {
 
         board[y][x].count++;
@@ -79,6 +80,8 @@ int main()
             order[3] = back(dir);
         }
 
+        bool moved = false; 
+
         // try directions in order
         for (int i = 0; i < 4; i++) {
             int nd = order[i];
@@ -91,16 +94,20 @@ int main()
                 x = nx;
                 y = ny;
                 dir = nd;
+                bool moved = true; // j’ai bien bougé on peut sortir
                 break;
             }
         }
 
         // stop condition (loop detection or out of bounds)
-        if (x == startX && y == startY){break;} // suis revenu au départ
+        if (x == startX && y == startY && !firstStep){
+            break;
+        } // suis revenu au départ
+        firstStep = false;
+
+        if(!moved){break;} // si pas de mvt je sors pour pas tourner à l’infini
     }
     
-    fprintf(stderr, "%s",side);
-
     for (int i = 0; i < h; i++) {
         for (int j = 0; j < w; j++){
             if (board[i][j].contenu == '#'){
