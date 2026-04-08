@@ -1,0 +1,3 @@
+return {
+  "cljoly/bepo.nvim",
+}
