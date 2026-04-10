@@ -4,8 +4,8 @@ N = 8 -- board size
 
 -- check whether position(n,c) is free from attacks
 function isPlaceOK(a,n,c)
-    for i=1, n-1, do
-        if(a[i] == c) or (a[i]-i == c-n) or (a[i]+i == c+n)
+    for i=1, n-1 do
+        if(a[i] == c) or (a[i]-i == c-n) or (a[i]+i == c+n) then
             return false
         end
     end
