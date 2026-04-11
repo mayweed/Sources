@@ -6,12 +6,14 @@ for i=0,4-1 do
 end
 
 chars = {} -- pour mettre les 4 chars trouvés
-chars = line[0]
+chars = line[1] -- begin by one in lua
 
-for i=0, #line do
-    
+[[for i=2, #line do
+ if line[2] not in chars
+     then add it
+     else continue
 
-end
+end ]]
 --[[ check which are the 4 distinct char in the grid
 if not => invalid
 else read 4 char and see which one is missing
