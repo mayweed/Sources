@@ -8,17 +8,43 @@ function distance (x1,x2,y1,y2)
 end
 
 local cities = {}
-for i=0,N-1 do
+for i=1, N do
     next_token = string.gmatch(io.read(), "[^%s]+")
         cities[i] = {
-            X = tonumber(next_token()),
-            Y = tonumber(next_token())
+            x = tonumber(next_token()),
+            y = tonumber(next_token())
         }
 end
 
-local visited = {}
+local startPoint = cities[1]
+local endPoint = cities[1]
 
--- Write an answer using print()
--- To debug: io.stderr:write("Debug message\n")
+local totalDist = 0
+local distToOrigin = 0
+table.remove(cities,1)
 
-print("distance")
+while (#cities ~= 0) do
+    --on part de la 1ere ville et on calcule la plus proche
+    local minDist = math.huge
+    local minIndex = 0
+
+    for j = 1, #cities do
+        local d = distance(startPoint.x, cities[j].x,startPoint.y, cities[j].y)
+        if d < minDist then
+            minDist=d
+            minIndex = j
+        end
+    end
+    totalDist = totalDist+ minDist
+    startPoint = cities[minIndex]
+    if (#cities == 1) then
+        distToOrigin = distance(cities[minIndex].x, endPoint.x,cities[minIndex].y,endPoint.y)
+    end
+    table.remove(cities,minIndex) 
+end
+
+function round(x)
+    return math.floor(x + 0.5)
+end
+
+print(round(totalDist+distToOrigin))
