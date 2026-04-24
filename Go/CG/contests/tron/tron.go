@@ -101,7 +101,7 @@ All enemies -> prdre en cpte qu’il peut y en avoir plus d’un.
 Expand simultaneously
 Each cell gets an owner:
 Whoever reaches it first
-Count:
+Count:f
 if mine → +1
 if enemy → -1
 
@@ -161,6 +161,42 @@ func (t TronState) fill(from Point) int {
 	}
 	return fillablePoint
 }
+
+func (t TronState) think() {
+    adj := t.getAdjacent(t.myPos)
+
+    bestScore := -1 << 30
+    bestPoint := Point{}
+
+    for _, cell := range adj {
+        score := 0
+
+        space := t.fill(cell)
+        if space < 3 {
+            score -= 1000
+        } else {
+            if space > 50 {
+                space = 50
+            }
+            score += space
+        }
+
+        // Bonus de mobilité
+        score += len(t.getAdjacent(cell)) * 5
+
+        if score > bestScore {
+            bestScore = score
+            bestPoint = cell
+        }
+    }
+
+    if bestScore > -1<<29 {
+        fmt.Println(getDir(t.myPos, bestPoint))
+    } else {
+        fmt.Println("UP")
+    }
+}
+
 func main() {
 	//is this the right struct for this?
 	var actions = make(map[string][]int)
@@ -203,24 +239,6 @@ func main() {
 			state.walls[Point{X1,Y1}] = i 
 			
 		}
-		adj := state.getAdjacent(state.myPos)
-		
-		bestScore := -1
-		bestPoint := Point{}
-
-		for _, cell := range adj {
-			score := state.fill(cell)
-
-			if score > bestScore {
-				bestScore = score
-				bestPoint = cell
-			}
-		}
-
-		if bestScore != -1 {
-			fmt.Println(getDir(state.myPos, bestPoint))
-		} else {
-			fmt.Println("UP") // fallback (avoid crash)
-		}
+		state.think()
 	}
 }
