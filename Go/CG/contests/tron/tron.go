@@ -1,4 +1,4 @@
-package main
+EXPORT package main
 
 import (
 	"fmt"
@@ -16,6 +16,7 @@ type Point struct {
 type Cell struct {
 	Point
 	owner int
+	//dist int
 }
 
 func free(c Cell) bool {
@@ -72,21 +73,53 @@ func (g Grid) getAdjacent(c Cell) []Cell {
 	}
 	return adjacents
 }
-
 //replace by a voronoi?
 //Your voronoiScore:
 /*
 Start BFS from:
 You
-All enemies
+All enemies -> prdre en cpte qu’il peut y en avoir plus d’un.
 Expand simultaneously
 Each cell gets an owner:
 Whoever reaches it first
 Count:
 if mine → +1
 if enemy → -1
+
+func (g Grid) voronoi(myPos Point, oppPos Point) int {
+
+	//do i need that? owner?
+	var claimed = make(map[Cell.Point]bool)
+	claimed[myPos.Point] = true
+	claimed[oppPos.Point] = true
+
+	//one queue for me, one for opp? or all in the same queue?
+	var queue []Point
+	queue = append(queue, myPos, oppPos)
+
+		for len(queue) > 0 {
+				start := queue[0]
+				queue = queue[1:]
+
+				if !claimed[start]{
+					start.owner = 0
+				}
+
+				for _, adj := range g.getAdjacent(start) {
+					if !claimed[adj] {
+						queue = append(queue, adj)
+						adj.owner = 1 //one is for me
+						claimed[adj] = true
+					}
+				}
+			}
+
+		}
+	}
+	return 0
+}
+
 */
-func (g Grid) voronoi() {}
 func (g Grid) fill(from Cell) int {
 	var fillableCell int
 
@@ -122,13 +155,15 @@ func main() {
 	var startPos Cell
 
 	for {
-
+		
 		var myPos Cell
 
 		// N: total number of players (2 to 4).
 		// P: your player number (0 to 3).
 		var N, P int
 		fmt.Scan(&N, &P)
+
+		fmt.Fprintln(os.Stderr, P)
 
 		for i := 0; i < N; i++ {
 			// X0: starting X coordinate of lightcycle (or -1)
@@ -147,7 +182,7 @@ func main() {
 		}
 		adj := board.getAdjacent(myPos)
 		fmt.Fprintln(os.Stderr, startPos, adj[0], board.fill(adj[0]))
-
+		
 		bestScore := -1
 		bestCell := Cell{}
 
