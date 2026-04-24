@@ -1,4 +1,4 @@
-EXPORT package main
+package main
 
 import (
 	"fmt"
@@ -13,17 +13,31 @@ const (
 type Point struct {
 	x, y int
 }
-type Cell struct {
-	Point
-	owner int
-	//dist int
+
+type TronState struct {
+    Width, Height int
+    Walls  map[Point]bool
+
+    myPos  Point
+    oppPos Point
+
+    MeDead  bool
+    OppDead bool
 }
 
-func free(c Cell) bool {
-	return c.owner == -1
+func NewTronState(width, height int) TronState {
+    return TronState{
+        Width:   width,
+        Height: height,
+        Walls:  make(map[Point]bool),
+    }
 }
 
-func getDir(from, to Cell) string {
+func (t TronState) isFree(c Point) bool {
+	return !t.Walls[c]
+}
+
+func getDir(from, to Point) string {
 	var dir string
 	if to.x < from.x {
 		dir = "LEFT"
@@ -40,38 +54,25 @@ func getDir(from, to Cell) string {
 	return dir
 }
 
-type Grid [][]Cell
-
-func initGrid(width, height int) Grid {
-	//no player got -1 id
-	var m = -1
-	var grid = make([][]Cell, width)
-	for x := 0; x < width; x++ {
-		grid[x] = make([]Cell, height)
-		for y := 0; y < height; y++ {
-			grid[x][y] = Cell{Point{x, y}, m}
-		}
-	}
-	return grid
-}
-
 //idea : for each adjacent of a given cell do a floodfill and go
 //for the max one
-func (g Grid) getAdjacent(c Cell) []Cell {
-	var adjacents []Cell
-	if c.x+1 < WIDTH && g[c.x+1][c.y].owner == -1 {
-		adjacents = append(adjacents, g[c.x+1][c.y])
-	}
-	if c.y+1 < HEIGHT && g[c.x][c.y+1].owner == -1 {
-		adjacents = append(adjacents, g[c.x][c.y+1])
-	}
-	if c.x-1 >= 0 && g[c.x-1][c.y].owner == -1 {
-		adjacents = append(adjacents, g[c.x-1][c.y])
-	}
-	if c.y-1 >= 0 && g[c.x][c.y-1].owner == -1 {
-		adjacents = append(adjacents, g[c.x][c.y-1])
-	}
-	return adjacents
+func (t TronState) getAdjacent(c Point) []Point {
+    var adj []Point
+
+    dirs := []Point{{1, 0}, {-1, 0}, {0, 1}, {0, -1}}
+
+    for _, d := range dirs {
+        n := Point{c.x + d.x, c.y + d.y}
+
+        if n.x < 0 || n.x >= WIDTH || n.y < 0 || n.y >= HEIGHT {
+            continue
+        }
+        if t.Walls[n] {
+            continue
+        }
+        adj = append(adj, n)
+    }
+    return adj
 }
 //replace by a voronoi?
 //Your voronoiScore:
@@ -89,7 +90,7 @@ if enemy → -1
 func (g Grid) voronoi(myPos Point, oppPos Point) int {
 
 	//do i need that? owner?
-	var claimed = make(map[Cell.Point]bool)
+	var claimed = make(map[Point.Point]bool)
 	claimed[myPos.Point] = true
 	claimed[oppPos.Point] = true
 
@@ -120,27 +121,27 @@ func (g Grid) voronoi(myPos Point, oppPos Point) int {
 }
 
 */
-func (g Grid) fill(from Cell) int {
-	var fillableCell int
+func (t TronState) fill(from Point) int {
+	var fillablePoint int
 
-	var visited = make(map[Cell]bool)
+	var visited = make(map[Point]bool)
 	visited[from] = true
 
-	var queue []Cell
+	var queue []Point
 	queue = append(queue, from)
 
 	for len(queue) > 0 {
 		start := queue[0]
 		queue = queue[1:]
-		for _, adj := range g.getAdjacent(start) {
+		for _, adj := range t.getAdjacent(start) {
 			if !visited[adj] {
 				queue = append(queue, adj)
-				fillableCell += 1
+				fillablePoint += 1
 				visited[adj] = true
 			}
 		}
 	}
-	return fillableCell
+	return fillablePoint
 }
 func main() {
 	//is this the right struct for this?
@@ -151,19 +152,15 @@ func main() {
 	actions["UP"] = []int{0, -1}
 	actions["DOWN"] = []int{0, 1}
 
-	board := initGrid(WIDTH, HEIGHT)
-	var startPos Cell
+	state := NewTronState(WIDTH,HEIGHT)
 
 	for {
-		
-		var myPos Cell
-
+		//state.MeDead = false
+		//state.OppDead = false
 		// N: total number of players (2 to 4).
 		// P: your player number (0 to 3).
 		var N, P int
 		fmt.Scan(&N, &P)
-
-		fmt.Fprintln(os.Stderr, P)
 
 		for i := 0; i < N; i++ {
 			// X0: starting X coordinate of lightcycle (or -1)
@@ -173,30 +170,47 @@ func main() {
 			var X0, Y0, X1, Y1 int
 			fmt.Scan(&X0, &Y0, &X1, &Y1)
 
-			if i == P {
-				startPos = board[X0][Y0]
-				myPos = board[X1][Y1]
+			if X0 == -1 && Y0 == -1 && X1 == -1 && Y1 == -1{
+				if i == P{
+					state.MeDead = true //bad luck happens
+				}
+				continue
 			}
 
-			board[X1][Y1].owner = i
+			// si je vis
+			if i == P {
+				state.myPos = Point{X1,Y1}
+			}else{
+				state.oppPos = Point{X1,Y1}
+			}
+
+			//si x0 le bot tente de revenir sur ses pas!!
+			state.Walls[Point{X1,Y1}] = true //on ne distingue pas moi/adversaires
+			
+			fmt.Fprintln(
+				os.Stderr,
+				"player", i,
+				"X0", X0, "Y0", Y0,
+				"X1", X1, "Y1", Y1,
+			)
+			
 		}
-		adj := board.getAdjacent(myPos)
-		fmt.Fprintln(os.Stderr, startPos, adj[0], board.fill(adj[0]))
+		adj := state.getAdjacent(state.myPos)
 		
 		bestScore := -1
-		bestCell := Cell{}
+		bestPoint := Point{}
 
 		for _, cell := range adj {
-			score := board.fill(cell)
+			score := state.fill(cell)
 
 			if score > bestScore {
 				bestScore = score
-				bestCell = cell
+				bestPoint = cell
 			}
 		}
 
 		if bestScore != -1 {
-			fmt.Println(getDir(myPos, bestCell))
+			fmt.Println(getDir(state.myPos, bestPoint))
 		} else {
 			fmt.Println("UP") // fallback (avoid crash)
 		}
