@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"os"
+	//"os"
 )
 
 const (
@@ -33,13 +33,10 @@ func getDir(from, to Point) string {
 
 type TronState struct {
     Width, Height int
-    Walls  map[Point]int //to get the player who blocks the cell
+    walls  map[Point]int //to get the player who blocks the cell
 
     myPos  Point
     oppPos Point
-
-    MeDead  bool
-    OppDead bool
 
 	alive map[int]bool
 
@@ -50,14 +47,14 @@ func NewTronState(width, height int) TronState {
     return TronState{
         Width:   width,
         Height: height,
-        Walls:  make(map[Point]int),
+        walls:  make(map[Point]int),
 		alive : make(map[int]bool),
     }
 }
 
 func (t TronState) isFree(c Point) bool {
-	_,ok := t.Walls[c]
-	return !ok
+	owner,ok := t.walls[c]
+	return !ok || !t.alive[owner]
 }
 
 //idea : for each adjacent of a given cell do a floodfill and go
@@ -82,15 +79,15 @@ func (t TronState) getAdjacent(c Point) []Point {
 }
 
 func (t TronState) isBlocked(p Point) bool {
-    owner, ok := t.Walls[p]
+    owner, ok := t.walls[p]
     return ok && t.alive[owner]
 }
 
 //when a player dies remove the walls
-func (state *TronState) RemovePlayerWalls(playerID int) {
-    for p, owner := range state.Walls {
+func (state *TronState) RemovePlayerwalls(playerID int) {
+    for p, owner := range state.walls {
         if owner == playerID {
-            delete(state.Walls, p)
+            delete(state.walls, p)
         }
     }
 }
@@ -176,8 +173,6 @@ func main() {
 	state := NewTronState(WIDTH,HEIGHT)
 
 	for {
-		//state.MeDead = false
-		//state.OppDead = false
 		// N: total number of players (2 to 4).
 		// P: your player number (0 to 3).
 		var N, P int
@@ -194,32 +189,18 @@ func main() {
 
 			if X0 == -1 && Y0 == -1 && X1 == -1 && Y1 == -1{
 				state.alive[i] = false
+				state.RemovePlayerwalls(i)
 			}else{
 				state.alive[i]=true
 			}
-			/*
-				if i == P{
-					state.MeDead = true //bad luck happens
-					alive[i] = false
-				}
-					continue
-			}
-*/
-			// si je vis
+			
 			if i == state.myId {
 				state.myPos = Point{X1,Y1}
 			}else{
 				state.oppPos = Point{X1,Y1}
 			}
 
-			state.Walls[Point{X1,Y1}] = i 
-			
-			fmt.Fprintln(
-				os.Stderr,
-				"player", i,
-				"X0", X0, "Y0", Y0,
-				"X1", X1, "Y1", Y1,
-			)
+			state.walls[Point{X1,Y1}] = i 
 			
 		}
 		adj := state.getAdjacent(state.myPos)
