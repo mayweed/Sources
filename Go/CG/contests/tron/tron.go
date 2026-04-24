@@ -162,28 +162,67 @@ func (t TronState) fill(from Point) int {
 	return fillablePoint
 }
 
+// test split detection : bfs, je parcours si je trouve connexion true sinon false
+func (t TronState) connected(a, b Point) bool {
+    visited := make(map[Point]bool)
+    queue := []Point{a}
+    visited[a] = true
+
+    for len(queue) > 0 {
+        cur := queue[0]
+        queue = queue[1:]
+
+        if cur == b {
+            return true
+        }
+
+        for _, n := range t.getAdjacent(cur) {
+            if !visited[n] {
+                visited[n] = true
+                queue = append(queue, n)
+            }
+        }
+    }
+    return false
+}
+
 func (t TronState) think() {
     adj := t.getAdjacent(t.myPos)
 
     bestScore := -1 << 30
     bestPoint := Point{}
 
+	split := !t.connected(t.myPos, t.oppPos)
+
     for _, cell := range adj {
         score := 0
 
-        space := t.fill(cell)
-        if space < 3 {
+        mySpace := t.fill(cell)
+        if mySpace < 3 {
             score -= 1000
-        } else {
-            if space > 50 {
-                space = 50
-            }
-            score += space
+        } 
+
+        if mySpace > 50 {
+            mySpace = 50
         }
+        score += mySpace
 
         // Bonus de mobilité
         score += len(t.getAdjacent(cell)) * 5
-
+		
+		if split {
+            // ENDGAME : je suis seul
+            score += mySpace * 10
+        } else {
+            // JEU NORMAL
+            oppSpace := t.fill(t.oppPos)
+            score += (mySpace - oppSpace) * 2
+        }
+/*
+		oppSpace := t.fill(t.oppPos)
+		diff := mySpace - oppSpace
+		score += diff*2 //pondération
+*/
         if score > bestScore {
             bestScore = score
             bestPoint = cell
