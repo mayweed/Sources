@@ -14,29 +14,6 @@ type Point struct {
 	x, y int
 }
 
-type TronState struct {
-    Width, Height int
-    Walls  map[Point]bool
-
-    myPos  Point
-    oppPos Point
-
-    MeDead  bool
-    OppDead bool
-}
-
-func NewTronState(width, height int) TronState {
-    return TronState{
-        Width:   width,
-        Height: height,
-        Walls:  make(map[Point]bool),
-    }
-}
-
-func (t TronState) isFree(c Point) bool {
-	return !t.Walls[c]
-}
-
 func getDir(from, to Point) string {
 	var dir string
 	if to.x < from.x {
@@ -54,6 +31,35 @@ func getDir(from, to Point) string {
 	return dir
 }
 
+type TronState struct {
+    Width, Height int
+    Walls  map[Point]int //to get the player who blocks the cell
+
+    myPos  Point
+    oppPos Point
+
+    MeDead  bool
+    OppDead bool
+
+	alive map[int]bool
+
+	myId int
+}
+
+func NewTronState(width, height int) TronState {
+    return TronState{
+        Width:   width,
+        Height: height,
+        Walls:  make(map[Point]int),
+		alive : make(map[int]bool),
+    }
+}
+
+func (t TronState) isFree(c Point) bool {
+	_,ok := t.Walls[c]
+	return !ok
+}
+
 //idea : for each adjacent of a given cell do a floodfill and go
 //for the max one
 func (t TronState) getAdjacent(c Point) []Point {
@@ -67,13 +73,28 @@ func (t TronState) getAdjacent(c Point) []Point {
         if n.x < 0 || n.x >= WIDTH || n.y < 0 || n.y >= HEIGHT {
             continue
         }
-        if t.Walls[n] {
+        if t.isBlocked(n) {
             continue
         }
         adj = append(adj, n)
     }
     return adj
 }
+
+func (t TronState) isBlocked(p Point) bool {
+    owner, ok := t.Walls[p]
+    return ok && t.alive[owner]
+}
+
+//when a player dies remove the walls
+func (state *TronState) RemovePlayerWalls(playerID int) {
+    for p, owner := range state.Walls {
+        if owner == playerID {
+            delete(state.Walls, p)
+        }
+    }
+}
+
 //replace by a voronoi?
 //Your voronoiScore:
 /*
@@ -161,6 +182,7 @@ func main() {
 		// P: your player number (0 to 3).
 		var N, P int
 		fmt.Scan(&N, &P)
+		state.myId = P
 
 		for i := 0; i < N; i++ {
 			// X0: starting X coordinate of lightcycle (or -1)
@@ -171,21 +193,26 @@ func main() {
 			fmt.Scan(&X0, &Y0, &X1, &Y1)
 
 			if X0 == -1 && Y0 == -1 && X1 == -1 && Y1 == -1{
+				state.alive[i] = false
+			}else{
+				state.alive[i]=true
+			}
+			/*
 				if i == P{
 					state.MeDead = true //bad luck happens
+					alive[i] = false
 				}
-				continue
+					continue
 			}
-
+*/
 			// si je vis
-			if i == P {
+			if i == state.myId {
 				state.myPos = Point{X1,Y1}
 			}else{
 				state.oppPos = Point{X1,Y1}
 			}
 
-			//si x0 le bot tente de revenir sur ses pas!!
-			state.Walls[Point{X1,Y1}] = true //on ne distingue pas moi/adversaires
+			state.Walls[Point{X1,Y1}] = i 
 			
 			fmt.Fprintln(
 				os.Stderr,
