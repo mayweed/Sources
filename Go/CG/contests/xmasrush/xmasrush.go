@@ -21,14 +21,11 @@ func (p Point) printDirection(p2 Point) string {
 	//return directly output "missing return at the end of func"...
 	if p2.x > p.x {
 		dir = "RIGHT"
-	}
-	if p2.x < p.x {
+	}else if p2.x < p.x {
 		dir = "LEFT"
-	}
-	if p2.y < p.y {
+	}else if p2.y < p.y {
 		dir = "UP"
-	}
-	if p2.y > p.y {
+	}else if p2.y > p.y {
 		dir = "DOWN"
 	}
 	return dir
@@ -236,26 +233,26 @@ func (s State) getNeighbours(t Tile) []Tile {
 	//if UP is 1 on my tile, the upper tile is a neighbour if and only if down is
 	//open!! Take one as a rune '1' ?
 	//for index, dir := range t.direction {
-	if t.position.y-1 > 0 && t.position.y-1 < 7 {
+	if t.position.y-1 >= 0 && t.position.y-1 < 7 {
 		if t.direction[0] == 49 && s.grid[t.position.y-1][t.position.x].direction[2] == 49 {
 			neighbours = append(neighbours, s.grid[t.position.y-1][t.position.x])
 			log.Println("did i go here??")
 		}
 	}
 	//if RIGHT (direction 1) is ok, check left (dir 3) on the neighbouring cell
-	if t.position.x+1 > 0 && t.position.x+1 < 7 {
+	if t.position.x+1 >= 0 && t.position.x+1 < 7 {
 		if t.direction[1] == 49 && s.grid[t.position.y][t.position.x+1].direction[3] == 49 {
 			neighbours = append(neighbours, s.grid[t.position.y][t.position.x+1])
 		}
 	}
 	//if DOWN is oki, the neighbouring must have up oki
-	if t.position.y+1 > 0 && t.position.y+1 < 7 {
+	if t.position.y+1 >= 0 && t.position.y+1 < 7 {
 		if t.direction[2] == 49 && s.grid[t.position.y+1][t.position.x].direction[0] == 49 {
 			neighbours = append(neighbours, s.grid[t.position.y+1][t.position.x])
 		}
 	}
 	//if LEFT is oki neighbour must have right!!
-	if t.position.x-1 > 0 && t.position.x-1 < 7 {
+	if t.position.x-1 >= 0 && t.position.x-1 < 7 {
 		if t.direction[3] == 49 && s.grid[t.position.y][t.position.x-1].direction[1] == 49 {
 			neighbours = append(neighbours, s.grid[t.position.y][t.position.x-1])
 		}
@@ -341,7 +338,7 @@ func (s *State) read() {
 		case 0:
 			s.players[0].quests = append(s.players[0].quests, questItemName)
 		case 1:
-			s.players[1].quests = append(s.players[0].quests, questItemName)
+			s.players[0].quests = append(s.players[0].quests, questItemName)
 		}
 	}
 	s.players[0].getQuestTile()
@@ -369,7 +366,8 @@ func (s *State) bfsPath(playerTilePos, questTile Tile) []Tile {
 
 		for _, tile := range s.getNeighbours(lastTile) {
 			log.Println(lastTile, s.getNeighbours(lastTile))
-			var newPath = path
+			//var newPath = path
+            newPath := append([]Tile{}, path...)
 			if !visited[tile] {
 				visited[tile] = true
 				newPath = append(newPath, tile)
