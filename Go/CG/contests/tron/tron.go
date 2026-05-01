@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"os"
+	//"os"
 )
 
 const (
@@ -13,16 +13,8 @@ const (
 type Point struct {
 	x, y int
 }
-type Cell struct {
-	Point
-	owner int
-}
 
-func free(c Cell) bool {
-	return c.owner == -1
-}
-
-func getDir(from, to Cell) string {
+func getDir(from, to Point) string {
 	var dir string
 	if to.x < from.x {
 		dir = "LEFT"
@@ -39,38 +31,65 @@ func getDir(from, to Cell) string {
 	return dir
 }
 
-type Grid [][]Cell
+type TronState struct {
+    Width, Height int
+    walls  map[Point]int //to get the player who blocks the cell
 
-func initGrid(width, height int) Grid {
-	//no player got -1 id
-	var m = -1
-	var grid = make([][]Cell, width)
-	for x := 0; x < width; x++ {
-		grid[x] = make([]Cell, height)
-		for y := 0; y < height; y++ {
-			grid[x][y] = Cell{Point{x, y}, m}
-		}
-	}
-	return grid
+    myPos  Point
+    oppPos Point
+
+	alive map[int]bool
+
+	myId int
+}
+
+func NewTronState(width, height int) TronState {
+    return TronState{
+        Width:   width,
+        Height: height,
+        walls:  make(map[Point]int),
+		alive : make(map[int]bool),
+    }
+}
+
+func (t TronState) isFree(c Point) bool {
+	owner,ok := t.walls[c]
+	return !ok || !t.alive[owner]
 }
 
 //idea : for each adjacent of a given cell do a floodfill and go
 //for the max one
-func (g Grid) getAdjacent(c Cell) []Cell {
-	var adjacents []Cell
-	if c.x+1 < WIDTH && g[c.x+1][c.y].owner == -1 {
-		adjacents = append(adjacents, g[c.x+1][c.y])
-	}
-	if c.y+1 < HEIGHT && g[c.x][c.y+1].owner == -1 {
-		adjacents = append(adjacents, g[c.x][c.y+1])
-	}
-	if c.x-1 >= 0 && g[c.x-1][c.y].owner == -1 {
-		adjacents = append(adjacents, g[c.x-1][c.y])
-	}
-	if c.y-1 >= 0 && g[c.x][c.y-1].owner == -1 {
-		adjacents = append(adjacents, g[c.x][c.y-1])
-	}
-	return adjacents
+func (t TronState) getAdjacent(c Point) []Point {
+    var adj []Point
+
+    dirs := []Point{{1, 0}, {-1, 0}, {0, 1}, {0, -1}}
+
+    for _, d := range dirs {
+        n := Point{c.x + d.x, c.y + d.y}
+
+        if n.x < 0 || n.x >= WIDTH || n.y < 0 || n.y >= HEIGHT {
+            continue
+        }
+        if t.isBlocked(n) {
+            continue
+        }
+        adj = append(adj, n)
+    }
+    return adj
+}
+
+func (t TronState) isBlocked(p Point) bool {
+    owner, ok := t.walls[p]
+    return ok && t.alive[owner]
+}
+
+//when a player dies remove the walls
+func (state *TronState) RemovePlayerwalls(playerID int) {
+    for p, owner := range state.walls {
+        if owner == playerID {
+            delete(state.walls, p)
+        }
+    }
 }
 
 //replace by a voronoi?
@@ -78,37 +97,145 @@ func (g Grid) getAdjacent(c Cell) []Cell {
 /*
 Start BFS from:
 You
-All enemies
+All enemies -> prdre en cpte qu’il peut y en avoir plus d’un.
 Expand simultaneously
 Each cell gets an owner:
 Whoever reaches it first
-Count:
+Count:f
 if mine → +1
 if enemy → -1
-*/
-func (g Grid) voronoi() {}
-func (g Grid) fill(from Cell) int {
-	var fillableCell int
 
-	var visited = make(map[Cell]bool)
+func (g Grid) voronoi(myPos Point, oppPos Point) int {
+
+	//do i need that? owner?
+	var claimed = make(map[Point.Point]bool)
+	claimed[myPos.Point] = true
+	claimed[oppPos.Point] = true
+
+	//one queue for me, one for opp? or all in the same queue?
+	var queue []Point
+	queue = append(queue, myPos, oppPos)
+
+		for len(queue) > 0 {
+				start := queue[0]
+				queue = queue[1:]
+
+				if !claimed[start]{
+					start.owner = 0
+				}
+
+				for _, adj := range g.getAdjacent(start) {
+					if !claimed[adj] {
+						queue = append(queue, adj)
+						adj.owner = 1 //one is for me
+						claimed[adj] = true
+					}
+				}
+			}
+
+		}
+	}
+	return 0
+}
+
+*/
+func (t TronState) fill(from Point) int {
+	var fillablePoint int
+
+	var visited = make(map[Point]bool)
 	visited[from] = true
 
-	var queue []Cell
+	var queue []Point
 	queue = append(queue, from)
 
 	for len(queue) > 0 {
 		start := queue[0]
 		queue = queue[1:]
-		for _, adj := range g.getAdjacent(start) {
+		for _, adj := range t.getAdjacent(start) {
 			if !visited[adj] {
 				queue = append(queue, adj)
-				fillableCell += 1
+				fillablePoint += 1
 				visited[adj] = true
 			}
 		}
 	}
-	return fillableCell
+	return fillablePoint
 }
+
+// test split detection : bfs, je parcours si je trouve connexion true sinon false
+func (t TronState) connected(a, b Point) bool {
+    visited := make(map[Point]bool)
+    queue := []Point{a}
+    visited[a] = true
+
+    for len(queue) > 0 {
+        cur := queue[0]
+        queue = queue[1:]
+
+        if cur == b {
+            return true
+        }
+
+        for _, n := range t.getAdjacent(cur) {
+            if !visited[n] {
+                visited[n] = true
+                queue = append(queue, n)
+            }
+        }
+    }
+    return false
+}
+
+func (t TronState) think() {
+    adj := t.getAdjacent(t.myPos)
+
+    bestScore := -1 << 30
+    bestPoint := Point{}
+
+	split := !t.connected(t.myPos, t.oppPos)
+
+    for _, cell := range adj {
+        score := 0
+
+        mySpace := t.fill(cell)
+        if mySpace < 3 {
+            score -= 1000
+        } 
+
+        if mySpace > 50 {
+            mySpace = 50
+        }
+        score += mySpace
+
+        // Bonus de mobilité
+        score += len(t.getAdjacent(cell)) * 5
+		
+		if split {
+            // ENDGAME : je suis seul
+            score += mySpace * 10
+        } else {
+            // JEU NORMAL
+            oppSpace := t.fill(t.oppPos)
+            score += (mySpace - oppSpace) * 2
+        }
+/*
+		oppSpace := t.fill(t.oppPos)
+		diff := mySpace - oppSpace
+		score += diff*2 //pondération
+*/
+        if score > bestScore {
+            bestScore = score
+            bestPoint = cell
+        }
+    }
+
+    if bestScore > -1<<29 {
+        fmt.Println(getDir(t.myPos, bestPoint))
+    } else {
+        fmt.Println("UP")
+    }
+}
+
 func main() {
 	//is this the right struct for this?
 	var actions = make(map[string][]int)
@@ -118,17 +245,14 @@ func main() {
 	actions["UP"] = []int{0, -1}
 	actions["DOWN"] = []int{0, 1}
 
-	board := initGrid(WIDTH, HEIGHT)
-	var startPos Cell
+	state := NewTronState(WIDTH,HEIGHT)
 
 	for {
-
-		var myPos Cell
-
 		// N: total number of players (2 to 4).
 		// P: your player number (0 to 3).
 		var N, P int
 		fmt.Scan(&N, &P)
+		state.myId = P
 
 		for i := 0; i < N; i++ {
 			// X0: starting X coordinate of lightcycle (or -1)
@@ -138,32 +262,22 @@ func main() {
 			var X0, Y0, X1, Y1 int
 			fmt.Scan(&X0, &Y0, &X1, &Y1)
 
-			if i == P {
-				startPos = board[X0][Y0]
-				myPos = board[X1][Y1]
+			if X0 == -1 && Y0 == -1 && X1 == -1 && Y1 == -1{
+				state.alive[i] = false
+				state.RemovePlayerwalls(i)
+			}else{
+				state.alive[i]=true
+			}
+			
+			if i == state.myId {
+				state.myPos = Point{X1,Y1}
+			}else{
+				state.oppPos = Point{X1,Y1}
 			}
 
-			board[X1][Y1].owner = i
+			state.walls[Point{X1,Y1}] = i 
+			
 		}
-		adj := board.getAdjacent(myPos)
-		fmt.Fprintln(os.Stderr, startPos, adj[0], board.fill(adj[0]))
-
-		bestScore := -1
-		bestCell := Cell{}
-
-		for _, cell := range adj {
-			score := board.fill(cell)
-
-			if score > bestScore {
-				bestScore = score
-				bestCell = cell
-			}
-		}
-
-		if bestScore != -1 {
-			fmt.Println(getDir(myPos, bestCell))
-		} else {
-			fmt.Println("UP") // fallback (avoid crash)
-		}
+		state.think()
 	}
 }
