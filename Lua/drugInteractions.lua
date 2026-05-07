@@ -18,7 +18,7 @@ function checkLetters(w1, w2)
     local count = 0
     for j=1,#w2 do
         local c = w2:sub(j,j)
-        if freq[c] or freq[c] > 0 then
+        if freq[c] and freq[c] > 0 then
             freq[c]= freq[c]-1
             count = count +1
         end
