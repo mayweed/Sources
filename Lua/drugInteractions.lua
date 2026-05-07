@@ -9,18 +9,17 @@ end
 table.sort(words)
 
 function checkLetters(w1, w2)
-    local set = {}
+    local freq = {}
     for i=1, #w1 do
         local c = w1:sub(i,i)
-        set[c]=true
+        freq[c]= (freq[c] or 0) + 1
     end
 
-    local used = {}
     local count = 0
     for j=1,#w2 do
         local c = w2:sub(j,j)
-        if set[c] and not used[c] then
-            used[c]=true
+        if freq[c] or freq[c] > 0 then
+            freq[c]= freq[c]-1
             count = count +1
         end
     end
@@ -41,4 +40,5 @@ end
 print(answer)
 
 -- Write an answer using print()
-io.stderr:write(string.format (#words))
+local test = checkLetters("Xanax", "Viagra")
+io.stderr:write(string.format (test))
