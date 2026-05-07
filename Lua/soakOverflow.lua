@@ -14,7 +14,6 @@ for i=0,agentDataCount-1 do
     next_token = string.gmatch(io.read(), "[^%s]+")
     agentId = tonumber(next_token())
     player = tonumber(next_token())
-    
     shootCooldown = tonumber(next_token())
     optimalRange = tonumber(next_token())
     soakingPower = tonumber(next_token())
@@ -77,18 +76,33 @@ while true do
         }
     end
 
+
+local bestWetness = 101
+local agentToShoot = -1
+local lastAgentToShoot = -1
+
+for _, p in pairs(players) do
+    for _, enemy in ipairs(oppAgents) do
+        if p.agentId == enemy.agentId then
+            if p.wetness < bestWetness then
+                lastAgentToShoot = agentToShoot
+                bestWetness = p.wetness
+                agentToShoot = p.agentId
+            end
+        end
+    end
+end
+
     myAgentCount = tonumber(io.read()) -- Number of alive agents controlled by you
     for i=0,myAgentCount-1 do
         
         -- Write an action using print()
         -- To debug: io.stderr:write("Debug message\n")
-        
-
         -- One line per agent: <agentId>;<action1;action2;...> actions are "MOVE x y | SHOOT id | THROW x y | HUNKER_DOWN | MESSAGE text"
         if i == 0 then
-    print(string.format("MOVE 6 3"))
+    print(string.format("SHOOT %d",agentToShoot))
 else
-    print(string.format("MOVE 6 1"))
+    print(string.format("SHOOT %d",lastAgentToShoot))
 end
     end
 end
