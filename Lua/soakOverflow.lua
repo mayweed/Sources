@@ -1,9 +1,9 @@
--- Win the water fight by controlling the most territory, or out-soak your opponent!
-
 myId = tonumber(io.read()) -- Your player id (0 or 1)
 agentDataCount = tonumber(io.read()) -- Total number of agents in the game
+
 local myAgents = {}
 local oppAgents = {}
+
 for i=0,agentDataCount-1 do
     -- agentId: Unique identifier for this agent
     -- player: Player id of this agent
@@ -51,7 +51,7 @@ for i=0,height-1 do
         y = tonumber(next_token())
         tileType = tonumber(next_token())
         if tileType ~= 0 then
-        io.stderr:write(string.format("tt is %d\n",tileType))
+        --io.stderr:write(string.format("tt is %d\n",tileType))
         end
         tiles[i][j] = {
             x =x,
@@ -68,7 +68,9 @@ end
 -- game loop
 while true do
     agentCount = tonumber(io.read()) -- Total number of agents still in the game
+
     local players = {}
+
     for i=0,agentCount-1 do
         -- cooldown: Number of turns before this agent can shoot
         -- wetness: Damage (0-100) this agent has taken
@@ -91,26 +93,34 @@ while true do
     end
 
     local oppPlayers = {}
+    local mePlayers = {}
     local bestWetness = 101
     local agentToShoot = -1
-    local lastAgentToShoot = -1
 
     for _, p in pairs(players) do
+        local isEnemy = false
         for _, enemy in ipairs(oppAgents) do
             if p.agentId == enemy.agentId then
-                
-                if p.wetness < bestWetness then
-                    lastAgentToShoot = agentToShoot
-                    bestWetness = p.wetness
-                    agentToShoot = p.agentId
-                end
-                table.insert(oppPlayers,p)
+                isEnemy = true
+                break
             end
+        end
+
+        if not isEnemy then 
+            table.insert(mePlayers,p) 
+        else 
+            table.insert(oppPlayers,p)
+        end
+    end
+
+    for _,p in ipairs(oppPlayers)do
+        if p.wetness < bestWetness then
+            bestWetness = p.wetness
+            agentToShoot = p.agentId
         end
     end
 
     --Si le wetness (trempage) d’un agent atteint 100 ou plus, il est retiré de la partie.
-    --Donc ça ne peut pas être lui l’agent à shooter…
     local secondBest
     for _,v in ipairs(oppPlayers) do
         if v.wetness < 100 then
@@ -119,7 +129,6 @@ while true do
         end
     end
 
-    io.stderr:write(string.format("%d",secondBest))
     local emptyTiles = {}
 
     for _, row in ipairs(tiles) do
@@ -132,8 +141,7 @@ while true do
     end
 
     myAgentCount = tonumber(io.read()) -- Number of alive agents controlled by you
-    
-    --si je suis visé, je dois bouger…not allowed in this league…
+
     for i=1, myAgentCount do 
         -- Write an action using print()
         -- To debug: io.stderr:write("Debug message\n")
