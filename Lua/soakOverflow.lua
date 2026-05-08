@@ -40,14 +40,24 @@ end
 next_token = string.gmatch(io.read(), "[^%s]+")
 width = tonumber(next_token())
 height = tonumber(next_token())
+local tiles = {}
 for i=0,height-1 do
     next_token = string.gmatch(io.read(), "[^%s]+")
+    tiles[i] = {}
     for j=0,width-1 do
         -- x: X coordinate, 0 is left edge
         -- y: Y coordinate, 0 is top edge
         x = tonumber(next_token())
         y = tonumber(next_token())
         tileType = tonumber(next_token())
+        if tileType ~= 0 then
+        io.stderr:write(string.format("tt is %d\n",tileType))
+        end
+        tiles[i][j] = {
+            x =x,
+            y=y,
+            tileType=tileType,
+        }
     end
 end
 
@@ -77,32 +87,40 @@ while true do
     end
 
 
-local bestWetness = 101
-local agentToShoot = -1
-local lastAgentToShoot = -1
+    local bestWetness = 101
+    local agentToShoot = -1
+    local lastAgentToShoot = -1
 
-for _, p in pairs(players) do
-    for _, enemy in ipairs(oppAgents) do
-        if p.agentId == enemy.agentId then
-            if p.wetness < bestWetness then
-                lastAgentToShoot = agentToShoot
-                bestWetness = p.wetness
-                agentToShoot = p.agentId
+    for _, p in pairs(players) do
+        for _, enemy in ipairs(oppAgents) do
+            if p.agentId == enemy.agentId then
+                if p.wetness < bestWetness then
+                    lastAgentToShoot = agentToShoot
+                    bestWetness = p.wetness
+                    agentToShoot = p.agentId
+                end
             end
         end
     end
-end
+
+    local emptyTiles = {}
+
+    for _, row in ipairs(tiles) do
+        for _, tile in ipairs(row) do
+            if tile.tileType == 0 then
+                table.insert(emptyTiles, tile)
+                --io.stderr:write(string.format("Empty tile at x=%d y=%d\n", tile.x, tile.y))
+            end
+        end
+    end
 
     myAgentCount = tonumber(io.read()) -- Number of alive agents controlled by you
-    for i=0,myAgentCount-1 do
-        
+    
+    --si je suis visé, je dois bouger…not allowed in this league…
+    for i=1, myAgentCount do 
         -- Write an action using print()
         -- To debug: io.stderr:write("Debug message\n")
         -- One line per agent: <agentId>;<action1;action2;...> actions are "MOVE x y | SHOOT id | THROW x y | HUNKER_DOWN | MESSAGE text"
-        if i == 0 then
-    print(string.format("SHOOT %d",agentToShoot))
-else
-    print(string.format("SHOOT %d",lastAgentToShoot))
-end
+        print(string.format("%d;SHOOT %d",i,agentToShoot))
     end
 end
