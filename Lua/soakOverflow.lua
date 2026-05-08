@@ -61,6 +61,10 @@ for i=0,height-1 do
     end
 end
 
+function manhattan(x1, y1, x2, y2)
+    return math.abs(x1 - x2) + math.abs(y1 - y2)
+end
+
 -- game loop
 while true do
     agentCount = tonumber(io.read()) -- Total number of agents still in the game
@@ -86,7 +90,7 @@ while true do
         }
     end
 
-
+    local oppPlayers = {}
     local bestWetness = 101
     local agentToShoot = -1
     local lastAgentToShoot = -1
@@ -94,15 +98,28 @@ while true do
     for _, p in pairs(players) do
         for _, enemy in ipairs(oppAgents) do
             if p.agentId == enemy.agentId then
+                
                 if p.wetness < bestWetness then
                     lastAgentToShoot = agentToShoot
                     bestWetness = p.wetness
                     agentToShoot = p.agentId
                 end
+                table.insert(oppPlayers,p)
             end
         end
     end
 
+    --Si le wetness (trempage) d’un agent atteint 100 ou plus, il est retiré de la partie.
+    --Donc ça ne peut pas être lui l’agent à shooter…
+    local secondBest
+    for _,v in ipairs(oppPlayers) do
+        if v.wetness < 100 then
+            secondBest = v.agentId
+            break
+        end
+    end
+
+    io.stderr:write(string.format("%d",secondBest))
     local emptyTiles = {}
 
     for _, row in ipairs(tiles) do
@@ -121,6 +138,6 @@ while true do
         -- Write an action using print()
         -- To debug: io.stderr:write("Debug message\n")
         -- One line per agent: <agentId>;<action1;action2;...> actions are "MOVE x y | SHOOT id | THROW x y | HUNKER_DOWN | MESSAGE text"
-        print(string.format("%d;SHOOT %d",i,agentToShoot))
+        print(string.format("%d;SHOOT %d",i,secondBest)) --agentToShoot))
     end
 end
