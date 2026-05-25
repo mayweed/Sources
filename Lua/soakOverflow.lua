@@ -61,15 +61,17 @@ for i=0,height-1 do
     end
 end
 
-function manhattan(x1, y1, x2, y2)
-    return math.abs(x1 - x2) + math.abs(y1 - y2)
+function manhattan(a, b)
+    return math.abs(a.x - b.x) + math.abs(a.y - b.y)
 end
+
 
 -- game loop
 while true do
     agentCount = tonumber(io.read()) -- Total number of agents still in the game
 
     local players = {}
+    local commands = {} --store the commands needed
 
     for i=0,agentCount-1 do
         -- cooldown: Number of turns before this agent can shoot
@@ -113,39 +115,78 @@ while true do
         end
     end
 
-    for _,p in ipairs(oppPlayers)do
-        if p.wetness < bestWetness then
-            bestWetness = p.wetness
-            agentToShoot = p.agentId
-        end
-    end
+    table.sort(players, function(a,b)
+        return a.agentId < b.agentId end )
 
-    --Si le wetness (trempage) d’un agent atteint 100 ou plus, il est retiré de la partie.
-    local secondBest
-    for _,v in ipairs(oppPlayers) do
-        if v.wetness < 100 then
-            secondBest = v.agentId
-            break
-        end
-    end
-
+-- func parseTiles() ?
     local emptyTiles = {}
+    local lowCover = {}
+    local highCover = {}
 
+    --transformer en func pour trier les tuiles
     for _, row in ipairs(tiles) do
         for _, tile in ipairs(row) do
             if tile.tileType == 0 then
                 table.insert(emptyTiles, tile)
-                --io.stderr:write(string.format("Empty tile at x=%d y=%d\n", tile.x, tile.y))
+            end
+            if tile.tileType == 1 then
+                table.insert(lowCover, tile)
+            end
+            if tile.tileType == 2 then
+                table.insert(highCover, tile)
             end
         end
     end
 
-    myAgentCount = tonumber(io.read()) -- Number of alive agents controlled by you
+    for _,p in ipairs(mePlayers) do
+        local bestDist = math.huge
+        local bestTile = nil
 
-    for i=1, myAgentCount do 
+        for i,t in ipairs(highCover)do          
+            local dist = manhattan(p,t)
+          
+            if  dist < bestDist then
+                bestDist = dist
+                bestTile = t
+                bestIndex = i
+            end
+        end
+            
+            if bestTile then
+                table.insert(commands, { 
+                    player = p.agentId,
+                    action = "MOVE",
+                    x = bestTile.x,
+                    y = bestTile.y
+                })
+                table.remove(highCover,bestIndex)
+            end
+           
+    end 
+
+    for _,c in ipairs(commands)do
+        io.stderr:write(c.player..","..c.action..","..c.x..","..c.y.."\n")
+    end
+end
+
+
+
+
+
+
+--[[
+    myAgentCount = tonumber(io.read()) -- Number of alive agents controlled by you
+    --for i=1, myAgentCount do 
         -- Write an action using print()
         -- To debug: io.stderr:write("Debug message\n")
         -- One line per agent: <agentId>;<action1;action2;...> actions are "MOVE x y | SHOOT id | THROW x y | HUNKER_DOWN | MESSAGE text"
-        print(string.format("%d;SHOOT %d",i,secondBest)) --agentToShoot))
+        --print(string.format("%d;SHOOT %d",i,secondBest)) --agentToShoot))
     end
 end
+]]
+
+--[[
+TODO 
+Chercher l’agent ennemi le moins bien protégé et tirer.
+
+]]
