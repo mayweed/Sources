@@ -1,4 +1,5 @@
 package main
+
 //test
 import (
 	"fmt"
@@ -32,11 +33,11 @@ func getDir(from, to Point) string {
 }
 
 type TronState struct {
-    Width, Height int
-    walls  map[Point]int //to get the player who blocks the cell
+	Width, Height int
+	walls         map[Point]int //to get the player who blocks the cell
 
-    myPos  Point
-    oppPos Point
+	myPos  Point
+	oppPos Point
 
 	alive map[int]bool
 
@@ -44,52 +45,52 @@ type TronState struct {
 }
 
 func NewTronState(width, height int) TronState {
-    return TronState{
-        Width:   width,
-        Height: height,
-        walls:  make(map[Point]int),
-		alive : make(map[int]bool),
-    }
+	return TronState{
+		Width:  width,
+		Height: height,
+		walls:  make(map[Point]int),
+		alive:  make(map[int]bool),
+	}
 }
 
 func (t TronState) isFree(c Point) bool {
-	owner,ok := t.walls[c]
+	owner, ok := t.walls[c]
 	return !ok || !t.alive[owner]
 }
 
-//idea : for each adjacent of a given cell do a floodfill and go
-//for the max one
+// idea : for each adjacent of a given cell do a floodfill and go
+// for the max one
 func (t TronState) getAdjacent(c Point) []Point {
-    var adj []Point
+	var adj []Point
 
-    dirs := []Point{{1, 0}, {-1, 0}, {0, 1}, {0, -1}}
+	dirs := []Point{{1, 0}, {-1, 0}, {0, 1}, {0, -1}}
 
-    for _, d := range dirs {
-        n := Point{c.x + d.x, c.y + d.y}
+	for _, d := range dirs {
+		n := Point{c.x + d.x, c.y + d.y}
 
-        if n.x < 0 || n.x >= WIDTH || n.y < 0 || n.y >= HEIGHT {
-            continue
-        }
-        if t.isBlocked(n) {
-            continue
-        }
-        adj = append(adj, n)
-    }
-    return adj
+		if n.x < 0 || n.x >= WIDTH || n.y < 0 || n.y >= HEIGHT {
+			continue
+		}
+		if t.isBlocked(n) {
+			continue
+		}
+		adj = append(adj, n)
+	}
+	return adj
 }
 
 func (t TronState) isBlocked(p Point) bool {
-    owner, ok := t.walls[p]
-    return ok && t.alive[owner]
+	owner, ok := t.walls[p]
+	return ok && t.alive[owner]
 }
 
-//when a player dies remove the walls
+// when a player dies remove the walls
 func (state *TronState) RemovePlayerwalls(playerID int) {
-    for p, owner := range state.walls {
-        if owner == playerID {
-            delete(state.walls, p)
-        }
-    }
+	for p, owner := range state.walls {
+		if owner == playerID {
+			delete(state.walls, p)
+		}
+	}
 }
 
 //replace by a voronoi?
@@ -164,76 +165,76 @@ func (t TronState) fill(from Point) int {
 
 // test split detection : bfs, je parcours si je trouve connexion true sinon false
 func (t TronState) connected(a, b Point) bool {
-    visited := make(map[Point]bool)
-    queue := []Point{a}
-    visited[a] = true
+	visited := make(map[Point]bool)
+	queue := []Point{a}
+	visited[a] = true
 
-    for len(queue) > 0 {
-        cur := queue[0]
-        queue = queue[1:]
+	for len(queue) > 0 {
+		cur := queue[0]
+		queue = queue[1:]
 
-        if cur == b {
-            return true
-        }
+		if cur == b {
+			return true
+		}
 
-        for _, n := range t.getAdjacent(cur) {
-            if !visited[n] {
-                visited[n] = true
-                queue = append(queue, n)
-            }
-        }
-    }
-    return false
+		for _, n := range t.getAdjacent(cur) {
+			if !visited[n] {
+				visited[n] = true
+				queue = append(queue, n)
+			}
+		}
+	}
+	return false
 }
 
 func (t TronState) think() {
-    adj := t.getAdjacent(t.myPos)
+	adj := t.getAdjacent(t.myPos)
 
-    bestScore := -1 << 30
-    bestPoint := Point{}
+	bestScore := -1 << 30
+	bestPoint := Point{}
 
 	split := !t.connected(t.myPos, t.oppPos)
 
-    for _, cell := range adj {
-        score := 0
+	for _, cell := range adj {
+		score := 0
 
-        mySpace := t.fill(cell)
-        if mySpace < 3 {
-            score -= 1000
-        } 
+		mySpace := t.fill(cell)
+		if mySpace < 3 {
+			score -= 1000
+		}
 
-        if mySpace > 50 {
-            mySpace = 50
-        }
-        score += mySpace
+		if mySpace > 50 {
+			mySpace = 50
+		}
+		score += mySpace
 
-        // Bonus de mobilité
-        score += len(t.getAdjacent(cell)) * 5
-		
+		// Bonus de mobilité
+		score += len(t.getAdjacent(cell)) * 5
+
 		if split {
-            // ENDGAME : je suis seul
-            score += mySpace * 10
-        } else {
-            // JEU NORMAL
-            oppSpace := t.fill(t.oppPos)
-            score += (mySpace - oppSpace) * 2
-        }
-/*
-		oppSpace := t.fill(t.oppPos)
-		diff := mySpace - oppSpace
-		score += diff*2 //pondération
-*/
-        if score > bestScore {
-            bestScore = score
-            bestPoint = cell
-        }
-    }
+			// ENDGAME : je suis seul
+			score += mySpace * 10
+		} else {
+			// JEU NORMAL
+			oppSpace := t.fill(t.oppPos)
+			score += (mySpace - oppSpace) * 2
+		}
+		/*
+			oppSpace := t.fill(t.oppPos)
+			diff := mySpace - oppSpace
+			score += diff*2 //pondération
+		*/
+		if score > bestScore {
+			bestScore = score
+			bestPoint = cell
+		}
+	}
 
-    if bestScore > -1<<29 {
-        fmt.Println(getDir(t.myPos, bestPoint))
-    } else {
-        fmt.Println("UP")
-    }
+	if bestScore > -1<<29 {
+		fmt.Println(getDir(t.myPos, bestPoint))
+	} else {
+		fmt.Println("UP")
+	}
 }
 
 func main() {
@@ -245,7 +246,7 @@ func main() {
 	actions["UP"] = []int{0, -1}
 	actions["DOWN"] = []int{0, 1}
 
-	state := NewTronState(WIDTH,HEIGHT)
+	state := NewTronState(WIDTH, HEIGHT)
 
 	for {
 		// N: total number of players (2 to 4).
@@ -262,21 +263,21 @@ func main() {
 			var X0, Y0, X1, Y1 int
 			fmt.Scan(&X0, &Y0, &X1, &Y1)
 
-			if X0 == -1 && Y0 == -1 && X1 == -1 && Y1 == -1{
+			if X0 == -1 && Y0 == -1 && X1 == -1 && Y1 == -1 {
 				state.alive[i] = false
 				state.RemovePlayerwalls(i)
-			}else{
-				state.alive[i]=true
-			}
-			
-			if i == state.myId {
-				state.myPos = Point{X1,Y1}
-			}else{
-				state.oppPos = Point{X1,Y1}
+			} else {
+				state.alive[i] = true
 			}
 
-			state.walls[Point{X1,Y1}] = i 
-			
+			if i == state.myId {
+				state.myPos = Point{X1, Y1}
+			} else {
+				state.oppPos = Point{X1, Y1}
+			}
+
+			state.walls[Point{X1, Y1}] = i
+
 		}
 		state.think()
 	}
