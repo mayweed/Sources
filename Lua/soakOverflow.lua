@@ -124,6 +124,52 @@ function hasLowCover(x, y)
 
     return false
 end
+
+function getBestCoverPosition(coverTile, enemies)
+    local dirs = {
+        {0,-1},
+        {0,1},
+        {-1,0},
+        {1,0}
+    }
+
+    local best = nil
+
+    for _,d in ipairs(dirs) do
+        local nx = coverTile.x + d[1]
+        local ny = coverTile.y + d[2]
+
+        if nx >= 0 and nx < width and ny >= 0 and ny < height then
+            if tiles[ny][nx].tileType == 0 then
+                local pos = {x = nx, y = ny}
+
+                if isGoodSide(pos, coverTile, enemies) then
+                    return pos -- jackpot direct
+                end
+
+                if not best then
+                    best = pos -- fallback
+                end
+            end
+        end
+    end
+
+    return best
+end
+
+function isGoodSide(pos, cover, enemies)
+    for _,e in ipairs(enemies) do
+        -- si la cover est entre toi et l'ennemi
+        if (pos.x < cover.x and e.x >= cover.x)
+        or (pos.x > cover.x and e.x <= cover.x)
+        or (pos.y < cover.y and e.y >= cover.y)
+        or (pos.y > cover.y and e.y <= cover.y) then
+            return true
+        end
+    end
+    return false
+end
+
     
 --[[ game loop
 TODO 
@@ -182,33 +228,42 @@ while true do
         return a.agentId < b.agentId end )
 
     for _,p in ipairs(mePlayers) do
-        local bestDist = math.huge
-        local bestTile = nil
+    local bestDist = math.huge
+    local bestTile = nil
+    local bestIndex = nil
+     local bestMove = nil
 
-        for i,t in ipairs(highCover)do          
+    for i,t in ipairs(highCover) do          
+        --local pos = getBestCoverPosition(t,oppPlayers)
+        --if pos then
             local dist = manhattan(p,t)
-            
-            if  dist < bestDist then
+
+            if dist < bestDist  then
                 bestDist = dist
                 bestTile = t
+                --bestMove = pos
                 bestIndex = i
             end
-        end
+        --end
+    end
                 
-        if bestTile then
+    if bestTile then
+        --if bestMove then
             table.insert(commands, { 
                 player = p.agentId,
                 action = "MOVE",
                 x = bestTile.x,
                 y = bestTile.y
-                })
-        table.remove(highCover,bestIndex)
-        end      
-    end 
+            })
+        --end
 
+        table.remove(highCover, bestIndex)
+    end      
+end
+    -- on part de la case où le jour sera…
     for _,p in ipairs(oppPlayers) do
        if hasNoCover(p.x,p.y) then
-        local pToShoot = p
+        pToShoot = p
         --- elseif pToShoot is empty then check the one with lowest cover
        end
        --if not pToShoot then
@@ -217,7 +272,7 @@ while true do
         --
         if pToShoot then
         table.insert(commands, { 
-                player = pToShoot.agentId, --non!! c’est l’id de l’agent qui doit tirer!!
+                player = p.agentId, --non!! c’est l’id de l’agent qui doit tirer!!
                 action = "SHOOT",
                 x = pToShoot.x,
                 y = pToShoot.y
@@ -233,18 +288,27 @@ while true do
 
     local out = {}
 
-for _,c in ipairs(commands) do
-    if c.action == "MOVE" then
-        table.insert(out,
-            string.format("%d;MOVE %d %d",
-                c.player, c.x, c.y))
-    elseif c.action == "SHOOT" then
-        table.insert(out,
-            string.format("%d;SHOOT %d %d",
-                c.player, c.x, c.y))
+
+for _,p in ipairs(mePlayers) do
+    local c = commands[p.agentId]
+    
+    if c then
+        local parts = {}
+        
+        if c.move then
+            table.insert(parts, string.format("MOVE %d %d", c.move.x, c.move.y))
+        end
+        
+        if c.shoot then
+            table.insert(parts, string.format("SHOOT %d", c.shoot))
+        end
+        
+        -- concat des actions avec ;
+        print(string.format("%d;%s",
+            p.agentId,
+            table.concat(parts, ";")
+        ))
     end
 end
-
-print(table.concat(out, ";"))
 
 end
