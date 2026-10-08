@@ -10,6 +10,38 @@ bool checkDiag(...);
 bool checkWinner(...);
 */
 
+bool checkRow (int n, int g,char board[n][n+1]){
+    int countX = 0;
+    int countO = 0;
+
+    //store cell’s index
+    int winRow[g]; 
+    int winCol[g] ;
+
+    for (int i = 0; i < n; i++){
+        for (int j = 0; j <n; j++){
+            if (board[i][j] == 'X') {
+                countX ++;
+                countO = 0;
+                winRow[countX-1] = i;
+                winCol[countX-1]=j;
+            } else if (board[i][j] == 'O'){
+                countX = 0;
+                countO +=1;
+                winRow[countO-1] = i;
+                winCol[countO-1]=j;
+            }
+            if (countX == g){
+                printf("We have a winner X");
+            }
+            else if (countO == g){
+                printf("O got it");
+            }
+
+        }
+    }
+}
+
 int main()
 {
     int n;
