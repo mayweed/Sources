@@ -3,24 +3,12 @@
 #include <string.h>
 #include <stdbool.h>
 
-/*
-bool checkRow(...);
-bool checkColumn(...);
-bool checkDiag(...);
-bool checkWinner(...);
-
-je checke d’abord s’il y a un winner, 
-ensuite je regarde s’il reste des espaces libres, 
-si oui ça n’est pas fini 
-sinon c’est un draw, c’est bien ça?
-*/
-
 typedef enum {
-    //IN_PROGRESS,
     NO_WINNER,
+    IN_PROGRESS,
     X_WIN,
-    O_WIN
-    //DRAW
+    O_WIN,
+    DRAW
 } GameState;
 
 GameState checkCol (int n, int g, char board[n][n+1]){
@@ -173,6 +161,36 @@ GameState checkDiagBottomUp(int n, int g, char board[n][n+1]){
     return NO_WINNER;
 }
 
+GameState checkWinner(int n, int g, char board[n][n+1])
+{
+    GameState state;
+
+    state = checkCol(n, g, board);
+    if (state != NO_WINNER)
+        return state;
+
+    state = checkRow(n, g, board);
+    if (state != NO_WINNER)
+        return state;
+
+    state = checkDiagTopBottom(n, g, board);
+    if (state != NO_WINNER)
+        return state;
+
+    state = checkDiagBottomUp(n, g, board);
+    if (state != NO_WINNER)
+        return state;
+
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            if (board[i][j] == ' ')
+                return IN_PROGRESS;
+        }
+    }
+
+    return DRAW;
+}
+
 int main()
 {
     int n;
@@ -190,7 +208,10 @@ int main()
    
     // Write an answer using printf(). DON'T FORGET THE TRAILING \n
     //fprintf(stderr, "%c\n",board[1][0]);
-
+    fprintf(stderr, "checkRow -> %d\n", checkRow(n,g,board));
+    fprintf(stderr, "checkCol -> %d\n", checkCol(n,g,board));
+    fprintf(stderr, "checkDiagTB -> %d\n", checkDiagTopBottom(n,g,board));
+    fprintf(stderr, "checkDiagBU -> %d\n", checkDiagBottomUp(n,g,board));
     printf("Answer\n");
 
     return 0;
