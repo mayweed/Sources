@@ -11,7 +11,20 @@ typedef enum {
     DRAW
 } GameState;
 
-GameState checkCol (int n, int g, char board[n][n+1]){
+typedef struct {
+    GameState state;
+    int row[13];
+    int col[13];
+    char symbol;
+    const char* message;
+} WinInfo;
+
+WinInfo checkCol (int n, int g, char board[n][n+1]){
+    //à mettre dans une func
+    WinInfo info;
+    info.state = NO_WINNER;
+    info.symbol = ' ';
+
     //store cell’s index
     int winRow[g]; 
     int winCol[g] ;
@@ -35,18 +48,37 @@ GameState checkCol (int n, int g, char board[n][n+1]){
                 countO = 0;
             }
             if (countX == g){
-                return X_WIN;
+                info.state = X_WIN;
+                for (int k = 0; k < g; k++){
+                    info.row[k] = winRow[k];
+                    info.col[k] = winCol[k];
+                }
+               info.symbol = '|';
+               info.message = "The winner is X.\n";
+               return info;
             }
             else if (countO == g){
-                return O_WIN;
+                 info.state = O_WIN;
+                for (int k = 0; k < g; k++){
+                    info.row[k] = winRow[k];
+                    info.col[k] = winCol[k];
+                }
+               info.symbol = '|';
+               info.message = "The winner is O.\n";
+               return info;
             }
 
         }
     }
-    return NO_WINNER;
+    return info;
 }
 
-GameState checkRow (int n, int g,char board[n][n+1]){
+WinInfo checkRow (int n, int g,char board[n][n+1]){
+    //à mettre dans une func
+    WinInfo info;
+    info.state = NO_WINNER;
+    info.symbol = ' ';
+
     //store cell’s index
     int winRow[g]; 
     int winCol[g] ;
@@ -70,15 +102,29 @@ GameState checkRow (int n, int g,char board[n][n+1]){
                 countO = 0;
             }
             if (countX == g){
-                return X_WIN;
+                info.state = X_WIN;
+                for (int k = 0; k < g; k++){
+                    info.row[k] = winRow[k];
+                    info.col[k] = winCol[k];
+                }
+                info.message = "The winner is X.\n";
+                info.symbol = '-';
+                return info;
             }
             else if (countO == g){
-                return O_WIN;
+                 info.state = O_WIN;
+                for (int k = 0; k < g; k++){
+                    info.row[k] = winRow[k];
+                    info.col[k] = winCol[k];
+                }
+                info.message = "The winner is O.\n";
+                info.symbol = '-';
+                return info;
             }
 
         }
     }
-    return NO_WINNER;
+    return info;
 }
 
 /*
@@ -86,7 +132,12 @@ GameState checkRow (int n, int g,char board[n][n+1]){
 
 ↙  dRow = +1  dCol = -1
 */
-GameState checkDiagTopBottom(int n, int g, char board[n][n+1]){
+WinInfo checkDiagTopBottom(int n, int g, char board[n][n+1]){
+    //à mettre dans une func
+    WinInfo info;
+    info.state = NO_WINNER;
+    info.symbol = ' ';
+    
     //store cell’s index
     int winRow[g]; 
     int winCol[g] ;
@@ -113,17 +164,37 @@ GameState checkDiagTopBottom(int n, int g, char board[n][n+1]){
             }
 
             if (countPlayer >= g) {
-                if (player == 'X')
-                    return X_WIN;
-                else
-                    return O_WIN;
+                if (player == 'X'){
+                    info.state = X_WIN;
+                for (int k = 0; k < g; k++){
+                    info.row[k] = winRow[k];
+                    info.col[k] = winCol[k];
+                }
+                info.message = "The winner is X.\n";
+                    info.symbol = '\\';
+                    return info;
+                } else if (player == 'O'){
+                    info.state = O_WIN;
+                for (int k = 0; k < g; k++){
+                    info.row[k] = winRow[k];
+                    info.col[k] = winCol[k];
+                }
+                info.message = "The winner is O.\n";
+                    info.symbol = '\\';
+                    return info;
+                }
             }
         }
     }
-    return NO_WINNER;
+    return info;
 }
 
-GameState checkDiagBottomUp(int n, int g, char board[n][n+1]){
+WinInfo checkDiagBottomUp(int n, int g, char board[n][n+1]){
+    //à mettre dans une func
+    WinInfo info;
+    info.state = NO_WINNER;
+    info.symbol = ' ';
+    
     //store cell’s index
     int winRow[g]; 
     int winCol[g] ;
@@ -151,44 +222,71 @@ GameState checkDiagBottomUp(int n, int g, char board[n][n+1]){
             }
 
             if (countPlayer >= g) {
-                if (player == 'X')
-                    return X_WIN;
-                else
-                    return O_WIN;
+                if (player == 'X'){
+                    info.state = X_WIN;
+                for (int k = 0; k < g; k++){
+                    info.row[k] = winRow[k];
+                    info.col[k] = winCol[k];
+                }
+                info.message = "The winner is X.\n";
+                    info.symbol = '/';
+                    return info;
+                } else if (player == 'O'){
+                    info.state = O_WIN;
+                for (int k = 0; k < g; k++){
+                    info.row[k] = winRow[k];
+                    info.col[k] = winCol[k];
+                }
+                info.message = "The winner is O.\n";
+                    info.symbol = '/';
+                    return info;
+                }
             }
         }
     }
-    return NO_WINNER;
+    return info;
 }
 
-GameState checkWinner(int n, int g, char board[n][n+1])
+WinInfo checkWinner(int n, int g, char board[n][n+1])
 {
-    GameState state;
+   //à mettre dans une func
+    WinInfo info;
+    info.state = NO_WINNER;
+    info.symbol = ' ';
 
-    state = checkCol(n, g, board);
-    if (state != NO_WINNER)
-        return state;
+    WinInfo c = checkCol(n, g, board);
+    if (c.state != NO_WINNER){
+        //modify board
+        //for (int i = 0; i < g; i++) {
+        //board[c.row[i]][c.col[i]] = c.symbol;
+        //}
+    return c;
+    }
 
-    state = checkRow(n, g, board);
-    if (state != NO_WINNER)
-        return state;
+    c = checkRow(n, g, board);
+    if (c.state != NO_WINNER)
+        return c;
 
-    state = checkDiagTopBottom(n, g, board);
-    if (state != NO_WINNER)
-        return state;
+    c = checkDiagTopBottom(n, g, board);
+    if (c.state != NO_WINNER)
+        return c;
 
-    state = checkDiagBottomUp(n, g, board);
-    if (state != NO_WINNER)
-        return state;
+    c = checkDiagBottomUp(n, g, board);
+    if (c.state != NO_WINNER)
+        return c;
 
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < n; j++) {
-            if (board[i][j] == ' ')
-                return IN_PROGRESS;
+            if (board[i][j] == ' '){
+                info.state = IN_PROGRESS;
+                info.message = "The game isn't over yet!\n";
+                return info;
+            }
         }
     }
-
-    return DRAW;
+    info.message = "The game ended in a draw!\n";
+    info.state = DRAW;
+    return info;
 }
 
 int main()
@@ -205,14 +303,27 @@ int main()
             board[i][j]=row[j];
         }
     }
-   
+    WinInfo winner = checkWinner(n,g,board);
+
+    // on change le contenu des cases
+    if (winner.state == X_WIN || winner.state == O_WIN){
+        for (int i = 0; i < g; i++){
+            board[winner.row[i]][winner.col[i]] = winner.symbol;
+        }
+
+    }
+
+    // on affiche la grille
+    for (int i = 0; i < n; i++){
+        for (int j = 0; j < n; j++){
+            printf("%c", board[i][j]);
+        }
+        printf("\n");
+    }
+
     // Write an answer using printf(). DON'T FORGET THE TRAILING \n
     //fprintf(stderr, "%c\n",board[1][0]);
-    fprintf(stderr, "checkRow -> %d\n", checkRow(n,g,board));
-    fprintf(stderr, "checkCol -> %d\n", checkCol(n,g,board));
-    fprintf(stderr, "checkDiagTB -> %d\n", checkDiagTopBottom(n,g,board));
-    fprintf(stderr, "checkDiagBU -> %d\n", checkDiagBottomUp(n,g,board));
-    printf("Answer\n");
+    printf("%s",winner.message);
 
     return 0;
 }
