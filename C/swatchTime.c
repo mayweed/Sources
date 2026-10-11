@@ -12,13 +12,31 @@ void parseInput(char* rawtime){
 
 //convert from a given timezone to Biel tz
 //float convert (int h, in)
+/*
 
+*/
 int main()
 {
-    char rawtime[21] = "";
-    scanf("%[^\n]", rawtime);
+    //char rawtime[21] = "";
+    //fgets(rawtime, sizeof(rawtime), stdin);
 
-    fprintf(stderr,"%s",rawtime);
+    int h, m, s;
+    int utcH, utcM;
+    char sign;
+
+    //avec rawtime +fgets() possible d’utiliser sscanf(rawtime,...)
+    scanf("%d:%d:%d UTC%c%d:%d",
+        &h, &m, &s,
+        &sign,
+        &utcH, &utcM);
+        
+    //fprintf(stderr,"[%s]\n",rawtime);
+    fprintf(stderr,
+        "h=%d m=%d s=%d sign=%c utcH=%d utcM=%d\n",
+        h, m, s,
+        sign,
+        utcH, utcM);
+
     // Write an answer using printf(). DON'T FORGET THE TRAILING \n
     // To debug: fprintf(stderr, "Debug messages...\n");
 
