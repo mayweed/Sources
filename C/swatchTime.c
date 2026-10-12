@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
+#include <math.h>
 
 typedef struct {
     int h;
@@ -58,14 +59,13 @@ int main()
         &u.sign,
         &u.h, &u.m);
     
-    fprintf(stderr,
-        "h=%d m=%d s=%d sign=%c utcH=%d utcM=%d\n",
-        t.h, t.m, t.s,
-        u.sign,
-        u.h, u.m);
-
+    Time nt = convert(t,u);
+    
+    float beats = ((3600* nt.h)+(60*nt.m)+nt.s) / 86.4;
+    beats = floor(beats * 100.0 + 0.5) / 100.0;
+    
     // Write an answer using printf(). DON'T FORGET THE TRAILING \n
-    printf("answer\n");
+    printf("@%.2f\n", beats);
 
     return 0;
 }
