@@ -1,58 +1,57 @@
-#include <stdlib.h>
 #include <stdio.h>
-#include <string.h>
+#include <stdlib.h>
 
-#define CARD_MAX 57
-
-//Some values/cant start with a digit
-//une struct? avec deux mbres: le char* et un entier (pour ><?)
-const char* value= '2345678910JQKA';
-
-// Let's play with struct
-// Should retrieve those values correctly from input...
-struct card{
-    char* value;
-    char* suit;
-}card_p1,card_p2;
-
-//that should be a struct of arrays
-struct hand{
-    //struct card
-    char* card //initialize that with cardp??
-    int number;
+/* A card token is at most three characters (for example, 10H) plus '\0'. */
+struct card {
+    char text[4];
 };
 
-int main()
+struct hand {
+    struct card *cards;
+    size_t count;
+};
+
+static int read_hand(struct hand *hand)
 {
-    char cardp1[4];
-    char cardp2[4];
-    /*
-    make that a struct array:
-    handp[1] should be (a pointer to?) one card (value+suit)
-    so you create struct hand{struct card} handp!,handp2;
-    then initialize handp1[0] to the first card (OKI HOW in the hell??)
-    */
-    char handp1[n];
-    
-    int n; // the number of cards for player 1
-    scanf("%d", &n);
-    for (int i = 0; i < n; i++) {
-        char cardp1[4]; // the n cards of player 1
-        scanf("%s", cardp1);
-   //     handp1[i]=cardp1;
-    }
-    
-    int m; // the number of cards for player 2
-    scanf("%d", &m);
-    for (int i = 0; i < m; i++) {
-        char cardp2[4]; // the m cards of player 2
-        scanf("%s", cardp2);
-    }
-    
-    // Write an action using printf(). DON'T FORGET THE TRAILING \n
-    //fprintf(stderr,"%s %s",cardp1,cardp2);
+    int count;
 
-    //printf("PAT\n");
+    if (scanf("%d", &count) != 1 || count < 0) {
+        return 0;
+    }
 
-    return 0;
+    hand->count = (size_t)count;
+    hand->cards = calloc(hand->count, sizeof *hand->cards);
+    if (hand->count != 0 && hand->cards == NULL) {
+        return 0;
+    }
+
+    for (size_t i = 0; i < hand->count; ++i) {
+        if (scanf("%3s", hand->cards[i].text) != 1) {
+            free(hand->cards);
+            hand->cards = NULL;
+            hand->count = 0;
+            return 0;
+        }
+    }
+
+    return 1;
+}
+
+int main(void)
+{
+    struct hand player1 = { NULL, 0 };
+    struct hand player2 = { NULL, 0 };
+
+    if (!read_hand(&player1) || !read_hand(&player2)) {
+        fprintf(stderr, "Invalid or incomplete hand input\n");
+        free(player1.cards);
+        free(player2.cards);
+        return EXIT_FAILURE;
+    }
+
+    /* The hands are now available as player1.cards and player2.cards. */
+
+    free(player1.cards);
+    free(player2.cards);
+    return EXIT_SUCCESS;
 }
